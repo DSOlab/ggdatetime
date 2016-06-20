@@ -1,3 +1,16 @@
+///
+/// \file  datetime_read.hpp
+///
+/// \brief Function to read in ngpt::datetime objects from various input
+///        formats.
+///
+/// \see ngpt::datetime
+///
+/// \author xanthos
+///
+/// \bug No known bugs.
+///
+
 #ifndef __NGPT_DT_READERS__
 #define __NGPT_DT_READERS__
 
@@ -6,18 +19,23 @@
 #include <stdexcept>
 #include "dtfund.hpp"
 #include "dtcalendar.hpp"
+
 #ifdef DEBUG
 #include <iostream>
 #endif
 
 namespace ngpt {
 
-/// Read and return a date from a c-string of type:
-/// YYYY-MM-DD, where the delimeters can be whatever (but something,
-/// i.e. two numbers must be seperated by some char -- 20150930 is wrong --).
+/// \brief Read from YYYY-MM-DD
+///
+/// Read and return a date from a c-string of type: YYYY-MM-DD, where the 
+/// delimeters can be whatever (but something, i.e. two numbers must be 
+/// seperated by some char -- 20150930 is wrong --).
 /// Hours, minutes and seconds are set to 0.
 /// If the argument stop is passed, it will be set to the last character (of
 /// str) interpreted.
+///
+/// \throw std::invalid_argument if the input string cannot be resolved.
 template<typename T>
     datetime<T> strptime_ymd(const char* str, char** stop=nullptr)
 {
@@ -30,7 +48,8 @@ template<typename T>
         if (errno == ERANGE || start == end) {
             errno = 0;
             throw std::invalid_argument
-                ("Invalid date format: \""+std::string(str)+"\" (argument #" + std::to_string(i+1) + ").");
+                ("Invalid date format: \"" + std::string(str) 
+                + "\" (argument #" + std::to_string(i+1) + ").");
         }
         start = end+1;
     }
@@ -39,12 +58,16 @@ template<typename T>
         hours{0}, minutes{0}, T{0}};
 }
 
-/// Read and return a date from a c-string of type:
-/// YYYY-DDD, where the delimeters can be whatever (but something,
-/// i.e. two numbers must be seperated by some char -- 2015001 is wrong --).
+/// \brief Read from YYYY-DDD
+///
+/// Read and return a date from a c-string of type: YYYY-DDD, where the 
+/// delimeters can be whatever (but something, i.e. two numbers must be 
+/// seperated by some char -- 2015001 is wrong --).
 /// Hours, minutes and seconds are set to 0.
 /// If the argument stop is passed, it will be set to the last character (of
 /// str) interpreted.
+///
+/// \throw std::invalid_argument if the input string cannot be resolved.
 template<typename T>
     datetime<T> strptime_ydoy(const char* str, char** stop=nullptr)
 {
@@ -57,7 +80,8 @@ template<typename T>
         if (errno == ERANGE || start == end) {
             errno = 0;
             throw std::invalid_argument
-                ("Invalid date format: \""+std::string(str)+"\" (argument #" + std::to_string(i+1) + ").");
+                ("Invalid date format: \"" + std::string(str)
+                + "\" (argument #" + std::to_string(i+1) + ").");
         }
         start = end+1;
     }
@@ -66,12 +90,16 @@ template<typename T>
         minutes{0}, T{0}};
 }
 
-/// Read and return a date from a c-string of type:
-/// YYYY-MM-DD HH:MM:SS.SSSS, where the delimeters can be whatever (but something,
-/// i.e. two numbers must be seperated by some char -- 20150930 is wrong --).
+/// \brief Read from YYYY-MM-DD HH:MM:SS.SSSS
+///
+/// Read and return a date from a c-string of type: YYYY-MM-DD HH:MM:SS.SSSS,
+/// where the delimeters can be whatever (but something, i.e. two numbers must
+/// be seperated by some char -- 20150930 is wrong --).
 /// Seconds can be fractional or integer.
 /// If the argument stop is passed, it will be set to the last character (of
 /// str) interpreted.
+///
+/// \throw std::invalid_argument if the input string cannot be resolved.
 template<typename T>
     datetime<T> strptime_ymd_hms(const char* str, char** stop=nullptr)
 {
@@ -100,12 +128,16 @@ template<typename T>
         hours{ints[3]}, minutes{ints[4]}, secs};
 }
 
-/// Read and return a date from a c-string of type:
-/// YYYY-OOO-DD HH:MM:SS.SSSS, where the delimeters can be whatever (i.e. the
-/// month is a three letter identifier, in whatever case).
+/// \brief Read from YYYY-OOO-DD HH:MM:SS.SSSS
+///
+/// Read and return a date from a c-string of type: YYYY-OOO-DD HH:MM:SS.SSSS,
+/// where the delimeters can be whatever (i.e. the month is a three letter 
+/// identifier, in whatever case).
 /// Seconds can be fractional or integer.
 /// If the argument stop is passed, it will be set to the last character (of
 /// str) interpreted.
+///
+/// \throw std::invalid_argument if the input string cannot be resolved.
 template<typename T>
     datetime<T> strptime_yod_hms(const char* str, char** stop=nullptr)
 {
@@ -135,7 +167,8 @@ template<typename T>
         if (errno == ERANGE || start == end) {
             errno = 0;
             throw std::invalid_argument
-                ("Invalid date format: \""+std::string(str)+"\" (argument #" + std::to_string(i+1) + ").");
+                ("Invalid date format: \"" + std::string(str) 
+                +"\" (argument #" + std::to_string(i+1) + ").");
         }
         start = end+1;
     }
@@ -144,7 +177,7 @@ template<typename T>
     if (errno == ERANGE) {
         errno = 0;
         throw std::invalid_argument
-            ("Invalid date format: \""+std::string(str)+"\" (argument #6)");
+            ("Invalid date format: \"" + std::string(str) + "\" (argument #6)");
     }
     
     if (stop) *stop = end;
@@ -153,12 +186,16 @@ template<typename T>
         hours{ints[3]}, minutes{ints[4]}, secs};
 }
 
-/// Read and return a date from a c-string of type:
-/// YYYY-DDD HH:MM:SS.SSSS, where the delimeters can be whatever (but something,
-/// i.e. two numbers must be seperated by some char -- 2015001 is wrong --).
+/// \brief Read from YYYY-DDD HH:MM:SS.SSSS
+///
+/// Read and return a date from a c-string of type: YYYY-DDD HH:MM:SS.SSSS,
+/// where the delimeters can be whatever (but something, i.e. two numbers must
+/// be seperated by some char -- 2015001 is wrong --).
 /// Seconds can be fractional or integer.
 /// If the argument stop is passed, it will be set to the last character (of
 /// str) interpreted.
+///
+/// \throw std::invalid_argument if the input string cannot be resolved.
 template<typename T>
     datetime<T> strptime_ydoy_hms(const char* str, char** stop=nullptr)
 {
@@ -172,7 +209,8 @@ template<typename T>
         if (errno == ERANGE || start == end) {
             errno = 0;
             throw std::invalid_argument
-                ("Invalid date format: \""+std::string(str)+"\" (argument #" + std::to_string(i+1) + ").");
+                ("Invalid date format: \"" + std::string(str) 
+                + "\" (argument #" + std::to_string(i+1) + ").");
         }
         start = end+1;
     }
