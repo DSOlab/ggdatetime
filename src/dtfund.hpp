@@ -25,7 +25,7 @@
 #include <string>
 
 #ifdef DEBUG
-    #include <iostream>
+#include <iostream>
 #endif
 
 
@@ -130,10 +130,10 @@ public:
     /// Years are represented as integers.
     typedef int underlying_type;
 
-    /// Constructor.
+    /// Constructor; default year is 0.
     explicit constexpr year (underlying_type i=0) noexcept : m_year(i) {};
 
-    /// Get the underlying int.
+    /// Get the year as year::underlying_type
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_year; }
 
@@ -161,7 +161,7 @@ public:
     /// Months are represented as int.
     typedef int underlying_type;
 
-    /// Constructor.
+    /// Constructor; default month is 0.
     explicit constexpr month(underlying_type i=1) noexcept : m_month(i) {};
 
     /// \brief Constructor from c-string.
@@ -173,7 +173,7 @@ public:
     ///
     explicit month(const char* str);
 
-    /// Get the underlying int.
+    /// Get the month as month::underlying_type
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_month; }
 
@@ -181,21 +181,21 @@ public:
     const char* short_name() const noexcept { return short_names[m_month-1]; }
 
     /// Return the corresponding long name (i.e. normal month name) e.g. "January".
-    const char* long_name()  const noexcept { return long_names[m_month-1]; }
+    const char* long_name() const noexcept { return long_names[m_month-1]; }
 
     /// Check if the month is within the interval [1,12].
     bool is_valid() const noexcept { return m_month > 0 && m_month <= 12; }
 
 private:
-    /// Decleration of short month names. Note that we do need a definition
-    /// in the .cpp file.
+    /// \brief Decleration of short month names. 
+    /// \note  Note that we do need a definition in the .cpp file.
     constexpr static const char* short_names[] = {
         "Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     };
     
-    /// Decleration of long month names. Note that we do need a definition
-    /// in the .cpp file.
+    /// \brief  Decleration of long month names.
+    /// \note   Note that we do need a definition in the .cpp file.
     constexpr static const char* long_names[] = {
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
@@ -220,16 +220,16 @@ public:
     /// Days are represented as ints.
     typedef int underlying_type;
     
-    /// Constructor.
-    explicit constexpr day_of_month(underlying_type i=0) noexcept : m_dom(i) {};
+    /// Constructor; default day of month is 1.
+    explicit constexpr day_of_month(underlying_type i=1) noexcept : m_dom(i) {};
     
-    /// Get the underlying int.
+    /// Get the day_of_month as day_of_month::underlying_type
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_dom; }
 
 private:
     /// The day of month as underlying_type.
-    underlying_type m_dom;   
+    underlying_type m_dom;
 
 }; // class day_of_month
 
@@ -245,7 +245,7 @@ public:
     /// MJDs are represented as long ints.
     typedef long underlying_type;
     
-    /// Constructor.
+    /// Constructor; default Modified Julian Day is 0.
     explicit constexpr modified_julian_day(underlying_type i=0) noexcept
     : m_mjd(i) 
     {};
@@ -256,11 +256,11 @@ public:
     /// \param[in] id The day of year.
     /// \throw Does not throw.
     ///
-    /// \see    "Remondi Date/Time Algorithms", http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
+    /// \see "Remondi Date/Time Algorithms", http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
     ///
     explicit constexpr modified_julian_day(year iy, day_of_year id) noexcept;
     
-    /// Get the underlying long int.
+    /// Get the modified_julian_day as modified_julian_day::underlying_type
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_mjd; }
     
@@ -345,15 +345,15 @@ public:
     /// Day of year represented as int.
     typedef int underlying_type;
     
-    /// Constructor.
-    explicit constexpr day_of_year(underlying_type i=0) noexcept : m_doy(i) {};
+    /// Constructor; default day of year is 1.
+    explicit constexpr day_of_year(underlying_type i=1) noexcept : m_doy(i) {};
     
     /// Cast to underlying type
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_doy; }
 
 private:
-    /// The day of year as underlying type.
+    /// The day_of_year as day_of_year::underlying_type.
     underlying_type m_doy;   
 };
 
@@ -374,15 +374,15 @@ public:
     /// Hours are represented by ints.
     typedef int underlying_type;
     
-    /// Constructor
+    /// Constructor; default hours is 0.
     explicit constexpr hours(underlying_type i=0) noexcept : m_hours(i) {};
     
-    /// Pass the underlying type
+    /// Get the hours as hours::underlying_type
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_hours; }
 
 private:
-    /// The hours as underlying type.
+    /// The hours as hours::underlying_type
     underlying_type m_hours;
 
 }; // class hours
@@ -408,7 +408,7 @@ public:
     /// Constructor
     explicit constexpr minutes(underlying_type i=0) noexcept : m_min(i) {};
 
-    /// Pass the underlying type
+    /// Get the minutes as minutes::underlying_type
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_min; }
 
@@ -418,7 +418,23 @@ private:
 
 }; // class minutes
 
-/// A wrapper class for seconds.
+/// \brief A wrapper class for seconds.
+///
+/// seconds is just a wrapper class around long integer numbers, i.e. a second
+/// is just a long int and can be either positive or negative. Users are however
+/// restricted by integer overflow. The maximum number of days that can be
+/// expressed in seconds without fear of overflow is given by the template 
+/// function ngpt::max_days_allowed.
+/// Negative seconds are allowed (so that a user can perform basic operations
+/// like e.g. addition), but some functions expect only positive seconds
+/// (seconds::remove_days, seconds::to_days).
+/// seconds is a class which represents a second subdivision (as is 
+/// ngpt::milliseconds, ngpt::microseconds, etc); quite a few methods should be
+/// common to all of these classes, all of which have a member variable 
+/// seconds::is_of_sec_type which is set to true.
+///
+/// \see ngpt::milliseconds
+/// \see ngpt::microseconds
 class seconds {
 public:
     /// Seconds are represented as long ints.
@@ -427,20 +443,15 @@ public:
     /// Seconds is a subdivision of seconds.
     static constexpr bool is_of_sec_type { true };
     
-    /// Max seconds in day.
+    /// Seconds in day.
     static constexpr underlying_type max_in_day { 86400L };
 
-    /// The scale factor to transform from seconds.
+    /// The scale factor to transform from seconds to seconds.
     template<typename T>
         static constexpr T sec_factor() noexcept
     { return static_cast<T>(1); }
 
-    /// The scale factor to transform to seconds.
-    template<typename T>
-        static constexpr T sec_ifactor() noexcept
-    { return static_cast<T>(1); }
-
-    /// Constructor.
+    /// Constructor; default seconds is 0.
     explicit constexpr seconds(underlying_type i=0L) noexcept : m_sec(i) {};
 
     /// Constructor from hours, minutes, seconds.
@@ -451,6 +462,9 @@ public:
     {}
 
     /// Constructor from hours, minutes, fractional seconds.
+    ///
+    /// \note Only the integral part of the input seconds (fs) is considered;
+    ///       the fractional part is ommited.
     explicit constexpr seconds(hours h, minutes m, double fs) noexcept
     : m_sec{  static_cast<long>(fs)
             + m.as_underlying_type()*60L
@@ -472,10 +486,11 @@ public:
     { return seconds{m_sec+sec.m_sec}; }
 
     /// Overload operator '/'
+    /// \note This is integer division; no fractional part considered.
     constexpr seconds operator/(const seconds& n) const noexcept
     { return seconds{m_sec/n.m_sec}; }
   
-    /// Equality operator.  
+    /// Equality operator.
     constexpr bool operator==(const seconds& d) const noexcept
     { return m_sec == d.m_sec; }
 
@@ -498,27 +513,50 @@ public:
     /// Do the secods sum up to more than one day?
     constexpr bool more_than_day() const noexcept { return m_sec>max_in_day; }
     
-    /// Get the underlying type numeric.
+    /// Get the seconds as seconds::underlying_type .
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_sec; }
     
+    /// \brief Normalize seconds and return the integeral days.
+    ///
     /// If the seconds sum up to more (or equal to) one day, remove the integer
-    /// days (and return them); reset the seconds to seconds of the new day.
+    /// days and return them as integer; reset the seconds to seconds of the
+    /// new day.
+    ///
+    /// \return The integer number of days (if the seconds are more than a day).
+    /// \throw  Does not throw.
+    /// \bug    What about negative seconds?
+    ///
+    /// \note The calling instance cannot be negative (i don't knwo how to
+    ///       normalize negative seconds).
     constexpr int remove_days() noexcept
     {
+        assert( m_sec >= 0 );
         int d { static_cast<int>(m_sec/max_in_day) };
         m_sec%=max_in_day;
         return d;
     }
     
+    /// \brief Cast to days.
+    ///
     /// If the seconds sum up to more (or equal to) one day, return the 
     /// (integral) number of days.
+    ///
+    /// \return The integer number of days (if the seconds are more than a day).
+    /// \throw  Does not throw.
+    /// \bug    What about negative seconds?
+    ///
+    /// \note The calling instance cannot be negative (i don't knwo how to
+    ///       normalize negative seconds).
     constexpr int to_days() const noexcept
     {
+        assert( m_sec >= 0 );
         return static_cast<int>(m_sec/max_in_day);
     }
     
-    /// Interpret the seconds as fractional days.
+    /// \brief Seconds as fractional days.
+    ///
+    /// Interpret (cast) the seconds as fractional days; returns a double.
     constexpr double fractional_days() const noexcept
     {
         return static_cast<double>(m_sec)/static_cast<double>(max_in_day);
@@ -529,6 +567,7 @@ public:
     { return static_cast<double>(m_sec); }
 
     /// Translate to hours, minutes, seconds and fractional seconds
+    /// \bug needs mor documentation
     constexpr std::tuple<hours, minutes, seconds, long>
     to_hmsf() const noexcept
     {
@@ -551,9 +590,30 @@ private:
 
 }; // class seconds
 
-/// A wrapper class for milliseconds (i.e. 10**-3 sec).
-class milliseconds {
-
+/// \brief A wrapper class for milliseconds (i.e. 10**-3 sec).
+/// 
+/// milliseconds is just a wrapper class around long integer numbers, i.e. a
+/// millisecond is just a long int and can be either positive or negative. 
+/// Users are however restricted by integer overflow. The maximum number of days
+/// that can be expressed in milliseconds without fear of overflow is given by
+/// the template function ngpt::max_days_allowed.
+/// Negative milliseconds are allowed (so that a user can perform basic 
+/// operations like e.g. addition), but some functions expect only positive 
+/// milliseconds (milliseconds::remove_days, milliseconds::to_days).
+/// milliseconds is a class which represents a second subdivision (as is 
+/// ngpt::seconds, ngpt::microseconds, etc); quite a few methods should be 
+/// common to all of these classes, all of which have a member variable
+/// milliseconds::is_of_sec_type which is set to true.
+/// 
+/// \note milliseconds can be cast to ngpt::seconds (via a static_cast or
+/// a C-type cast) but the opposite is not true; i.e. ngpt::seconds cannot be
+/// cast to milliseconds. This is still an open question!
+///
+/// \see ngpt::seconds
+/// \see ngpt::microseconds
+///
+class milliseconds
+{
 public:
     /// MilliSeconds are represented as long ints.
     typedef long underlying_type;
@@ -564,16 +624,12 @@ public:
     /// Max milliseconds in one day.
     static constexpr long max_in_day { 86400L * 1000L };
 
+    /// The scale factor to transform from seconds to milliseconds.
     template<typename T>
         static constexpr T sec_factor() noexcept
     { return static_cast<T>(1000); }
 
-    /// The scale factor to transform to seconds.
-    template<typename T>
-        static constexpr T sec_ifactor() noexcept
-    { return ((static_cast<T>(1))/1000); }
-    
-    /// Constructor.
+    /// Constructor; default milliseconds is 0.
     explicit constexpr milliseconds(underlying_type i=0L) noexcept
     : m_msec(i)
     {};
@@ -581,20 +637,25 @@ public:
     /// Constructor from hours, minutes, milliseconds.   
     explicit constexpr milliseconds(hours h, minutes m, milliseconds c) noexcept
     : m_msec { c.as_underlying_type()
-        + m.as_underlying_type()*60L  *1000L
-        + h.as_underlying_type()*3600L*1000L}
+        + m.as_underlying_type()*60L  * sec_factor<long>()
+        + h.as_underlying_type()*3600L* sec_factor<long>()}
     {}
     
-    /// Constructor from hours, minutes, fractional seconds
+    /// \brief Constructor from hours, minutes, fractional seconds.
+    ///
+    /// Note that the fractional seconds are only considered with millisecond
+    /// precision; i.e. anything smaller than 10e-3 will not be considered (for
+    /// the fs input argument).
     explicit constexpr milliseconds(hours h, minutes m, double fs) noexcept
-    : m_msec{ static_cast<long>(fs*1000.0e0)
+    : m_msec{ static_cast<long>(fs * sec_factor<double>())
         + (m.as_underlying_type()*60L
-        + h.as_underlying_type()*3600L) * 1000L}
+        + h.as_underlying_type()*3600L) * sec_factor<long>()}
     {}
     
+    /// \brief Cast to ngpt::seconds.
     /// Milliseconds can be cast to seconds (with a loss of precission).
     constexpr explicit operator seconds() const
-    { return seconds{m_msec/1000L}; }
+    { return seconds{m_msec / sec_factor<long>()}; }
     
     /// Addition operator.
     constexpr milliseconds operator+(const milliseconds& sec) const noexcept
@@ -639,23 +700,48 @@ public:
     /// Do the milliseconds sum up to more than one day ?
     constexpr bool more_than_day() const noexcept { return m_msec>max_in_day; }
     
-    /// Get the milliseconds cast to the underlying type.
+    /// Get the milliseconds as milliseconds::underlying_type.
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_msec; }
     
     /// If the milliseconds sum up to more (or equal to) one day, remove the 
     /// integral days (and return them); reset the milliseconds to milliseconds
     /// of the new day.
+
+    /// \brief Normalize milliseconds and return the integral days.
+    ///
+    /// If the milliseconds sum up to more (or equal to) one day, remove the
+    /// integer days and return them as integer; reset the milliseconds to 
+    /// milliseconds of the new day.
+    ///
+    /// \return The integer number of days (if the milliseconds are more than a day).
+    /// \throw  Does not throw.
+    /// \bug    What about negative milliseconds?
+    ///
+    /// \note The calling instance cannot be negative (i don't knwo how to
+    ///       normalize negative seconds).
     constexpr int remove_days() noexcept
     {
+        assert( m_msec >= 0 );
         int day { static_cast<int>(m_msec/max_in_day) };
         m_msec %= max_in_day;
         return day;
     }
     
-    /// Return the milliseconds as integral day(s).
+    /// \brief Cast to days.
+    ///
+    /// If the milliseconds sum up to more (or equal to) one day, return the 
+    /// (integral) number of days.
+    ///
+    /// \return The integer number of days (if the milliseconds are more than a day).
+    /// \throw  Does not throw.
+    /// \bug    What about negative milliseconds?
+    ///
+    /// \note The calling instance cannot be negative (i don't knwo how to
+    ///       normalize negative seconds).
     constexpr int to_days() const noexcept
     {
+        assert( m_msec >= 0 );
         return int{static_cast<int>(m_msec/max_in_day)};
     }
     
@@ -665,19 +751,29 @@ public:
         return static_cast<double>(m_msec)/static_cast<double>(max_in_day);
     }
     
-    /// Cast to fractional seconds
+    /// Cast to fractional ngpt::seconds
     constexpr double to_fractional_seconds() const noexcept
     { return static_cast<double>(m_msec)*1.0e-3; }
     
-    /// Resolve to (integer) seconds and fractional seconds.
+    /// \brief Resolve to (integer) seconds and fractional seconds.
+    ///
+    /// Split the milliseconds to ngpt::seconds and fractional seconds.
+    ///
+    /// \param[out] fraction Fractional seconds
+    /// \return              Integral seconds
+    /// \throw               Does not throw
+    ///
+    /// \note Only works for positive milliseconds.
     constexpr seconds resolve_sec(double& fraction) const noexcept
     {
-        seconds sec { m_msec/1000L };
-        fraction = static_cast<double>(m_msec%1000L)*1e-3;
+        assert( m_msec >= 0);
+        seconds sec { m_msec / sec_factor<long>() };
+        fraction = static_cast<double>(m_msec % sec_factor<long>())*1e-3;
         return sec;
     }
     
     /// Translate to hours, minutes, seconds and milliseconds
+    /// \bug need more documentation
     constexpr std::tuple<hours, minutes, seconds, long>
     to_hmsf() const noexcept
     {
@@ -705,29 +801,46 @@ private:
 
 }; /// class milliseconds
 
-/// A wrapper class for microseconds (i.e 10**-6 sec.).
-class microseconds {
-
+/// \brief A wrapper class for microseconds (i.e 10**-6 sec.).
+/// 
+/// microseconds is just a wrapper class around long integer numbers, i.e. a
+/// microsecond is just a long int and can be either positive or negative. 
+/// Users are however restricted by integer overflow. The maximum number of days
+/// that can be expressed in microseconds without fear of overflow is given by
+/// the template function ngpt::max_days_allowed.
+/// Negative microseconds are allowed (so that a user can perform basic 
+/// operations like e.g. addition), but some functions expect only positive 
+/// microiseconds (microseconds::remove_days, microseconds::to_days).
+/// microseconds is a class which represents a second subdivision (as is 
+/// ngpt::seconds, ngpt::milliseconds, etc); quite a few methods should be 
+/// common to all of these classes, all of which have a member variable
+/// microseconds::is_of_sec_type which is set to true.
+/// 
+/// \note microseconds can be cast to ngpt::seconds and ngpt::milliseconds (via
+/// a static_cast or a C-type cast) but the opposite is not true; i.e. 
+/// ngpt::seconds cannot be cast to microseconds.This is still an open question!
+///
+/// \see ngpt::seconds
+/// \see ngpt::milliseconds
+///
+class microseconds
+{
 public:
-    /// Nanoseconds are represented as long integers.
+    /// Microseconds are represented as long integers.
     typedef long underlying_type;
     
-    /// Nanoseconds is a subdivision of seconds.
+    /// Microseconds is a subdivision of seconds.
     static constexpr bool is_of_sec_type { true };
     
     /// Max microseconds in day.
     static constexpr long max_in_day { 86400L * 1000000L };
 
+    /// The scale factor to transform from seconds to microseconds.
     template<typename T>
         static constexpr T sec_factor() noexcept
     { return static_cast<T>(1000000); }
 
-    /// The scale factor to transform to seconds.
-    template<typename T>
-        static constexpr T sec_ifactor() noexcept
-    { return ((static_cast<T>(1))/1000000); }
-    
-    /// Constructor.
+    /// Constructor; default microseconds is 0.
     explicit constexpr microseconds(underlying_type i=0L) noexcept
     : m_msec(i) {};
     
@@ -735,23 +848,26 @@ public:
     explicit constexpr microseconds(hours h, minutes m, microseconds c) noexcept
     : m_msec { c.as_underlying_type()
             +(m.as_underlying_type()*60L
-            + h.as_underlying_type()*3600L) *1000L * 1000L}
+            + h.as_underlying_type()*3600L) * sec_factor<long>() }
     {}
     
-    /// Constructor from hours, minutes, fractional seconds
+    /// Constructor from hours, minutes, fractional seconds.
+    /// \note Fractional seconds with precission larger than microseconds are
+    ///       not taken into account; i.e. we only consider the fractiona part
+    ///       up to 10e-6.
     explicit constexpr microseconds(hours h, minutes m, double fs) noexcept
-    : m_msec{ static_cast<long>(fs*1000000.0e0)
+    : m_msec{ static_cast<long>(fs * sec_factor<double>())
         + (m.as_underlying_type()*60L
-        + h.as_underlying_type()*3600L) * 1000000L}
+        + h.as_underlying_type()*3600L) * sec_factor<long>() }
     {}
     
     /// Microseconds can be cast to milliseconds will a loss of accuracy.
     constexpr explicit operator milliseconds() const
-    { return milliseconds(m_msec/1000L); }
+    { return milliseconds(m_msec / 1000L); }
     
     /// Microseconds can be cast to seconds will a loss of accuracy.
     constexpr explicit operator seconds() const
-    { return seconds(m_msec/1000000L); }
+    { return seconds(m_msec / sec_factor<long>()); }
     
     /// Addition between microseconds.
     constexpr void operator+=(const microseconds& ns) noexcept
@@ -796,13 +912,22 @@ public:
     /// Do the microseconds sum up to more than one day?
     constexpr bool more_than_day() const noexcept { return m_msec>max_in_day; }
     
-    /// Cast to underlying type.
+    /// Cast to microseconds::underlying_type.
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_msec; }
     
+    /// \brief Normalize microseconds and return the integral days.
+    ///
     /// If the microseconds sum up to more (or equal to) one day, remove the
-    /// integral days (and return them); reset the microseconds to microseconds
-    /// of the new day.
+    /// integer days and return them as integer; reset the microseconds to 
+    /// microseconds of the new day.
+    ///
+    /// \return The integer number of days (if the microseconds are more than a day).
+    /// \throw  Does not throw.
+    /// \bug    What about negative microseconds?
+    ///
+    /// \note The calling instance cannot be negative (i don't knwo how to
+    ///       normalize negative seconds).
     constexpr int remove_days() noexcept
     {
         int day { static_cast<int>(m_msec/max_in_day) };
@@ -810,21 +935,32 @@ public:
         return day;
     }
     
-    /// Cast to days.
+    /// \brief Cast to days.
+    ///
+    /// If the microseconds sum up to more (or equal to) one day, return the 
+    /// (integral) number of days.
+    ///
+    /// \return The integer number of days (if the microseconds are more than a day).
+    /// \throw  Does not throw.
+    /// \bug    What about negative microseconds?
+    ///
+    /// \note The calling instance cannot be negative (i don't knwo how to
+    ///       normalize negative seconds).
     constexpr int to_days() const noexcept
     { return static_cast<int>(m_msec/max_in_day); }
     
     /// Cast to fractional days.
     constexpr double fractional_days() const noexcept
     {
-        return static_cast<double>(m_msec)/static_cast<double>(max_in_day);
+        return static_cast<double>(m_msec) / static_cast<double>(max_in_day);
     }
     
     /// Cast to fractional seconds
     constexpr double to_fractional_seconds() const noexcept
-    { return static_cast<double>(m_msec)*1.0e-6; }
+    { return static_cast<double>(m_msec) * 1.0e-6; }
     
     /// Translate to hours, minutes, seconds and microseconds.
+    /// \bug need more documentation
     constexpr std::tuple<hours, minutes, seconds, long>
     to_hmsf() const noexcept
     {
@@ -832,13 +968,6 @@ public:
         long mn { (m_msec%3600000000L)/60000000L           };  // minutes
         long sc { ((m_msec%3600000000L)%60000000L)/1000000L};  // seconds
         long ns { m_msec-((hr*60L+mn)*60L+sc)*1000000L     };  // microsec.
-        /*
-        std::cout<<"(Microseconds: " << m_msec << ") is:\n";
-        std::cout<<"\tHours   : "<< hr << "\n";
-        std::cout<<"\tMinutes : "<< mn << "\n";
-        std::cout<<"\tSeconds : "<< sc << "\n";
-        std::cout<<"\tMicroSec: "<< ns << "\n";
-        */
         return std::make_tuple( hours  { static_cast<hours::underlying_type>(hr) },
                                 minutes{ static_cast<minutes::underlying_type>(mn) },
                                 seconds{ sc },
@@ -858,16 +987,40 @@ private:
 
 }; // class microseconds
 
-/// Express the difference between two Modified Julian Days as any sec type.
+/// \brief Number of expressible days for any second type.
+///
+/// This (template) function will return the number of whole days that can be
+/// expressed using any instance of a second type (i.e. ngpt::seconds, 
+/// ngpt::milliseconds, etc). For any of these types, trying to hold more days
+/// than this limit may result in overflow.
+///
+/// \tparam S Any class of second type, i.e. any class S that has a (static)
+///           member variable S::is_of_sec_type set to true.
+template<typename S,
+        typename = std::enable_if_t<S::is_of_sec_type>
+        >
+    constexpr typename S::underlying_type max_days_allowed()
+{ return std::numeric_limits<typename S::underlying_type>::max()/S::max_in_day; }
+
+/// \brief Express the difference between two Modified Julian Days as any second
+///        type.
+///
+/// \tparam S Any class of second type, i.e. any class S that has a (static)
+///           member variable S::is_of_sec_type set to true.
+/// \param[in] d1 The first ngpt::modified_julian_day (difference is d1-d2)
+/// \param[in] d2 The second ngpt::modified_julian_day (difference is d1-d2)
+/// \return       The difference between d1 and d2 in the second type S (e.g.
+///               ngpt::seconds, ngpt::milliseconds, etc)
+///
 /// \note The difference between two Modified Julian Days is always an integral
-///       number of days.
+///       number of days (no fractional part!).
 template<typename S,
         typename = std::enable_if_t<S::is_of_sec_type>
         >
     S mjd_sec_diff(modified_julian_day d1, modified_julian_day d2) noexcept
 {
     modified_julian_day d {d1-d2};
-    return S{d.as_underlying_type()*S::max_in_day};
+    return S{d.as_underlying_type() * S::max_in_day};
 }
 
 /// For user-defined literals, i am going to replace long with

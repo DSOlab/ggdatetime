@@ -1,19 +1,52 @@
+///
+/// \file  dtcalendar.hpp
+///
+/// \brief A fundamental, template datetime class.
+///
+/// This file contains the definition (and implementation) of a datetime class
+/// to be used for GNSS applications.
+///
+/// \author xanthos
+///
+/// \bug No known bugs.
+///
+
 #ifndef __DTCALENDAR_NGPT__HPP__
 #define __DTCALENDAR_NGPT__HPP__
 
 #include "dtfund.hpp"
+
 #ifdef DEBUG
-    #include <iostream>
-    #include <iomanip>  // std::setprecision
-    #include <sstream>  // std::ostringstream
+#include <iostream>
+#include <iomanip>  // std::setprecision
+#include <sstream>  // std::ostringstream
 #endif
 
-namespace ngpt {
-
-/*
- * A datetime class. Holds (integral) days as MJD and fraction of day as any
- * of the is_of_sec_type class (i.e. seconds/milli/micro).
- */
+namespace ngpt
+{
+/// \brief A generic, templatized Date/Time class.
+///
+/// A datetime instance has two fundamental parts (members):
+/// - a date part (i.e. holding the year/month/day), and 
+/// - a time part (i.e. holding hours/minutes/*seconds)
+///
+/// A datetime holds both a date and a time (i.e. of day). The date is recorded
+/// as a Modified Julian Day (i.e. ngpt::modified_julian_day). The time of day
+/// can be expressed via any class of 'second type', i.e. ngpt::seconds, 
+/// ngpt::milliseconds, or ngpt::microseconds). Actually, there is no restriction
+/// for the time to be 'time of day'; in-fact, it can hold even days (e.g. 2 or
+/// 3 days in ngpt::seconds), but usually this is not good practice and should be
+/// avoided. Especially when the second type is e.g. ngpt::milliseconds, then
+/// holding multiple days in the time part could result in overflow.
+/// To remove whole days from the time part and add them to the date part, use
+/// the datetime::normalize method.
+///
+/// Never use negative times; they actually have no physical meaning. Besides
+/// that, they can cause UB.
+///
+/// \tparam S Any class of 'second type', i.e. any class S that has a (static)
+///           member variable S::is_of_sec_type set to true. This can be
+///           ngpt::seconds, ngpt::milliseconds, ngpt::microseconds.
 template<class S,
         typename = std::enable_if_t<S::is_of_sec_type>
         >
@@ -21,14 +54,16 @@ template<class S,
 public:
 
     /// Default (zero) constructor.
-    explicit constexpr datetime() noexcept : m_mjd(0), m_sec(0) {};
+    explicit constexpr datetime() noexcept
+    : m_mjd(ngpt::j2000_mjd), m_sec(0)
+    {};
     
     /// Constructor from year, month, day of month and sec type.
     explicit constexpr datetime(year y, month m, day_of_month d, S s)
     : m_mjd{cal2mjd(y, m, d)}, m_sec{s}
     {}
 
-    /// Constructor from year, month, day of month and any sec type (T),
+    /// Constructor from year, month, day of month and any sec type T,
     /// convertible to S.
     template<class T,
             typename = std::enable_if_t<T::is_of_sec_type>,
@@ -41,7 +76,7 @@ public:
         : m_mjd{cal2mjd(y, m, d)}, m_sec{S(t)}
     {}
     
-    /// Constructor from year, day of year and any sec type (T),
+    /// Constructor from year, day of year and any sec type T,
     /// convertible to S.
     template<class T,
             typename = std::enable_if_t<T::is_of_sec_type>,
@@ -55,7 +90,7 @@ public:
     {}
     
     /// Constructor from year, month, day of month, hours, minutes and
-    /// micro- or milli- or seconds (if T can be cast to S).
+    /// any second type T convertible to S (i.e. T can be cast to S).
     template<class T,
             typename = std::enable_if_t<T::is_of_sec_type>,
             typename = std::enable_if_t<
@@ -69,7 +104,7 @@ public:
     {}
     
     /// Constructor from year, day of year, hours, minutes and
-    /// micro- or milli- or seconds (if T can be cast to S).
+    /// any second type T convertible to S (i.e. T can be cast to S).
     template<class T,
             typename = std::enable_if_t<T::is_of_sec_type>,
             typename = std::enable_if_t<
@@ -97,7 +132,7 @@ public:
     {}
 
     /// Constructor from modified julian day, hours, minutes and 
-    /// micro- or milli- or seconds.
+    /// second type S.
     explicit
     datetime(modified_julian_day mjd, hours hr=hours(), minutes mn=minutes(),
         S sec=S())
@@ -120,8 +155,10 @@ public:
     : m_mjd{ydoy2mjd(y, d)}, m_sec{hr, mn, sec}
     {}
 
-    /// Get the MJDay.
+    /// Get the Modified Julian Day (const).
     constexpr modified_julian_day  mjd() const noexcept { return m_mjd; }
+    
+    /// Get the Modified Julian Day.
     constexpr modified_julian_day& mjd() noexcept { return m_mjd; }
 
     #ifdef DEBUG
@@ -130,7 +167,10 @@ public:
     { return m_sec.as_underlying_type(); }
     #endif
 
-    /// Add any second type T, convertible to S.
+    /// \brief Add any second type T, convertible to S.
+    /// 
+    /// Add to the datetime instance an amount of t 'second type'. E.g., if
+    /// the calling instance is a datetime with second accuracy (i.e. 
     template<class T,
             typename = std::enable_if_t<T::is_of_sec_type>,
             typename = std::enable_if_t<
@@ -281,7 +321,7 @@ public:
         auto ymd { this->as_ymd() };
         auto hms { this->as_hmsf() };
         S st { std::get<3>(hms) };
-        double fsec { st.as_underlying_type() * S::template sec_ifactor<double>() };
+        double fsec { st.as_underlying_type() / S::template sec_factor<double>() };
         std::ostringstream out;
         out << std::fixed << std::setprecision(9) << fsec;
 

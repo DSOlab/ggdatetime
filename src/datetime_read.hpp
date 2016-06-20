@@ -7,7 +7,7 @@
 #include "dtfund.hpp"
 #include "dtcalendar.hpp"
 #ifdef DEBUG
-    #include <iostream>
+#include <iostream>
 #endif
 
 namespace ngpt {
