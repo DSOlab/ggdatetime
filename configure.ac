@@ -2,7 +2,13 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([ggdatetime], [1.0], [xanthos@mail.ntua.gr], [nts],[http://dionysos.survey.ntua.gr])
+# AC_INIT (package, version, [bug-report], [tarname], [url])
+AC_INIT([ggdatetime],
+        [1.0],
+        [xanthos@mail.ntua.gr],
+        [ggdatetime],
+        [http://dionysos.survey.ntua.gr])
+
 AM_INIT_AUTOMAKE
 
 AC_LANG(C++)

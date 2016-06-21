@@ -24,10 +24,10 @@ libggdatetime_la_CXXFLAGS = \
 	-DDEBUG
 
 ##
-##  Header files (distributed).
-## ----------------------------
+##  Header files (distributed) installed in /$(includedir)/$(package name).
+## ------------------------------------------------------------------------
 ##
-dist_include_HEADERS = \
+pkginclude_HEADERS = \
 	dtfund.hpp \
 	dtcalendar.hpp \
 	datetime_read.hpp

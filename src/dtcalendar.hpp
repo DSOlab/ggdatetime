@@ -50,7 +50,14 @@ namespace ngpt
 ///           member variable S::is_of_sec_type set to true. This can be
 ///           ngpt::seconds, ngpt::milliseconds, ngpt::microseconds.
 ///
-/// \bug add normalize to constructors
+/// \note Constructors can be called with the time part being more than one day;
+///       (e.g. datetime<ngpt::seconds> d {year(2016), month(12), day_of_month(15), seconds(86401};)
+///       If you think that this is a posibility, then call datetime::normalize
+///       imidiately after the construction. An automatic call of the function
+///       datetime::normalize could be added in the body of (nearly all)
+///       constructors, but that would be time consuming. So, the option chosen
+///       is **not**  to include a call to datetime::normalize and let the user
+///       call the function if needed.
 template<class S,
         typename = std::enable_if_t<S::is_of_sec_type>
         >
