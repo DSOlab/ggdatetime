@@ -145,6 +145,7 @@ template<typename T>
     const char* start = str;
     int ints[5];
     char month_str[4];
+    month_str[3] = '\0';
     double secs;
 
     ints[0] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
@@ -154,13 +155,14 @@ template<typename T>
             ("Invalid date format: \""+std::string(str)+"\" (argument #1).");
     }
     start = end+1;
+
     if ( !std::isalpha(*start) ) ++start;
     std::memcpy(month_str, start, 3);
     month_str[0] = std::toupper(month_str[0]);
     month_str[1] = std::tolower(month_str[1]);
     month_str[2] = std::tolower(month_str[2]);
     month mnt {month_str};
-    start += 3;
+    start += 4;
 
     for (int i = 2; i < 5; ++i) {
         ints[i] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
