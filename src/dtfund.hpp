@@ -119,6 +119,37 @@ modified_julian_day cal2mjd(year, month, day_of_month);
 /// Convert a pair of Year, Day of year toMJDay.
 modified_julian_day ydoy2mjd(year, day_of_year) noexcept;
 
+/// \brief For a given UTC date, calculate delta(AT) = TAI-UTC.
+///
+/// The day of month is actually not needed, since all leap second insertions
+/// happen at the begining, i.e. the first day of a month.
+///
+/// \note In case using MJD (and not calendar date) is more convinient, use the
+///       overloaded function ngpt::dat
+///
+/// \warning
+///         - This version only works for post-1972 dates! For a more complete
+///           version, see the iauDat.c routine from IAU's SOFA.
+///         - No checks are performed for the validity of the input date.
+///
+/// \see IAU SOFA (iau-dat.c)
+/// \see ngpt::dat
+int dat(year iy, month im) noexcept;
+
+/// \overload ngpt::dat(ngpt::year iy, ngpt::month im) noexcept
+///
+/// \note In case using calendar date (and not MJD) is more convinient, use the
+///       overloaded function ngpt::dat
+///
+/// \warning
+///         - This version only works for post-1972 dates! For a more complete
+///           version, see the iauDat.c routine from IAU's SOFA.
+///         - No checks are performed for the validity of the input date.
+///
+/// \see IAU SOFA (iau-dat.c)
+/// \see ngpt::dat
+int dat(modified_julian_day mjd) noexcept;
+
 /// \brief A wrapper class for years.
 ///
 /// A year is represented by just an integer number. There are no limits

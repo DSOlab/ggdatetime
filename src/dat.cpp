@@ -1,6 +1,5 @@
 #include "dtfund.hpp"
 
-/// \brief For a given UTC date, calculate delta(AT) = TAI-UTC.
 ///
 /// If the specified date is for a day which ends with a leap second,
 /// the UTC-TAI value returned is for the period leading up to the
@@ -8,15 +7,11 @@
 /// second ends, the UTC-TAI returned is for the period following the
 /// leap second.
 ///
-/// \warning
-///         - This version only works for post-1972 dates! For a more complete
-///           version, see the iauDat.c routine from IAU's SOFA.
-///         - No checks are performed for the validity of the input date.
+/// The day of month is actually not needed, since all leap second insertions
+/// happen at the begining, i.e. the first day of a month.
 ///
-/// \see IAU SOFA (iau-dat.c)
-double
-ngpt::dat(ngpt::year iy, ngpt::month im, ngpt::day_of_month dom)
-noexcept
+int
+ngpt::dat(ngpt::year iy, ngpt::month im) noexcept
 {
 
     // Dates and Delta(AT)s
@@ -56,13 +51,67 @@ noexcept
     constexpr int NDAT { (int) (sizeof changes / sizeof changes[0]) };
 
     // Combine year and month to form a date-ordered integer...
-    int m = 12*iy + im;
+    int m = 12*iy.as_underlying_type() + im.as_underlying_type();
     // ...and use it to find the preceding table entry.
     int idx = NDAT-1;
-    for (; i >=0; i--) {
-        if (m >= (12 * changes[i].iyear + changes[i].month)) break;
+    for (; idx >=0; idx--) {
+        if (m >= (12 * changes[idx].iyear + changes[idx].month)) break;
     }
 
     // Get the Delta(AT).
-    return changes[i].delat;
+    return changes[idx].delat;
+}
+
+///
+/// 
+int
+ngpt::dat(ngpt::modified_julian_day mjd) noexcept
+{
+
+    // Dates and Delta(AT)s
+    static constexpr struct {
+        ngpt::modified_julian_day::underlying_type mjday;
+        int delat;
+    } changes[] = {
+        { 41317L, 10 },
+        { 41499L, 11 },
+        { 41683L, 12 },
+        { 42048L, 13 },
+        { 42413L, 14 },
+        { 42778L, 15 },
+        { 43144L, 16 },
+        { 43509L, 17 },
+        { 43874L, 18 },
+        { 44239L, 19 },
+        { 44786L, 20 },
+        { 45151L, 21 },
+        { 45516L, 22 },
+        { 46247L, 23 },
+        { 47161L, 24 },
+        { 47892L, 25 },
+        { 48257L, 26 },
+        { 48804L, 27 },
+        { 49169L, 28 },
+        { 49534L, 29 },
+        { 50083L, 30 },
+        { 50630L, 31 },
+        { 51179L, 32 },
+        { 53736L, 33 },
+        { 54832L, 34 },
+        { 56109L, 35 },
+        { 57204L, 36 },
+    };
+
+    // Number of Delta(AT) changes
+    constexpr int NDAT { (int) (sizeof changes / sizeof changes[0]) };
+
+    // find the preceding table entry.
+    ngpt::modified_julian_day::underlying_type today {mjd.as_underlying_type()};
+    int idx = NDAT-1;
+    for (; idx >=0; idx--) {
+        if (today >= changes[idx].mjday) break;
+    }
+
+    // Get the Delta(AT).
+    return changes[idx].delat;
 }

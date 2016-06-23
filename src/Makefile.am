@@ -37,4 +37,5 @@ pkginclude_HEADERS = \
 ## ----------------------------
 ##
 dist_libggdatetime_la_SOURCES = \
-	dtfund.cpp
+	dtfund.cpp \
+	dat.cpp

@@ -46,6 +46,13 @@ namespace ngpt
 /// Never use negative times; they actually have no physical meaning. Besides
 /// that, they can cause UB.
 ///
+/// The datetime class represents a continuous time-scale (i.e. something like
+/// TAI); thus, representing non-continuous time-scales (e.g. UTC) can be
+/// ambiguous cause of leap seconds. (Modified) Julian Day cannot unambiguously
+/// represent UTC during a leap second unless special measures are taken.  The
+/// internal convention is that he quasi-JD day represents UTC days whether the
+/// length is 86399, 86400 or 86401 SI seconds.
+///
 /// \tparam S Any class of 'second type', i.e. any class S that has a (static)
 ///           member variable S::is_of_sec_type set to true. This can be
 ///           ngpt::seconds, ngpt::milliseconds, ngpt::microseconds.
