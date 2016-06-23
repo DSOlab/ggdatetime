@@ -42,6 +42,8 @@ constexpr long jan61980 { 44244L };
 constexpr long jan11901 { 15385L };
 
 /// Seconds per day.
+/// \warning This is not always true in case of UTC dates; the day a leap second
+///          is inserted has one more second!
 constexpr double sec_per_day { 86400.0e0 };
 
 /// Days per Julian year.

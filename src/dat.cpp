@@ -1,3 +1,18 @@
+///
+/// \file  dat.cpp
+///
+/// \brief Implementation file for computation of UTC-TAI, i.e. leap seconds.
+///
+/// This file contains the implementation of dat function(s), to compute the
+/// number of leap seconds in a UTC date/time.
+///
+/// \author xanthos
+///
+/// \bug No known bugs.
+///
+/// \see SOFA Software Collection (iauDat), http://www.iausofa.org/
+///
+
 #include "dtfund.hpp"
 
 ///
