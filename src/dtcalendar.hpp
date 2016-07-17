@@ -71,6 +71,9 @@ template<class S,
     class datetime {
 public:
 
+    /// Expose the underlying sec type S
+    using sec_type = S;
+
     /// Default (zero) constructor.
     explicit constexpr datetime() noexcept
     : m_mjd(ngpt::j2000_mjd), m_sec(0)
@@ -148,14 +151,6 @@ public:
         double fsecs)
     : m_mjd{ydoy2mjd(y, d)}, m_sec{hr, mn, fsecs}
     {}
-
-    /// Constructor from modified julian day, hours, minutes and 
-    /// second type S.
-    explicit
-    datetime(modified_julian_day mjd, hours hr=hours(), minutes mn=minutes(),
-        S sec=S())
-    : m_mjd{mjd}, m_sec{hr, mn, sec}
-    {}
     
     /// Constructor from year, month, day of month, hours, minutes and
     /// second type S.
@@ -171,6 +166,20 @@ public:
     datetime(year y, day_of_year d, hours hr=hours(),
         minutes mn=minutes(), S sec=S())
     : m_mjd{ydoy2mjd(y, d)}, m_sec{hr, mn, sec}
+    {}
+    
+    /// Constructor from modified julian day, hours, minutes and 
+    /// second type S.
+    explicit
+    datetime(modified_julian_day mjd, hours hr=hours(), minutes mn=minutes(),
+        S sec=S())
+    : m_mjd{mjd}, m_sec{hr, mn, sec}
+    {}
+    
+    /// Constructor from modified julian day, and second type S.
+    explicit
+    datetime(modified_julian_day mjd, S sec=S())
+    : m_mjd{mjd}, m_sec{sec}
     {}
 
     /// Get the Modified Julian Day (const).
@@ -327,8 +336,8 @@ public:
     constexpr std::tuple<modified_julian_day, S>
     delta_date(const datetime& d) const noexcept
     {
-        modified_julian_day::underlying_type t_mjd, sign{1};
-        typename S::underlying_type t_secs;
+        modified_julian_day::underlying_type t_mjd{0}, sign{1};
+        typename S::underlying_type t_secs{0};
         datetime<S> d1{*this}, d2{d};
 
         if (d2 > d1) {
