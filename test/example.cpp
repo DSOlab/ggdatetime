@@ -43,10 +43,20 @@ int main()
     std::cout<<"Testing constructors & user-defined literals\n";
     std::cout<<"-------------------------------------------------------------\n";
     auto yr1 = 2016_Y; // year  = 2016
+    year yr2 {2016};
+    assert( yr1 == yr2 );
     auto mt1 = 12_M;   // month = 12
+    month mt2 {12};
+    assert( mt1 == mt2 );
     auto dm1 = 30_D;   // day of month = 30
+    day_of_month dm2 {30};
+    assert( dm1 == dm2 );
     auto hr1 = 12_h;   //
+    hours hr2 {12};
+    assert( hr1 == hr2 );
     auto mn1 = 59_m;   //
+    minutes mn2 {59};
+    assert( mn1 == mn2 );
     constexpr auto ss1 = 30_sec; //
     constexpr auto sm1 = 30000_millisec;    //
     constexpr auto sm2 = 30000000_microsec; //

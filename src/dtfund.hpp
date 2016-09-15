@@ -170,6 +170,10 @@ public:
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_year; }
 
+    /// Equality operator
+    constexpr bool operator==(year y) const noexcept
+    { return y.m_year == m_year; }
+
 private:
     /// The year as underlying type.
     underlying_type m_year;
@@ -218,6 +222,10 @@ public:
 
     /// Check if the month is within the interval [1,12].
     bool is_valid() const noexcept { return m_month > 0 && m_month <= 12; }
+    
+    /// Equality operator
+    constexpr bool operator==(month m) const noexcept
+    { return m_month == m.m_month; }
 
 private:
     /// \brief Decleration of short month names. 
@@ -259,6 +267,10 @@ public:
     /// Get the day_of_month as day_of_month::underlying_type
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_dom; }
+    
+    /// Equality operator
+    constexpr bool operator==(day_of_month d) const noexcept
+    { return m_dom == d.m_dom; }
 
 private:
     /// The day of month as underlying_type.
@@ -384,6 +396,10 @@ public:
     /// Cast to underlying type
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_doy; }
+    
+    /// Equality operator
+    constexpr bool operator==(day_of_year d) const noexcept
+    { return d.m_doy == m_doy; }
 
 private:
     /// The day_of_year as day_of_year::underlying_type.
@@ -413,6 +429,10 @@ public:
     /// Get the hours as hours::underlying_type
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_hours; }
+    
+    /// Equality operator
+    constexpr bool operator==(hours h) const noexcept
+    { return m_hours == h.m_hours; }
 
 private:
     /// The hours as hours::underlying_type
@@ -444,6 +464,10 @@ public:
     /// Get the minutes as minutes::underlying_type
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_min; }
+    
+    /// Equality operator
+    constexpr bool operator==(minutes m) const noexcept
+    { return m_min == m.m_min; }
 
 private:
     /// The minutes as underlying type.

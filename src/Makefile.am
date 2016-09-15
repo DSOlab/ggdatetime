@@ -30,7 +30,8 @@ libggdatetime_la_CXXFLAGS = \
 pkginclude_HEADERS = \
 	dtfund.hpp \
 	dtcalendar.hpp \
-	datetime_read.hpp
+	datetime_read.hpp \
+	datetime_write.hpp
 
 ##
 ##  Source files (distributed).
