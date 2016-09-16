@@ -313,6 +313,10 @@ public:
     constexpr void operator+=(const modified_julian_day& d) noexcept
     { m_mjd += d.m_mjd; }
     
+    /// Define subtraction (between MJDs).
+    constexpr void operator-=(const modified_julian_day& d) noexcept
+    { m_mjd -= d.m_mjd; }
+    
     /// Operator - (subtraction).
     constexpr modified_julian_day
     operator-(const modified_julian_day& mjd) const noexcept
@@ -582,16 +586,17 @@ public:
     ///
     /// \return The integer number of days (if the seconds are more than a day).
     /// \throw  Does not throw.
-    /// \bug    What about negative seconds?
     ///
-    /// \note The calling instance cannot be negative (i don't knwo how to
-    ///       normalize negative seconds).
+    /// \note   The number of days returned can be negative (!!), if the seconds
+    ///         are negative (i.e. if m_sec = -86400, -1 will be returned and
+    ///         m_sec will be set to 0).
+    /// 
     constexpr int remove_days() noexcept
     {
-        assert( m_sec >= 0 );
-        int d { static_cast<int>(m_sec/max_in_day) };
-        m_sec%=max_in_day;
-        return d;
+        /* assert( m_sec >= 0 ); */
+        long d { static_cast<int>(m_sec / max_in_day) };
+        m_sec %= max_in_day;
+        return (int)d;
     }
     
     /// \brief Cast to days.
@@ -601,13 +606,13 @@ public:
     ///
     /// \return The integer number of days (if the seconds are more than a day).
     /// \throw  Does not throw.
-    /// \bug    What about negative seconds?
     ///
-    /// \note The calling instance cannot be negative (i don't knwo how to
-    ///       normalize negative seconds).
+    /// \note   The number of days returned can be negative (!!), if the seconds
+    ///         are negative (i.e. if m_sec = -86400, -1 will be returned).
+    ///
     constexpr int to_days() const noexcept
     {
-        assert( m_sec >= 0 );
+        /* assert( m_sec >= 0 ); */
         return static_cast<int>(m_sec/max_in_day);
     }
     

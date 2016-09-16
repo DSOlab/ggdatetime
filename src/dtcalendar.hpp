@@ -24,6 +24,46 @@
 
 namespace ngpt
 {
+
+/// \brief A generic, templatized class to hold a datetime period/interval.
+///
+/// A datetime_interval represents a time (datetime) interval or period, i.e.
+/// 5 days, 12 hours and 49 seconds. We assume a continuous time scale (no leap
+/// seconds are taken into consideration --this is only an interval not an
+/// actual datetime instance--).
+///
+/// A datetime_interval instance has two fundamental parts (members):
+/// - a day part (i.e. holding the days), and 
+/// - a time part (i.e. holding any type S i.e. any second type)
+///
+/// The purpose of this class is to work together with the datetime class.
+///
+/// \tparam S Any class of 'second type', i.e. any class S that has a (static)
+///           member variable S::is_of_sec_type set to true. This can be
+///           ngpt::seconds, ngpt::milliseconds, ngpt::microseconds.
+///
+template<class S,
+        typename = std::enable_if_t<S::is_of_sec_type>
+        >
+    class datetime_interval {
+public:
+    explicit
+    constexpr datetime_interval(modified_julian_day d, S s) noexcept
+    : m_days{d},
+      m_secs{s}
+    {};
+
+    explicit
+    constexpr datetime_interval(std::tuple<modified_julian_day, S>&& t) noexcept
+    : m_days{std::get<0>(t)},
+      m_secs{std::get<1>(t)}
+    {};
+
+private:
+    modified_julian_day m_days;
+    S                   m_secs;
+}; // end class datetime_interval
+
 /// \brief A generic, templatized Date/Time class.
 ///
 /// A datetime instance has two fundamental parts (members):
@@ -221,10 +261,8 @@ public:
             >
         constexpr void add_seconds(T t) noexcept
     { 
-        m_sec += (S)t;
-        if ( m_sec.more_than_day() ) {
-            this->normalize();
-        }
+        m_sec += static_cast<S>(t);
+        if (m_sec.more_than_day()) this->normalize();
         return;
     }
 
@@ -256,7 +294,7 @@ public:
         constexpr datetime<S> add(modified_julian_day days, T secs)
         const noexcept
     { 
-        datetime<S> new_dt { days+m_mjd, static_cast<S>(secs) + m_sec };
+        datetime<S> new_dt { days+m_mjd, static_cast<S>(secs)+m_sec };
         new_dt.normalize();
         return new_dt;
     }
@@ -319,16 +357,28 @@ public:
 
     /// \brief Normalize a datetime instance.
     ///
-    /// Split the date and time parts such that the time part ois always less
+    /// Split the date and time parts such that the time part is always less
     /// than one day (i.e. make it time-of-day).
     /// Remove whole days of from the time part and add them to the date part.
     ///
-    /// \bug What id seconds is negative?
     constexpr void normalize() noexcept
     {
-        modified_julian_day _add {static_cast<long>(m_sec.remove_days())};
-        m_mjd += _add;
-        return;
+        typename S::underlying_type secs { m_sec.as_underlying_type() };
+
+        if (secs > 0 && secs < S::max_in_day) {
+            return;
+        } else if ( secs >= S::max_in_day ) {
+            modified_julian_day _add {static_cast<long>(m_sec.remove_days())};
+            m_mjd += _add;
+            return;
+        } else {
+            modified_julian_day one_day{1};
+            while (secs < 0) {
+                secs += S::max_in_day;
+                m_mjd -= one_day;
+            }
+            m_sec = static_cast<S>(secs);
+        }
     }
 
     /// Difference between two dates in MJdays and S.
