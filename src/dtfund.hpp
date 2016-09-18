@@ -766,28 +766,25 @@ public:
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_msec; }
     
-    /// If the milliseconds sum up to more (or equal to) one day, remove the 
-    /// integral days (and return them); reset the milliseconds to milliseconds
-    /// of the new day.
-
-    /// \brief Normalize milliseconds and return the integral days.
+    /// \brief Normalize milliseconds and return the integeral days.
     ///
-    /// If the milliseconds sum up to more (or equal to) one day, remove the
-    /// integer days and return them as integer; reset the milliseconds to 
-    /// milliseconds of the new day.
+    /// If the milliseconds sum up to more (or equal to) one day, remove the integer
+    /// days and return them as integer; reset the milliseconds to milliseconds of the
+    /// new day.
     ///
     /// \return The integer number of days (if the milliseconds are more than a day).
     /// \throw  Does not throw.
-    /// \bug    What about negative milliseconds?
     ///
-    /// \note The calling instance cannot be negative (i don't knwo how to
-    ///       normalize negative seconds).
+    /// \note   The number of days returned can be negative (!!), if the seconds
+    ///         are negative (i.e. if m_sec = -86400, -1 will be returned and
+    ///         m_sec will be set to 0).
+    /// 
     constexpr int remove_days() noexcept
     {
-        assert( m_msec >= 0 );
-        int day { static_cast<int>(m_msec/max_in_day) };
+        /* assert( m_sec >= 0 ); */
+        long d { static_cast<long>(m_msec / max_in_day) };
         m_msec %= max_in_day;
-        return day;
+        return (int)d;
     }
     
     /// \brief Cast to days.
@@ -797,13 +794,13 @@ public:
     ///
     /// \return The integer number of days (if the milliseconds are more than a day).
     /// \throw  Does not throw.
-    /// \bug    What about negative milliseconds?
     ///
-    /// \note The calling instance cannot be negative (i don't knwo how to
-    ///       normalize negative seconds).
+    /// \note   The number of days returned can be negative (!!), if the seconds
+    ///         are negative (i.e. if m_sec = -86400, -1 will be returned).
+    ///
     constexpr int to_days() const noexcept
     {
-        assert( m_msec >= 0 );
+        /* assert( m_msec >= 0 ); */
         return int{static_cast<int>(m_msec/max_in_day)};
     }
     
@@ -978,23 +975,25 @@ public:
     constexpr underlying_type as_underlying_type() const noexcept
     { return m_msec; }
     
-    /// \brief Normalize microseconds and return the integral days.
+    /// \brief Normalize microseconds and return the integeral days.
     ///
-    /// If the microseconds sum up to more (or equal to) one day, remove the
-    /// integer days and return them as integer; reset the microseconds to 
-    /// microseconds of the new day.
+    /// If the microseconds sum up to more (or equal to) one day, remove the integer
+    /// days and return them as integer; reset the microseconds to microseconds of the
+    /// new day.
     ///
     /// \return The integer number of days (if the microseconds are more than a day).
     /// \throw  Does not throw.
-    /// \bug    What about negative microseconds?
     ///
-    /// \note The calling instance cannot be negative (i don't knwo how to
-    ///       normalize negative seconds).
+    /// \note   The number of days returned can be negative (!!), if the microseconds
+    ///         are negative (i.e. if m_sec = -86400, -1 will be returned and
+    ///         m_sec will be set to 0).
+    /// 
     constexpr int remove_days() noexcept
     {
-        int day { static_cast<int>(m_msec/max_in_day) };
+        /* assert( m_sec >= 0 ); */
+        long d { static_cast<int>(m_msec / max_in_day) };
         m_msec %= max_in_day;
-        return day;
+        return (int)d;
     }
     
     /// \brief Cast to days.
@@ -1004,10 +1003,10 @@ public:
     ///
     /// \return The integer number of days (if the microseconds are more than a day).
     /// \throw  Does not throw.
-    /// \bug    What about negative microseconds?
     ///
-    /// \note The calling instance cannot be negative (i don't knwo how to
-    ///       normalize negative seconds).
+    /// \note   The number of days returned can be negative (!!), if the seconds
+    ///         are negative (i.e. if m_sec = -86400, -1 will be returned).
+    ///
     constexpr int to_days() const noexcept
     { return static_cast<int>(m_msec/max_in_day); }
     

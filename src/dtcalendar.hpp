@@ -59,6 +59,37 @@ public:
       m_secs{std::get<1>(t)}
     {};
 
+    modified_julian_day days() const noexcept
+    { return m_days; }
+    
+    S secs() const noexcept
+    { return m_secs; }
+    
+    /// \brief Normalize a datetime_interval instance.
+    ///
+    /// Split the date and time parts such that the time part is always less
+    /// than one day (i.e. make it time-of-day) and positive (i.e.>=0).
+    /// Remove whole days of from the time part and add them to the date part.
+    ///
+    constexpr void normalize() noexcept
+    {
+        typename S::underlying_type secs { m_secs.as_underlying_type() };
+
+        if (secs > 0 && secs < S::max_in_day) {
+            return;
+        } else if ( secs >= S::max_in_day ) {
+            modified_julian_day _add {static_cast<long>(m_secs.remove_days())};
+            m_days += _add;
+            return;
+        } else { /* negative *seconds */
+            while (secs < 0) {
+                secs += S::max_in_day;
+                --m_days;
+            }
+            m_secs = static_cast<S>(secs);
+        }
+    }
+
 private:
     modified_julian_day m_days;
     S                   m_secs;
@@ -262,7 +293,7 @@ public:
         constexpr void add_seconds(T t) noexcept
     { 
         m_sec += static_cast<S>(t);
-        if (m_sec.more_than_day()) this->normalize();
+        this->normalize();
         return;
     }
 
@@ -316,10 +347,13 @@ public:
         constexpr void remove_seconds(T t) noexcept
     { 
         m_sec -= (S)t;
+        /*
         while ( m_sec < (S)0 ) {
             --m_mjd;
             m_sec += (S)S::max_in_day;
         }
+        */
+        this->normalize();
         return;
     }
 
@@ -358,7 +392,7 @@ public:
     /// \brief Normalize a datetime instance.
     ///
     /// Split the date and time parts such that the time part is always less
-    /// than one day (i.e. make it time-of-day).
+    /// than one day (i.e. make it time-of-day) and positive (i.e.>=0).
     /// Remove whole days of from the time part and add them to the date part.
     ///
     constexpr void normalize() noexcept
@@ -371,21 +405,25 @@ public:
             modified_julian_day _add {static_cast<long>(m_sec.remove_days())};
             m_mjd += _add;
             return;
-        } else {
-            modified_julian_day one_day{1};
+        } else { /* negative *seconds */
             while (secs < 0) {
                 secs += S::max_in_day;
-                m_mjd -= one_day;
+                --m_mjd;
             }
             m_sec = static_cast<S>(secs);
         }
     }
 
     /// Difference between two dates in MJdays and S.
+    /// d1.delta_date(d2) is d1-d2
+    ///
     /// \bug needsmore documentation
-    constexpr std::tuple<modified_julian_day, S>
+    constexpr /*std::tuple<modified_julian_day, S>*/ datetime_interval<S>
     delta_date(const datetime& d) const noexcept
     {
+        datetime_interval<S> dt { m_mjd - d.m_mjd, m_sec - d.m_sec };
+        return dt.normalize();
+        /*
         modified_julian_day::underlying_type t_mjd{0}, sign{1};
         typename S::underlying_type t_secs{0};
         datetime<S> d1{*this}, d2{d};
@@ -406,6 +444,7 @@ public:
         t_mjd *= sign;
         
         return std::make_tuple(modified_julian_day{t_mjd}, S{t_secs});
+        */
     }
 
     /// Cast to double (i.e. fractional) Modified Julian Date.
@@ -477,8 +516,8 @@ private:
 template<typename T, 
         typename = std::enable_if_t<T::is_of_sec_type>
         >
-    constexpr std::tuple<modified_julian_day, T> delta_date(const datetime<T>& dt1,
-        const datetime<T>& dt2) noexcept
+    constexpr /*std::tuple<modified_julian_day, T>*/ datetime_interval<T>
+    delta_date(const datetime<T>& dt1, const datetime<T>& dt2) noexcept
 {
     return dt1.delta_date( dt2 );
 }
