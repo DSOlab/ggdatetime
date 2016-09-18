@@ -389,6 +389,14 @@ public:
     constexpr bool operator<=(const datetime& d) const noexcept
     { return m_mjd < d.m_mjd || (m_mjd == d.m_mjd && m_sec <= d.m_sec); }
 
+    /// Add a time interval to a datetime instance.
+    constexpr void operator+=(const datetime_interval<S>& dt) noexcept
+    {
+        m_mjd += dt.days();
+        m_sec += dt.secs();
+        normalize();
+    }
+
     /// \brief Normalize a datetime instance.
     ///
     /// Split the date and time parts such that the time part is always less
@@ -422,7 +430,8 @@ public:
     delta_date(const datetime& d) const noexcept
     {
         datetime_interval<S> dt { m_mjd - d.m_mjd, m_sec - d.m_sec };
-        return dt.normalize();
+        dt.normalize();
+	return dt;
         /*
         modified_julian_day::underlying_type t_mjd{0}, sign{1};
         typename S::underlying_type t_secs{0};
