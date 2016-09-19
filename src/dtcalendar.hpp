@@ -48,6 +48,12 @@ template<class S,
     class datetime_interval {
 public:
     explicit
+    constexpr datetime_interval() noexcept
+    : m_days{0},
+      m_secs{0}
+    {};
+
+    explicit
     constexpr datetime_interval(modified_julian_day d, S s) noexcept
     : m_days{d},
       m_secs{s}
@@ -89,6 +95,18 @@ public:
             m_secs = static_cast<S>(secs);
         }
     }
+
+    constexpr bool operator>(const datetime_interval& d) const noexcept
+    { return m_days > d.m_days || (m_days == d.m_days && m_secs > d.m_secs); }
+    
+    constexpr bool operator>=(const datetime_interval& d) const noexcept
+    { return m_days > d.m_days || (m_days == d.m_days && m_secs >= d.m_secs); }
+    
+    constexpr bool operator<(const datetime_interval& d) const noexcept
+    { return m_days < d.m_days || (m_days == d.m_days && m_secs < d.m_secs); }
+    
+    constexpr bool operator<=(const datetime_interval& d) const noexcept
+    { return m_days < d.m_days || (m_days == d.m_days && m_secs <= d.m_secs); }
 
 private:
     modified_julian_day m_days;
