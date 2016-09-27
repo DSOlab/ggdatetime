@@ -289,6 +289,16 @@ class modified_julian_day
 public:
     /// MJDs are represented as long ints.
     typedef long underlying_type;
+
+    /// Max possible modified_julian_day
+    constexpr static modified_julian_day
+    plus_infinity() noexcept
+    { return modified_julian_day{std::numeric_limits<underlying_type>::max()}; }
+    
+    /// Min possible modified_julian_day
+    constexpr static modified_julian_day
+    minus_infinity() noexcept
+    { return modified_julian_day{std::numeric_limits<underlying_type>::min()}; }
     
     /// Constructor; default Modified Julian Day is 0.
     explicit constexpr modified_julian_day(underlying_type i=0) noexcept

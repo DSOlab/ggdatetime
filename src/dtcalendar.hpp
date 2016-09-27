@@ -163,6 +163,18 @@ public:
     /// Expose the underlying sec type S
     using sec_type = S;
 
+    /// Maximum possible date (seconds are 0, modified_julian_day is max
+    /// possible).
+    constexpr static datetime
+    max() noexcept
+    { return datetime{modified_julian_day::plus_infinity(), 0}; }
+    
+    /// Minimum possible date (seconds are 0, modified_julian_day is min
+    /// possible).
+    constexpr static datetime
+    min() noexcept
+    { return datetime{modified_julian_day::minus_infinity(), 0}; }
+
     /// Default (zero) constructor.
     explicit constexpr datetime() noexcept
     : m_mjd(ngpt::j2000_mjd), m_sec(0)
