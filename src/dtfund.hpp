@@ -340,6 +340,10 @@ public:
     /// Operator == (equality).
     constexpr bool operator==(const modified_julian_day& d) const noexcept
     { return m_mjd == d.m_mjd; }
+    
+    /// Operator != (inequality).
+    constexpr bool operator!=(const modified_julian_day& d) const noexcept
+    { return !(*this == d); }
 
     /// Operator > (greater than).
     constexpr bool operator>(const modified_julian_day& d) const noexcept
