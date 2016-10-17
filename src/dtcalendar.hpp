@@ -108,6 +108,20 @@ public:
     constexpr bool operator<=(const datetime_interval& d) const noexcept
     { return m_days < d.m_days || (m_days == d.m_days && m_secs <= d.m_secs); }
 
+    datetime_interval operator/(int div) const noexcept
+    {
+        double d = static_cast<double>(m_days.as_underlying_type());
+        double i, f;
+        f = std::modf(d/div, &i);
+        auto new_mjd = static_cast<modified_julian_day::underlying_type>(i);
+        
+        d = static_cast<double>(m_secs.as_underlying_type());
+        d = d/div + f*S::max_in_day;
+        auto new_sec = static_cast<typename S::underlying_type>(d);
+
+        return datetime_interval{modified_julian_day{new_mjd}, S{new_sec}};
+    }
+
 private:
     modified_julian_day m_days;
     S                   m_secs;
