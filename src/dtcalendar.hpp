@@ -108,6 +108,12 @@ public:
     constexpr bool operator<=(const datetime_interval& d) const noexcept
     { return m_days < d.m_days || (m_days == d.m_days && m_secs <= d.m_secs); }
 
+    constexpr bool operator==(const datetime_interval& d) const noexcept
+    { return (m_days == d.m_days) && (m_secs == d.m_secs); }
+    
+    constexpr bool operator!=(const datetime_interval& d) const noexcept
+    { return !(this->operator==(d)); }
+
     datetime_interval operator/(int div) const noexcept
     {
         double d = static_cast<double>(m_days.as_underlying_type());
