@@ -71,6 +71,14 @@ public:
     S secs() const noexcept
     { return m_secs; }
     
+    /// Cast to double (i.e. fractional) Modified Julian Date.
+    constexpr double
+    as_mjd() const noexcept
+    {
+        return static_cast<double>(m_days.as_underlying_type())
+            + m_secs.fractional_days();
+    }
+    
     /// \brief Normalize a datetime_interval instance.
     ///
     /// Split the date and time parts such that the time part is always less
