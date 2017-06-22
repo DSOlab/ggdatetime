@@ -14,6 +14,12 @@ constexpr long MicroSec = 1000000L;
 constexpr long NanoSec  = 1000000000L;
 constexpr long maxL     = std::numeric_limits<long int>::max();
 
+// This is a bit tricky ....
+// Suppose you have a template function, based on any sec-type parameter (e.g.
+// seconds, milliseconds, etc) in which you want to call the (static) function
+// S::sec_factor<T>(). To do this, you need to implement the function as follows
+template<typename S> long foo() { return S::template sec_factor<long>(); }
+
 int main()
 {
     //
@@ -121,6 +127,7 @@ int main()
     // However, it is not allowed to cast from lower to higher precsision, e.g.
     // milliseconds ml1 {sec1};   // ERROR!
     // microseconds mc1 {mlsec1}; // ERROR!
+    assert( foo<milliseconds>() == 1000 );
 
     //
     // Construction of datetime objects
