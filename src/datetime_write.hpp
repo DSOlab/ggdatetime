@@ -24,7 +24,7 @@ namespace ngpt {
 
 /// Format a double to an std::string using std::fixed and a precision on
 /// n digits
-std::string
+inline std::string
 _d2s_(double d, int n=2) noexcept
 {
     std::stringstream stream;
@@ -33,7 +33,7 @@ _d2s_(double d, int n=2) noexcept
 }
 
 /// Format a double to an std::string with a width of w chars
-std::string
+inline std::string
 _i2s_(int i, int w=2) noexcept
 {
     std::stringstream stream;

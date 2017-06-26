@@ -580,6 +580,7 @@ private:
 
 
 /// Difference between two dates in MJdays and T.
+/// Diff is dt1 - dt2
 template<typename T, 
         typename = std::enable_if_t<T::is_of_sec_type>
         >
