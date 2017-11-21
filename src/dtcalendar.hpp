@@ -430,7 +430,7 @@ public:
     /// Overload in-equality operator.
     /// \warning Expects normalized datetimes.
     constexpr bool operator!=(const datetime& d) const noexcept
-    { return !(this->operator=(d)); }
+    { return !(this->operator==(d)); }
 
     /// Overload ">" operator.
     /// \warning Expects normalized datetimes.
