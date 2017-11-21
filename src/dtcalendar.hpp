@@ -426,6 +426,11 @@ public:
     /// \warning Expects normalized datetimes.
     constexpr bool operator==(const datetime& d) const noexcept
     { return m_mjd == d.m_mjd && m_sec == d.m_sec; }
+    
+    /// Overload in-equality operator.
+    /// \warning Expects normalized datetimes.
+    constexpr bool operator!=(const datetime& d) const noexcept
+    { return !(this->operator=(d)); }
 
     /// Overload ">" operator.
     /// \warning Expects normalized datetimes.
