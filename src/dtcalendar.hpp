@@ -1,14 +1,14 @@
 ///
-/// \file  dtcalendar.hpp
+/// @file  dtcalendar.hpp
 ///
-/// \brief A fundamental, template datetime class.
+/// @brief A fundamental, template datetime class.
 ///
 /// This file contains the definition (and implementation) of a datetime class
 /// to be used for GNSS applications.
 ///
-/// \author xanthos
+/// @author xanthos
 ///
-/// \bug No known bugs.
+/// @bug No known bugs.
 ///
 
 #ifndef __DTCALENDAR_NGPT__HPP__
@@ -25,7 +25,7 @@
 namespace ngpt
 {
 
-/// \brief A generic, templatized class to hold a datetime period/interval.
+/// @brief A generic, templatized class to hold a datetime period/interval.
 ///
 /// A datetime_interval represents a time (datetime) interval or period, i.e.
 /// 5 days, 12 hours and 49 seconds. We assume a continuous time scale (no leap
@@ -38,7 +38,7 @@ namespace ngpt
 ///
 /// The purpose of this class is to work together with the datetime class.
 ///
-/// \tparam S Any class of 'second type', i.e. any class S that has a (static)
+/// @tparam S Any class of 'second type', i.e. any class S that has a (static)
 ///           member variable S::is_of_sec_type set to true. This can be
 ///           ngpt::seconds, ngpt::milliseconds, ngpt::microseconds.
 ///
@@ -65,10 +65,12 @@ public:
       m_secs{std::get<1>(t)}
     {};
 
-    modified_julian_day days() const noexcept
+    modified_julian_day
+    days() const noexcept
     { return m_days; }
     
-    S secs() const noexcept
+    S
+    secs() const noexcept
     { return m_secs; }
     
     /// Cast to double (i.e. fractional) Modified Julian Date.
@@ -79,13 +81,14 @@ public:
             + m_secs.fractional_days();
     }
     
-    /// \brief Normalize a datetime_interval instance.
+    /// @brief Normalize a datetime_interval instance.
     ///
     /// Split the date and time parts such that the time part is always less
     /// than one day (i.e. make it time-of-day) and positive (i.e.>=0).
     /// Remove whole days of from the time part and add them to the date part.
     ///
-    constexpr void normalize() noexcept
+    constexpr void
+    normalize() noexcept
     {
         typename S::underlying_type secs { m_secs.as_underlying_type() };
 
@@ -104,25 +107,32 @@ public:
         }
     }
 
-    constexpr bool operator>(const datetime_interval& d) const noexcept
+    constexpr bool
+    operator>(const datetime_interval& d) const noexcept
     { return m_days > d.m_days || (m_days == d.m_days && m_secs > d.m_secs); }
     
-    constexpr bool operator>=(const datetime_interval& d) const noexcept
+    constexpr bool
+    operator>=(const datetime_interval& d) const noexcept
     { return m_days > d.m_days || (m_days == d.m_days && m_secs >= d.m_secs); }
     
-    constexpr bool operator<(const datetime_interval& d) const noexcept
+    constexpr bool
+    operator<(const datetime_interval& d) const noexcept
     { return m_days < d.m_days || (m_days == d.m_days && m_secs < d.m_secs); }
     
-    constexpr bool operator<=(const datetime_interval& d) const noexcept
+    constexpr bool
+    operator<=(const datetime_interval& d) const noexcept
     { return m_days < d.m_days || (m_days == d.m_days && m_secs <= d.m_secs); }
 
-    constexpr bool operator==(const datetime_interval& d) const noexcept
+    constexpr bool
+    operator==(const datetime_interval& d) const noexcept
     { return (m_days == d.m_days) && (m_secs == d.m_secs); }
     
-    constexpr bool operator!=(const datetime_interval& d) const noexcept
+    constexpr bool
+    operator!=(const datetime_interval& d) const noexcept
     { return !(this->operator==(d)); }
 
-    datetime_interval operator/(int div) const noexcept
+    datetime_interval
+    operator/(int div) const noexcept
     {
         double d = static_cast<double>(m_days.as_underlying_type());
         double i, f;
@@ -141,7 +151,7 @@ private:
     S                   m_secs;
 }; // end class datetime_interval
 
-/// \brief A generic, templatized Date/Time class.
+/// @brief A generic, templatized Date/Time class.
 ///
 /// A datetime instance has two fundamental parts (members):
 /// - a date part (i.e. holding the year/month/day), and 
@@ -170,11 +180,11 @@ private:
 /// internal convention is that he quasi-JD day represents UTC days whether the
 /// length is 86399, 86400 or 86401 SI seconds.
 ///
-/// \tparam S Any class of 'second type', i.e. any class S that has a (static)
+/// @tparam S Any class of 'second type', i.e. any class S that has a (static)
 ///           member variable S::is_of_sec_type set to true. This can be
 ///           ngpt::seconds, ngpt::milliseconds, ngpt::microseconds.
 ///
-/// \note Constructors can be called with the time part being more than one day;
+/// @note Constructors can be called with the time part being more than one day;
 ///       (e.g. datetime<ngpt::seconds> d {year(2016), month(12), day_of_month(15), seconds(86401};)
 ///       If you think that this is a posibility, then call datetime::normalize
 ///       imidiately after the construction. An automatic call of the function
@@ -204,12 +214,14 @@ public:
     { return datetime{modified_julian_day::minus_infinity(), S{0}}; }
 
     /// Default (zero) constructor.
-    explicit constexpr datetime() noexcept
+    explicit constexpr
+    datetime() noexcept
     : m_mjd(ngpt::j2000_mjd), m_sec(0)
     {};
     
     /// Constructor from year, month, day of month and sec type.
-    explicit constexpr datetime(year y, month m, day_of_month d, S s)
+    explicit constexpr
+    datetime(year y, month m, day_of_month d, S s)
     : m_mjd{cal2mjd(y, m, d)}, m_sec{s}
     {}
 
@@ -222,7 +234,8 @@ public:
                 bool
                 >
             >
-        explicit datetime(year y, month m, day_of_month d, T t)
+        explicit
+        datetime(year y, month m, day_of_month d, T t)
         : m_mjd{cal2mjd(y, m, d)}, m_sec{S(t)}
     {}
     
@@ -235,7 +248,8 @@ public:
                 bool
                 >
             >
-        explicit datetime(year y, day_of_year d, T t)
+        explicit
+        datetime(year y, day_of_year d, T t)
         : m_mjd{ydoy2mjd(y, d)}, m_sec{S(t)}
     {}
     
@@ -312,28 +326,29 @@ public:
     {}
 
     /// Get the Modified Julian Day (const).
-    constexpr modified_julian_day  mjd() const noexcept { return m_mjd; }
+    constexpr modified_julian_day
+    mjd() const noexcept { return m_mjd; }
     
     /// Get the Modified Julian Day.
-    constexpr modified_julian_day& mjd() noexcept { return m_mjd; }
+    constexpr modified_julian_day&
+    mjd() noexcept { return m_mjd; }
 
-    #ifdef DEBUG
     /// Get the sec type:
-    constexpr typename S::underlying_type secs() const noexcept
+    constexpr typename S::underlying_type
+    secs() const noexcept
     { return m_sec.as_underlying_type(); }
-    #endif
 
-    /// \brief Add any second type T, convertible to S.
+    /// @brief Add any second type T, convertible to S.
     /// 
     /// Add to the datetime instance an amount of t 'second type'. If the total
     /// amount of the 'second type' adds up to more than a day, the instance is
     /// normalized.
     ///
-    /// \tparam    T A 'second type' that is or can be converted to S
-    /// \param[in] t The amount of T to add to the datetime instance.
-    /// \throw       Does not throw
+    /// @tparam    T A 'second type' that is or can be converted to S
+    /// @param[in] t The amount of T to add to the datetime instance.
+    /// @throw       Does not throw
     /// 
-    /// \note
+    /// @note
     ///     - If the total amount of the 'second type' adds up to more than a
     ///       day, the instance is normalized.
     ///     - The parameter t should not be negative! If the total time of day
@@ -341,31 +356,32 @@ public:
     ///       need to add a negative amount of seconds, use
     ///       datetime::remove_seconds
     ///
-    /// \see datetime::remove_seconds
+    /// @see datetime::remove_seconds
     template<class T,
             typename = std::enable_if_t<T::is_of_sec_type>,
             typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool
                 >
             >
-        constexpr void add_seconds(T t) noexcept
+        constexpr void
+        add_seconds(T t) noexcept
     { 
         m_sec += static_cast<S>(t);
         this->normalize();
         return;
     }
 
-    /// \brief Add a Modified Julian Day and any second type T to a datetime.
+    /// @brief Add a Modified Julian Day and any second type T to a datetime.
     ///
     /// This is actually like adding two datetime instances, only the second
     /// instance is given in parts (date and time).
     ///
-    /// \tparam    T    A 'second type' that is or can be converted to S
-    /// \param[in] days The (MJ)Days to add
-    /// \param[in] secs The amount of T to add to the datetime instance.
-    /// \throw          Does not throw
+    /// @tparam    T    A 'second type' that is or can be converted to S
+    /// @param[in] days The (MJ)Days to add
+    /// @param[in] secs The amount of T to add to the datetime instance.
+    /// @throw          Does not throw
     /// 
-    /// \note
+    /// @note
     ///     - If the total amount of the 'second type' adds up to more than a
     ///       day, the instance is normalized.
     ///     - The parameter t should not be negative! If the total time of day
@@ -373,15 +389,15 @@ public:
     ///       need to add a negative amount of seconds, use
     ///       datetime::remove_seconds
     ///
-    /// \see datetime::remove_seconds.
+    /// @see datetime::remove_seconds.
     template<class T,
             typename = std::enable_if_t<T::is_of_sec_type>,
             typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool
                 >
             >
-        constexpr datetime<S> add(modified_julian_day days, T secs)
-        const noexcept
+        constexpr datetime<S>
+        add(modified_julian_day days, T secs) const noexcept
     { 
         datetime<S> new_dt { days+m_mjd, static_cast<S>(secs)+m_sec };
         new_dt.normalize();
@@ -390,9 +406,9 @@ public:
     
     /// Subtract any second type T, convertible to S.
     ///
-    /// \tparam    T    A 'second type' that is or can be converted to S
-    /// \param[in] t    The amount of T to subtract from the datetime instance.
-    /// \throw          Does not throw
+    /// @tparam    T    A 'second type' that is or can be converted to S
+    /// @param[in] t    The amount of T to subtract from the datetime instance.
+    /// @throw          Does not throw
     ///
     /// Given a normalized intstance, after the operation, the instance will 
     /// still be normalized.
@@ -402,7 +418,8 @@ public:
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool
                 >
             >
-        constexpr void remove_seconds(T t) noexcept
+        constexpr void
+        remove_seconds(T t) noexcept
     { 
         m_sec -= (S)t;
         /*
@@ -417,56 +434,65 @@ public:
 
     /// Return the difference of two datetimes as second type S. The difference
     /// is: calling_instance - passed_instance.
-    constexpr S delta_sec(const datetime& d) const noexcept
+    constexpr S
+    delta_sec(const datetime& d) const noexcept
     {
         return (m_sec - d.m_sec) + mjd_sec_diff<S>(m_mjd, d.m_mjd);
     }
 
     /// Overload equality operator.
-    /// \warning Expects normalized datetimes.
-    constexpr bool operator==(const datetime& d) const noexcept
+    /// @warning Expects normalized datetimes.
+    constexpr bool
+    operator==(const datetime& d) const noexcept
     { return m_mjd == d.m_mjd && m_sec == d.m_sec; }
     
     /// Overload in-equality operator.
-    /// \warning Expects normalized datetimes.
-    constexpr bool operator!=(const datetime& d) const noexcept
+    /// @warning Expects normalized datetimes.
+    constexpr bool
+    operator!=(const datetime& d) const noexcept
     { return !(this->operator==(d)); }
 
     /// Overload ">" operator.
-    /// \warning Expects normalized datetimes.
-    constexpr bool operator>(const datetime& d) const noexcept
+    /// @warning Expects normalized datetimes.
+    constexpr bool
+    operator>(const datetime& d) const noexcept
     { return m_mjd > d.m_mjd || (m_mjd == d.m_mjd && m_sec > d.m_sec); }
     
     /// Overload ">=" operator.
-    /// \warning Expects normalized datetimes.
-    constexpr bool operator>=(const datetime& d) const noexcept
+    /// @warning Expects normalized datetimes.
+    constexpr bool
+    operator>=(const datetime& d) const noexcept
     { return m_mjd > d.m_mjd || (m_mjd == d.m_mjd && m_sec >= d.m_sec); }
     
     /// Overload "<" operator.
-    /// \warning Expects normalized datetimes.
-    constexpr bool operator<(const datetime& d) const noexcept
+    /// @warning Expects normalized datetimes.
+    constexpr bool
+    operator<(const datetime& d) const noexcept
     { return m_mjd < d.m_mjd || (m_mjd == d.m_mjd && m_sec < d.m_sec); }
     
     /// Overload "<=" operator.
-    /// \warning Expects normalized datetimes.
-    constexpr bool operator<=(const datetime& d) const noexcept
+    /// @warning Expects normalized datetimes.
+    constexpr bool
+    operator<=(const datetime& d) const noexcept
     { return m_mjd < d.m_mjd || (m_mjd == d.m_mjd && m_sec <= d.m_sec); }
 
     /// Add a time interval to a datetime instance.
-    constexpr void operator+=(const datetime_interval<S>& dt) noexcept
+    constexpr void
+    operator+=(const datetime_interval<S>& dt) noexcept
     {
         m_mjd += dt.days();
         m_sec += dt.secs();
         normalize();
     }
 
-    /// \brief Normalize a datetime instance.
+    /// @brief Normalize a datetime instance.
     ///
     /// Split the date and time parts such that the time part is always less
     /// than one day (i.e. make it time-of-day) and positive (i.e.>=0).
     /// Remove whole days of from the time part and add them to the date part.
     ///
-    constexpr void normalize() noexcept
+    constexpr void
+    normalize() noexcept
     {
         typename S::underlying_type secs { m_sec.as_underlying_type() };
 
@@ -488,7 +514,7 @@ public:
     /// Difference between two dates in MJdays and S.
     /// d1.delta_date(d2) is d1-d2
     ///
-    /// \bug needsmore documentation
+    /// @bug needsmore documentation
     constexpr /*std::tuple<modified_julian_day, S>*/ datetime_interval<S>
     delta_date(const datetime& d) const noexcept
     {
@@ -520,15 +546,16 @@ public:
     }
 
     /// Cast to double (i.e. fractional) Modified Julian Date.
-    constexpr double as_mjd() const noexcept
+    constexpr double
+    as_mjd() const noexcept
     {
         return static_cast<double>(m_mjd.as_underlying_type())
             + m_sec.fractional_days();
     }
 
     /// Cast to year, month, day of month
-    /// \bug should i normalize the (this) date before calling to_ymd()
-    /// \warning Expects normalized instance.
+    /// @bug should i normalize the (this) date before calling to_ymd()
+    /// @warning Expects normalized instance.
     constexpr std::tuple<year, month, day_of_month>
     as_ymd() const noexcept
     {
@@ -540,8 +567,8 @@ public:
     }
 
     /// Cast to year, day_of_year
-    /// \bug should i normalize the (this) date before calling to_ymd()
-    /// \warning Expects normalized instance.
+    /// @bug should i normalize the (this) date before calling to_ymd()
+    /// @warning Expects normalized instance.
     constexpr std::tuple<year, day_of_year>
     as_ydoy() const noexcept
     {
@@ -555,8 +582,8 @@ public:
     constexpr std::tuple<hours, minutes, seconds, long>
     as_hmsf() const noexcept { return m_sec.to_hmsf(); }
 
-#ifdef DEBUG
-    std::string stringify() const
+    std::string
+    stringify() const
     {
         auto ymd { this->as_ymd() };
         auto hms { this->as_hmsf() };
@@ -575,7 +602,6 @@ public:
              + "+" + out.str()
         };
     }
-#endif
 
 private:
     modified_julian_day m_mjd;  ///< Modified Julian Day
