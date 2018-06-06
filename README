@@ -16,15 +16,15 @@ tested under g++
 ## Installation
 ==============================================================================
 
-Production Version
-------------------
+### Production Version
+----------------------
 To build the "production" version, follow the "standard procedure", aka
-(in the ROOT_DIR) type the following commands:
+(in the `ROOT_DIR`) type the following commands:
 $> ./configure ## (run configure placed in ROOTDIR)
 $> make all
 $> sudo make install
 
-The library will be placed under /usr/local/lib, as
+The library will be placed under `/usr/local/lib`, as
 libggdatetime.a (dynamic version)
 libggdatetime.so (static version)
 
@@ -32,8 +32,8 @@ Note that you have to update/add the above path to be able to link against the
 library. This can be done in a number of ways, e.g. have your system
 administrator add /usr/local/lib to '/etc/ld.so.conf'
 
-Debug Version
--------------
+### Debug Version
+-----------------
 To build the "debug" version, you will need to re-make the Makefile.in files
 (in ROOTDIR/src and ROOTDIR/test). To do this, you will need to use the
 Makefile.am.debug files, under ROOTDIR/src and ROOTDIR/test.
@@ -54,7 +54,7 @@ $> sudo make install
 
 Note that you only need the "debug" version if you want to mess with the code.
 
-Verification
--------------
+### Verification
+----------------
 After a successeful installation, you should be able to run the test program
 ROOTDIR/test/testDatetime
