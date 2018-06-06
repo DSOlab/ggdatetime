@@ -42,6 +42,9 @@ $> mv ROOTDIR/src/Makefile.am.debug ROOTDIR/src/Makefile.am
 $> mv ROOTDIR/test/Makefile.am.debug ROOTDIR/test/Makefile.am
 
 Run autoreconf -i to produce the respective, new, Makefile.in files.
+(Note that autoreconf is part of Autotools package; you may have to install this
+package)
+$> autoreconf -i
 
 Now follow the the "standard procedure", aka
 (in the ROOT_DIR) type the following commands:
