@@ -14,6 +14,7 @@
 #ifndef __DTCALENDAR_NGPT__HPP__
 #define __DTCALENDAR_NGPT__HPP__
 
+#include <cassert>
 #include "dtfund.hpp"
 
 #ifdef DEBUG
@@ -31,6 +32,8 @@ namespace ngpt
 /// 5 days, 12 hours and 49 seconds. We assume a continuous time scale (no leap
 /// seconds are taken into consideration --this is only an interval not an
 /// actual datetime instance--).
+/// A datetime_interval instance can only have positive (or zero) values (for
+/// both its members).
 ///
 /// A datetime_interval instance has two fundamental parts (members):
 /// - a day part (i.e. holding the days), and 
@@ -42,33 +45,58 @@ namespace ngpt
 ///           member variable S::is_of_sec_type set to true. This can be
 ///           ngpt::seconds, ngpt::milliseconds, ngpt::microseconds.
 ///
+///
+/// @note  - Any instance of the class has two members, m_days an integer
+///          representing the (MJ) days and m_secs, an instance of type S, 
+///          representing the fractional day part. However, the parts may be
+///          mixed (!), that is if e.g. S is ngpt::seconds, the m_secs part may
+///          actualy have any value, including ones larger than 86400. That is
+///          to say that an instance can be constructed as:
+///        \code{.cpp}
+///          datetime_interval<seconds> d {modified_julian_day(1), seconds(90000)};
+///        \endcode
+///          Should the user want the "normalization" of the instance (that is
+///          remove whole days from the m_secs part and add them to the m_days
+///          part), call the function datetime_interval::normalize().
+///          
 template<class S,
         typename = std::enable_if_t<S::is_of_sec_type>
         >
     class datetime_interval {
 public:
-    explicit
-    constexpr datetime_interval() noexcept
+
+    /// Null constructor (everything set to 0).
+    explicit constexpr
+    datetime_interval() noexcept
     : m_days{0},
       m_secs{0}
     {};
 
-    explicit
-    constexpr datetime_interval(modified_julian_day d, S s) noexcept
+    /// Constructor given a Modified Julian Day and *seconds (type S).
+    ///
+    /// param[in] d  Number of days; a ngpt::modified_julian_day instance.
+    /// param[in] s  Number of *seconds; an instance of type S
+    ///
+    /// @note The constructor will check for negative values in the input
+    ///       paramters. If any of the two is negative, then the function
+    ///       will abort (via assert).
+    explicit constexpr
+    datetime_interval(modified_julian_day d, S s) noexcept
     : m_days{d},
       m_secs{s}
-    {};
+    {
+        assert( m_days.as_underlying_type() >= 0
+             && m_secs.as_underlying_type() >= 0 );
+    };
 
-    explicit
-    constexpr datetime_interval(std::tuple<modified_julian_day, S>&& t) noexcept
-    : m_days{std::get<0>(t)},
-      m_secs{std::get<1>(t)}
-    {};
-
+    /// Get the number of days of the instance.
+    /// @return The number of days in the instance, as ngpt::modified_julian_day
     modified_julian_day
     days() const noexcept
     { return m_days; }
     
+    /// Get the number of *seconds (as type S) of the instance.
+    /// @return The number of *seconds (as type S) of the instance.
     S
     secs() const noexcept
     { return m_secs; }
@@ -86,7 +114,6 @@ public:
     /// Split the date and time parts such that the time part is always less
     /// than one day (i.e. make it time-of-day) and positive (i.e.>=0).
     /// Remove whole days of from the time part and add them to the date part.
-    ///
     constexpr void
     normalize() noexcept
     {
@@ -98,39 +125,49 @@ public:
             modified_julian_day _add {static_cast<long>(m_secs.remove_days())};
             m_days += _add;
             return;
-        } else { /* negative *seconds */
+        }
+        /*
+        else { // negative *seconds
             while (secs < 0) {
                 secs += S::max_in_day;
                 --m_days;
             }
             m_secs = static_cast<S>(secs);
         }
+        */
     }
 
+    /// Operator >
     constexpr bool
     operator>(const datetime_interval& d) const noexcept
     { return m_days > d.m_days || (m_days == d.m_days && m_secs > d.m_secs); }
     
+    /// Operator >=
     constexpr bool
     operator>=(const datetime_interval& d) const noexcept
     { return m_days > d.m_days || (m_days == d.m_days && m_secs >= d.m_secs); }
     
+    /// Operator <
     constexpr bool
     operator<(const datetime_interval& d) const noexcept
     { return m_days < d.m_days || (m_days == d.m_days && m_secs < d.m_secs); }
     
+    /// Operator <=
     constexpr bool
     operator<=(const datetime_interval& d) const noexcept
     { return m_days < d.m_days || (m_days == d.m_days && m_secs <= d.m_secs); }
 
+    /// Operator ==
     constexpr bool
     operator==(const datetime_interval& d) const noexcept
     { return (m_days == d.m_days) && (m_secs == d.m_secs); }
     
+    /// Operator !=
     constexpr bool
     operator!=(const datetime_interval& d) const noexcept
     { return !(this->operator==(d)); }
 
+    /// @todo wtf is this?? it needs checking
     datetime_interval
     operator/(int div) const noexcept
     {
@@ -223,7 +260,13 @@ public:
     explicit constexpr
     datetime(year y, month m, day_of_month d, S s)
     : m_mjd{cal2mjd(y, m, d)}, m_sec{s}
-    {}
+    {
+#ifdef USE_DATETIME_CHECKS
+        assert( y.as_underlying_type() > 0
+             && (m.as_underlying_type() >=1 && m.as_underlying_type() <= 12)
+             && d.is_valid(y, m) );
+#endif
+    };
 
     /// Constructor from year, month, day of month and any sec type T,
     /// convertible to S.

@@ -1,22 +1,24 @@
 ///
-/// \file  dtfund.cpp
+/// @file  dtfund.cpp
 ///
-/// \brief Implementation file for header dtfund.hpp.
+/// @brief Implementation file for header dtfund.hpp.
 ///
 /// This file contains fundamental constants and algorithms for manipulating
 /// date and time, targeting GNSS applications.
 ///
-/// \author xanthos
+/// @author xanthos
 ///
-/// \bug No known bugs.
+/// @bug No known bugs.
 ///
 
 #include "dtfund.hpp"
 
 /// Definition for static month array (short names).
+/// @see ngpt::month
 constexpr const char* ngpt::month::short_names[];
 
 /// Definition for static month array (long names).
+/// @see ngpt::month
 constexpr const char* ngpt::month::long_names[];
 
 /// Number of days past at the end of non-leap and leap years.
@@ -25,17 +27,14 @@ constexpr static long month_day[2][13] = {
     {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}
 };
 
-///
 /// Given a calendar date (i.e. year, month and day of month), compute the 
 /// corresponding Modified Julian Day. The input date is checked and an 
 /// exception is thrown if it is invalid.
-///
 long
 ngpt::cal2mjd(int iy, int im, int id)
 {
     // Month lengths in days
-    static constexpr int mtab[] = 
-        {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    constexpr int mtab[] =  {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
     // Validate month
     if ( im < 1 || im > 12 ) {
@@ -73,7 +72,7 @@ ngpt::month::month(const char* str)
 {
     m_month = 0;
     
-    if ( std::strlen(str)  >= 3 ) {
+    if ( std::strlen(str) >= 3 ) {
         for (int i = 0; i < 12; ++i) {
             if ( !std::strncmp(short_names[i], str, 3) ) {
                 m_month = i+1;
@@ -85,6 +84,32 @@ ngpt::month::month(const char* str)
     if (!m_month || std::strlen(str) < 3 ) {
         throw std::invalid_argument("Failed to set month from string \""+std::string(str)+"\"");
     }
+}
+
+///
+/// Validate a given day_of_month. To do this, we obviously need the month the
+/// dom refers to (to see how many day the month actualy has) and the year, to
+/// check if it is leap or not.
+///
+bool
+ngpt::day_of_month::is_valid(ngpt::year y, ngpt::month m) const noexcept
+{
+    if (m_dom <=0 || m_dom >= 32) return false;
+
+    auto iy = y.as_underlying_type();
+    auto im = m.as_underlying_type();
+
+    // Month lengths in days
+    constexpr int mtab[] =  {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+    // lets check the month first ....
+    assert(m>0 && m<13);
+
+    // If February in a leap year, 1, otherwise 0
+    int ly ( (im == 2) && is_leap(iy) );
+
+    // Validate day, taking into account leap years
+    return (m_dom <= mtab[m_dom-1] + ly);
 }
 
 ///
