@@ -156,21 +156,47 @@ int dat(year iy, month im) noexcept;
 /// @see ngpt::dat
 int dat(modified_julian_day mjd) noexcept;
 
+/*
+/// @brief A class to represent GPS time.
+///
+/// GPS Time is a uniformly counting time scale beginning at the 1/5/1980 to 
+/// 1/6/1980 midnight. January 6, 1980 is a Sunday. GPS Time counts in weeks
+/// and seconds of a week from this instant. The weeks begin at the
+/// Saturday/Sunday transition. The days of the week are numbered, with Sunday
+/// being 0, 1 Monday, etc.
+/// GPS week 0 began at the beginning of the GPS Time Scale. Within each week
+/// the time is usually denoted as the second of the week. This is a number
+/// between 0 and 604,800 (60 x 60 x 24 x 7).
+/// The word "uniformly" is used above to indicate that there are no
+/// "leap seconds" in this time system.
+class gps_time
+{
+public:
+private:
+};
+*/
+
 /// @brief A wrapper class for years.
 ///
 /// A year is represented by just an integer number. There are no limits
 /// (excpept from integer overflow) to the range of the year (integer).
+/// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
+/// year (constructor) can only have positive values.
 class year
 {
 public:
     /// Years are represented as integers.
     typedef int underlying_type;
 
-    /// Constructor; default year is 0.
+    /// Constructor; default year is 1900.
     explicit constexpr
-    year(underlying_type i=0) noexcept
+    year(underlying_type i=1900) noexcept
     : m_year(i)
-    {};
+    {
+#ifdef USE_DATETIME_CHECKS
+        assert(i > 0);
+#endif
+    };
 
     /// Get the year as year::underlying_type.
     constexpr underlying_type
@@ -199,6 +225,8 @@ private:
 /// month::is_valid method.
 /// Most functions (within ngpt) accept months in the range [1,12]; do not
 /// use the range [0,11], except if you realy know what you're doing.
+/// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
+/// month (constructor) can only have positive values in the range [1,12].
 ///
 /// @warning Most functions (within ngpt) accept months in the range [1,12];
 ///          do not use the range [0,11], except if you realy know what you're
@@ -213,7 +241,11 @@ public:
     explicit constexpr
     month(underlying_type i=1) noexcept
     : m_month(i)
-    {};
+    {
+#ifdef USE_DATETIME_CHECKS
+        assert( this->is_valid() );
+#endif
+    };
 
     /// @brief Constructor from a c-string.
     ///
@@ -280,6 +312,8 @@ private:
 /// A day_of_month is just an integer, representing the day of month. No limits
 /// are set though, so the user can construct a day_of_month from whatever 
 /// integer. Inluding negative numbers!
+/// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
+/// day_of_month (constructor) can only have positive values.
 ///
 /// @todo Provide a day_of_month::validate method.
 class day_of_month
@@ -292,7 +326,11 @@ public:
     explicit constexpr
     day_of_month(underlying_type i=1) noexcept
     : m_dom(i)
-    {};
+    {
+#ifdef USE_DATETIME_CHECKS
+        assert(i>0);
+#endif
+    };
     
     /// Get the day_of_month as day_of_month::underlying_type
     constexpr underlying_type
@@ -331,6 +369,10 @@ private:
 /// The MJD is a convenient dating system with only 5 digits, sufficient for
 /// most modern purposes. To convert between MJD and JD we need the Julian
 /// Date of Modified Julian Date zero, aka ngpt::mjd0_jd, which is 2400000.5
+/// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
+/// modified_julian_day can only have positive values, or
+/// std::numeric_limits<underlying_type>::min(), which is the only negative
+/// value allowed.
 ///
 /// @see http://tycho.usno.navy.mil/mjd.html
 class modified_julian_day
@@ -349,11 +391,15 @@ public:
     minus_infinity() noexcept
     { return modified_julian_day{std::numeric_limits<underlying_type>::min()}; }
     
-    /// Constructor; default Modified Julian Day is 0.
+    /// Constructor; default Modified Julian Day is 1.
     explicit constexpr
-    modified_julian_day(underlying_type i=0) noexcept
+    modified_julian_day(underlying_type i=1) noexcept
     : m_mjd(i) 
-    {};
+    {
+#ifdef USE_DATETIME_CHECKS
+        assert(i>0 || i==std::numeric_limits<underlying_type>::min());
+#endif
+    };
     
     /// @brief Constructor from Year and DayOfYear.
     /// 
@@ -361,6 +407,7 @@ public:
     /// @param[in] id The day of year.
     ///
     /// @see "Remondi Date/Time Algorithms", http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
+    /// @bug Where the fuck is this definition?
     explicit constexpr
     modified_julian_day(year iy, day_of_year id) noexcept;
     
@@ -377,7 +424,12 @@ public:
     /// Define subtraction (between MJDs).
     constexpr void
     operator-=(const modified_julian_day& d) noexcept
-    { m_mjd -= d.m_mjd; }
+    {
+        m_mjd -= d.m_mjd;
+#ifdef USE_DATETIME_CHECKS
+        assert( m_mjd > 0 );
+#endif
+    }
     
     /// Operator - (subtraction).
     constexpr modified_julian_day
@@ -424,6 +476,9 @@ public:
     operator--() noexcept
     {
         --m_mjd;
+#ifdef USE_DATETIME_CHECKS
+        assert(m_mjd>0);
+#endif
         return *this;
     }
 
@@ -467,6 +522,8 @@ private:
 /// [1,365/6]. In fact, one can actually use a negative integer to represent
 /// a doy. It the user wishes to check wether the given doy is indeed valid,
 /// then the method day_of_year::validate() can be used.
+/// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
+/// day_of_year (constructor) can only have zero or positive values.
 ///
 /// @todo Provide a day_of_year::validate method.
 class day_of_year
@@ -475,11 +532,15 @@ public:
     /// Day of year represented as int.
     typedef int underlying_type;
     
-    /// Constructor; default day of year is 1.
+    /// Constructor; default day of year is 0.
     explicit constexpr
-    day_of_year(underlying_type i=1) noexcept
+    day_of_year(underlying_type i=0) noexcept
     : m_doy(i)
-    {};
+    {
+#ifdef USE_DATETIME_CHECKS
+        assert(i>=0);
+#endif
+    };
     
     /// Cast to underlying type
     constexpr underlying_type
@@ -507,6 +568,8 @@ private:
 /// -- normally hour of day, although no such restriction exists --.
 /// In case a subdivision is needed (e.g. minutes, seconds, etc), then use
 /// the corresponsing classes (nngpt::minutes, ngpt::seconds, etc...).
+/// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
+/// hours (constructor) can only have zero or positive values.
 class hours
 {
 public:
@@ -517,7 +580,11 @@ public:
     explicit constexpr
     hours(underlying_type i=0) noexcept
     : m_hours(i)
-    {};
+    {
+#ifdef USE_DATETIME_CHECKS
+        assert(i>=0);
+#endif
+    };
     
     /// Get the hours as hours::underlying_type
     constexpr underlying_type
@@ -568,6 +635,8 @@ private:
 /// minutes -- normally min of hours, although no such restriction exists --.
 /// In case a subdivision is needed (e.g. seconds, milliseconds etc), then use
 /// the corresponsing classes (ngpt::seconds, ngpt::milliseconds, etc...).
+/// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
+/// minutes (constructor) can only have zero or positive values.
 class minutes
 {
 public:
@@ -578,7 +647,11 @@ public:
     explicit constexpr
     minutes(underlying_type i=0) noexcept
     : m_min(i)
-    {};
+    {
+#ifdef USE_DATETIME_CHECKS
+        assert(i>=0);
+#endif
+    };
 
     /// Get the minutes as minutes::underlying_type
     constexpr underlying_type
@@ -631,6 +704,8 @@ private:
 /// ngpt::milliseconds, ngpt::microseconds, etc); quite a few methods should be
 /// common to all of these classes, all of which have a member variable 
 /// seconds::is_of_sec_type which is set to true.
+/// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
+/// seconds (constructor) can only have zero or positive values.
 ///
 /// @warning The maximum number of days that can be expressed in seconds without
 ///          fear of overflow is given by the template function
@@ -660,7 +735,11 @@ public:
     explicit constexpr
     seconds(underlying_type i=0L) noexcept
     : m_sec(i)
-    {};
+    {
+#ifdef USE_DATETIME_CHECKS
+        assert(i>=0L);
+#endif
+    };
 
     /// Constructor from hours, minutes, seconds.
     explicit constexpr
@@ -679,7 +758,11 @@ public:
     : m_sec{  static_cast<long>(fs)
             + m.as_underlying_type()*60L
             + h.as_underlying_type()*3600L}
-    {}
+    {
+#ifdef USE_DATETIME_CHECKS
+        assert(fs>=0e0);
+#endif
+    }
     
     /// Addition operator between seconds.
     constexpr void
@@ -689,7 +772,12 @@ public:
     /// Subtraction operator between seconds.
     constexpr void
     operator-=(const seconds& sc) noexcept
-    { m_sec-=sc.m_sec; }
+    {
+        m_sec-=sc.m_sec;
+#ifdef USE_DATETIME_CHECKS
+        assert(m_sec >= 0);
+#endif
+    }
     
     /// Overload - operator (subtraction).
     constexpr seconds
@@ -799,7 +887,7 @@ public:
     { return static_cast<double>(m_sec); }
 
     /// Translate to hours, minutes, seconds and fractional seconds
-    /// \bug needs mor documentation
+    /// @bug needs mor documentation
     constexpr std::tuple<hours, minutes, seconds, long>
     to_hmsf() const noexcept
     {
@@ -836,6 +924,8 @@ private:
 /// ngpt::seconds, ngpt::microseconds, etc); quite a few methods should be 
 /// common to all of these classes, all of which have a member variable
 /// milliseconds::is_of_sec_type which is set to true.
+/// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
+/// milliseconds (constructor) can only have zero or positive values.
 /// 
 /// @note milliseconds can be cast to ngpt::seconds (via a static_cast or
 /// a C-type cast) but the opposite is not true; i.e. ngpt::seconds cannot be
@@ -866,7 +956,11 @@ public:
     /// Constructor; default milliseconds is 0.
     explicit constexpr milliseconds(underlying_type i=0L) noexcept
     : m_msec(i)
-    {};
+    {
+#ifdef USE_DATETIME_CHECKS
+        assert(i>=0L);
+#endif
+    };
  
     /// Constructor from hours, minutes, milliseconds.   
     explicit constexpr
@@ -886,7 +980,11 @@ public:
     : m_msec{ static_cast<long>(fs * sec_factor<double>())
         + (m.as_underlying_type()*60L
         + h.as_underlying_type()*3600L) * sec_factor<long>()}
-    {};
+    {
+#ifdef USE_DATETIME_CHECKS
+        assert(fs>=0e0);
+#endif
+    };
     
     /// @brief Cast to ngpt::seconds.
     /// Milliseconds can be cast to seconds (with a loss of precission).
@@ -907,7 +1005,12 @@ public:
     /// Subtraction operator.
     constexpr void
     operator-=(const milliseconds& ms) noexcept
-    { m_msec-=ms.m_msec; }
+    {
+        m_msec-=ms.m_msec;
+#ifdef USE_DATETIME_CHECKS
+        assert(m_msec>=0);
+#endif
+    }
     
     /// Subtraction operator.
     constexpr milliseconds
@@ -1020,14 +1123,14 @@ public:
     constexpr seconds
     resolve_sec(double& fraction) const noexcept
     {
-        assert( m_msec >= 0);
+        /* assert( m_msec >= 0); */
         seconds sec { m_msec / sec_factor<long>() };
         fraction = static_cast<double>(m_msec % sec_factor<long>())*1e-3;
         return sec;
     }
     
     /// Translate to hours, minutes, seconds and milliseconds
-    /// \bug need more documentation
+    /// @bug need more documentation
     constexpr std::tuple<hours, minutes, seconds, long>
     to_hmsf() const noexcept
     {
@@ -1070,6 +1173,8 @@ private:
 /// ngpt::seconds, ngpt::milliseconds, etc); quite a few methods should be 
 /// common to all of these classes, all of which have a member variable
 /// microseconds::is_of_sec_type which is set to true.
+/// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
+/// microseconds (constructor) can only have zero or positive values.
 /// 
 /// @note microseconds can be cast to ngpt::seconds and ngpt::milliseconds (via
 /// a static_cast or a C-type cast) but the opposite is not true; i.e. 
@@ -1102,7 +1207,11 @@ public:
     explicit constexpr
     microseconds(underlying_type i=0L) noexcept
     : m_msec(i)
-    {};
+    {
+#ifdef USE_DATETIME_CHECKS
+        assert(i>=0L);
+#endif
+    };
     
     /// Constructor from hours, minutes, microseconds.
     explicit constexpr
@@ -1141,7 +1250,12 @@ public:
     /// Subtraction between microseconds.
     constexpr void
     operator-=(const microseconds& ns) noexcept
-    { m_msec-=ns.m_msec; }
+    {
+        m_msec-=ns.m_msec;
+#ifdef USE_DATETIME_CHECKS
+        assert(m_msec>=0);
+#endif
+    }
 
     /// Addition between microseconds.
     constexpr microseconds
@@ -1298,8 +1412,12 @@ template<typename S,
 /// @return       The difference between d1 and d2 in the second type S (e.g.
 ///               ngpt::seconds, ngpt::milliseconds, etc)
 ///
-/// @note The difference between two Modified Julian Days is always an integral
-///       number of days (no fractional part!).
+/// @note 
+///       - The difference between two Modified Julian Days is always an integral
+///         number of days (no fractional part!).
+///       - If the code is compiled with the switch USE_DATETIME_CHECKS, then the
+///         difference can only produce a positive amount; hence be sure that
+///         d1>=d2
 template<typename S,
         typename = std::enable_if_t<S::is_of_sec_type>
         >

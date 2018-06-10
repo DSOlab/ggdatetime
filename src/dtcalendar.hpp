@@ -222,7 +222,10 @@ private:
 ///           ngpt::seconds, ngpt::milliseconds, ngpt::microseconds.
 ///
 /// @note Constructors can be called with the time part being more than one day;
-///       (e.g. datetime<ngpt::seconds> d {year(2016), month(12), day_of_month(15), seconds(86401};)
+///       (e.g.
+///       \code{.cpp}
+///         datetime<ngpt::seconds> d {year(2016), month(12), day_of_month(15), seconds(86401};)
+///       \code
 ///       If you think that this is a posibility, then call datetime::normalize
 ///       imidiately after the construction. An automatic call of the function
 ///       datetime::normalize could be added in the body of (nearly all)
@@ -372,9 +375,11 @@ public:
     constexpr modified_julian_day
     mjd() const noexcept { return m_mjd; }
     
+    /*
     /// Get the Modified Julian Day.
     constexpr modified_julian_day&
     mjd() noexcept { return m_mjd; }
+    */
 
     /// Get the sec type:
     constexpr typename S::underlying_type

@@ -103,7 +103,7 @@ ngpt::day_of_month::is_valid(ngpt::year y, ngpt::month m) const noexcept
     constexpr int mtab[] =  {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
     // lets check the month first ....
-    assert(m>0 && m<13);
+    assert(im>0 && im<13);
 
     // If February in a leap year, 1, otherwise 0
     int ly ( (im == 2) && is_leap(iy) );

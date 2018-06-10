@@ -1,14 +1,14 @@
 ///
-/// \file  datetime_read.hpp
+/// @file  datetime_read.hpp
 ///
-/// \brief Function to read in ngpt::datetime objects from various input
+/// @brief Functions to read in ngpt::datetime objects from various input
 ///        formats.
 ///
-/// \see ngpt::datetime
+/// @see ngpt::datetime
 ///
-/// \author xanthos
+/// @author xanthos
 ///
-/// \bug No known bugs.
+/// @bug No known bugs.
 ///
 
 #ifndef __NGPT_DT_READERS__
