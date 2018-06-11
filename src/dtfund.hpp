@@ -1139,9 +1139,9 @@ public:
     /// \code{.cpp}
     ///   std::tuple<hours, minutes, seconds, long> hmsf;
     ///   hmsf = some_millisecond_instance.to_hmsf();
-    ///   double fractional_seconds = (double)std::get<2>(hmsf);
-    ///   fractional_seconds /= milliseconds::sec_factor<double>();
-    ///   double fractional_seconds = std::get<2>(hmsf) + fractional_seconds;
+    ///   auto secnds = std::get<3>(hmsf);
+    ///   double fractional_seconds = (double)secnds / milliseconds::sec_factor<double>();
+    ///   fractional_seconds += (double)std::get<2>(hmsf).as_underlying_type();
     /// \code
     /// @bug need more documentation
     constexpr std::tuple<hours, minutes, seconds, long>
