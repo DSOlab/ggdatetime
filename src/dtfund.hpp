@@ -1142,7 +1142,7 @@ public:
     ///   auto secnds = std::get<3>(hmsf);
     ///   double fractional_seconds = (double)secnds / milliseconds::sec_factor<double>();
     ///   fractional_seconds += (double)std::get<2>(hmsf).as_underlying_type();
-    /// \code
+    /// \endcode
     /// @bug need more documentation
     constexpr std::tuple<hours, minutes, seconds, long>
     to_hmsf() const noexcept

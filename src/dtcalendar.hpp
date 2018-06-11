@@ -225,7 +225,7 @@ private:
 ///       (e.g.
 ///       \code{.cpp}
 ///         datetime<ngpt::seconds> d {year(2016), month(12), day_of_month(15), seconds(86401};)
-///       \code
+///       \endcode
 ///       If you think that this is a posibility, then call datetime::normalize
 ///       imidiately after the construction. An automatic call of the function
 ///       datetime::normalize could be added in the body of (nearly all)
