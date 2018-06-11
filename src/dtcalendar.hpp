@@ -232,6 +232,9 @@ private:
 ///       constructors, but that would be time consuming. So, the option chosen
 ///       is **not**  to include a call to datetime::normalize and let the user
 ///       call the function if needed.
+///
+/// @bug All operator expect normalized dates (i.e. the fraction_of_day part should
+///      not be over 1 day). We have to make sure that this is always the case.
 template<class S,
         typename = std::enable_if_t<S::is_of_sec_type>
         >
@@ -268,7 +271,9 @@ public:
         assert( y.as_underlying_type() > 0
              && (m.as_underlying_type() >=1 && m.as_underlying_type() <= 12)
              && d.is_valid(y, m) );
+        assert(s>=S{0});
 #endif
+        this->normalize();
     };
 
     /// Constructor from year, month, day of month and any sec type T,
@@ -283,7 +288,9 @@ public:
         explicit
         datetime(year y, month m, day_of_month d, T t)
         : m_mjd{cal2mjd(y, m, d)}, m_sec{S(t)}
-    {}
+    {
+        this->normalize();
+    }
     
     /// Constructor from year, day of year and any sec type T,
     /// convertible to S.
@@ -297,7 +304,9 @@ public:
         explicit
         datetime(year y, day_of_year d, T t)
         : m_mjd{ydoy2mjd(y, d)}, m_sec{S(t)}
-    {}
+    {
+        this->normalize();
+    }
     
     /// Constructor from year, month, day of month, hours, minutes and
     /// any second type T convertible to S (i.e. T can be cast to S).
@@ -311,7 +320,9 @@ public:
         explicit
         datetime(year y, month m, day_of_month d, hours hr, minutes mn, T sec)
         : m_mjd{cal2mjd(y, m, d)}, m_sec{hr, mn, S(sec)}
-    {}
+    {
+        this->normalize();
+    }
     
     /// Constructor from year, day of year, hours, minutes and
     /// any second type T convertible to S (i.e. T can be cast to S).
@@ -325,21 +336,27 @@ public:
         explicit
         datetime(year y, day_of_year d, hours hr, minutes mn, T sec)
         : m_mjd{ydoy2mjd(y, d)}, m_sec{hr, mn, S(sec)}
-    {}
+    {
+        this->normalize();
+    }
 
     /// Constructor from year, month, day of month and fractional seconds.
     explicit
     datetime(year y, month m, day_of_month d, hours hr, minutes mn,
         double fsecs)
     : m_mjd{cal2mjd(y, m, d)}, m_sec{hr, mn, fsecs}
-    {}
+    {
+        this->normalize();
+    };
     
     /// Constructor from year, day of year and fractional seconds.
     explicit
     datetime(year y, day_of_year d, hours hr, minutes mn,
         double fsecs)
     : m_mjd{ydoy2mjd(y, d)}, m_sec{hr, mn, fsecs}
-    {}
+    {
+        this->normalize();
+    };
     
     /// Constructor from year, month, day of month, hours, minutes and
     /// second type S.
@@ -347,7 +364,9 @@ public:
     datetime(year y, month m, day_of_month d, hours hr=hours(),
         minutes mn=minutes(), S sec=S())
     : m_mjd{cal2mjd(y, m, d)}, m_sec{hr, mn, sec}
-    {}
+    {
+        this->normalize();
+    };
     
     /// Constructor from year, day of year, hours, minutes and
     /// second type S.
@@ -355,7 +374,9 @@ public:
     datetime(year y, day_of_year d, hours hr=hours(),
         minutes mn=minutes(), S sec=S())
     : m_mjd{ydoy2mjd(y, d)}, m_sec{hr, mn, sec}
-    {}
+    {
+        this->normalize();
+    };
     
     /// Constructor from modified julian day, hours, minutes and 
     /// second type S.
@@ -363,13 +384,17 @@ public:
     datetime(modified_julian_day mjd, hours hr=hours(), minutes mn=minutes(),
         S sec=S())
     : m_mjd{mjd}, m_sec{hr, mn, sec}
-    {}
+    {
+        this->normalize();
+    };
     
     /// Constructor from modified julian day, and second type S.
     explicit
     datetime(modified_julian_day mjd, S sec=S())
     : m_mjd{mjd}, m_sec{sec}
-    {}
+    {
+        this->normalize();
+    };
 
     /// Get the Modified Julian Day (const).
     constexpr modified_julian_day
@@ -381,7 +406,7 @@ public:
     mjd() noexcept { return m_mjd; }
     */
 
-    /// Get the sec type:
+    /// Get the *seconds as underlying_type
     constexpr typename S::underlying_type
     secs() const noexcept
     { return m_sec.as_underlying_type(); }
@@ -405,6 +430,7 @@ public:
     ///       datetime::remove_seconds
     ///
     /// @see datetime::remove_seconds
+    /// @todo make sure the input parameter cannot be negative
     template<class T,
             typename = std::enable_if_t<T::is_of_sec_type>,
             typename = std::enable_if_t<
@@ -413,7 +439,7 @@ public:
             >
         constexpr void
         add_seconds(T t) noexcept
-    { 
+    {
         m_sec += static_cast<S>(t);
         this->normalize();
         return;
@@ -470,18 +496,15 @@ public:
         remove_seconds(T t) noexcept
     { 
         m_sec -= (S)t;
-        /*
-        while ( m_sec < (S)0 ) {
-            --m_mjd;
-            m_sec += (S)S::max_in_day;
-        }
-        */
         this->normalize();
+        assert(m_mjd >= modified_julian_day{0} && m_sec >= S{0});
         return;
     }
 
-    /// Return the difference of two datetimes as second type S. The difference
-    /// is: calling_instance - passed_instance.
+    /// Return the difference of two datetimes as second type S.
+    ///
+    /// The difference computed is: calling_instance - passed_instance, aka
+    /// this - d
     constexpr S
     delta_sec(const datetime& d) const noexcept
     {
@@ -530,7 +553,7 @@ public:
     {
         m_mjd += dt.days();
         m_sec += dt.secs();
-        normalize();
+        this->normalize();
     }
 
     /// @brief Normalize a datetime instance.
@@ -563,34 +586,12 @@ public:
     /// d1.delta_date(d2) is d1-d2
     ///
     /// @bug needsmore documentation
-    constexpr /*std::tuple<modified_julian_day, S>*/ datetime_interval<S>
+    constexpr datetime_interval<S>
     delta_date(const datetime& d) const noexcept
     {
         datetime_interval<S> dt { m_mjd - d.m_mjd, m_sec - d.m_sec };
         dt.normalize();
 	return dt;
-        /*
-        modified_julian_day::underlying_type t_mjd{0}, sign{1};
-        typename S::underlying_type t_secs{0};
-        datetime<S> d1{*this}, d2{d};
-
-        if (d2 > d1) {
-            d1 = d;
-            d2 = *this;
-            sign = -1;
-        }
-
-        t_mjd = d1.m_mjd.as_underlying_type() - d2.m_mjd.as_underlying_type();
-        t_secs= d1.m_sec.as_underlying_type() - d2.m_sec.as_underlying_type();
-        
-        while (t_secs < 0) {
-            t_secs += S::max_in_day;
-            t_mjd  -= 1;
-        }
-        t_mjd *= sign;
-        
-        return std::make_tuple(modified_julian_day{t_mjd}, S{t_secs});
-        */
     }
 
     /// Cast to double (i.e. fractional) Modified Julian Date.
@@ -602,33 +603,33 @@ public:
     }
 
     /// Cast to year, month, day of month
-    /// @bug should i normalize the (this) date before calling to_ymd()
     /// @warning Expects normalized instance.
     constexpr std::tuple<year, month, day_of_month>
     as_ymd() const noexcept
     {
-        year y;
-        month m;
+        year         y;
+        month        m;
         day_of_month d;
         std::tie(y, m, d) = m_mjd.to_ymd();
         return std::make_tuple(y, m, d);
     }
 
     /// Cast to year, day_of_year
-    /// @bug should i normalize the (this) date before calling to_ymd()
     /// @warning Expects normalized instance.
     constexpr std::tuple<year, day_of_year>
     as_ydoy() const noexcept
     {
-        year y;
+        year        y;
         day_of_year d;
         std::tie(y, d) = m_mjd.to_ydoy();
         return std::make_tuple(y, d);
     }
 
     /// Convert the time of day to hours, minutes, seconds and S
+    /// @bug needs more documentation
     constexpr std::tuple<hours, minutes, seconds, long>
-    as_hmsf() const noexcept { return m_sec.to_hmsf(); }
+    as_hmsf() const noexcept
+    { return m_sec.to_hmsf(); }
 
     std::string
     stringify() const
@@ -663,7 +664,7 @@ private:
 template<typename T, 
         typename = std::enable_if_t<T::is_of_sec_type>
         >
-    constexpr /*std::tuple<modified_julian_day, T>*/ datetime_interval<T>
+    constexpr datetime_interval<T>
     delta_date(const datetime<T>& dt1, const datetime<T>& dt2) noexcept
 {
     return dt1.delta_date( dt2 );

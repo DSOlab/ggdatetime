@@ -887,7 +887,10 @@ public:
     { return static_cast<double>(m_sec); }
 
     /// Translate to hours, minutes, seconds and fractional seconds
-    /// @bug needs mor documentation
+    ///
+    /// Translate to hours, minutes, seconds and fractional seconds. Fractional
+    /// seconds, in this case, are obviously always 0 (aka the last element of
+    /// the returned tuple, holds 0L).
     constexpr std::tuple<hours, minutes, seconds, long>
     to_hmsf() const noexcept
     {
@@ -1095,7 +1098,6 @@ public:
     constexpr int
     to_days() const noexcept
     {
-        /* assert( m_msec >= 0 ); */
         return int{static_cast<int>(m_msec/max_in_day)};
     }
     
@@ -1130,6 +1132,17 @@ public:
     }
     
     /// Translate to hours, minutes, seconds and milliseconds
+    ///
+    /// The last element in the returned tuple, is the fractional part of the
+    /// seconds, expressed as milliseconds. So, e.g. to transform this instance
+    /// to hours, minutes and fracional seconds (of day), one can do:
+    /// \code{.cpp}
+    ///   std::tuple<hours, minutes, seconds, long> hmsf;
+    ///   hmsf = some_millisecond_instance.to_hmsf();
+    ///   double fractional_seconds = (double)std::get<2>(hmsf);
+    ///   fractional_seconds /= milliseconds::sec_factor<double>();
+    ///   double fractional_seconds = std::get<2>(hmsf) + fractional_seconds;
+    /// \code
     /// @bug need more documentation
     constexpr std::tuple<hours, minutes, seconds, long>
     to_hmsf() const noexcept
