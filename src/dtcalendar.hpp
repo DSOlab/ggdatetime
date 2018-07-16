@@ -77,14 +77,19 @@ public:
     /// param[in] d  Number of days; a ngpt::modified_julian_day instance.
     /// param[in] s  Number of *seconds; an instance of type S
     ///
-    /// @note The constructor will check for negative values in the input
-    ///       paramters. If any of the two is negative, then the function
-    ///       will abort (via assert).
+    /// @note  A datetime_interval can only have positive values for its member
+    ///        variables. However, it can happen that the constructor gets a
+    ///        negative value for the seconds part, if the resulting time_interval
+    ///        is positive after normalization. E.g. datetime_interval(2, -123)
+    ///        is a valid time_interval; the constructor will first call the
+    ///        normalize function, which will transform the negative seconds to
+    ///        positive and remove whole days.
     explicit constexpr
     datetime_interval(modified_julian_day d, S s) noexcept
     : m_days{d},
       m_secs{s}
     {
+        this->normalize();
         assert( m_days.as_underlying_type() >= 0
              && m_secs.as_underlying_type() >= 0 );
     };
@@ -126,7 +131,6 @@ public:
             m_days += _add;
             return;
         }
-        /*
         else { // negative *seconds
             while (secs < 0) {
                 secs += S::max_in_day;
@@ -134,7 +138,6 @@ public:
             }
             m_secs = static_cast<S>(secs);
         }
-        */
     }
 
     /// Operator >

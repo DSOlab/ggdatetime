@@ -60,6 +60,25 @@ ngpt::cal2mjd(int iy, int im, int id)
 }
 
 ///
+/// Given a calendar date (i.e. year, month and day of month), compute the 
+/// corresponding Modified Julian Day.  
+/// Actually, this function is just a wrapper aroung ngpt::cal2mjd, designed
+/// to work with datetime classes. The implementation is all performed by
+/// ngpt::cal2mjd.
+/// This function will only throw if the underlying function (i.e. ngpt::cal2mjd)
+/// throws.
+///
+ngpt::modified_julian_day
+ngpt::cal2mjd(ngpt::year y, ngpt::month m, ngpt::day_of_month d)
+{
+    long mjd { ngpt::cal2mjd(y.as_underlying_type(),
+                             m.as_underlying_type(), 
+                             d.as_underlying_type()) };
+
+    return ngpt::modified_julian_day{mjd};
+}
+
+///
 /// Given a c-string (i.e. null-terminating char array), resolve the month.
 /// The c-string can be either a short name (i.e. a 3-character name), e.g.
 /// "Jan", or the whole, normal month name e.g. "January". Actualy, only
@@ -110,24 +129,6 @@ ngpt::day_of_month::is_valid(ngpt::year y, ngpt::month m) const noexcept
 
     // Validate day, taking into account leap years
     return (m_dom <= mtab[m_dom-1] + ly);
-}
-
-///
-/// Given a calendar date (i.e. year, month and day of month), compute the 
-/// corresponding Modified Julian Day.  
-/// Actually, this function is just a wrapper aroung ngpt::cal2mjd, designed
-/// to work with datetime classes. The implementation is all performed by
-/// ngpt::cal2mjd.
-/// This function will only throw if the underlying function (i.e. ngpt::cal2mjd)
-/// throws.
-///
-ngpt::modified_julian_day
-ngpt::cal2mjd(ngpt::year y, ngpt::month m, ngpt::day_of_month d)
-{
-    long mjd {cal2mjd(y.as_underlying_type(), m.as_underlying_type(), 
-        d.as_underlying_type()) };
-
-    return ngpt::modified_julian_day{mjd};
 }
 
 ///
