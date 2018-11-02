@@ -1,4 +1,5 @@
-noinst_PROGRAMS = testDatetime
+noinst_PROGRAMS = testDatetime \
+		  testRead
 
 MCXXFLAGS = \
 	-std=c++14 \
@@ -14,3 +15,7 @@ MCXXFLAGS = \
 testDatetime_SOURCES   = example.cpp
 testDatetime_CXXFLAGS  = $(MCXXFLAGS) -I$(top_srcdir)/src -L$(top_srcdir)/src
 testDatetime_LDADD     = $(top_srcdir)/src/libggdatetime.la
+
+testRead_SOURCES   = test_dt_read.cpp
+testRead_CXXFLAGS  = $(MCXXFLAGS) -I$(top_srcdir)/src -L$(top_srcdir)/src
+testRead_LDADD     = $(top_srcdir)/src/libggdatetime.la

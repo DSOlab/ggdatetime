@@ -341,7 +341,8 @@ pkginclude_HEADERS = \
 	dtfund.hpp \
 	dtcalendar.hpp \
 	datetime_read.hpp \
-	datetime_write.hpp
+	datetime_write.hpp \
+	gnsstm.hpp
 
 dist_libggdatetime_la_SOURCES = \
 	dtfund.cpp \

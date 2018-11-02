@@ -88,7 +88,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = testDatetime$(EXEEXT)
+noinst_PROGRAMS = testDatetime$(EXEEXT) testRead$(EXEEXT)
 subdir = test
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -109,6 +109,12 @@ am__v_lt_0 = --silent
 am__v_lt_1 = 
 testDatetime_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(testDatetime_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_testRead_OBJECTS = testRead-test_dt_read.$(OBJEXT)
+testRead_OBJECTS = $(am_testRead_OBJECTS)
+testRead_DEPENDENCIES = $(top_srcdir)/src/libggdatetime.la
+testRead_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(testRead_CXXFLAGS) \
 	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -144,8 +150,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(testDatetime_SOURCES)
-DIST_SOURCES = $(testDatetime_SOURCES)
+SOURCES = $(testDatetime_SOURCES) $(testRead_SOURCES)
+DIST_SOURCES = $(testDatetime_SOURCES) $(testRead_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -306,6 +312,9 @@ MCXXFLAGS = \
 testDatetime_SOURCES = example.cpp
 testDatetime_CXXFLAGS = $(MCXXFLAGS) -I$(top_srcdir)/src -L$(top_srcdir)/src
 testDatetime_LDADD = $(top_srcdir)/src/libggdatetime.la
+testRead_SOURCES = test_dt_read.cpp
+testRead_CXXFLAGS = $(MCXXFLAGS) -I$(top_srcdir)/src -L$(top_srcdir)/src
+testRead_LDADD = $(top_srcdir)/src/libggdatetime.la
 all: all-am
 
 .SUFFIXES:
@@ -353,6 +362,10 @@ testDatetime$(EXEEXT): $(testDatetime_OBJECTS) $(testDatetime_DEPENDENCIES) $(EX
 	@rm -f testDatetime$(EXEEXT)
 	$(AM_V_CXXLD)$(testDatetime_LINK) $(testDatetime_OBJECTS) $(testDatetime_LDADD) $(LIBS)
 
+testRead$(EXEEXT): $(testRead_OBJECTS) $(testRead_DEPENDENCIES) $(EXTRA_testRead_DEPENDENCIES) 
+	@rm -f testRead$(EXEEXT)
+	$(AM_V_CXXLD)$(testRead_LINK) $(testRead_OBJECTS) $(testRead_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -360,6 +373,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testDatetime-example.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testRead-test_dt_read.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -395,6 +409,20 @@ testDatetime-example.obj: example.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='example.cpp' object='testDatetime-example.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testDatetime_CXXFLAGS) $(CXXFLAGS) -c -o testDatetime-example.obj `if test -f 'example.cpp'; then $(CYGPATH_W) 'example.cpp'; else $(CYGPATH_W) '$(srcdir)/example.cpp'; fi`
+
+testRead-test_dt_read.o: test_dt_read.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testRead_CXXFLAGS) $(CXXFLAGS) -MT testRead-test_dt_read.o -MD -MP -MF $(DEPDIR)/testRead-test_dt_read.Tpo -c -o testRead-test_dt_read.o `test -f 'test_dt_read.cpp' || echo '$(srcdir)/'`test_dt_read.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/testRead-test_dt_read.Tpo $(DEPDIR)/testRead-test_dt_read.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test_dt_read.cpp' object='testRead-test_dt_read.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testRead_CXXFLAGS) $(CXXFLAGS) -c -o testRead-test_dt_read.o `test -f 'test_dt_read.cpp' || echo '$(srcdir)/'`test_dt_read.cpp
+
+testRead-test_dt_read.obj: test_dt_read.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testRead_CXXFLAGS) $(CXXFLAGS) -MT testRead-test_dt_read.obj -MD -MP -MF $(DEPDIR)/testRead-test_dt_read.Tpo -c -o testRead-test_dt_read.obj `if test -f 'test_dt_read.cpp'; then $(CYGPATH_W) 'test_dt_read.cpp'; else $(CYGPATH_W) '$(srcdir)/test_dt_read.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/testRead-test_dt_read.Tpo $(DEPDIR)/testRead-test_dt_read.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test_dt_read.cpp' object='testRead-test_dt_read.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testRead_CXXFLAGS) $(CXXFLAGS) -c -o testRead-test_dt_read.obj `if test -f 'test_dt_read.cpp'; then $(CYGPATH_W) 'test_dt_read.cpp'; else $(CYGPATH_W) '$(srcdir)/test_dt_read.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

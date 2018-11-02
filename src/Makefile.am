@@ -28,7 +28,8 @@ pkginclude_HEADERS = \
 	dtfund.hpp \
 	dtcalendar.hpp \
 	datetime_read.hpp \
-	datetime_write.hpp
+	datetime_write.hpp \
+	gnsstm.hpp
 
 ##
 ##  Source files (distributed).
