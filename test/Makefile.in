@@ -88,7 +88,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = testDatetime$(EXEEXT) testRead$(EXEEXT)
+noinst_PROGRAMS = testDatetime$(EXEEXT) testRead$(EXEEXT) \
+	testGPSt$(EXEEXT)
 subdir = test
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -109,6 +110,12 @@ am__v_lt_0 = --silent
 am__v_lt_1 = 
 testDatetime_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(testDatetime_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_testGPSt_OBJECTS = testGPSt-test_gpst.$(OBJEXT)
+testGPSt_OBJECTS = $(am_testGPSt_OBJECTS)
+testGPSt_DEPENDENCIES = $(top_srcdir)/src/libggdatetime.la
+testGPSt_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(testGPSt_CXXFLAGS) \
 	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_testRead_OBJECTS = testRead-test_dt_read.$(OBJEXT)
 testRead_OBJECTS = $(am_testRead_OBJECTS)
@@ -150,8 +157,10 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(testDatetime_SOURCES) $(testRead_SOURCES)
-DIST_SOURCES = $(testDatetime_SOURCES) $(testRead_SOURCES)
+SOURCES = $(testDatetime_SOURCES) $(testGPSt_SOURCES) \
+	$(testRead_SOURCES)
+DIST_SOURCES = $(testDatetime_SOURCES) $(testGPSt_SOURCES) \
+	$(testRead_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -315,6 +324,9 @@ testDatetime_LDADD = $(top_srcdir)/src/libggdatetime.la
 testRead_SOURCES = test_dt_read.cpp
 testRead_CXXFLAGS = $(MCXXFLAGS) -I$(top_srcdir)/src -L$(top_srcdir)/src
 testRead_LDADD = $(top_srcdir)/src/libggdatetime.la
+testGPSt_SOURCES = test_gpst.cpp
+testGPSt_CXXFLAGS = $(MCXXFLAGS) -I$(top_srcdir)/src -L$(top_srcdir)/src
+testGPSt_LDADD = $(top_srcdir)/src/libggdatetime.la
 all: all-am
 
 .SUFFIXES:
@@ -362,6 +374,10 @@ testDatetime$(EXEEXT): $(testDatetime_OBJECTS) $(testDatetime_DEPENDENCIES) $(EX
 	@rm -f testDatetime$(EXEEXT)
 	$(AM_V_CXXLD)$(testDatetime_LINK) $(testDatetime_OBJECTS) $(testDatetime_LDADD) $(LIBS)
 
+testGPSt$(EXEEXT): $(testGPSt_OBJECTS) $(testGPSt_DEPENDENCIES) $(EXTRA_testGPSt_DEPENDENCIES) 
+	@rm -f testGPSt$(EXEEXT)
+	$(AM_V_CXXLD)$(testGPSt_LINK) $(testGPSt_OBJECTS) $(testGPSt_LDADD) $(LIBS)
+
 testRead$(EXEEXT): $(testRead_OBJECTS) $(testRead_DEPENDENCIES) $(EXTRA_testRead_DEPENDENCIES) 
 	@rm -f testRead$(EXEEXT)
 	$(AM_V_CXXLD)$(testRead_LINK) $(testRead_OBJECTS) $(testRead_LDADD) $(LIBS)
@@ -373,6 +389,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testDatetime-example.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testGPSt-test_gpst.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testRead-test_dt_read.Po@am__quote@
 
 .cpp.o:
@@ -409,6 +426,20 @@ testDatetime-example.obj: example.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='example.cpp' object='testDatetime-example.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testDatetime_CXXFLAGS) $(CXXFLAGS) -c -o testDatetime-example.obj `if test -f 'example.cpp'; then $(CYGPATH_W) 'example.cpp'; else $(CYGPATH_W) '$(srcdir)/example.cpp'; fi`
+
+testGPSt-test_gpst.o: test_gpst.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testGPSt_CXXFLAGS) $(CXXFLAGS) -MT testGPSt-test_gpst.o -MD -MP -MF $(DEPDIR)/testGPSt-test_gpst.Tpo -c -o testGPSt-test_gpst.o `test -f 'test_gpst.cpp' || echo '$(srcdir)/'`test_gpst.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/testGPSt-test_gpst.Tpo $(DEPDIR)/testGPSt-test_gpst.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test_gpst.cpp' object='testGPSt-test_gpst.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testGPSt_CXXFLAGS) $(CXXFLAGS) -c -o testGPSt-test_gpst.o `test -f 'test_gpst.cpp' || echo '$(srcdir)/'`test_gpst.cpp
+
+testGPSt-test_gpst.obj: test_gpst.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testGPSt_CXXFLAGS) $(CXXFLAGS) -MT testGPSt-test_gpst.obj -MD -MP -MF $(DEPDIR)/testGPSt-test_gpst.Tpo -c -o testGPSt-test_gpst.obj `if test -f 'test_gpst.cpp'; then $(CYGPATH_W) 'test_gpst.cpp'; else $(CYGPATH_W) '$(srcdir)/test_gpst.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/testGPSt-test_gpst.Tpo $(DEPDIR)/testGPSt-test_gpst.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test_gpst.cpp' object='testGPSt-test_gpst.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testGPSt_CXXFLAGS) $(CXXFLAGS) -c -o testGPSt-test_gpst.obj `if test -f 'test_gpst.cpp'; then $(CYGPATH_W) 'test_gpst.cpp'; else $(CYGPATH_W) '$(srcdir)/test_gpst.cpp'; fi`
 
 testRead-test_dt_read.o: test_dt_read.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testRead_CXXFLAGS) $(CXXFLAGS) -MT testRead-test_dt_read.o -MD -MP -MF $(DEPDIR)/testRead-test_dt_read.Tpo -c -o testRead-test_dt_read.o `test -f 'test_dt_read.cpp' || echo '$(srcdir)/'`test_dt_read.cpp

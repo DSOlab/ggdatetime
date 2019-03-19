@@ -33,6 +33,7 @@ int main()
     static_assert(86400L*MilliSec < maxL, "-- MilliSeconds Overflow --");
     static_assert(86400L*MicroSec < maxL, "-- MicroSeconds Overflow --");
     static_assert(86400L*NanoSec < maxL, "-- NanoSeconds Overflow --");
+    static_assert(86400L*NanoSec*7 < maxL, "-- GPS NanoSeconds Overflow --");
     std::cout<<"A whole day fits in long for:\n";
     std::cout<<"\tMilliseconds: 86400 * 1000       = " << 86400*MilliSec <<
         ", can fit about " << maxL/(86400*MilliSec) <<" days\n";
@@ -40,6 +41,9 @@ int main()
         ", can fit about " << maxL/(86400*MicroSec) <<" days\n";
     std::cout<<"\tNanoseconds:  86400 * 1000000000 = " << 86400*NanoSec  <<
         ", can fit about " << maxL/(86400*NanoSec) <<" days\n";
+    std::cout<<"\tA whole (GPS) week in Nanoseconds:  7 * 86400 * 1000000000 = "
+      << 86400*NanoSec*7 << ", can fit about " << maxL/(86400*NanoSec*7) <<" weeks\n";
+
     std::cout<<"Part A -- OK\n\n";
 
     //

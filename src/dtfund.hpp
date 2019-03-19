@@ -36,7 +36,7 @@ namespace ngpt
 static_assert( 86400L  * 1000000L * 2 < std::numeric_limits<long>::max(),
     "FUCK! Long is not big enough to hold two days in microseconds" );
 
-/// Jan 1st 1980
+/// Jan 1st 1980 for GPS Time
 constexpr long jan61980 { 44244L };
 
 constexpr long jan11901 { 15385L };
@@ -67,6 +67,7 @@ constexpr double tt_minus_tai { 32.184e0 };
 /// Forward declerations
 class year;
 class month;
+class gps_week;
 class day_of_month;
 class day_of_year;
 class modified_julian_day;
@@ -155,26 +156,6 @@ int dat(year iy, month im) noexcept;
 /// @see IAU SOFA (iau-dat.c)
 /// @see ngpt::dat
 int dat(modified_julian_day mjd) noexcept;
-
-/*
-/// @brief A class to represent GPS time.
-///
-/// GPS Time is a uniformly counting time scale beginning at the 1/5/1980 to 
-/// 1/6/1980 midnight. January 6, 1980 is a Sunday. GPS Time counts in weeks
-/// and seconds of a week from this instant. The weeks begin at the
-/// Saturday/Sunday transition. The days of the week are numbered, with Sunday
-/// being 0, 1 Monday, etc.
-/// GPS week 0 began at the beginning of the GPS Time Scale. Within each week
-/// the time is usually denoted as the second of the week. This is a number
-/// between 0 and 604,800 (60 x 60 x 24 x 7).
-/// The word "uniformly" is used above to indicate that there are no
-/// "leap seconds" in this time system.
-class gps_time
-{
-public:
-private:
-};
-*/
 
 /// @brief A wrapper class for years.
 ///
@@ -304,6 +285,54 @@ private:
 
     /// The month as underlying_type.
     underlying_type m_month;
+
+}; // class month
+
+/// @brief A wrapper class for GPS Week.
+///
+/// The GPS Week Number count began at approximately midnight on the evening 
+/// of 05 January 1980 / morning of 06 January 1980. Since that time, the 
+/// count has been incremented by 1 each week, and broadcast as part of the GPS
+/// message.
+/// A gps week is represented by just an integer number. There are no limits
+/// (excpept from integer overflow) to the range of the month (integer), i.e. 
+/// the week is not checked (by default) to be in any range. So, a user
+/// can construct a month from whatever integer.
+class gps_week
+{
+public:
+    /// gps weeks are represented as int.
+    typedef long underlying_type;
+
+    /// Constructor; default week is 1.
+    explicit constexpr
+    gps_week(underlying_type i=1) noexcept
+    : m_week(i)
+    {
+#ifdef USE_DATETIME_CHECKS
+        assert( this->is_valid() );
+#endif
+    };
+
+    /// Get the month as month::underlying_type
+    constexpr underlying_type
+    as_underlying_type() const noexcept
+    { return m_week; }
+
+    /// Return the corresponding short name (i.e. 3-char name) e.g. "Jan".
+    /// Check if the month is within the interval [1,12].
+    bool
+    is_valid() const noexcept
+    { return m_week >=0; }
+    
+    /// Equality operator
+    constexpr bool
+    operator==(gps_week m) const noexcept
+    { return m_week == m.m_week; }
+
+private:
+    /// The month as underlying_type.
+    underlying_type m_week;
 
 }; // class month
 

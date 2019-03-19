@@ -628,6 +628,31 @@ public:
         return std::make_tuple(y, d);
     }
 
+    /// Cast to gps_week and Sec-Of-Week
+    constexpr
+    gps_week
+    as_gps_wsow(long& sow) const noexcept
+    {
+      auto mjd = m_mjd.as_underlying_type();
+      gps_week w {(mjd - jan61980)/7};
+      seconds sec {m_sec}; 
+      sow = ((mjd - jan61980) 
+            - w.as_underlying_type()*7) * seconds::max_in_day
+            + sec.as_underlying_type();
+      return w;
+    }
+    
+    /// Cast to gps_week and S-Of-Week
+    constexpr
+    gps_week
+    as_gps_wsow(S& sow) const noexcept
+    {
+      auto mjd = m_mjd.as_underlying_type();
+      gps_week w {(mjd - jan61980)/7};
+      sow = ((mjd-jan61980) - w.as_underlying_type()*7)*S::max_in_day + m_sec;
+      return w;
+    }
+
     /// Convert the time of day to hours, minutes, seconds and S
     /// @bug needs more documentation
     constexpr std::tuple<hours, minutes, seconds, long>
