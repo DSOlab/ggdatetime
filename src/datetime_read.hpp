@@ -37,29 +37,29 @@ namespace ngpt {
 ///
 /// @throw std::invalid_argument if the input string cannot be resolved.
 template<typename T>
-    datetime<T> strptime_ymd(const char* str, char** stop=nullptr)
+  datetime<T> strptime_ymd(const char* str, char** stop=nullptr)
 {
-    char *end;
-    const char* start = str;
-    int ints[3];
+  char *end;
+  const char* start = str;
+  int ints[3];
 
-    for (int i = 0; i < 3; ++i) {
-        ints[i] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
-        if (errno == ERANGE || start == end) {
-            errno = 0;
-            throw std::invalid_argument
-                ("Invalid date format: \"" + std::string(str) 
-                + "\" (argument #" + std::to_string(i+1) + ").");
-        }
-        start = end+1;
+  for (int i = 0; i < 3; ++i) {
+    ints[i] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
+    if (errno == ERANGE || start == end) {
+      errno = 0;
+      throw std::invalid_argument
+        ("Invalid date format: \"" + std::string(str) 
+         + "\" (argument #" + std::to_string(i+1) + ").");
     }
-    if (stop) *stop = end - 1;
-    return datetime<T> {year{ints[0]},
-                        month{ints[1]},
-                        day_of_month{ints[2]},
-                        hours{0},
-                        minutes{0},
-                        T{0}};
+    start = end+1;
+  }
+  if (stop) *stop = end - 1;
+  return datetime<T> {year{ints[0]},
+    month{ints[1]},
+    day_of_month{ints[2]},
+    hours{0},
+    minutes{0},
+    T{0}};
 }
 
 /// @brief Read from YYYY-DDD
@@ -73,28 +73,28 @@ template<typename T>
 ///
 /// @throw std::invalid_argument if the input string cannot be resolved.
 template<typename T>
-    datetime<T> strptime_ydoy(const char* str, char** stop=nullptr)
+  datetime<T> strptime_ydoy(const char* str, char** stop=nullptr)
 {
-    char *end;
-    const char* start = str;
-    int ints[2];
+  char *end;
+  const char* start = str;
+  int ints[2];
 
-    for (int i = 0; i < 2; ++i) {
-        ints[i] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
-        if (errno == ERANGE || start == end) {
-            errno = 0;
-            throw std::invalid_argument
-                ("Invalid date format: \"" + std::string(str)
-                + "\" (argument #" + std::to_string(i+1) + ").");
-        }
-        start = end+1;
+  for (int i = 0; i < 2; ++i) {
+    ints[i] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
+    if (errno == ERANGE || start == end) {
+      errno = 0;
+      throw std::invalid_argument
+        ("Invalid date format: \"" + std::string(str)
+         + "\" (argument #" + std::to_string(i+1) + ").");
     }
-    if (stop) *stop = end - 1;
-    return datetime<T> {year{ints[0]},
-                        day_of_year{ints[1]},
-                        hours{0},
-                        minutes{0},
-                        T{0}};
+    start = end+1;
+  }
+  if (stop) *stop = end - 1;
+  return datetime<T> {year{ints[0]},
+    day_of_year{ints[1]},
+    hours{0},
+    minutes{0},
+    T{0}};
 }
 
 /// @brief Read from YYYY-MM-DD HH:MM:SS.SSSS
@@ -108,35 +108,35 @@ template<typename T>
 ///
 /// @throw std::invalid_argument if the input string cannot be resolved.
 template<typename T>
-    datetime<T> strptime_ymd_hms(const char* str, char** stop=nullptr)
+  datetime<T> strptime_ymd_hms(const char* str, char** stop=nullptr)
 {
-    char *end;
-    const char* start = str;
-    int ints[5];
-    double secs;
+  char *end;
+  const char* start = str;
+  int ints[5];
+  double secs;
 
-    for (int i = 0; i < 5; ++i) {
-        ints[i] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
-        if (errno == ERANGE || start == end) {
-            errno = 0;
-            throw std::invalid_argument
-                ("Invalid date format: \""+std::string(str)+"\" (argument #" + std::to_string(i+1) + ").");
-        }
-        start = end+1;
+  for (int i = 0; i < 5; ++i) {
+    ints[i] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
+    if (errno == ERANGE || start == end) {
+      errno = 0;
+      throw std::invalid_argument
+        ("Invalid date format: \""+std::string(str)+"\" (argument #" + std::to_string(i+1) + ").");
     }
-    secs = std::strtod(start, &end);
-    if (errno == ERANGE) {
-        errno = 0;
-        throw std::invalid_argument
-            ("Invalid date format: \""+std::string(str)+"\" (argument #6)");
-    }
-    if (stop) *stop = end;
-    return datetime<T> {year{ints[0]},
-                        month{ints[1]},
-                        day_of_month{ints[2]},
-                        hours{ints[3]},
-                        minutes{ints[4]},
-                        secs};
+    start = end+1;
+  }
+  secs = std::strtod(start, &end);
+  if (errno == ERANGE) {
+    errno = 0;
+    throw std::invalid_argument
+      ("Invalid date format: \""+std::string(str)+"\" (argument #6)");
+  }
+  if (stop) *stop = end;
+  return datetime<T> {year{ints[0]},
+    month{ints[1]},
+    day_of_month{ints[2]},
+    hours{ints[3]},
+    minutes{ints[4]},
+    secs};
 }
 
 /// @brief Read from YYYY-OOO-DD HH:MM:SS.SSSS
@@ -152,57 +152,57 @@ template<typename T>
 ///
 /// @throw std::invalid_argument if the input string cannot be resolved.
 template<typename T>
-    datetime<T> strptime_yod_hms(const char* str, char** stop=nullptr)
+  datetime<T> strptime_yod_hms(const char* str, char** stop=nullptr)
 {
-    char *end;
-    const char* start = str;
-    int ints[5];
-    char month_str[4];
-    month_str[3] = '\0';
-    double secs;
+  char *end;
+  const char* start = str;
+  int ints[5];
+  char month_str[4];
+  month_str[3] = '\0';
+  double secs;
 
-    ints[0] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
+  ints[0] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
+  if (errno == ERANGE || start == end) {
+    errno = 0;
+    throw std::invalid_argument
+      ("Invalid date format: \""+std::string(str)+"\" (argument #1).");
+  }
+  start = end+1;
+
+  if ( !std::isalpha(*start) ) ++start;
+  std::memcpy(month_str, start, 3);
+  month_str[0] = std::toupper(month_str[0]);
+  month_str[1] = std::tolower(month_str[1]);
+  month_str[2] = std::tolower(month_str[2]);
+  month mnt {month_str};
+  start += 4;
+
+  for (int i = 2; i < 5; ++i) {
+    ints[i] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
     if (errno == ERANGE || start == end) {
-        errno = 0;
-        throw std::invalid_argument
-            ("Invalid date format: \""+std::string(str)+"\" (argument #1).");
+      errno = 0;
+      throw std::invalid_argument
+        ("Invalid date format: \"" + std::string(str) 
+         +"\" (argument #" + std::to_string(i+1) + ").");
     }
     start = end+1;
+  }
 
-    if ( !std::isalpha(*start) ) ++start;
-    std::memcpy(month_str, start, 3);
-    month_str[0] = std::toupper(month_str[0]);
-    month_str[1] = std::tolower(month_str[1]);
-    month_str[2] = std::tolower(month_str[2]);
-    month mnt {month_str};
-    start += 4;
+  secs = std::strtod(start, &end);
+  if (errno == ERANGE) {
+    errno = 0;
+    throw std::invalid_argument
+      ("Invalid date format: \"" + std::string(str) + "\" (argument #6)");
+  }
 
-    for (int i = 2; i < 5; ++i) {
-        ints[i] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
-        if (errno == ERANGE || start == end) {
-            errno = 0;
-            throw std::invalid_argument
-                ("Invalid date format: \"" + std::string(str) 
-                +"\" (argument #" + std::to_string(i+1) + ").");
-        }
-        start = end+1;
-    }
-    
-    secs = std::strtod(start, &end);
-    if (errno == ERANGE) {
-        errno = 0;
-        throw std::invalid_argument
-            ("Invalid date format: \"" + std::string(str) + "\" (argument #6)");
-    }
-    
-    if (stop) *stop = end;
+  if (stop) *stop = end;
 
-    return datetime<T> {year{ints[0]},
-                        mnt,
-                        day_of_month{ints[2]},
-                        hours{ints[3]},
-                        minutes{ints[4]},
-                        secs};
+  return datetime<T> {year{ints[0]},
+    mnt,
+    day_of_month{ints[2]},
+    hours{ints[3]},
+    minutes{ints[4]},
+    secs};
 }
 
 /// @brief Read from YYYY-DDD HH:MM:SS.SSSS
@@ -216,35 +216,35 @@ template<typename T>
 ///
 /// @throw std::invalid_argument if the input string cannot be resolved.
 template<typename T>
-    datetime<T> strptime_ydoy_hms(const char* str, char** stop=nullptr)
+  datetime<T> strptime_ydoy_hms(const char* str, char** stop=nullptr)
 {
-    char *end;
-    const char* start = str;
-    int ints[4];
-    double secs;
+  char *end;
+  const char* start = str;
+  int ints[4];
+  double secs;
 
-    for (int i = 0; i < 4; ++i) {
-        ints[i] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
-        if (errno == ERANGE || start == end) {
-            errno = 0;
-            throw std::invalid_argument
-                ("Invalid date format: \"" + std::string(str) 
-                + "\" (argument #" + std::to_string(i+1) + ").");
-        }
-        start = end+1;
+  for (int i = 0; i < 4; ++i) {
+    ints[i] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
+    if (errno == ERANGE || start == end) {
+      errno = 0;
+      throw std::invalid_argument
+        ("Invalid date format: \"" + std::string(str) 
+         + "\" (argument #" + std::to_string(i+1) + ").");
     }
-    secs = std::strtod(start, &end);
-    if (errno == ERANGE) {
-        errno = 0;
-        throw std::invalid_argument
-            ("Invalid date format: \""+std::string(str)+"\" (argument #5)");
-    }
-    if (stop) *stop = end;
-    return datetime<T> {year{ints[0]},
-                        day_of_year{ints[1]},
-                        hours{ints[2]},
-                        minutes{ints[3]},
-                        secs};
+    start = end+1;
+  }
+  secs = std::strtod(start, &end);
+  if (errno == ERANGE) {
+    errno = 0;
+    throw std::invalid_argument
+      ("Invalid date format: \""+std::string(str)+"\" (argument #5)");
+  }
+  if (stop) *stop = end;
+  return datetime<T> {year{ints[0]},
+    day_of_year{ints[1]},
+    hours{ints[2]},
+    minutes{ints[3]},
+    secs};
 }
 
 } // namespace ngpt
