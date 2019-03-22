@@ -23,8 +23,8 @@ constexpr const char* ngpt::month::long_names[];
 
 /// Number of days past at the end of non-leap and leap years.
 constexpr static long month_day[2][13] = {
-    {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365},
-    {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}
+  {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365},
+  {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}
 };
 
 /// Given a calendar date (i.e. year, month and day of month), compute the 
@@ -33,30 +33,30 @@ constexpr static long month_day[2][13] = {
 long
 ngpt::cal2mjd(int iy, int im, int id)
 {
-    // Month lengths in days
-    constexpr int mtab[] =  {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  // Month lengths in days
+  constexpr int mtab[] =  {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-    // Validate month
-    if ( im < 1 || im > 12 ) {
-        throw std::out_of_range("ngpt::cal2mjd -> Invalid Month.");
-    }
+  // Validate month
+  if ( im < 1 || im > 12 ) {
+    throw std::out_of_range("ngpt::cal2mjd -> Invalid Month.");
+  }
 
-    // If February in a leap year, 1, otherwise 0
-    int ly ( (im == 2) && /*ngpt::*/is_leap(iy) );
+  // If February in a leap year, 1, otherwise 0
+  int ly ( (im == 2) && /*ngpt::*/is_leap(iy) );
 
-    // Validate day, taking into account leap years
-    if ( (id < 1) || (id > (mtab[im-1] + ly))) {
-        throw std::out_of_range("ngpt::cal2mjd -> Invalid Day of Month.");
-    }
+  // Validate day, taking into account leap years
+  if ( (id < 1) || (id > (mtab[im-1] + ly))) {
+    throw std::out_of_range("ngpt::cal2mjd -> Invalid Day of Month.");
+  }
 
-    // Compute mjd
-    int  my    { (im-14) / 12 };
-    long iypmy { static_cast<long>(iy + my) };
+  // Compute mjd
+  int  my    { (im-14) / 12 };
+  long iypmy { static_cast<long>(iy + my) };
 
-    return  (1461L * (iypmy + 4800L)) / 4L
-            + (367L * static_cast<long>(im - 2 - 12 * my)) / 12L
-            - (3L * ((iypmy + 4900L) / 100L)) / 4L
-            + static_cast<long>(id) - 2432076L;
+  return  (1461L * (iypmy + 4800L)) / 4L
+          + (367L * static_cast<long>(im - 2 - 12 * my)) / 12L
+          - (3L * ((iypmy + 4900L) / 100L)) / 4L
+          + static_cast<long>(id) - 2432076L;
 }
 
 ///
@@ -71,11 +71,11 @@ ngpt::cal2mjd(int iy, int im, int id)
 ngpt::modified_julian_day
 ngpt::cal2mjd(ngpt::year y, ngpt::month m, ngpt::day_of_month d)
 {
-    long mjd { ngpt::cal2mjd(y.as_underlying_type(),
-                             m.as_underlying_type(), 
-                             d.as_underlying_type()) };
+  long mjd { ngpt::cal2mjd(y.as_underlying_type(),
+                           m.as_underlying_type(), 
+                           d.as_underlying_type()) };
 
-    return ngpt::modified_julian_day{mjd};
+  return ngpt::modified_julian_day{mjd};
 }
 
 ///
@@ -89,20 +89,21 @@ ngpt::cal2mjd(ngpt::year y, ngpt::month m, ngpt::day_of_month d)
 ///
 ngpt::month::month(const char* str)
 {
-    m_month = 0;
-    
-    if ( std::strlen(str) >= 3 ) {
-        for (int i = 0; i < 12; ++i) {
-            if ( !std::strncmp(short_names[i], str, 3) ) {
-                m_month = i+1;
-                break;
-            }
-        }
-    }
+  m_month = 0;
 
-    if (!m_month || std::strlen(str) < 3 ) {
-        throw std::invalid_argument("Failed to set month from string \""+std::string(str)+"\"");
+  if ( std::strlen(str) >= 3 ) {
+    for (int i = 0; i < 12; ++i) {
+      if ( !std::strncmp(short_names[i], str, 3) ) {
+        m_month = i+1;
+        break;
+      }
     }
+  }
+
+  if (!m_month || std::strlen(str) < 3 ) {
+    throw std::invalid_argument("Failed to set month from string \""
+      +std::string(str)+"\"");
+  }
 }
 
 ///
@@ -113,64 +114,69 @@ ngpt::month::month(const char* str)
 bool
 ngpt::day_of_month::is_valid(ngpt::year y, ngpt::month m) const noexcept
 {
-    if (m_dom <=0 || m_dom >= 32) return false;
+  if (m_dom <=0 || m_dom >= 32) return false;
 
-    auto iy = y.as_underlying_type();
-    auto im = m.as_underlying_type();
+  auto iy = y.as_underlying_type();
+  auto im = m.as_underlying_type();
 
-    // Month lengths in days
-    constexpr int mtab[] =  {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  // Month lengths in days
+  constexpr int mtab[] =  {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-    // lets check the month first ....
-    assert(im>0 && im<13);
+  // lets check the month first ....
+  assert(im>0 && im<13);
 
-    // If February in a leap year, 1, otherwise 0
-    int ly ( (im == 2) && is_leap(iy) );
+  // If February in a leap year, 1, otherwise 0
+  int ly ( (im == 2) && is_leap(iy) );
 
-    // Validate day, taking into account leap years
-    return (m_dom <= mtab[m_dom-1] + ly);
+  // Validate day, taking into account leap years
+  return (m_dom <= mtab[m_dom-1] + ly);
 }
 
 ///
 /// Given a modified_julian_day convert it to a tuple (i.e. a pair) of
 /// year and day_of_year. 
 ///
-std::tuple<ngpt::year, ngpt::day_of_year>
+ydoy_date
 ngpt::modified_julian_day::to_ydoy() const noexcept
 {
-    long days_fr_jan1_1901 { m_mjd - ngpt::jan11901 };
-    long num_four_yrs      { days_fr_jan1_1901/1461L };
-    long years_so_far      { 1901L + 4*num_four_yrs };
-    long days_left         { days_fr_jan1_1901 - 1461*num_four_yrs };
-    long delta_yrs         { days_left/365 - days_left/1460 };
-    day_of_year yday {static_cast<day_of_year::underlying_type>
-                                (days_left - 365*delta_yrs + 1)};
-    ngpt::year y {static_cast<year::underlying_type>(years_so_far + delta_yrs)};
+  long days_fr_jan1_1901 { m_mjd - ngpt::jan11901 };
+  long num_four_yrs      { days_fr_jan1_1901/1461L };
+  long years_so_far      { 1901L + 4*num_four_yrs };
+  long days_left         { days_fr_jan1_1901 - 1461*num_four_yrs };
+  long delta_yrs         { days_left/365 - days_left/1460 };
+  
+  ydoy_date ydoy;
+  ydoy.__doy = static_cast<day_of_year::underlying_type>
+              (days_left-365*delta_yrs+1);
+  ydoy.__year= static_cast<year::underlying_type>
+              (years_so_far + delta_yrs);
 
-    return std::make_tuple(y, yday);
+  return ydoy;
 }
 
 ///
 /// Given a modified_julian_day convert it to a calendar date, i.e. a tuple
 /// containing (year, month, day_of_month). 
 ///
-std::tuple<ngpt::year, ngpt::month, ngpt::day_of_month>
+ymd_date
 ngpt::modified_julian_day::to_ymd() const noexcept
 {
-    ngpt::day_of_year doy;
-    ngpt::year y;
-    std::tie(y, doy) = this->to_ydoy();
-    
-    long yday  { static_cast<long>(doy.as_underlying_type()) };
-    long leap  { ((y.as_underlying_type()%4L) == 0) };
-    long guess { static_cast<long>(yday*0.032) };
-    long more  { ((yday-month_day[leap][guess+1]) > 0) };
+  auto ydoy = this->to_ydoy();
+  auto y    = ydoy.__year;
+  auto doy  = ydoy.__doy;
+  ymd_date ymd;
+  
+  long yday  { static_cast<long>(doy.as_underlying_type()) };
+  long leap  { ((y.as_underlying_type()%4L) == 0) };
+  long guess { static_cast<long>(yday*0.032) };
+  long more  { ((yday-month_day[leap][guess+1]) > 0) };
 
-    ngpt::month mon {static_cast<ngpt::month::underlying_type>(guess + more + 1)};
-    ngpt::day_of_month dom {static_cast<ngpt::day_of_month::underlying_type>
-        (yday-month_day[leap][guess+more]) };
+  ymd.__year  = y;
+  ymd.__month = static_cast<month::underlying_type>(guess+more+1);
+  ymd.__dom   = static_cast<day_of_month::underlying_type>
+                  (yday-month_day[leap][guess+more]);
 
-    return std::make_tuple(y, mon, dom);
+  return ymd;
 }
 
 ///

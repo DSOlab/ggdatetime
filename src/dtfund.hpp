@@ -65,17 +65,19 @@ constexpr double mjd0_jd { 2400000.5e0 };
 constexpr double tt_minus_tai { 32.184e0 };
 
 /// Forward declerations
-class year;
-class month;
-class gps_week;
-class day_of_month;
-class day_of_year;
-class modified_julian_day;
-class hours;
-class minutes;
-class seconds;
-class milliseconds;
-class microseconds;
+class  year;
+class  month;
+class  gps_week;
+class  day_of_month;
+class  day_of_year;
+class  modified_julian_day;
+struct ymd_date;
+struct ydoy_date;
+class  hours;
+class  minutes;
+class  seconds;
+class  milliseconds;
+class  microseconds;
 
 /// @brief Calendar date to Modified Julian Day.
 ///
@@ -101,7 +103,7 @@ cal2mjd(int iy, int im, int id);
 ///
 /// @throw Does not throw.
 ///
-inline bool
+inline constexpr bool
 is_leap(int iy) noexcept
 { return !(iy%4) && (iy%100 || !(iy%400)); }
 
@@ -186,6 +188,11 @@ public:
   constexpr bool
   operator==(year y) const noexcept
   { return y.m_year == m_year; }
+
+  /// Check if year is leap (aka has 366 --integer-- days instead of 365)
+  constexpr bool
+  is_leap() const noexcept
+  { return is_leap(m_year); }
 
 private:
   /// The year as underlying type.
@@ -520,7 +527,8 @@ public:
   /// @see    "Remondi Date/Time Algorithms",
   ///          http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
   /// @todo change return type
-  std::tuple<year, day_of_year>
+  // std::tuple<year, day_of_year>
+  ydoy_date
   to_ydoy() const noexcept;
     
   /// @brief Convert a Modified Julian Day to Calendar Date.
@@ -535,7 +543,8 @@ public:
   /// @see    "Remondi Date/Time Algorithms",
   ///          http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
   /// @todo change return type
-  std::tuple<year, month, day_of_month>
+  // std::tuple<year, month, day_of_month>
+  ymd_date
   to_ymd() const noexcept;
     
 private:
@@ -581,10 +590,80 @@ public:
   operator==(day_of_year d) const noexcept
   { return d.m_doy == m_doy; }
 
+  /// Check validity (doy must belong to a year to check this)
+  /// A day of yeay is valid if it is in the range [0,365] or [0,366] for
+  /// leap years.
+  constexpr bool
+  is_valid(year y) const noexcept
+  { return m_doy > 0 && m_doy < (365 + y.is_leap()i + 1); }
+
 private:
   /// The day_of_year as day_of_year::underlying_type.
   underlying_type m_doy;   
+}; // class day_of_year
+
+/// @struct ymd_date
+/// @brief This struct represent a date in Year-Month-Day of Month format. 
+///
+/// This struct is only designed to ease the input/output parameters to various
+/// functions. Users can actually construct any date, even non-valid ones
+/// (e.g. set month to 0). The constructor will not check the input parameters.
+/// If users want to check the instance for validity, then they should use the
+/// ymd_date::is_valid function.
+struct ymd_date
+{
+  /// @brief ymd_date constructor; can have any number of arguments from 0 to 3.
+  /// No check for validity will be performed. If you want to check the
+  /// validity of the created instance, use ymd_date::is_valid
+  explicit
+  ymd_date(year y=year{}, month m=month{}, day_of_month d=day_of_month{})
+  noexcept
+    : __year(y),
+      __month(m),
+      __dom(d)
+  {}
+
+  /// @brief Check if the date is a valid calendar date
+  /// @return True if the date is valid, false otherwise.
+  bool
+  is_valid() const noexcept
+  { return __dom.is_valid(__year, __month); }
+
+  year         __year;     ///< the year
+  month        __month;    ///< the month
+  day_of_month __dom;      ///< day of month
 };
+
+/// @struct ydoy_date
+/// @brief This struct represent a date in Year-Day of Year format. 
+///
+/// This struct is only designed to ease the input/output parameters to various
+/// functions. Users can actually construct any date, even non-valid ones
+/// (e.g. set year to 0). The constructor will not check the input parameters.
+/// If users want to check the instance for validity, then they should use the
+/// ymd_date::is_valid function.
+struct ydoy_date
+{
+  /// @brief ymd_date constructor; can have any number of arguments from 0 to 2.
+  /// No check for validity will be performed. If you want to check the
+  /// validity of the created instance, use ymd_date::is_valid
+  explicit
+  ymd_date(year y=year{}, day_of_year d=day_of_year{})
+  noexcept
+    : __year(y),
+      __doy(d)
+  {}
+
+  /// @brief Check if the date is a valid calendar date
+  /// @return True if the date is valid, false otherwise.
+  bool
+  is_valid() const noexcept
+  { return __doy.is_valid(__year); }
+
+  year        __year;     ///< the year
+  day_of_year __doy;      ///< day of year
+};
+
 
 /// @brief A wrapper class for hours.
 ///

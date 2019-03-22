@@ -21,6 +21,8 @@
 /// leap second.  If the date is for a day which begins as a leap
 /// second ends, the UTC-TAI returned is for the period following the
 /// leap second.
+/// This version works for post 01.01.1972 dates. The ipnut date will only be
+/// checked if USE_DATETIME_CHECKS flag is enabled during compilation.
 ///
 /// The day of month is actually not needed, since all leap second insertions
 /// happen at the begining, i.e. the first day of a month.
@@ -28,6 +30,9 @@
 int
 ngpt::dat(ngpt::year iy, ngpt::month im) noexcept
 {
+#ifdef USE_DATETIME_CHECKS
+  assert(iy >= ngpt::year(1972));
+#endif
 
   // Dates and Delta(AT)s
   constexpr struct {
@@ -61,7 +66,8 @@ ngpt::dat(ngpt::year iy, ngpt::month im) noexcept
       { 2006,  1, 33 },
       { 2009,  1, 34 },
       { 2012,  7, 35 },
-      { 2015,  7, 36 }
+      { 2015,  7, 36 },
+      { 2017,  1, 37 }
   };
 
   // Number of Delta(AT) changes
@@ -125,6 +131,7 @@ ngpt::dat(ngpt::modified_julian_day mjd) noexcept
       { 54832L, 34 },
       { 56109L, 35 },
       { 57204L, 36 },
+      { 57754L, 37 }
   };
 
   // Number of Delta(AT) changes

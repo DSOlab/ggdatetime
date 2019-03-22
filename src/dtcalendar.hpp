@@ -624,28 +624,15 @@ public:
 
   /// Cast to year, month, day of month
   /// @warning Expects normalized instance.
-  /// @todo change return type
-  constexpr std::tuple<year, month, day_of_month>
-  as_ymd() const noexcept
-  {
-    year         y;
-    month        m;
-    day_of_month d;
-    std::tie(y, m, d) = m_mjd.to_ymd();
-    return std::make_tuple(y, m, d);
-  }
+  constexpr ymd_date
+  to_ymd() const noexcept
+  {return m_mjd.to_ymd();}
 
   /// Cast to year, day_of_year
   /// @warning Expects normalized instance.
-  /// @todo change return type
-  constexpr std::tuple<year, day_of_year>
-  as_ydoy() const noexcept
-  {
-    year        y;
-    day_of_year d;
-    std::tie(y, d) = m_mjd.to_ydoy();
-    return std::make_tuple(y, d);
-  }
+  constexpr ydoy_date
+  to_ydoy() const noexcept
+  {return m_mjd.to_ydoy();}
 
   /// Cast to gps_week and Sec-Of-Week
   constexpr gps_week
@@ -727,6 +714,27 @@ template<typename T,
 {
   int day_of_week = sow.as_underlying_type() / T::max_in_day;
   return day_of_week;
+}
+
+/// @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
+///
+/// The day of month is actually not needed, since all leap second insertions
+/// happen at the begining, i.e. the first day of a month.
+///
+/// @warning
+///         - This version only works for post-1972 dates! For a more complete
+///           version, see the iauDat.c routine from IAU's SOFA.
+///         - No checks are performed for the validity of the input date.
+///
+/// @see IAU SOFA (iau-dat.c)
+/// @see ngpt::dat
+template<typename T,
+        typename = std::enable_if_t<T::is_of_sec_type>
+      >
+  inline int
+  dat(datetime<T> t) noexcept
+{
+  return ngpt::dat(t.mjd());
 }
 
 } // end namespace

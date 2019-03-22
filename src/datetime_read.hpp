@@ -44,7 +44,7 @@ template<typename T>
   int ints[3];
 
   for (int i = 0; i < 3; ++i) {
-    ints[i] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
+    ints[i] = static_cast<int>(std::abs(std::strtol(start, &end, 10)));
     if (errno == ERANGE || start == end) {
       errno = 0;
       throw std::invalid_argument
@@ -80,7 +80,7 @@ template<typename T>
   int ints[2];
 
   for (int i = 0; i < 2; ++i) {
-    ints[i] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
+    ints[i] = static_cast<int>(std::abs(std::strtol(start, &end, 10)));
     if (errno == ERANGE || start == end) {
       errno = 0;
       throw std::invalid_argument
@@ -116,11 +116,12 @@ template<typename T>
   double secs;
 
   for (int i = 0; i < 5; ++i) {
-    ints[i] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
+    ints[i] = static_cast<int>(std::abs(std::strtol(start, &end, 10)));
     if (errno == ERANGE || start == end) {
       errno = 0;
       throw std::invalid_argument
-        ("Invalid date format: \""+std::string(str)+"\" (argument #" + std::to_string(i+1) + ").");
+        ("Invalid date format: \""+std::string(str)+
+          "\" (argument #" + std::to_string(i+1) + ").");
     }
     start = end+1;
   }
@@ -161,7 +162,7 @@ template<typename T>
   month_str[3] = '\0';
   double secs;
 
-  ints[0] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
+  ints[0] = static_cast<int>(std::abs(std::strtol(start, &end, 10)));
   if (errno == ERANGE || start == end) {
     errno = 0;
     throw std::invalid_argument
@@ -224,7 +225,7 @@ template<typename T>
   double secs;
 
   for (int i = 0; i < 4; ++i) {
-    ints[i] = static_cast<int>( std::abs(std::strtol(start, &end, 10)) );
+    ints[i] = static_cast<int>(std::abs(std::strtol(start, &end, 10)));
     if (errno == ERANGE || start == end) {
       errno = 0;
       throw std::invalid_argument
