@@ -71,7 +71,7 @@ ngpt::dat(ngpt::year iy, ngpt::month im) noexcept
   int m = 12*iy.as_underlying_type() + im.as_underlying_type();
   // ...and use it to find the preceding table entry.
   int idx = NDAT-1;
-  for (; idx >=0; idx--) {
+  for (; idx >= 0; idx--) {
     if (m >= (12 * changes[idx].iyear + changes[idx].month)) break;
   }
 
@@ -133,7 +133,7 @@ ngpt::dat(ngpt::modified_julian_day mjd) noexcept
   // find the preceding table entry.
   ngpt::modified_julian_day::underlying_type today {mjd.as_underlying_type()};
   int idx = NDAT-1;
-  for (; idx >=0; idx--) {
+  for (; idx >= 0; idx--) {
     if (today >= changes[idx].mjday) break;
   }
 

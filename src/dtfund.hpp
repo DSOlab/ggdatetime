@@ -91,14 +91,8 @@ class microseconds;
 /// @see ngpt::cal2mjd
 ///
 /// Reference: iauCal2jd
-long cal2mjd(int iy, int im, int id);
-
-/// Convert hours, minutes, seconds into fractional days.
-/// double hms2fd(int, int, double) noexcept;
-
-/// Decompose fractional days to hours, minutes, seconds and fractional seconds
-/// with a given precision.
-/// void fd2hms(double, int, int ihmsf[4]);
+long
+cal2mjd(int iy, int im, int id);
 
 /// @brief Check if year is leap.
 ///
