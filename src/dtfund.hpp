@@ -25,7 +25,7 @@
 #include <string>
 
 #ifdef DEBUG
-#include <iostream>
+# include <iostream>
 #endif
 
 
@@ -192,7 +192,7 @@ public:
   /// Check if year is leap (aka has 366 --integer-- days instead of 365)
   constexpr bool
   is_leap() const noexcept
-  { return is_leap(m_year); }
+  { return ngpt::is_leap(m_year); }
 
 private:
   /// The year as underlying type.
@@ -595,7 +595,7 @@ public:
   /// leap years.
   constexpr bool
   is_valid(year y) const noexcept
-  { return m_doy > 0 && m_doy < (365 + y.is_leap()i + 1); }
+  { return m_doy > 0 && m_doy < (365 + y.is_leap() + 1); }
 
 private:
   /// The day_of_year as day_of_year::underlying_type.
@@ -632,7 +632,7 @@ struct ymd_date
   year         __year;     ///< the year
   month        __month;    ///< the month
   day_of_month __dom;      ///< day of month
-};
+};// ymd_date
 
 /// @struct ydoy_date
 /// @brief This struct represent a date in Year-Day of Year format. 
@@ -648,7 +648,7 @@ struct ydoy_date
   /// No check for validity will be performed. If you want to check the
   /// validity of the created instance, use ymd_date::is_valid
   explicit
-  ymd_date(year y=year{}, day_of_year d=day_of_year{})
+  ydoy_date(year y=year{}, day_of_year d=day_of_year{})
   noexcept
     : __year(y),
       __doy(d)
@@ -662,7 +662,7 @@ struct ydoy_date
 
   year        __year;     ///< the year
   day_of_year __doy;      ///< day of year
-};
+};// ydoy_date
 
 
 /// @brief A wrapper class for hours.

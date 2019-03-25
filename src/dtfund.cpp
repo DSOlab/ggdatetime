@@ -136,7 +136,7 @@ ngpt::day_of_month::is_valid(ngpt::year y, ngpt::month m) const noexcept
 /// Given a modified_julian_day convert it to a tuple (i.e. a pair) of
 /// year and day_of_year. 
 ///
-ydoy_date
+ngpt::ydoy_date
 ngpt::modified_julian_day::to_ydoy() const noexcept
 {
   long days_fr_jan1_1901 { m_mjd - ngpt::jan11901 };
@@ -146,10 +146,10 @@ ngpt::modified_julian_day::to_ydoy() const noexcept
   long delta_yrs         { days_left/365 - days_left/1460 };
   
   ydoy_date ydoy;
-  ydoy.__doy = static_cast<day_of_year::underlying_type>
-              (days_left-365*delta_yrs+1);
-  ydoy.__year= static_cast<year::underlying_type>
-              (years_so_far + delta_yrs);
+  ydoy.__doy = day_of_year{static_cast<day_of_year::underlying_type>
+              (days_left-365*delta_yrs+1)};
+  ydoy.__year= year{static_cast<year::underlying_type>
+              (years_so_far + delta_yrs)};
 
   return ydoy;
 }
@@ -158,7 +158,7 @@ ngpt::modified_julian_day::to_ydoy() const noexcept
 /// Given a modified_julian_day convert it to a calendar date, i.e. a tuple
 /// containing (year, month, day_of_month). 
 ///
-ymd_date
+ngpt::ymd_date
 ngpt::modified_julian_day::to_ymd() const noexcept
 {
   auto ydoy = this->to_ydoy();
@@ -172,9 +172,9 @@ ngpt::modified_julian_day::to_ymd() const noexcept
   long more  { ((yday-month_day[leap][guess+1]) > 0) };
 
   ymd.__year  = y;
-  ymd.__month = static_cast<month::underlying_type>(guess+more+1);
-  ymd.__dom   = static_cast<day_of_month::underlying_type>
-                  (yday-month_day[leap][guess+more]);
+  ymd.__month = month{static_cast<month::underlying_type>(guess+more+1)};
+  ymd.__dom   = day_of_month{static_cast<day_of_month::underlying_type>
+                  (yday-month_day[leap][guess+more])};
 
   return ymd;
 }
@@ -187,8 +187,8 @@ ngpt::modified_julian_day::to_ymd() const noexcept
 ngpt::modified_julian_day
 ngpt::ydoy2mjd(ngpt::year yr, ngpt::day_of_year doy) noexcept
 {
-    long iyr { static_cast<long>(yr.as_underlying_type()) };
-    long idy { static_cast<long>(doy.as_underlying_type()) };
+    long iyr {static_cast<long>(yr.as_underlying_type())};
+    long idy {static_cast<long>(doy.as_underlying_type())};
 
     return modified_julian_day {((iyr-1901)/4)*1461 + ((iyr-1901)%4)*365 +
         idy - 1 + ngpt::jan11901};

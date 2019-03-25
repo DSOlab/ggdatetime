@@ -408,7 +408,7 @@ public:
   /// Constructor from GPS Week and Seconds of Week
   explicit
   datetime(gps_week w, S sow) noexcept
-    : m_mjd{gps_week.as_underlying_type()*7
+    : m_mjd{w.as_underlying_type()*7
            +sow.as_underlying_type()/S::max_in_day
            +jan61980},
     m_sec{sow}
@@ -625,13 +625,13 @@ public:
   /// Cast to year, month, day of month
   /// @warning Expects normalized instance.
   constexpr ymd_date
-  to_ymd() const noexcept
+  as_ymd() const noexcept
   {return m_mjd.to_ymd();}
 
   /// Cast to year, day_of_year
   /// @warning Expects normalized instance.
   constexpr ydoy_date
-  to_ydoy() const noexcept
+  as_ydoy() const noexcept
   {return m_mjd.to_ydoy();}
 
   /// Cast to gps_week and Sec-Of-Week
@@ -677,9 +677,9 @@ public:
     out << std::fixed << std::setprecision(9) << fsec;
 
     return std::string {
-                 std::to_string( std::get<0>(ymd).as_underlying_type() )
-         + "/" + std::to_string( std::get<1>(ymd).as_underlying_type() )
-         + "/" + std::to_string( std::get<2>(ymd).as_underlying_type() )
+                 std::to_string( ymd.__year.as_underlying_type() )
+         + "/" + std::to_string( ymd.__month.as_underlying_type() )
+         + "/" + std::to_string( ymd.__dom.as_underlying_type() )
          + " " + std::to_string( std::get<0>(hms).as_underlying_type() )
          + ":" + std::to_string( std::get<1>(hms).as_underlying_type() )
          + ":" + std::to_string( std::get<2>(hms).as_underlying_type() )
