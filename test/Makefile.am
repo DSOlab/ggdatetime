@@ -1,6 +1,7 @@
 noinst_PROGRAMS = testDatetime \
 		  testRead \
-		  testGPSt
+		  testGPSt \
+		  testLeap
 
 MCXXFLAGS = \
 	-std=c++14 \
@@ -24,3 +25,7 @@ testRead_LDADD     = $(top_srcdir)/src/libggdatetime.la
 testGPSt_SOURCES   = test_gpst.cpp
 testGPSt_CXXFLAGS  = $(MCXXFLAGS) -I$(top_srcdir)/src -L$(top_srcdir)/src
 testGPSt_LDADD     = $(top_srcdir)/src/libggdatetime.la
+
+testLeap_SOURCES   = test_dat.cpp
+testLeap_CXXFLAGS  = $(MCXXFLAGS) -I$(top_srcdir)/src -L$(top_srcdir)/src
+testLeap_LDADD     = $(top_srcdir)/src/libggdatetime.la

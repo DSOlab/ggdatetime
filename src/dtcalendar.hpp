@@ -421,12 +421,6 @@ public:
   mjd() const noexcept
   { return m_mjd; }
     
-  /*
-  /// Get the Modified Julian Day.
-  constexpr modified_julian_day&
-  mjd() noexcept { return m_mjd; }
-  */
-
   /// Get the *seconds as underlying_type
   constexpr typename S::underlying_type
   secs() const noexcept
@@ -674,7 +668,8 @@ public:
     S st { std::get<3>(hms) };
     double fsec { st.as_underlying_type() / S::template sec_factor<double>() };
     std::ostringstream out;
-    out << std::fixed << std::setprecision(9) << fsec;
+    out << std::fixed << std::setprecision(9) 
+        << (fsec + static_cast<double>(st.as_underlying_type()));
 
     return std::string {
                  std::to_string( ymd.__year.as_underlying_type() )
@@ -682,8 +677,8 @@ public:
          + "/" + std::to_string( ymd.__dom.as_underlying_type() )
          + " " + std::to_string( std::get<0>(hms).as_underlying_type() )
          + ":" + std::to_string( std::get<1>(hms).as_underlying_type() )
-         + ":" + std::to_string( std::get<2>(hms).as_underlying_type() )
-         + "+" + out.str()
+         //+ ":" + std::to_string( std::get<2>(hms).as_underlying_type() )
+         + ":" + out.str()
     };
   }
 

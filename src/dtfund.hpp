@@ -836,7 +836,7 @@ public:
 
   /// The scale factor to transform from seconds to seconds.
   template<typename T>
-      static constexpr T sec_factor() noexcept
+    static constexpr T sec_factor() noexcept
   { return static_cast<T>(1); }
 
   /// Constructor; default seconds is 0.
