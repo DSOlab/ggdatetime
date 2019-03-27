@@ -1,7 +1,10 @@
-noinst_PROGRAMS = testDatetime
+noinst_PROGRAMS = testDatetime \
+		  testRead \
+		  testGPSt \
+		  testLeap
 
 MCXXFLAGS = \
-	-std=c++14 \
+	-std=c++17 \
 	-g \
 	-pg \
 	-Wno-unused-variable \
@@ -17,3 +20,15 @@ MCXXFLAGS = \
 testDatetime_SOURCES   = example.cpp
 testDatetime_CXXFLAGS  = $(MCXXFLAGS) -I$(top_srcdir)/src -L$(top_srcdir)/src
 testDatetime_LDADD     = $(top_srcdir)/src/libggdatetime.la
+
+testRead_SOURCES   = test_dt_read.cpp
+testRead_CXXFLAGS  = $(MCXXFLAGS) -I$(top_srcdir)/src -L$(top_srcdir)/src
+testRead_LDADD     = $(top_srcdir)/src/libggdatetime.la
+
+testGPSt_SOURCES   = test_gpst.cpp
+testGPSt_CXXFLAGS  = $(MCXXFLAGS) -I$(top_srcdir)/src -L$(top_srcdir)/src
+testGPSt_LDADD     = $(top_srcdir)/src/libggdatetime.la
+
+testLeap_SOURCES   = test_dat.cpp
+testLeap_CXXFLAGS  = $(MCXXFLAGS) -I$(top_srcdir)/src -L$(top_srcdir)/src
+testLeap_LDADD     = $(top_srcdir)/src/libggdatetime.la

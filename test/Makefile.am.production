@@ -5,8 +5,6 @@ noinst_PROGRAMS = testDatetime \
 
 MCXXFLAGS = \
 	-std=c++17 \
-	-g \
-	-pg \
 	-Wno-unused-variable \
 	-Wall \
 	-Wextra \
@@ -14,8 +12,7 @@ MCXXFLAGS = \
 	-pedantic \
 	-W \
 	-Wshadow \
-	-Wdisabled-optimization \
-	-DDEBUG
+	-O2
 
 testDatetime_SOURCES   = example.cpp
 testDatetime_CXXFLAGS  = $(MCXXFLAGS) -I$(top_srcdir)/src -L$(top_srcdir)/src

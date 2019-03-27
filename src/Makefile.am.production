@@ -10,8 +10,6 @@ lib_LTLIBRARIES = libggdatetime.la
 ##
 libggdatetime_la_CXXFLAGS = \
 	-std=c++17 \
-	-g \
-	-pg \
 	-Wall \
 	-Wextra \
 	-Werror \
@@ -19,9 +17,8 @@ libggdatetime_la_CXXFLAGS = \
 	-W \
 	-Wshadow \
 	-Winline \
-	-Wdisabled-optimization \
-	-march=native \
-	-DDEBUG
+	-O2 \
+	-march=native
 
 ##
 ##  Header files (distributed) installed in /$(includedir)/$(package name).
