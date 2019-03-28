@@ -163,11 +163,26 @@ dat(modified_julian_day mjd) noexcept;
 /// (excpept from integer overflow) to the range of the year (integer).
 /// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
 /// year (constructor) can only have positive values.
+///
+/// This is a fundamental class, which means it only has one arithmetic member
+/// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
+/// '>=') are going to be implemented using kinda reflection, using template
+/// function overloadnig outside the class.
 class year
 {
 public:
   /// Years are represented as integers.
   typedef int underlying_type;
+  
+  /// Is fundamental datetime type
+  static constexpr bool
+  is_dt_fundamental_type { true };
+
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type
+  __member_const_ref__() const noexcept
+  { return m_year; }
 
   /// Constructor; default year is 1900.
   explicit constexpr
@@ -184,10 +199,12 @@ public:
   as_underlying_type() const noexcept
   { return m_year; }
 
+  /*
   /// Equality operator
   constexpr bool
   operator==(year y) const noexcept
   { return y.m_year == m_year; }
+  */
 
   /// Check if year is leap (aka has 366 --integer-- days instead of 365)
   constexpr bool
@@ -214,6 +231,11 @@ private:
 /// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
 /// month (constructor) can only have positive values in the range [1,12].
 ///
+/// This is a fundamental class, which means it only has one arithmetic member
+/// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
+/// '>=') are going to be implemented using kinda reflection, using template
+/// function overloadnig outside the class.
+///
 /// @warning Most functions (within ngpt) accept months in the range [1,12];
 ///          do not use the range [0,11], except if you realy know what you're
 ///          doing.
@@ -222,6 +244,16 @@ class month
 public:
   /// Months are represented as int.
   typedef int underlying_type;
+  
+  /// Is fundamental datetime type
+  static constexpr bool
+  is_dt_fundamental_type { true };
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type
+  __member_const_ref__() const noexcept
+  { return m_month; }
 
   /// Constructor; default month is 1.
   explicit constexpr
@@ -265,12 +297,7 @@ public:
   bool
   is_valid() const noexcept
   { return m_month > 0 && m_month <= 12; }
-    
-  /// Equality operator
-  constexpr bool
-  operator==(month m) const noexcept
-  { return m_month == m.m_month; }
-
+  
 private:
   /// @brief Decleration of short month names. 
   /// @note  Note that we do need a definition in the .cpp file.
@@ -303,11 +330,26 @@ private:
 /// (excpept from integer overflow) to the range of the month (integer), i.e. 
 /// the week is not checked (by default) to be in any range. So, a user
 /// can construct a month from whatever integer.
+///
+/// This is a fundamental class, which means it only has one arithmetic member
+/// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
+/// '>=') are going to be implemented using kinda reflection, using template
+/// function overloadnig outside the class.
 class gps_week
 {
 public:
   /// gps weeks are represented as int.
   typedef long underlying_type;
+  
+  /// Is fundamental datetime type
+  static constexpr bool
+  is_dt_fundamental_type { true };
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type
+  __member_const_ref__() const noexcept
+  { return m_week; }
 
   /// Constructor; default week is 1.
   explicit constexpr
@@ -330,11 +372,6 @@ public:
   is_valid() const noexcept
   { return m_week >=0; }
   
-  /// Equality operator
-  constexpr bool
-  operator==(gps_week m) const noexcept
-  { return m_week == m.m_week; }
-
 private:
   /// The month as underlying_type.
   underlying_type m_week;
@@ -349,12 +386,27 @@ private:
 /// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
 /// day_of_month (constructor) can only have positive values.
 ///
+/// This is a fundamental class, which means it only has one arithmetic member
+/// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
+/// '>=') are going to be implemented using kinda reflection, using template
+/// function overloadnig outside the class.
+///
 /// @todo Provide a day_of_month::validate method.
 class day_of_month
 {
 public:
   /// Days are represented as ints.
   typedef int underlying_type;
+  
+  /// Is fundamental datetime type
+  static constexpr bool
+  is_dt_fundamental_type { true };
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type
+  __member_const_ref__() const noexcept
+  { return m_dom; }
     
   /// Constructor; default day of month is 1.
   explicit constexpr
@@ -379,12 +431,7 @@ public:
   ///               is returned; else, the function will return false.
   bool
   is_valid(ngpt::year y, ngpt::month m) const noexcept;
-    
-  /// Equality operator
-  constexpr bool
-  operator==(day_of_month d) const noexcept
-  { return m_dom == d.m_dom; }
-
+  
 private:
   /// The day of month as underlying_type.
   underlying_type m_dom;
@@ -408,12 +455,27 @@ private:
 /// std::numeric_limits<underlying_type>::min(), which is the only negative
 /// value allowed.
 ///
+/// This is a fundamental class, which means it only has one arithmetic member
+/// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
+/// '>=') are going to be implemented using kinda reflection, using template
+/// function overloadnig outside the class.
+///
 /// @see http://tycho.usno.navy.mil/mjd.html
 class modified_julian_day
 {
 public:
   /// MJDs are represented as long ints.
   typedef long underlying_type;
+  
+  /// Is fundamental datetime type
+  static constexpr bool
+  is_dt_fundamental_type { true };
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type
+  __member_const_ref__() const noexcept
+  { return m_mjd; }
 
   /// Max possible modified_julian_day
   constexpr static modified_julian_day
@@ -474,37 +536,7 @@ public:
   constexpr modified_julian_day
   operator+(const modified_julian_day& mjd) const noexcept
   { return modified_julian_day{m_mjd+mjd.m_mjd}; }
-
-  /// Operator == (equality).
-  constexpr bool
-  operator==(const modified_julian_day& d) const noexcept
-  { return m_mjd == d.m_mjd; }
-    
-  /// Operator != (inequality).
-  constexpr bool
-  operator!=(const modified_julian_day& d) const noexcept
-  { return !(*this == d); }
-
-  /// Operator > (greater than).
-  constexpr bool
-  operator>(const modified_julian_day& d) const noexcept
-  { return m_mjd > d.m_mjd; }
-
-  /// Operator >= (greater or equal to).
-  constexpr bool
-  operator>=(const modified_julian_day& d) const noexcept
-  { return m_mjd >= d.m_mjd; }
-
-  /// Operator < (less than).
-  constexpr bool
-  operator<(const modified_julian_day& d) const noexcept
-  { return m_mjd < d.m_mjd; }
-
-  /// Operator <= (less or equal to).
-  constexpr bool
-  operator<=(const modified_julian_day& d) const noexcept
-  { return m_mjd <= d.m_mjd; }
-
+  
   /// Operator -- (minus 1 mjd).
   constexpr modified_julian_day&
   operator--() noexcept
@@ -563,12 +595,25 @@ private:
 /// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
 /// day_of_year (constructor) can only have zero or positive values.
 ///
-/// @todo Provide a day_of_year::validate method.
+/// This is a fundamental class, which means it only has one arithmetic member
+/// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
+/// '>=') are going to be implemented using kinda reflection, using template
+/// function overloadnig outside the class.
 class day_of_year
 {
 public:
   /// Day of year represented as int.
   typedef int underlying_type;
+
+  /// Is fundamental datetime type
+  static constexpr bool
+  is_dt_fundamental_type { true };
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type
+  __member_const_ref__() const noexcept
+  { return m_doy; }
     
   /// Constructor; default day of year is 0.
   explicit constexpr
@@ -584,11 +629,6 @@ public:
   constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_doy; }
-    
-  /// Equality operator
-  constexpr bool
-  operator==(day_of_year d) const noexcept
-  { return d.m_doy == m_doy; }
 
   /// Check validity (doy must belong to a year to check this)
   /// A day of yeay is valid if it is in the range [0,365] or [0,366] for
@@ -678,11 +718,26 @@ struct ydoy_date
 /// the corresponsing classes (nngpt::minutes, ngpt::seconds, etc...).
 /// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
 /// hours (constructor) can only have zero or positive values.
+///
+/// This is a fundamental class, which means it only has one arithmetic member
+/// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
+/// '>=') are going to be implemented using kinda reflection, using template
+/// function overloadnig outside the class.
 class hours
 {
 public:
   /// Hours are represented by ints.
   typedef int underlying_type;
+  
+  /// Is fundamental datetime type
+  static constexpr bool
+  is_dt_fundamental_type { true };
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type
+  __member_const_ref__() const noexcept
+  { return m_hours; }
     
   /// Constructor; default hours is 0.
   explicit constexpr
@@ -719,12 +774,7 @@ public:
     m_hours = dv.rem;
     return dv.quot;
   }
-    
-  // Equality operator
-  constexpr bool
-  operator==(hours h) const noexcept
-  { return m_hours == h.m_hours; }
-
+  
 private:
   /// The hours as hours::underlying_type
   underlying_type m_hours;
@@ -745,11 +795,26 @@ private:
 /// the corresponsing classes (ngpt::seconds, ngpt::milliseconds, etc...).
 /// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
 /// minutes (constructor) can only have zero or positive values.
+///
+/// This is a fundamental class, which means it only has one arithmetic member
+/// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
+/// '>=') are going to be implemented using kinda reflection, using template
+/// function overloadnig outside the class.
 class minutes
 {
 public:
   /// Minutes are represented by ints
   typedef int underlying_type;
+  
+  /// Is fundamental datetime type
+  static constexpr bool
+  is_dt_fundamental_type { true };
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type
+  __member_const_ref__() const noexcept
+  { return m_min; }
     
   /// Constructor
   explicit constexpr
@@ -786,12 +851,7 @@ public:
     m_min = dv.rem;
     return hours{dv.quot};
   }
-    
-  /// Equality operator
-  constexpr bool
-  operator==(minutes m) const noexcept
-  { return m_min == m.m_min; }
-
+  
 private:
   /// The minutes as underlying type.
   underlying_type m_min;
@@ -815,6 +875,11 @@ private:
 /// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
 /// seconds (constructor) can only have zero or positive values.
 ///
+/// This is a fundamental class, which means it only has one arithmetic member
+/// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
+/// '>=') are going to be implemented using kinda reflection, using template
+/// function overloadnig outside the class.
+///
 /// @warning The maximum number of days that can be expressed in seconds without
 ///          fear of overflow is given by the template function
 ///          ngpt::max_days_allowed
@@ -825,6 +890,16 @@ class seconds {
 public:
   /// Seconds are represented as long ints.
   typedef long underlying_type;
+
+  /// Is fundamental datetime type
+  static constexpr bool
+  is_dt_fundamental_type { true };
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type
+  __member_const_ref__() const noexcept
+  { return m_sec; }
   
   /// Seconds is a subdivision of seconds.
   static constexpr bool
@@ -897,39 +972,6 @@ public:
   operator+(const seconds& sec) const noexcept
   { return seconds{m_sec+sec.m_sec}; }
 
-  /*
-  /// Overload operator '/'
-  /// @note This is integer division; no fractional part considered.
-  constexpr seconds
-  operator/(const seconds& n) const noexcept
-  { return seconds{m_sec/n.m_sec}; }
-  */
-  
-  /// Equality operator.
-  constexpr bool
-  operator==(const seconds& d) const noexcept
-  { return m_sec == d.m_sec; }
-
-  /// Greater than operator.
-  constexpr bool
-  operator>(const seconds& d) const noexcept
-  { return m_sec > d.m_sec; }
-
-  /// Greater or equal to operator.
-  constexpr bool
-  operator>=(const seconds& d) const noexcept
-  { return m_sec >= d.m_sec; }
-  
-  /// Less than operator.
-  constexpr bool
-  operator<(const seconds& d) const noexcept
-  { return m_sec < d.m_sec; }
-
-  /// Less or equal to operator.
-  constexpr bool
-  operator<=(const seconds& d) const noexcept
-  { return m_sec <= d.m_sec; }
-  
   /// Do the secods sum up to more than one day?
   constexpr bool
   more_than_day() const noexcept
@@ -1043,6 +1085,11 @@ private:
 /// milliseconds::is_of_sec_type which is set to true.
 /// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
 /// milliseconds (constructor) can only have zero or positive values.
+///
+/// This is a fundamental class, which means it only has one arithmetic member
+/// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
+/// '>=') are going to be implemented using kinda reflection, using template
+/// function overloadnig outside the class.
 /// 
 /// @note milliseconds can be cast to ngpt::seconds (via a static_cast or
 /// a C-type cast) but the opposite is not true; i.e. ngpt::seconds cannot be
@@ -1056,6 +1103,16 @@ class milliseconds
 public:
   /// MilliSeconds are represented as long ints.
   typedef long underlying_type;
+  
+  /// Is fundamental datetime type
+  static constexpr bool
+  is_dt_fundamental_type { true };
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type
+  __member_const_ref__() const noexcept
+  { return m_msec; }
   
   /// MilliSeconds are a subdivision of seconds.
   static constexpr bool
@@ -1133,38 +1190,6 @@ public:
   constexpr milliseconds
   operator-(const milliseconds& n) const noexcept
   { return milliseconds{m_msec - n.m_msec}; }
-  
-  /*
-  /// Division operator between milliseconds.
-  constexpr milliseconds
-  operator/(const milliseconds& sc) noexcept
-  { return milliseconds{m_msec/sc.m_msec}; }
-  */
-  
-  /// Equality operator.
-  constexpr bool
-  operator==(const milliseconds& d) const noexcept
-  { return m_msec == d.m_msec; }
-
-  /// Greater than operator.
-  constexpr bool
-  operator>(const milliseconds& d) const noexcept
-  { return m_msec > d.m_msec; }
-
-  /// Greater or equal to operator.
-  constexpr bool
-  operator>=(const milliseconds& d) const noexcept
-  { return m_msec >= d.m_msec; }
-
-  /// Less than operator.
-  constexpr bool
-  operator<(const milliseconds& d) const noexcept
-  { return m_msec < d.m_msec; }
-
-  /// Less or equal to operator.
-  constexpr bool
-  operator<=(const milliseconds& d) const noexcept
-  { return m_msec <= d.m_msec; }
   
   /// Do the milliseconds sum up to more than one day ?
   constexpr bool
@@ -1302,6 +1327,11 @@ private:
 /// microseconds::is_of_sec_type which is set to true.
 /// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
 /// microseconds (constructor) can only have zero or positive values.
+///
+/// This is a fundamental class, which means it only has one arithmetic member
+/// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
+/// '>=') are going to be implemented using kinda reflection, using template
+/// function overloadnig outside the class.
 /// 
 /// @note microseconds can be cast to ngpt::seconds and ngpt::milliseconds (via
 /// a static_cast or a C-type cast) but the opposite is not true; i.e. 
@@ -1315,6 +1345,16 @@ class microseconds
 public:
   /// Microseconds are represented as long integers.
   typedef long underlying_type;
+  
+  /// Is fundamental datetime type
+  static constexpr bool
+  is_dt_fundamental_type { true };
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type
+  __member_const_ref__() const noexcept
+  { return m_msec; }
   
   /// Microseconds is a subdivision of seconds.
   static constexpr bool
@@ -1393,37 +1433,6 @@ public:
   constexpr microseconds
   operator-(const microseconds& n) const noexcept
   { return microseconds{m_msec-n.m_msec}; }
-  
-  /*
-  /// Division between microseconds.
-  constexpr microseconds operator/(const microseconds& sc) noexcept
-  { return microseconds(m_msec/sc.m_msec); }
-  */
-  
-  /// Equality operator.
-  constexpr bool
-  operator==(const microseconds& d) const noexcept
-  { return m_msec == d.m_msec; }
-
-  /// Greater than operator.
-  constexpr bool
-  operator>(const microseconds& d) const noexcept
-  { return m_msec > d.m_msec; }
-
-  /// Greater or equal to operator.
-  constexpr bool
-  operator>=(const microseconds& d) const noexcept
-  { return m_msec >= d.m_msec; }
-
-  /// Less than operator.
-  constexpr bool
-  operator<(const microseconds& d) const noexcept
-  { return m_msec < d.m_msec; }
-
-  /// Less or equal to operator.
-  constexpr bool
-  operator<=(const microseconds& d) const noexcept
-  { return m_msec <= d.m_msec; }
   
   /// Do the microseconds sum up to more than one day?
   constexpr bool
@@ -1512,6 +1521,58 @@ private:
   underlying_type m_msec;
 
 }; // class microseconds
+
+/// Overload bool operator '=='
+/// datetime fundamental types
+template<typename DType, 
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+         typename = std::enable_if<std::is_member_function_pointer<decltype(&DType::__member_const_ref__)>::value>
+         >
+  constexpr bool
+  operator==(DType a, DType b) noexcept
+{
+  return a.__member_const_ref__() == b.__member_const_ref__();
+}
+template<typename DType, 
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>
+         >
+  constexpr bool
+  operator!=(DType a, DType b) noexcept
+{
+  return !(a == b);
+}
+template<typename DType, 
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>
+         >
+  constexpr bool
+  operator>(DType a, DType b) noexcept
+{
+  return a.__member_const_ref__() > b.__member_const_ref__();
+}
+template<typename DType, 
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>
+         >
+  constexpr bool
+  operator>=(DType a, DType b) noexcept
+{
+  return a.__member_const_ref__() >= b.__member_const_ref__();
+}
+template<typename DType, 
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>
+         >
+  constexpr bool
+  operator<(DType a, DType b) noexcept
+{
+  return a.__member_const_ref__() < b.__member_const_ref__();
+}
+template<typename DType, 
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>
+         >
+  constexpr bool
+  operator<=(DType a, DType b) noexcept
+{
+  return a.__member_const_ref__() <= b.__member_const_ref__();
+}
 
 /// @@rief Number of expressible days for any second type.
 ///
