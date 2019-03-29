@@ -10,6 +10,10 @@
 ///
 /// @bug No known bugs.
 ///
+/// @todo we have several remove_days methods, implemented with a loop (as eg
+/// in the seconds class or using a div_t struct (as eg in hours). Which is faster?
+/// Which could handle negative seconds/hours ?
+///
 
 #ifndef __DTFUND_NGPT__HPP__
 #define __DTFUND_NGPT__HPP__
@@ -105,7 +109,9 @@ cal2mjd(int iy, int im, int id);
 ///
 inline constexpr bool
 is_leap(int iy) noexcept
-{ return !(iy%4) && (iy%100 || !(iy%400)); }
+{ 
+  return !(iy%4) && (iy%100 || !(iy%400));
+}
 
 /// @brief Transform a calendar date to modified_julian_day.
 ///
@@ -195,19 +201,12 @@ public:
   }
 
   /// Get the year as year::underlying_type.
-  constexpr underlying_type
+  inline constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_year; }
 
-  /*
-  /// Equality operator
-  constexpr bool
-  operator==(year y) const noexcept
-  { return y.m_year == m_year; }
-  */
-
   /// Check if year is leap (aka has 366 --integer-- days instead of 365)
-  constexpr bool
+  inline constexpr bool
   is_leap() const noexcept
   { return ngpt::is_leap(m_year); }
 
@@ -275,7 +274,7 @@ public:
   month(const char* str);
 
   /// Get the month as month::underlying_type
-  constexpr underlying_type
+  inline constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_month; }
 
@@ -294,7 +293,7 @@ public:
   { return long_names[m_month-1]; }
 
   /// Check if the month is within the interval [1,12].
-  bool
+  inline bool
   is_valid() const noexcept
   { return m_month > 0 && m_month <= 12; }
   
@@ -362,13 +361,13 @@ public:
   };
 
   /// Get the month as month::underlying_type
-  constexpr underlying_type
+  inline constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_week; }
 
   /// Return the corresponding short name (i.e. 3-char name) e.g. "Jan".
   /// Check if the month is within the interval [1,12].
-  bool
+  inline bool
   is_valid() const noexcept
   { return m_week >=0; }
   
@@ -419,7 +418,7 @@ public:
   };
     
   /// Get the day_of_month as day_of_month::underlying_type
-  constexpr underlying_type
+  inline constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_dom; }
 
@@ -508,17 +507,17 @@ public:
   modified_julian_day(year iy, day_of_year id) noexcept;
     
   /// Get the modified_julian_day as modified_julian_day::underlying_type
-  constexpr underlying_type
+  inline constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_mjd; }
     
   /// Define addition (between MJDs).
-  constexpr void
+  inline constexpr void
   operator+=(const modified_julian_day& d) noexcept
   { m_mjd += d.m_mjd; }
     
   /// Define subtraction (between MJDs).
-  constexpr void
+  inline constexpr void
   operator-=(const modified_julian_day& d) noexcept
   {
     m_mjd -= d.m_mjd;
@@ -528,17 +527,22 @@ public:
   }
     
   /// Operator - (subtraction).
-  constexpr modified_julian_day
+  inline constexpr modified_julian_day
   operator-(const modified_julian_day& mjd) const noexcept
-  { return modified_julian_day{m_mjd-mjd.m_mjd}; }
+  {
+#ifdef USE_DATETIME_CHECKS
+    assert( m_mjd - mjd.m_mjd > 0 );
+#endif
+    return modified_julian_day {m_mjd-mjd.m_mjd};
+  }
     
   /// Operator + (addition).
-  constexpr modified_julian_day
+  inline constexpr modified_julian_day
   operator+(const modified_julian_day& mjd) const noexcept
-  { return modified_julian_day{m_mjd+mjd.m_mjd}; }
+  { return modified_julian_day {m_mjd+mjd.m_mjd}; }
   
   /// Operator -- (minus 1 mjd).
-  constexpr modified_julian_day&
+  inline constexpr modified_julian_day&
   operator--() noexcept
   {
     --m_mjd;
@@ -626,14 +630,14 @@ public:
   };
   
   /// Cast to underlying type
-  constexpr underlying_type
+  inline constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_doy; }
 
   /// Check validity (doy must belong to a year to check this)
   /// A day of yeay is valid if it is in the range [0,365] or [0,366] for
   /// leap years.
-  constexpr bool
+  inline constexpr bool
   is_valid(year y) const noexcept
   { return m_doy > 0 && m_doy < (365 + y.is_leap() + 1); }
 
@@ -750,7 +754,7 @@ public:
   };
     
   /// Get the hours as hours::underlying_type
-  constexpr underlying_type
+  inline constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_hours; }
 
@@ -827,7 +831,7 @@ public:
   };
 
   /// Get the minutes as minutes::underlying_type
-  constexpr underlying_type
+  inline constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_min; }
     
@@ -938,7 +942,7 @@ public:
   ///       the fractional part is ommited.
   explicit constexpr
   seconds(hours h, minutes m, double fs) noexcept
-    : m_sec{  static_cast<long>(fs)
+    : m_sec{ static_cast<underlying_type>(fs)
             + m.as_underlying_type()*60L
             + h.as_underlying_type()*3600L}
   {
@@ -948,12 +952,12 @@ public:
   }
     
   /// Addition operator between seconds.
-  constexpr void
+  inline constexpr void
   operator+=(const seconds& sc) noexcept
   { m_sec+=sc.m_sec; }
 
   /// Subtraction operator between seconds.
-  constexpr void
+  inline constexpr void
   operator-=(const seconds& sc) noexcept
   {
     m_sec-=sc.m_sec;
@@ -963,22 +967,27 @@ public:
   }
     
   /// Overload - operator (subtraction).
-  constexpr seconds
+  inline constexpr seconds
   operator-(const seconds& n) const noexcept
-  { return seconds{m_sec - n.m_sec}; }
+  { 
+#ifdef USE_DATETIME_CHECKS
+    assert(m_sec - n.m_sec >= 0);
+#endif
+    return seconds{m_sec - n.m_sec};
+  }
 
   /// Overload + operator (addition).
-  constexpr seconds
+  inline constexpr seconds
   operator+(const seconds& sec) const noexcept
   { return seconds{m_sec+sec.m_sec}; }
 
   /// Do the secods sum up to more than one day?
-  constexpr bool
+  inline constexpr bool
   more_than_day() const noexcept
   { return m_sec>max_in_day; }
   
   /// Get the seconds as seconds::underlying_type .
-  constexpr underlying_type
+  inline constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_sec; }
   
@@ -991,17 +1000,14 @@ public:
   /// @return The integer number of days (if the seconds are more than a day).
   /// @throw  Does not throw.
   ///
-  /// @note   The number of days returned can be negative (!!), if the seconds
-  ///         are negative (i.e. if m_sec = -86400, -1 will be returned and
-  ///         m_sec will be set to 0).
+  /// @warning Negative seconds are not handled!
   /// 
   constexpr int
   remove_days() noexcept
   {
-    /* assert( m_sec >= 0 ); */
-    /*long d { static_cast<int>(m_sec / max_in_day) };
-      m_sec %= max_in_day;
-      return (int)d;*/
+#ifdef USE_DATETIME_CHECKS
+    assert(m_sec >= 0);
+#endif
     int days = 0;
     while (m_sec >= max_in_day) {
       ++days;
@@ -1018,14 +1024,15 @@ public:
   /// @return The integer number of days (if the seconds are more than a day).
   /// @throw  Does not throw.
   ///
-  /// @note   The number of days returned can be negative (!!), if the seconds
-  ///         are negative (i.e. if m_sec = -86400, -1 will be returned).
+  /// @warning Negative seconds are not handled.
   ///
-  constexpr int
+  inline constexpr int
   to_days() const noexcept
   {
-    /* assert( m_sec >= 0 ); */
-    return static_cast<int>(m_sec/max_in_day);
+#ifdef USE_DATETIME_CHECKS
+    assert(m_sec >= 0);
+#endif
+    return static_cast<int>(m_sec / max_in_day);
   }
     
   /// @brief Seconds as fractional days.
@@ -1038,7 +1045,7 @@ public:
   }
     
   /// Cast to double (i.e. fractional seconds).
-  constexpr double
+  inline constexpr double
   to_fractional_seconds() const noexcept
   { return static_cast<double>(m_sec); }
 
@@ -1140,8 +1147,8 @@ public:
   explicit constexpr
   milliseconds(hours h, minutes m, milliseconds c) noexcept
     : m_msec { c.as_underlying_type()
-             + m.as_underlying_type()*60L * sec_factor<long>()
-             + h.as_underlying_type()*3600L* sec_factor<long>()}
+             + m.as_underlying_type()*60L  * sec_factor<underlying_type>()
+             + h.as_underlying_type()*3600L* sec_factor<underlying_type>()}
   {};
     
   /// @brief Constructor from hours, minutes, fractional seconds.
@@ -1151,9 +1158,9 @@ public:
   /// the fs input argument).
   explicit constexpr
   milliseconds(hours h, minutes m, double fs) noexcept
-    : m_msec{ static_cast<long>(fs * sec_factor<double>())
-            + (m.as_underlying_type()*60L
-            + h.as_underlying_type()*3600L) * sec_factor<long>()}
+    : m_msec{ static_cast<underlying_type>(fs * sec_factor<double>())
+              + (m.as_underlying_type()*60L + h.as_underlying_type()*3600L)
+              * sec_factor<underlying_type>()}
   {
 #ifdef USE_DATETIME_CHECKS
     assert(fs>=0e0);
@@ -1162,22 +1169,24 @@ public:
   
   /// @brief Cast to ngpt::seconds.
   /// Milliseconds can be cast to seconds (with a loss of precission).
-  constexpr explicit
+  inline constexpr explicit
   operator seconds() const noexcept
-  { return seconds{m_msec / sec_factor<long>()}; }
+  { 
+    return seconds {m_msec / sec_factor<underlying_type>()};
+  }
   
   /// Addition operator.
-  constexpr milliseconds
+  inline constexpr milliseconds
   operator+(const milliseconds& sec) const noexcept
   { return milliseconds{m_msec+sec.m_msec}; }
   
   /// Addition operator.
-  constexpr void
+  inline constexpr void
   operator+=(const milliseconds& ms) noexcept
   { m_msec+=ms.m_msec; }
 
   /// Subtraction operator.
-  constexpr void
+  inline constexpr void
   operator-=(const milliseconds& ms) noexcept
   {
     m_msec-=ms.m_msec;
@@ -1187,17 +1196,17 @@ public:
   }
   
   /// Subtraction operator.
-  constexpr milliseconds
+  inline constexpr milliseconds
   operator-(const milliseconds& n) const noexcept
   { return milliseconds{m_msec - n.m_msec}; }
   
   /// Do the milliseconds sum up to more than one day ?
-  constexpr bool
+  inline constexpr bool
   more_than_day() const noexcept
   { return m_msec>max_in_day; }
   
   /// Get the milliseconds as milliseconds::underlying_type.
-  constexpr underlying_type
+  inline constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_msec; }
     
@@ -1210,17 +1219,17 @@ public:
   /// @return The integer number of days (if the milliseconds are more than a day).
   /// @throw  Does not throw.
   ///
-  /// @note   The number of days returned can be negative (!!), if the seconds
-  ///         are negative (i.e. if m_sec = -86400, -1 will be returned and
-  ///         m_sec will be set to 0).
+  /// @warning negative seconds are not treated
   /// 
   constexpr int
   remove_days() noexcept
   {
-    /* assert( m_sec >= 0 ); */
-    long d { static_cast<long>(m_msec / max_in_day) };
-    m_msec %= max_in_day;
-    return (int)d;
+    int days = 0;
+    while (m_msec >= max_in_day) {
+      ++days;
+      m_msec -= max_in_day;
+    }
+    return days;
   }
     
   /// @brief Cast to days.
@@ -1234,21 +1243,21 @@ public:
   /// @note   The number of days returned can be negative (!!), if the seconds
   ///         are negative (i.e. if m_sec = -86400, -1 will be returned).
   ///
-  constexpr int
+  inline constexpr int
   to_days() const noexcept
   {
     return int{static_cast<int>(m_msec/max_in_day)};
   }
     
   /// Cast to fractional days.
-  constexpr double
+  inline constexpr double
   fractional_days() const noexcept
   {
     return static_cast<double>(m_msec)/static_cast<double>(max_in_day);
   }
     
   /// Cast to fractional ngpt::seconds
-  constexpr double
+  inline constexpr double
   to_fractional_seconds() const noexcept
   { return static_cast<double>(m_msec)*1.0e-3; }
     
@@ -1264,9 +1273,8 @@ public:
   constexpr seconds
   resolve_sec(double& fraction) const noexcept
   {
-    /* assert( m_msec >= 0); */
-    seconds sec { m_msec / sec_factor<long>() };
-    fraction = static_cast<double>(m_msec % sec_factor<long>())*1e-3;
+    seconds sec { m_msec / sec_factor<underlying_type>() };
+    fraction = static_cast<double>(m_msec % sec_factor<underlying_type>())*1e-3;
     return sec;
   }
     
@@ -1385,7 +1393,7 @@ public:
   microseconds(hours h, minutes m, microseconds c) noexcept
     : m_msec { c.as_underlying_type()
              +(m.as_underlying_type()*60L
-             + h.as_underlying_type()*3600L) * sec_factor<long>() }
+             + h.as_underlying_type()*3600L) * sec_factor<underlying_type>() }
   {};
     
   /// Constructor from hours, minutes, fractional seconds.
@@ -1394,28 +1402,28 @@ public:
   ///       up to 10e-6.
   explicit constexpr
   microseconds(hours h, minutes m, double fs) noexcept
-    : m_msec{ static_cast<long>(fs * sec_factor<double>())
+    : m_msec{ static_cast<underlying_type>(fs * sec_factor<double>())
              + (m.as_underlying_type()*60L
-             + h.as_underlying_type()*3600L) * sec_factor<long>() }
+             + h.as_underlying_type()*3600L) * sec_factor<underlying_type>() }
   {};
     
   /// Microseconds can be cast to milliseconds will a loss of accuracy.
-  constexpr explicit
+  inline constexpr explicit
   operator milliseconds() const
   { return milliseconds(m_msec / 1000L); }
   
   /// Microseconds can be cast to seconds will a loss of accuracy.
-  constexpr explicit
+  inline constexpr explicit
   operator seconds() const
-  { return seconds(m_msec / sec_factor<long>()); }
+  { return seconds(m_msec / sec_factor<underlying_type>()); }
   
   /// Addition between microseconds.
-  constexpr void
+  inline constexpr void
   operator+=(const microseconds& ns) noexcept
   { m_msec+=ns.m_msec; }
 
   /// Subtraction between microseconds.
-  constexpr void
+  inline constexpr void
   operator-=(const microseconds& ns) noexcept
   {
     m_msec-=ns.m_msec;
@@ -1425,22 +1433,22 @@ public:
   }
 
   /// Addition between microseconds.
-  constexpr microseconds
+  inline constexpr microseconds
   operator+(const microseconds& sec) const noexcept
   { return microseconds{m_msec+sec.m_msec}; }
 
   /// Subtraction between microseconds.
-  constexpr microseconds
+  inline constexpr microseconds
   operator-(const microseconds& n) const noexcept
   { return microseconds{m_msec-n.m_msec}; }
   
   /// Do the microseconds sum up to more than one day?
-  constexpr bool
+  inline constexpr bool
   more_than_day() const noexcept
   { return m_msec>max_in_day; }
   
   /// Cast to microseconds::underlying_type.
-  constexpr underlying_type
+  inline constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_msec; }
     
@@ -1460,10 +1468,12 @@ public:
   constexpr int
   remove_days() noexcept
   {
-    /* assert( m_sec >= 0 ); */
-    long d { static_cast<int>(m_msec / max_in_day) };
-    m_msec %= max_in_day;
-    return (int)d;
+    int days = 0;
+    while (m_sec >= max_in_day) {
+      ++days;
+      m_sec -= max_in_day;
+    }
+    return days;
   }
     
   /// @brief Cast to days.
@@ -1477,19 +1487,19 @@ public:
   /// @note   The number of days returned can be negative (!!), if the seconds
   ///         are negative (i.e. if m_sec = -86400, -1 will be returned).
   ///
-  constexpr int
+  inline constexpr int
   to_days() const noexcept
   { return static_cast<int>(m_msec/max_in_day); }
   
   /// Cast to fractional days.
-  constexpr double
+  inline constexpr double
   fractional_days() const noexcept
   {
     return static_cast<double>(m_msec) / static_cast<double>(max_in_day);
   }
     
   /// Cast to fractional seconds
-  constexpr double
+  inline constexpr double
   to_fractional_seconds() const noexcept
   { return static_cast<double>(m_msec) * 1.0e-6; }
     
@@ -1522,51 +1532,89 @@ private:
 
 }; // class microseconds
 
-/// Overload bool operator '=='
-/// datetime fundamental types
+/// Overload bool operator '==' for datetime fundamental types.
+/// This function will be resolved for any type DType, which 
+/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and 
+/// 2. has a member function named DType::__member_const_ref__()
 template<typename DType, 
          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-         typename = std::enable_if<std::is_member_function_pointer<decltype(&DType::__member_const_ref__)>::value>
+         typename = std::enable_if_t<std::is_member_function_pointer
+                  <decltype(&DType::__member_const_ref__)>::value>
          >
   constexpr bool
   operator==(DType a, DType b) noexcept
 {
   return a.__member_const_ref__() == b.__member_const_ref__();
 }
+
+/// Overload bool operator '!=' for datetime fundamental types.
+/// This function will be resolved for any type DType, which 
+/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and 
+/// 2. has a member function named DType::__member_const_ref__()
 template<typename DType, 
-         typename = std::enable_if_t<DType::is_dt_fundamental_type>
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+         typename = std::enable_if_t<std::is_member_function_pointer
+                  <decltype(&DType::__member_const_ref__)>::value>
          >
   constexpr bool
   operator!=(DType a, DType b) noexcept
 {
   return !(a == b);
 }
+
+/// Overload bool operator '>' for datetime fundamental types.
+/// This function will be resolved for any type DType, which 
+/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and 
+/// 2. has a member function named DType::__member_const_ref__()
 template<typename DType, 
-         typename = std::enable_if_t<DType::is_dt_fundamental_type>
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+         typename = std::enable_if_t<std::is_member_function_pointer
+                  <decltype(&DType::__member_const_ref__)>::value>
          >
   constexpr bool
   operator>(DType a, DType b) noexcept
 {
   return a.__member_const_ref__() > b.__member_const_ref__();
 }
+
+/// Overload bool operator '>=' for datetime fundamental types.
+/// This function will be resolved for any type DType, which 
+/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and 
+/// 2. has a member function named DType::__member_const_ref__()
 template<typename DType, 
-         typename = std::enable_if_t<DType::is_dt_fundamental_type>
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+         typename = std::enable_if_t<std::is_member_function_pointer
+                  <decltype(&DType::__member_const_ref__)>::value>
          >
   constexpr bool
   operator>=(DType a, DType b) noexcept
 {
   return a.__member_const_ref__() >= b.__member_const_ref__();
 }
+
+/// Overload bool operator '<' for datetime fundamental types.
+/// This function will be resolved for any type DType, which 
+/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and 
+/// 2. has a member function named DType::__member_const_ref__()
 template<typename DType, 
-         typename = std::enable_if_t<DType::is_dt_fundamental_type>
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+         typename = std::enable_if_t<std::is_member_function_pointer
+                  <decltype(&DType::__member_const_ref__)>::value>
          >
   constexpr bool
   operator<(DType a, DType b) noexcept
 {
   return a.__member_const_ref__() < b.__member_const_ref__();
 }
+
+/// Overload bool operator '<=' for datetime fundamental types.
+/// This function will be resolved for any type DType, which 
+/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and 
+/// 2. has a member function named DType::__member_const_ref__()
 template<typename DType, 
-         typename = std::enable_if_t<DType::is_dt_fundamental_type>
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+         typename = std::enable_if_t<std::is_member_function_pointer
+                  <decltype(&DType::__member_const_ref__)>::value>
          >
   constexpr bool
   operator<=(DType a, DType b) noexcept
@@ -1574,7 +1622,7 @@ template<typename DType,
   return a.__member_const_ref__() <= b.__member_const_ref__();
 }
 
-/// @@rief Number of expressible days for any second type.
+/// @brief Number of expressible days for any second type.
 ///
 /// This (template) function will return the number of whole days that can be
 /// expressed using any instance of a second type (i.e. ngpt::seconds, 
@@ -1588,7 +1636,9 @@ template<typename S,
         >
   constexpr typename S::underlying_type
   max_days_allowed()
-{ return std::numeric_limits<typename S::underlying_type>::max()/S::max_in_day; }
+{
+  return std::numeric_limits<typename S::underlying_type>::max()/S::max_in_day;
+}
 
 /// @brief Express the difference between two Modified Julian Days as any second
 ///        type.
@@ -1613,7 +1663,7 @@ template<typename S,
   mjd_sec_diff(modified_julian_day d1, modified_julian_day d2) noexcept
 {
   modified_julian_day d {d1-d2};
-  return S{d.as_underlying_type() * S::max_in_day};
+  return S {d.as_underlying_type() * S::max_in_day};
 }
 
 /// For user-defined literals, i am going to replace long with
