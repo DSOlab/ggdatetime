@@ -18,9 +18,9 @@
 #include "dtfund.hpp"
 
 #ifdef DEBUG
-#include <iostream>
-#include <iomanip>  // std::setprecision
-#include <sstream>  // std::ostringstream
+# include <iostream>
+# include <iomanip>  // std::setprecision
+# include <sstream>  // std::ostringstream
 #endif
 
 namespace ngpt

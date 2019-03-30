@@ -91,10 +91,16 @@ Implementation-wise, this means that they only have one member variable, which
 is of integral type (actually either an `int` or a `long`).
 For these fundamental types, a kinda reflection is used and the following 
 operators are defined:
-* `bool`ean operators between instances of the same type: '==', '!=', '<', '<=', '>', '>='
-  E.g. `year y1(2012), y2(2013); y1 == y2;`
-* increase/decrease where the right-hand-side is any integral type:
-  E.g. `year y1(2012); y1 += 15;// now year is 2027
+  * `bool`ean operators between instances of the same type: '==', '!=', '<', '<=', '>', '>='
+     E.g. `year y1(2012), y2(2013); y1 == y2;`
+  * increase/decrease where the right-hand-side is any integral type:
+    E.g. `year y1(2012); y1 += 15;// now year is 2027`
+  * increase/decrease where the right-hand-side is of the same type as the
+    calling instance; E.g. `year y1(2012), y2(10); y1 += y2;// now year1 is 2022`
+  * increment/decrement pre- & post-fix operators, aka '++' ans '--' 
+    E.g. `year y1(2012); y1++;// now year is 2013 --y1;// now year is 2012`
+  * assignment operator ('=') from any integral type:
+    E.g. `year y1(2012); y1 = 2015;`
 
 ### Integer Division
 --------------------
