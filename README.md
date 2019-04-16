@@ -65,8 +65,18 @@ Note that you only need the "debug" version if you want to mess with the code.
 
 ### Verification
 ----------------
-After a successeful installation, you should be able to run the test program
-`ROOTDIR/test/testDatetime`
+After a successeful installation, you should be able to run the test programs:
+
+* `ROOTDIR/test/testDatetime`
+* `ROOTDIR/test/testGPSt`
+* `ROOTDIR/test/testLeap`
+* `ROOTDIR/test/testOps`
+* `ROOTDIR/test/testRead`
+
+Additionaly, unit-testing for erronuous (actually non-compilable) source code,
+is performed by the program:
+
+* `ROOTDIR/script/test_source.sh`
 
 ## Implementation Notes
 ==============================================================================
@@ -126,7 +136,10 @@ A simple usage example follows:
   assert( --y == y1 );
   assert( (y = 2020) == y2 );
 ```
-For a detailed example, see the file `test/test_operators`.
+For a detailed example, see the file `test/test_operators`. To make sure that
+these operators only work for the types they are supposed to, use the script
+`script/test_source.sh`; this performs a kina unit-testing, using erronuous
+source code.
 
 ### Integer Division
 --------------------
