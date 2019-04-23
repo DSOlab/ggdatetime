@@ -1469,9 +1469,9 @@ public:
   remove_days() noexcept
   {
     int days = 0;
-    while (m_sec >= max_in_day) {
+    while (m_msec >= max_in_day) {
       ++days;
-      m_sec -= max_in_day;
+      m_msec -= max_in_day;
     }
     return days;
   }

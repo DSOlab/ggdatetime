@@ -61,9 +61,9 @@ template<typename T>
   double secs = std::get<2>(hmsf).as_underlying_type() + 
                 std::get<3>(hmsf) / T::template sec_factor<double>();
   
-  return _i2s_(std::get<0>(ymd).as_underlying_type(), 4) + del
-       + _i2s_(std::get<1>(ymd).as_underlying_type(), 2) + del
-       + _i2s_(std::get<2>(ymd).as_underlying_type(), 2) + ' '
+  return _i2s_((ymd.__year).as_underlying_type(), 4) + del
+       + _i2s_((ymd.__month).as_underlying_type(), 2) + del
+       + _i2s_((ymd.__dom).as_underlying_type(), 2) + ' '
        + _i2s_(std::get<0>(hmsf).as_underlying_type(),2) + ':'
        + _i2s_(std::get<1>(hmsf).as_underlying_type(),2) + ':'
        + _d2s_(secs, 5);
@@ -75,9 +75,9 @@ template<typename T>
   auto ymd  = t.as_ymd();
   auto hmsf = t.as_hmsf();
   
-  return _i2s_(std::get<0>(ymd).as_underlying_type(), 4) + del
-       + _i2s_(std::get<1>(ymd).as_underlying_type(), 2) + del
-       + _i2s_(std::get<2>(ymd).as_underlying_type(), 2) + ' '
+  return _i2s_((ymd.__year).as_underlying_type(), 4) + del
+       + _i2s_((ymd.__month).as_underlying_type(), 2) + del
+       + _i2s_((ymd.__dom).as_underlying_type(), 2) + ' '
        + _i2s_(std::get<0>(hmsf).as_underlying_type(),2) + ':'
        + _i2s_(std::get<1>(hmsf).as_underlying_type(),2) + ':'
        + _i2s_(std::get<2>(hmsf).as_underlying_type(),2);
