@@ -568,8 +568,8 @@ public:
   normalize() noexcept
   {
     typename S::underlying_type secs { m_sec.as_underlying_type() };
-    m_mjd += secs % S::max_in_day;
-    m_sec  = secs / S::max_in_day;
+    m_mjd += secs / S::max_in_day;
+    m_sec  = secs % S::max_in_day;
     return;
   }
 

@@ -953,8 +953,8 @@ public:
   hours
   remove_hours() noexcept
   {
-    int hrs = m_min % 60;
-    m_min   = m_min / 60;
+    int hrs = m_min / 60;
+    m_min   = m_min % 60;
     return hours{hrs};
   }
   
@@ -1124,8 +1124,8 @@ public:
   constexpr int
   remove_days() noexcept
   {
-    int days = m_sec % max_in_day;
-    m_sec    = m_sec / max_in_day;
+    int days = m_sec / max_in_day;
+    m_sec    = m_sec % max_in_day;
     return days;
   }
     
@@ -1354,8 +1354,8 @@ public:
   constexpr int
   remove_days() noexcept
   {
-    int days = m_sec % max_in_day;
-    m_sec    = m_sec / max_in_day;
+    int days = m_sec / max_in_day;
+    m_sec    = m_sec % max_in_day;
     return days;
   }
     
@@ -1614,8 +1614,8 @@ public:
   constexpr int
   remove_days() noexcept
   {
-    int days = m_sec % max_in_day;
-    m_sec    = m_sec / max_in_day;
+    int days = m_sec / max_in_day;
+    m_sec    = m_sec % max_in_day;
     return days;
   }
     
