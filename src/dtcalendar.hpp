@@ -18,9 +18,9 @@
 #include "dtfund.hpp"
 
 #ifdef DEBUG
-#include <iostream>
-#include <iomanip>  // std::setprecision
-#include <sstream>  // std::ostringstream
+# include <iostream>
+# include <iomanip>  // std::setprecision
+# include <sstream>  // std::ostringstream
 #endif
 
 namespace ngpt
@@ -125,21 +125,9 @@ public:
   normalize() noexcept
   {
     typename S::underlying_type secs { m_secs.as_underlying_type() };
-
-    if (secs > 0 && secs < S::max_in_day) {
-      return;
-    } else if ( secs >= S::max_in_day ) {
-      modified_julian_day _add {static_cast<long>(m_secs.remove_days())};
-      m_days += _add;
-      return;
-    }
-    else { // negative *seconds
-      while (secs < 0) {
-        secs += S::max_in_day;
-        --m_days;
-      }
-      m_secs = static_cast<S>(secs);
-    }
+    m_days += secs / S::max_in_day;
+    m_secs  = secs / S::max_in_day;
+    return;
   }
 
   /// Operator >
@@ -580,20 +568,9 @@ public:
   normalize() noexcept
   {
     typename S::underlying_type secs { m_sec.as_underlying_type() };
-
-    if (secs > 0 && secs < S::max_in_day) {
-      return;
-    } else if ( secs >= S::max_in_day ) {
-      modified_julian_day _add {static_cast<long>(m_sec.remove_days())};
-      m_mjd += _add;
-      return;
-    } else { /* negative *seconds */
-      while (secs < 0) {
-        secs += S::max_in_day;
-        --m_mjd;
-      }
-      m_sec = static_cast<S>(secs);
-    }
+    m_mjd += secs % S::max_in_day;
+    m_sec  = secs / S::max_in_day;
+    return;
   }
 
   /// Difference between two dates in MJdays and S.

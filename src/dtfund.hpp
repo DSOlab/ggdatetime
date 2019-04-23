@@ -10,10 +10,6 @@
 ///
 /// @bug No known bugs.
 ///
-/// @todo we have several remove_days methods, implemented with a loop (as eg
-/// in the seconds class or using a div_t struct (as eg in hours). Which is faster?
-/// Which could handle negative seconds/hours ?
-///
 
 #ifndef __DTFUND_NGPT__HPP__
 #define __DTFUND_NGPT__HPP__
@@ -189,6 +185,12 @@ public:
   inline constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_year; }
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type&
+  __member_ref__() noexcept
+  { return m_year; }
 
   /// Constructor; default year is 1900.
   explicit constexpr
@@ -198,6 +200,17 @@ public:
 #ifdef USE_DATETIME_CHECKS
     assert(i > 0);
 #endif
+  }
+
+  /// assignment operator from any integral type
+  template<typename Int,
+           typename = std::enable_if_t<std::is_integral_v<Int>>
+           >
+    constexpr year&
+    operator=(Int i) noexcept
+  {
+    m_year = i;
+    return *this;
   }
 
   /// Get the year as year::underlying_type.
@@ -253,6 +266,12 @@ public:
   inline constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_month; }
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type&
+  __member_ref__() noexcept
+  { return m_month; }
 
   /// Constructor; default month is 1.
   explicit constexpr
@@ -272,6 +291,17 @@ public:
   ///                match is found, or b) the input string is too short.
   explicit
   month(const char* str);
+  
+  /// assignment operator from any integral type
+  template<typename Int,
+           typename = std::enable_if_t<std::is_integral_v<Int>>
+           >
+    constexpr month&
+    operator=(Int i) noexcept
+  {
+    m_month = i;
+    return *this;
+  }
 
   /// Get the month as month::underlying_type
   inline constexpr underlying_type
@@ -349,6 +379,12 @@ public:
   inline constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_week; }
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type&
+  __member_ref__() noexcept
+  { return m_week; }
 
   /// Constructor; default week is 1.
   explicit constexpr
@@ -359,6 +395,17 @@ public:
     assert( this->is_valid() );
 #endif
   };
+  
+  /// assignment operator from any integral type
+  template<typename Int,
+           typename = std::enable_if_t<std::is_integral_v<Int>>
+           >
+    constexpr gps_week&
+    operator=(Int i) noexcept
+  {
+    m_week = i;
+    return *this;
+  }
 
   /// Get the month as month::underlying_type
   inline constexpr underlying_type
@@ -406,6 +453,12 @@ public:
   inline constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_dom; }
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type&
+  __member_ref__() noexcept
+  { return m_dom; }
     
   /// Constructor; default day of month is 1.
   explicit constexpr
@@ -416,6 +469,17 @@ public:
     assert(i>0 && i<32);
 #endif
   };
+  
+  /// assignment operator from any integral type
+  template<typename Int,
+           typename = std::enable_if_t<std::is_integral_v<Int>>
+           >
+    constexpr day_of_month&
+    operator=(Int i) noexcept
+  {
+    m_dom = i;
+    return *this;
+  }
     
   /// Get the day_of_month as day_of_month::underlying_type
   inline constexpr underlying_type
@@ -475,6 +539,12 @@ public:
   inline constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_mjd; }
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type&
+  __member_ref__() noexcept
+  { return m_mjd; }
 
   /// Max possible modified_julian_day
   constexpr static modified_julian_day
@@ -505,26 +575,22 @@ public:
   /// @bug Where the fuck is this definition?
   explicit constexpr
   modified_julian_day(year iy, day_of_year id) noexcept;
+  
+  /// assignment operator from any integral type
+  template<typename Int,
+           typename = std::enable_if_t<std::is_integral_v<Int>>
+           >
+    constexpr modified_julian_day&
+    operator=(Int i) noexcept
+  {
+    m_mjd = i;
+    return *this;
+  }
     
   /// Get the modified_julian_day as modified_julian_day::underlying_type
   inline constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_mjd; }
-    
-  /// Define addition (between MJDs).
-  inline constexpr void
-  operator+=(const modified_julian_day& d) noexcept
-  { m_mjd += d.m_mjd; }
-    
-  /// Define subtraction (between MJDs).
-  inline constexpr void
-  operator-=(const modified_julian_day& d) noexcept
-  {
-    m_mjd -= d.m_mjd;
-#ifdef USE_DATETIME_CHECKS
-    assert( m_mjd > 0 );
-#endif
-  }
     
   /// Operator - (subtraction).
   inline constexpr modified_julian_day
@@ -541,17 +607,6 @@ public:
   operator+(const modified_julian_day& mjd) const noexcept
   { return modified_julian_day {m_mjd+mjd.m_mjd}; }
   
-  /// Operator -- (minus 1 mjd).
-  inline constexpr modified_julian_day&
-  operator--() noexcept
-  {
-    --m_mjd;
-#ifdef USE_DATETIME_CHECKS
-    assert(m_mjd>0);
-#endif
-    return *this;
-  }
-
   /// @brief Convert a Modified Julian Day to Year and Day of year.
   ///
   /// @return A tuple with two elements: (year, day_of_year)
@@ -618,6 +673,12 @@ public:
   inline constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_doy; }
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type&
+  __member_ref__() noexcept
+  { return m_doy; }
     
   /// Constructor; default day of year is 0.
   explicit constexpr
@@ -628,6 +689,17 @@ public:
     assert(i>=0);
 #endif
   };
+  
+  /// assignment operator from any integral type
+  template<typename Int,
+           typename = std::enable_if_t<std::is_integral_v<Int>>
+           >
+    constexpr day_of_year&
+    operator=(Int i) noexcept
+  {
+    m_doy = i;
+    return *this;
+  }
   
   /// Cast to underlying type
   inline constexpr underlying_type
@@ -742,6 +814,12 @@ public:
   inline constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_hours; }
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type&
+  __member_ref__() noexcept
+  { return m_hours; }
     
   /// Constructor; default hours is 0.
   explicit constexpr
@@ -752,6 +830,17 @@ public:
     assert(i>=0);
 #endif
   };
+  
+  /// assignment operator from any integral type
+  template<typename Int,
+           typename = std::enable_if_t<std::is_integral_v<Int>>
+           >
+    constexpr hours&
+    operator=(Int i) noexcept
+  {
+    m_hours = i;
+    return *this;
+  }
     
   /// Get the hours as hours::underlying_type
   inline constexpr underlying_type
@@ -768,15 +857,12 @@ public:
   /// @return The whole days (priorly) included within the instance, aka
   ///         hours / 24 (integer division)
   ///
-  /// @note Cannot be constexpr cause of non-‘constexpr’ function 
-  ///       ‘div_t div(int, int)’, at least in g++.
-  int
+  constexpr int
   remove_days() noexcept
   {
-    std::div_t dv;
-    dv = std::div(m_hours, 24);
-    m_hours = dv.rem;
-    return dv.quot;
+    int days = m_hours / 24;
+    m_hours  = m_hours % 24;
+    return days;
   }
   
 private:
@@ -819,6 +905,12 @@ public:
   inline constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_min; }
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type&
+  __member_ref__() noexcept
+  { return m_min; }
     
   /// Constructor
   explicit constexpr
@@ -829,6 +921,17 @@ public:
     assert(i>=0);
 #endif
   };
+  
+  /// assignment operator from any integral type
+  template<typename Int,
+           typename = std::enable_if_t<std::is_integral_v<Int>>
+           >
+    constexpr minutes&
+    operator=(Int i) noexcept
+  {
+    m_min = i;
+    return *this;
+  }
 
   /// Get the minutes as minutes::underlying_type
   inline constexpr underlying_type
@@ -850,10 +953,9 @@ public:
   hours
   remove_hours() noexcept
   {
-    std::div_t dv;
-    dv = std::div(m_min, 60);
-    m_min = dv.rem;
-    return hours{dv.quot};
+    int hrs = m_min % 60;
+    m_min   = m_min / 60;
+    return hours{hrs};
   }
   
 private:
@@ -905,6 +1007,12 @@ public:
   __member_const_ref__() const noexcept
   { return m_sec; }
   
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type&
+  __member_ref__() noexcept
+  { return m_sec; }
+  
   /// Seconds is a subdivision of seconds.
   static constexpr bool
   is_of_sec_type { true };
@@ -950,21 +1058,34 @@ public:
     assert(fs>=0e0);
 #endif
   }
-    
+  
+  /// assignment operator from any integral type
+  template<typename Int,
+           typename = std::enable_if_t<std::is_integral_v<Int>>
+           >
+    constexpr seconds&
+    operator=(Int i) noexcept
+  {
+    m_sec = i;
+    return *this;
+  }
+  
+  /*
   /// Addition operator between seconds.
   inline constexpr void
   operator+=(const seconds& sc) noexcept
-  { m_sec+=sc.m_sec; }
+  { m_sec += sc.m_sec; }
 
   /// Subtraction operator between seconds.
   inline constexpr void
   operator-=(const seconds& sc) noexcept
   {
-    m_sec-=sc.m_sec;
+    m_sec -= sc.m_sec;
 #ifdef USE_DATETIME_CHECKS
     assert(m_sec >= 0);
 #endif
   }
+  */
     
   /// Overload - operator (subtraction).
   inline constexpr seconds
@@ -979,12 +1100,12 @@ public:
   /// Overload + operator (addition).
   inline constexpr seconds
   operator+(const seconds& sec) const noexcept
-  { return seconds{m_sec+sec.m_sec}; }
+  { return seconds{m_sec + sec.m_sec}; }
 
   /// Do the secods sum up to more than one day?
   inline constexpr bool
   more_than_day() const noexcept
-  { return m_sec>max_in_day; }
+  { return m_sec > max_in_day; }
   
   /// Get the seconds as seconds::underlying_type .
   inline constexpr underlying_type
@@ -1000,19 +1121,11 @@ public:
   /// @return The integer number of days (if the seconds are more than a day).
   /// @throw  Does not throw.
   ///
-  /// @warning Negative seconds are not handled!
-  /// 
   constexpr int
   remove_days() noexcept
   {
-#ifdef USE_DATETIME_CHECKS
-    assert(m_sec >= 0);
-#endif
-    int days = 0;
-    while (m_sec >= max_in_day) {
-      ++days;
-      m_sec -= max_in_day;
-    }
+    int days = m_sec % max_in_day;
+    m_sec    = m_sec / max_in_day;
     return days;
   }
     
@@ -1054,6 +1167,7 @@ public:
   /// Translate to hours, minutes, seconds and fractional seconds. Fractional
   /// seconds, in this case, are obviously always 0 (aka the last element of
   /// the returned tuple, holds 0L).
+  /// @todo don;t like this; make better
   constexpr std::tuple<hours, minutes, seconds, long>
   to_hmsf() const noexcept
   {
@@ -1119,7 +1233,13 @@ public:
   /// function
   inline constexpr underlying_type
   __member_const_ref__() const noexcept
-  { return m_msec; }
+  { return m_sec; }
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type&
+  __member_ref__() noexcept
+  { return m_sec; }
   
   /// MilliSeconds are a subdivision of seconds.
   static constexpr bool
@@ -1136,7 +1256,7 @@ public:
 
   /// Constructor; default milliseconds is 0.
   explicit constexpr milliseconds(underlying_type i=0L) noexcept
-    : m_msec(i)
+    : m_sec(i)
   {
 #ifdef USE_DATETIME_CHECKS
     assert(i>=0L);
@@ -1146,9 +1266,9 @@ public:
   /// Constructor from hours, minutes, milliseconds.   
   explicit constexpr
   milliseconds(hours h, minutes m, milliseconds c) noexcept
-    : m_msec { c.as_underlying_type()
-             + m.as_underlying_type()*60L  * sec_factor<underlying_type>()
-             + h.as_underlying_type()*3600L* sec_factor<underlying_type>()}
+    : m_sec { c.as_underlying_type()
+            + m.as_underlying_type()*60L  * sec_factor<underlying_type>()
+            + h.as_underlying_type()*3600L* sec_factor<underlying_type>()}
   {};
     
   /// @brief Constructor from hours, minutes, fractional seconds.
@@ -1158,57 +1278,70 @@ public:
   /// the fs input argument).
   explicit constexpr
   milliseconds(hours h, minutes m, double fs) noexcept
-    : m_msec{ static_cast<underlying_type>(fs * sec_factor<double>())
-              + (m.as_underlying_type()*60L + h.as_underlying_type()*3600L)
-              * sec_factor<underlying_type>()}
+    : m_sec{ static_cast<underlying_type>(fs * sec_factor<double>())
+             + (m.as_underlying_type()*60L + h.as_underlying_type()*3600L)
+             * sec_factor<underlying_type>()}
   {
 #ifdef USE_DATETIME_CHECKS
     assert(fs>=0e0);
 #endif
   };
   
+  /// assignment operator from any integral type
+  template<typename Int,
+           typename = std::enable_if_t<std::is_integral_v<Int>>
+           >
+    constexpr milliseconds&
+    operator=(Int i) noexcept
+  {
+    m_sec = i;
+    return *this;
+  }
+  
   /// @brief Cast to ngpt::seconds.
   /// Milliseconds can be cast to seconds (with a loss of precission).
   inline constexpr explicit
   operator seconds() const noexcept
   { 
-    return seconds {m_msec / sec_factor<underlying_type>()};
+    return seconds {m_sec / sec_factor<underlying_type>()};
   }
   
   /// Addition operator.
   inline constexpr milliseconds
   operator+(const milliseconds& sec) const noexcept
-  { return milliseconds{m_msec+sec.m_msec}; }
+  { return milliseconds{m_sec+sec.m_sec}; }
   
+  /*
   /// Addition operator.
   inline constexpr void
   operator+=(const milliseconds& ms) noexcept
-  { m_msec+=ms.m_msec; }
+  { m_sec+=ms.m_sec; }
 
   /// Subtraction operator.
   inline constexpr void
   operator-=(const milliseconds& ms) noexcept
   {
-    m_msec-=ms.m_msec;
+    m_sec-=ms.m_sec;
 #ifdef USE_DATETIME_CHECKS
-    assert(m_msec>=0);
+    assert(m_sec>=0);
 #endif
   }
+  */
   
   /// Subtraction operator.
   inline constexpr milliseconds
   operator-(const milliseconds& n) const noexcept
-  { return milliseconds{m_msec - n.m_msec}; }
+  { return milliseconds{m_sec - n.m_sec}; }
   
   /// Do the milliseconds sum up to more than one day ?
   inline constexpr bool
   more_than_day() const noexcept
-  { return m_msec>max_in_day; }
+  { return m_sec>max_in_day; }
   
   /// Get the milliseconds as milliseconds::underlying_type.
   inline constexpr underlying_type
   as_underlying_type() const noexcept
-  { return m_msec; }
+  { return m_sec; }
     
   /// @brief Normalize milliseconds and return the integeral days.
   ///
@@ -1218,17 +1351,11 @@ public:
   ///
   /// @return The integer number of days (if the milliseconds are more than a day).
   /// @throw  Does not throw.
-  ///
-  /// @warning negative seconds are not treated
-  /// 
   constexpr int
   remove_days() noexcept
   {
-    int days = 0;
-    while (m_msec >= max_in_day) {
-      ++days;
-      m_msec -= max_in_day;
-    }
+    int days = m_sec % max_in_day;
+    m_sec    = m_sec / max_in_day;
     return days;
   }
     
@@ -1246,20 +1373,20 @@ public:
   inline constexpr int
   to_days() const noexcept
   {
-    return int{static_cast<int>(m_msec/max_in_day)};
+    return int{static_cast<int>(m_sec/max_in_day)};
   }
     
   /// Cast to fractional days.
   inline constexpr double
   fractional_days() const noexcept
   {
-    return static_cast<double>(m_msec)/static_cast<double>(max_in_day);
+    return static_cast<double>(m_sec)/static_cast<double>(max_in_day);
   }
     
   /// Cast to fractional ngpt::seconds
   inline constexpr double
   to_fractional_seconds() const noexcept
-  { return static_cast<double>(m_msec)*1.0e-3; }
+  { return static_cast<double>(m_sec)*1.0e-3; }
     
   /// @brief Resolve to (integer) seconds and fractional seconds.
   ///
@@ -1273,8 +1400,8 @@ public:
   constexpr seconds
   resolve_sec(double& fraction) const noexcept
   {
-    seconds sec { m_msec / sec_factor<underlying_type>() };
-    fraction = static_cast<double>(m_msec % sec_factor<underlying_type>())*1e-3;
+    seconds sec { m_sec / sec_factor<underlying_type>() };
+    fraction = static_cast<double>(m_sec % sec_factor<underlying_type>())*1e-3;
     return sec;
   }
     
@@ -1294,10 +1421,10 @@ public:
   constexpr std::tuple<hours, minutes, seconds, long>
   to_hmsf() const noexcept
   {
-    long hr { m_msec/3600000L                  };  // hours
-    long mn { (m_msec%3600000L)/60000L         };  // minutes
-    long sc { ((m_msec%3600000L)%60000L)/1000L };  // seconds
-    long ms { m_msec-((hr*60L+mn)*60L+sc)*1000L};  // milliseconds.
+    long hr { m_sec/3600000L                  };  // hours
+    long mn { (m_sec%3600000L)/60000L         };  // minutes
+    long sc { ((m_sec%3600000L)%60000L)/1000L };  // seconds
+    long ms { m_sec-((hr*60L+mn)*60L+sc)*1000L};  // milliseconds.
       
     return std::make_tuple( hours  { static_cast<hours::underlying_type>(hr) },
                             minutes{ static_cast<minutes::underlying_type>(mn) },
@@ -1312,10 +1439,10 @@ private:
            >
     constexpr T
     cast_to() const noexcept
-  { return static_cast<T>( m_msec ); }
+  { return static_cast<T>( m_sec ); }
 
   /// Milliseconds as underlying type.
-  underlying_type m_msec;
+  underlying_type m_sec;
 
 }; /// class milliseconds
 
@@ -1362,7 +1489,13 @@ public:
   /// function
   inline constexpr underlying_type
   __member_const_ref__() const noexcept
-  { return m_msec; }
+  { return m_sec; }
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type&
+  __member_ref__() noexcept
+  { return m_sec; }
   
   /// Microseconds is a subdivision of seconds.
   static constexpr bool
@@ -1381,7 +1514,7 @@ public:
   /// Constructor; default microseconds is 0.
   explicit constexpr
   microseconds(underlying_type i=0L) noexcept
-    : m_msec(i)
+    : m_sec(i)
   {
 #ifdef USE_DATETIME_CHECKS
     assert(i>=0L);
@@ -1391,9 +1524,9 @@ public:
   /// Constructor from hours, minutes, microseconds.
   explicit constexpr
   microseconds(hours h, minutes m, microseconds c) noexcept
-    : m_msec { c.as_underlying_type()
-             +(m.as_underlying_type()*60L
-             + h.as_underlying_type()*3600L) * sec_factor<underlying_type>() }
+    : m_sec { c.as_underlying_type()
+            +(m.as_underlying_type()*60L
+            + h.as_underlying_type()*3600L) * sec_factor<underlying_type>() }
   {};
     
   /// Constructor from hours, minutes, fractional seconds.
@@ -1402,55 +1535,68 @@ public:
   ///       up to 10e-6.
   explicit constexpr
   microseconds(hours h, minutes m, double fs) noexcept
-    : m_msec{ static_cast<underlying_type>(fs * sec_factor<double>())
-             + (m.as_underlying_type()*60L
-             + h.as_underlying_type()*3600L) * sec_factor<underlying_type>() }
+    : m_sec{ static_cast<underlying_type>(fs * sec_factor<double>())
+            + (m.as_underlying_type()*60L
+            + h.as_underlying_type()*3600L) * sec_factor<underlying_type>() }
   {};
+  
+  /// assignment operator from any integral type
+  template<typename Int,
+           typename = std::enable_if_t<std::is_integral_v<Int>>
+           >
+    constexpr microseconds&
+    operator=(Int i) noexcept
+  {
+    m_sec = i;
+    return *this;
+  }
     
   /// Microseconds can be cast to milliseconds will a loss of accuracy.
   inline constexpr explicit
   operator milliseconds() const
-  { return milliseconds(m_msec / 1000L); }
+  { return milliseconds(m_sec / 1000L); }
   
   /// Microseconds can be cast to seconds will a loss of accuracy.
   inline constexpr explicit
   operator seconds() const
-  { return seconds(m_msec / sec_factor<underlying_type>()); }
+  { return seconds(m_sec / sec_factor<underlying_type>()); }
   
+  /*
   /// Addition between microseconds.
   inline constexpr void
   operator+=(const microseconds& ns) noexcept
-  { m_msec+=ns.m_msec; }
+  { m_sec+=ns.m_sec; }
 
   /// Subtraction between microseconds.
   inline constexpr void
   operator-=(const microseconds& ns) noexcept
   {
-    m_msec-=ns.m_msec;
+    m_sec-=ns.m_sec;
 #ifdef USE_DATETIME_CHECKS
-    assert(m_msec>=0);
+    assert(m_sec>=0);
 #endif
   }
+  */
 
   /// Addition between microseconds.
   inline constexpr microseconds
   operator+(const microseconds& sec) const noexcept
-  { return microseconds{m_msec+sec.m_msec}; }
+  { return microseconds{m_sec+sec.m_sec}; }
 
   /// Subtraction between microseconds.
   inline constexpr microseconds
   operator-(const microseconds& n) const noexcept
-  { return microseconds{m_msec-n.m_msec}; }
+  { return microseconds{m_sec-n.m_sec}; }
   
   /// Do the microseconds sum up to more than one day?
   inline constexpr bool
   more_than_day() const noexcept
-  { return m_msec>max_in_day; }
+  { return m_sec>max_in_day; }
   
   /// Cast to microseconds::underlying_type.
   inline constexpr underlying_type
   as_underlying_type() const noexcept
-  { return m_msec; }
+  { return m_sec; }
     
   /// @brief Normalize microseconds and return the integeral days.
   ///
@@ -1464,15 +1610,20 @@ public:
   /// @note   The number of days returned can be negative (!!), if the microseconds
   ///         are negative (i.e. if m_sec = -86400, -1 will be returned and
   ///         m_sec will be set to 0).
-  /// 
+  ///
   constexpr int
   remove_days() noexcept
   {
+<<<<<<< HEAD
     int days = 0;
     while (m_msec >= max_in_day) {
       ++days;
       m_msec -= max_in_day;
     }
+=======
+    int days = m_sec % max_in_day;
+    m_sec    = m_sec / max_in_day;
+>>>>>>> 3c1d956d6c513a913a0de67b904a77acd5c1d10c
     return days;
   }
     
@@ -1489,29 +1640,29 @@ public:
   ///
   inline constexpr int
   to_days() const noexcept
-  { return static_cast<int>(m_msec/max_in_day); }
+  { return static_cast<int>(m_sec/max_in_day); }
   
   /// Cast to fractional days.
   inline constexpr double
   fractional_days() const noexcept
   {
-    return static_cast<double>(m_msec) / static_cast<double>(max_in_day);
+    return static_cast<double>(m_sec) / static_cast<double>(max_in_day);
   }
     
   /// Cast to fractional seconds
   inline constexpr double
   to_fractional_seconds() const noexcept
-  { return static_cast<double>(m_msec) * 1.0e-6; }
+  { return static_cast<double>(m_sec) * 1.0e-6; }
     
   /// Translate to hours, minutes, seconds and microseconds.
   /// @bug need more documentation
   constexpr std::tuple<hours, minutes, seconds, long>
   to_hmsf() const noexcept
   {
-    long hr { m_msec/3600000000L                       };  // hours
-    long mn { (m_msec%3600000000L)/60000000L           };  // minutes
-    long sc { ((m_msec%3600000000L)%60000000L)/1000000L};  // seconds
-    long ns { m_msec-((hr*60L+mn)*60L+sc)*1000000L     };  // microsec.
+    long hr { m_sec/3600000000L                       };  // hours
+    long mn { (m_sec%3600000000L)/60000000L           };  // minutes
+    long sc { ((m_sec%3600000000L)%60000000L)/1000000L};  // seconds
+    long ns { m_sec-((hr*60L+mn)*60L+sc)*1000000L     };  // microsec.
     return std::make_tuple( hours  { static_cast<hours::underlying_type>(hr) },
                             minutes{ static_cast<minutes::underlying_type>(mn) },
                             seconds{ sc },
@@ -1525,10 +1676,10 @@ private:
            >
     constexpr T
     cast_to() const noexcept
-  { return static_cast<T>(m_msec); }
+  { return static_cast<T>(m_sec); }
 
   /// Microseconds as long ints.
-  underlying_type m_msec;
+  underlying_type m_sec;
 
 }; // class microseconds
 
@@ -1616,10 +1767,184 @@ template<typename DType,
          typename = std::enable_if_t<std::is_member_function_pointer
                   <decltype(&DType::__member_const_ref__)>::value>
          >
-  constexpr bool
+  inline constexpr bool
   operator<=(DType a, DType b) noexcept
 {
   return a.__member_const_ref__() <= b.__member_const_ref__();
+}
+
+/// Overload bool operator '+=' for datetime fundamental types when the right
+/// operand is any integral type.
+/// This function will be resolved for any type DType, which 
+/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and 
+/// 2. has a member function named DType::__member_ref__()
+/// 3. right operand is any Integral type
+/// This function will allow e.g.
+/// modified_julian_day mjd (123);
+/// mjd += 1;
+/// Now mjd's internal member, will have a value of 124.
+template<typename DType,
+         typename I,
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+         typename = std::enable_if_t<std::is_member_function_pointer
+                  <decltype(&DType::__member_ref__)>::value>,
+         typename = std::enable_if_t<std::is_integral_v<I>>
+         >
+  inline constexpr DType&
+  operator+=(DType& _a, I _intv) noexcept
+{
+  _a.__member_ref__() += _intv;
+  return _a;
+}
+
+/// Overload bool operator '+=' for datetime fundamental types when the right
+/// operand is the same type as the calling instance.
+/// This function will be resolved for any type DType, which 
+/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and 
+/// 2. has a member function named DType::__member_ref__()
+/// 3. right and left operands are of the same type
+/// This function will allow e.g.
+/// modified_julian_day mjd1 (123), mjd2 (132);
+/// mjd1 += mjd2;
+/// Now mjd's internal member, will have a value of 155.
+template<typename DType,
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+         typename = std::enable_if_t<std::is_member_function_pointer
+                  <decltype(&DType::__member_ref__)>::value>
+         >
+  inline constexpr DType&
+  operator+=(DType& _a, DType _b) noexcept
+{
+  _a.__member_ref__() += _b.__member_const_ref__();
+  return _a;
+}
+
+/// Overload bool operator '-=' for datetime fundamental types when the right
+/// operand is any integral type.
+/// This function will be resolved for any type DType, which 
+/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and 
+/// 2. has a member function named DType::__member_ref__()
+/// 3. right operand is any Integral type
+/// This function will allow e.g.
+/// modified_julian_day mjd (123);
+/// mjd -= 1;
+/// Now mjd's internal member, will have a value of 122.
+template<typename DType,
+         typename I,
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+         typename = std::enable_if_t<std::is_member_function_pointer
+                  <decltype(&DType::__member_ref__)>::value>,
+         typename = std::enable_if_t<std::is_integral_v<I>>
+         >
+  inline constexpr DType&
+  operator-=(DType& _a, I _intv) noexcept
+{
+  _a.__member_ref__() -= _intv;
+  return _a;
+}
+
+/// Overload bool operator '-=' for datetime fundamental types when the right
+/// operand is of the same type as the calling instance.
+/// This function will be resolved for any type DType, which 
+/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and 
+/// 2. has a member function named DType::__member_ref__()
+/// 3. right and left hand sides are of the same type
+/// This function will allow e.g.
+/// modified_julian_day mjd1 (123), mjd2 (100);
+/// mjd1 -= mjd2;
+/// Now mjd's internal member, will have a value of 23.
+template<typename DType,
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+         typename = std::enable_if_t<std::is_member_function_pointer
+                  <decltype(&DType::__member_ref__)>::value>
+         >
+  inline constexpr DType&
+  operator-=(DType& _a, DType _b) noexcept
+{
+  _a.__member_ref__() -= _b.__member_const_ref__();
+  return _a;
+}
+
+/// Overload prefix increment operator '++' for datetime fundamental types
+/// This function will be resolved for any type DType, which 
+/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and 
+/// 2. has a member function named DType::__member_ref__()
+/// This function will allow e.g.
+/// modified_julian_day mjd (123);
+/// ++mjd;
+/// Now mjd's internal member, will have a value of 124.
+template<typename DType,
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+         typename = std::enable_if_t<std::is_member_function_pointer
+                  <decltype(&DType::__member_ref__)>::value>
+         >
+  inline constexpr DType&
+  operator++(DType& _a) noexcept
+{
+  ++(_a.__member_ref__());
+  return _a;
+}
+
+/// Overload postfix increment operator '++' for datetime fundamental types
+/// This function will be resolved for any type DType, which 
+/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and 
+/// 2. has a member function named DType::__member_ref__()
+/// This function will allow e.g.
+/// modified_julian_day mjd (123);
+/// mjd++;
+/// Now mjd's internal member, will have a value of 124.
+template<typename DType,
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+         typename = std::enable_if_t<std::is_member_function_pointer
+                  <decltype(&DType::__member_ref__)>::value>
+         >
+  inline constexpr DType
+  operator++(DType& _a, int) noexcept
+{
+  auto tmp {_a};
+  ++_a;
+  return tmp;
+}
+
+/// Overload prefix decrement operator '--' for datetime fundamental types
+/// This function will be resolved for any type DType, which 
+/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and 
+/// 2. has a member function named DType::__member_ref__()
+/// This function will allow e.g.
+/// modified_julian_day mjd (123);
+/// --mjd;
+/// Now mjd's internal member, will have a value of 122.
+template<typename DType,
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+         typename = std::enable_if_t<std::is_member_function_pointer
+                  <decltype(&DType::__member_ref__)>::value>
+         >
+  inline constexpr DType&
+  operator--(DType& _a) noexcept
+{
+  --(_a.__member_ref__());
+  return _a;
+}
+
+/// Overload postfix decrement operator '--' for datetime fundamental types
+/// This function will be resolved for any type DType, which 
+/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and 
+/// 2. has a member function named DType::__member_ref__()
+/// This function will allow e.g.
+/// modified_julian_day mjd (123);
+/// mjd--;
+/// Now mjd's internal member, will have a value of 122.
+template<typename DType,
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+         typename = std::enable_if_t<std::is_member_function_pointer
+                  <decltype(&DType::__member_ref__)>::value>
+         >
+  inline constexpr DType
+  operator--(DType& _a, int) noexcept
+{
+  auto tmp {_a};
+  --_a;
+  return tmp;
 }
 
 /// @brief Number of expressible days for any second type.
