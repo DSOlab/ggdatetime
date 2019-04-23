@@ -1614,16 +1614,8 @@ public:
   constexpr int
   remove_days() noexcept
   {
-<<<<<<< HEAD
-    int days = 0;
-    while (m_msec >= max_in_day) {
-      ++days;
-      m_msec -= max_in_day;
-    }
-=======
     int days = m_sec % max_in_day;
     m_sec    = m_sec / max_in_day;
->>>>>>> 3c1d956d6c513a913a0de67b904a77acd5c1d10c
     return days;
   }
     
