@@ -1070,23 +1070,6 @@ public:
     return *this;
   }
   
-  /*
-  /// Addition operator between seconds.
-  inline constexpr void
-  operator+=(const seconds& sc) noexcept
-  { m_sec += sc.m_sec; }
-
-  /// Subtraction operator between seconds.
-  inline constexpr void
-  operator-=(const seconds& sc) noexcept
-  {
-    m_sec -= sc.m_sec;
-#ifdef USE_DATETIME_CHECKS
-    assert(m_sec >= 0);
-#endif
-  }
-  */
-    
   /// Overload - operator (subtraction).
   inline constexpr seconds
   operator-(const seconds& n) const noexcept
@@ -1310,23 +1293,6 @@ public:
   inline constexpr milliseconds
   operator+(const milliseconds& sec) const noexcept
   { return milliseconds{m_sec+sec.m_sec}; }
-  
-  /*
-  /// Addition operator.
-  inline constexpr void
-  operator+=(const milliseconds& ms) noexcept
-  { m_sec+=ms.m_sec; }
-
-  /// Subtraction operator.
-  inline constexpr void
-  operator-=(const milliseconds& ms) noexcept
-  {
-    m_sec-=ms.m_sec;
-#ifdef USE_DATETIME_CHECKS
-    assert(m_sec>=0);
-#endif
-  }
-  */
   
   /// Subtraction operator.
   inline constexpr milliseconds
@@ -1561,23 +1527,6 @@ public:
   operator seconds() const
   { return seconds(m_sec / sec_factor<underlying_type>()); }
   
-  /*
-  /// Addition between microseconds.
-  inline constexpr void
-  operator+=(const microseconds& ns) noexcept
-  { m_sec+=ns.m_sec; }
-
-  /// Subtraction between microseconds.
-  inline constexpr void
-  operator-=(const microseconds& ns) noexcept
-  {
-    m_sec-=ns.m_sec;
-#ifdef USE_DATETIME_CHECKS
-    assert(m_sec>=0);
-#endif
-  }
-  */
-
   /// Addition between microseconds.
   inline constexpr microseconds
   operator+(const microseconds& sec) const noexcept
@@ -1976,11 +1925,48 @@ template<typename S,
 template<typename S,
         typename = std::enable_if_t<S::is_of_sec_type>
         >
-  S
+  inline S
   mjd_sec_diff(modified_julian_day d1, modified_julian_day d2) noexcept
 {
   modified_julian_day d {d1-d2};
   return S {d.as_underlying_type() * S::max_in_day};
+}
+
+/// Cast any second type to another second type.
+///
+/// Cast an instance of any second type (aka any instance for which 
+/// is_of_sec_type is defined and is true) to any other second type. E.g., 
+/// cast seconds to milliseconds or cast microseconds to seconds. Be warned,
+/// that casting to less precission (e.g. microseconds to seconds) will cause
+/// loss of precission (1 microsecond is not 1e-6 seconds, it is just 0 
+/// seconds, remember?).
+/// 
+/// @tparam Ssrc Any class of second type, i.e. any class S that has a (static)
+///         member variable S::is_of_sec_type set to true.
+/// @tparam Strg Any class of second type, i.e. any class S that has a (static)
+///         member variable S::is_of_sec_type set to true.
+/// @param[in] s An instance of type Ssrc to be cast to an instance of Strg
+/// @return      The input s instance, as an instance of type Strg
+///
+/// @warning this may cause loss of precission when e.g. casting milliseconds to
+///          seconds. E.g.
+///          cast_to<seconds, milliseconds>(seconds {1}) // result is 1000
+///          cast_to<milliseconds, seconds>(milliseconds {1}) // result is 0
+template<typename Ssrc,
+         typename Strg,
+         typename = std::enable_if_t<Ssrc::is_of_sec_type>,
+         typename = std::enable_if_t<Strg::is_of_sec_type>
+        >
+  inline Strg
+  cast_to(Ssrc s) noexcept
+{
+  // this is tricky! We must first compute the numerator and then the fraction.
+  // why? check this out
+  // seconds _s1 = cast_to<milliseconds, seconds>(milliseconds{2000L});
+  // this is: (1/1000)*2000 which is 0 because 1/1000 is 0, but
+  // (2000*1)/1000 = 2 which is correct
+  auto numerator { s.__member_ref__() * Strg::template sec_factor<long>() };
+  return Strg {numerator / Ssrc::template sec_factor<long>()};
 }
 
 /// For user-defined literals, i am going to replace long with

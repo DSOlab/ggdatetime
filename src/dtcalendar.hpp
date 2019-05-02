@@ -677,6 +677,27 @@ template<typename T,
   return dt1.delta_date( dt2 );
 }
 
+/// Difference of two datetime instances in seconds, when they are of different
+/// second type (aka datetime<seconds> and datetime<milliseconds>). This
+/// function will cast the most imprecise instance to the accuracy of the most
+/// precise one and then perform the computation. E.g. if given:
+/// a=datetime<seconds>{...} and b=datetime<milliseconds>{...}, then a will
+/// be cast to a datetime<milliseconds> instance and then the Δseconds will be
+/// computed. The return type, will be that of the most precise type (aka in
+/// the case above the difference will be returned in milliseconds).
+/*
+template<typename S1,
+         typename S2,
+         typename = std::enable_if_t<(S1::max_in_day > S1::max_in_day)>
+        >
+  inline S1
+  delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept
+{
+  S1 diff = mjd_sec_diff<S1>(d1.mjd(), d2.mjd());
+  S1 sd   {d2.secs()*}
+}
+*/
+
 /// Sec-Millisec-MicroSec of Week to Day of week
 template<typename T,
         typename = std::enable_if_t<T::is_of_sec_type>

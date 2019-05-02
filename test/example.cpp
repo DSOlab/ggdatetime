@@ -120,7 +120,7 @@ int main()
 
   std::cout<<"Part C -- OK\n\n";
     
-  std::cout<<"Testing Micro- Mill- and Seconds\n";
+  std::cout<<"Testing Micro- Mill- and Seconds & casting\n";
   std::cout<<"-------------------------------------------------------------\n";
   //
   // Seconds, MicroSec and Millisec
@@ -136,6 +136,26 @@ int main()
   // milliseconds ml1 {sec1};   // ERROR!
   // microseconds mc1 {mlsec1}; // ERROR!
   assert( foo<milliseconds>() == 1000 );
+  seconds _s1 = cast_to<microseconds, seconds>(mcsec1);
+  assert( _s1 == seconds{0} );
+  _s1 = cast_to<milliseconds, seconds>(mlsec1);
+  assert( _s1 == seconds{0} );
+  milliseconds _m1 = cast_to<microseconds, milliseconds>(mcsec1);
+  assert( _m1 == milliseconds{0} );
+  _s1 = cast_to<milliseconds, seconds>(milliseconds{2345L});
+  assert( _s1 == seconds{2} );
+  _s1 = cast_to<microseconds, seconds>(microseconds{23456789L});
+  assert( _s1 == seconds{23} );
+  _m1 = cast_to<microseconds, milliseconds>(microseconds{12345678L});
+  assert( _m1 == milliseconds{12345} );
+  _s1 = 12345;
+  _m1 = cast_to<seconds, milliseconds>(_s1);
+  assert( _m1 == milliseconds{12345000} );
+  auto _cs = cast_to<seconds, microseconds>(_s1);
+  assert( _cs == microseconds{12345000000} );
+  _m1 = 12345;
+  _cs = cast_to<milliseconds, microseconds>(_m1);
+  assert( _cs == microseconds{12345000} );
   std::cout<<"Part D -- OK\n\n";
 
   std::cout<<"Testing Datetime Constructors (and arg deduction)\n";

@@ -89,7 +89,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 noinst_PROGRAMS = testDatetime$(EXEEXT) testRead$(EXEEXT) \
-	testGPSt$(EXEEXT) testLeap$(EXEEXT) testOps$(EXEEXT)
+	testGPSt$(EXEEXT) testLeap$(EXEEXT) testOps$(EXEEXT) \
+	testSecDif$(EXEEXT)
 subdir = test
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -135,6 +136,12 @@ testRead_DEPENDENCIES = $(top_srcdir)/src/libggdatetime.la
 testRead_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(testRead_CXXFLAGS) \
 	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_testSecDif_OBJECTS = testSecDif-test_secdif.$(OBJEXT)
+testSecDif_OBJECTS = $(am_testSecDif_OBJECTS)
+testSecDif_DEPENDENCIES = $(top_srcdir)/src/libggdatetime.la
+testSecDif_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(testSecDif_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -154,7 +161,8 @@ am__depfiles_remade = ./$(DEPDIR)/testDatetime-example.Po \
 	./$(DEPDIR)/testGPSt-test_gpst.Po \
 	./$(DEPDIR)/testLeap-test_dat.Po \
 	./$(DEPDIR)/testOps-test_operators.Po \
-	./$(DEPDIR)/testRead-test_dt_read.Po
+	./$(DEPDIR)/testRead-test_dt_read.Po \
+	./$(DEPDIR)/testSecDif-test_secdif.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -175,9 +183,11 @@ am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(testDatetime_SOURCES) $(testGPSt_SOURCES) \
-	$(testLeap_SOURCES) $(testOps_SOURCES) $(testRead_SOURCES)
+	$(testLeap_SOURCES) $(testOps_SOURCES) $(testRead_SOURCES) \
+	$(testSecDif_SOURCES)
 DIST_SOURCES = $(testDatetime_SOURCES) $(testGPSt_SOURCES) \
-	$(testLeap_SOURCES) $(testOps_SOURCES) $(testRead_SOURCES)
+	$(testLeap_SOURCES) $(testOps_SOURCES) $(testRead_SOURCES) \
+	$(testSecDif_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -353,6 +363,9 @@ testLeap_LDADD = $(top_srcdir)/src/libggdatetime.la
 testOps_SOURCES = test_operators.cpp
 testOps_CXXFLAGS = $(MCXXFLAGS) -I$(top_srcdir)/src -L$(top_srcdir)/src
 testOps_LDADD = $(top_srcdir)/src/libggdatetime.la
+testSecDif_SOURCES = test_secdif.cpp
+testSecDif_CXXFLAGS = $(MCXXFLAGS) -I$(top_srcdir)/src -L$(top_srcdir)/src
+testSecDif_LDADD = $(top_srcdir)/src/libggdatetime.la
 all: all-am
 
 .SUFFIXES:
@@ -416,6 +429,10 @@ testRead$(EXEEXT): $(testRead_OBJECTS) $(testRead_DEPENDENCIES) $(EXTRA_testRead
 	@rm -f testRead$(EXEEXT)
 	$(AM_V_CXXLD)$(testRead_LINK) $(testRead_OBJECTS) $(testRead_LDADD) $(LIBS)
 
+testSecDif$(EXEEXT): $(testSecDif_OBJECTS) $(testSecDif_DEPENDENCIES) $(EXTRA_testSecDif_DEPENDENCIES) 
+	@rm -f testSecDif$(EXEEXT)
+	$(AM_V_CXXLD)$(testSecDif_LINK) $(testSecDif_OBJECTS) $(testSecDif_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -427,6 +444,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testLeap-test_dat.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testOps-test_operators.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testRead-test_dt_read.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testSecDif-test_secdif.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -524,6 +542,20 @@ testRead-test_dt_read.obj: test_dt_read.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test_dt_read.cpp' object='testRead-test_dt_read.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testRead_CXXFLAGS) $(CXXFLAGS) -c -o testRead-test_dt_read.obj `if test -f 'test_dt_read.cpp'; then $(CYGPATH_W) 'test_dt_read.cpp'; else $(CYGPATH_W) '$(srcdir)/test_dt_read.cpp'; fi`
+
+testSecDif-test_secdif.o: test_secdif.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testSecDif_CXXFLAGS) $(CXXFLAGS) -MT testSecDif-test_secdif.o -MD -MP -MF $(DEPDIR)/testSecDif-test_secdif.Tpo -c -o testSecDif-test_secdif.o `test -f 'test_secdif.cpp' || echo '$(srcdir)/'`test_secdif.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/testSecDif-test_secdif.Tpo $(DEPDIR)/testSecDif-test_secdif.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test_secdif.cpp' object='testSecDif-test_secdif.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testSecDif_CXXFLAGS) $(CXXFLAGS) -c -o testSecDif-test_secdif.o `test -f 'test_secdif.cpp' || echo '$(srcdir)/'`test_secdif.cpp
+
+testSecDif-test_secdif.obj: test_secdif.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testSecDif_CXXFLAGS) $(CXXFLAGS) -MT testSecDif-test_secdif.obj -MD -MP -MF $(DEPDIR)/testSecDif-test_secdif.Tpo -c -o testSecDif-test_secdif.obj `if test -f 'test_secdif.cpp'; then $(CYGPATH_W) 'test_secdif.cpp'; else $(CYGPATH_W) '$(srcdir)/test_secdif.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/testSecDif-test_secdif.Tpo $(DEPDIR)/testSecDif-test_secdif.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test_secdif.cpp' object='testSecDif-test_secdif.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testSecDif_CXXFLAGS) $(CXXFLAGS) -c -o testSecDif-test_secdif.obj `if test -f 'test_secdif.cpp'; then $(CYGPATH_W) 'test_secdif.cpp'; else $(CYGPATH_W) '$(srcdir)/test_secdif.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -661,6 +693,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/testLeap-test_dat.Po
 	-rm -f ./$(DEPDIR)/testOps-test_operators.Po
 	-rm -f ./$(DEPDIR)/testRead-test_dt_read.Po
+	-rm -f ./$(DEPDIR)/testSecDif-test_secdif.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -711,6 +744,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/testLeap-test_dat.Po
 	-rm -f ./$(DEPDIR)/testOps-test_operators.Po
 	-rm -f ./$(DEPDIR)/testRead-test_dt_read.Po
+	-rm -f ./$(DEPDIR)/testSecDif-test_secdif.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
