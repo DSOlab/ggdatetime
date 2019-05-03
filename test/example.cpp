@@ -165,7 +165,7 @@ int main()
   // -----------------------------------------------------------------------
   //
   datetime<seconds> d2(year(2015), month(12), day_of_month(30));
-  std::cout << "d2  = " << d2.stringify() << " (" << d2.secs() << ")\n";
+  std::cout << "d2  = " << d2.stringify() << " (" << d2.sec_as_i() << ")\n";
 
   // the following won't compile; the template parameter can be
   // seconds, milliseconds or microseconds.
@@ -175,22 +175,22 @@ int main()
   // are ignored!)
   datetime<seconds> d21 (year(2015), month(12), day_of_month(30),
       milliseconds(MilliSec));
-  std::cout << "d21 = " << d21.stringify() << " (" << d21.secs() << ")\n";
+  std::cout << "d21 = " << d21.stringify() << " (" << d21.sec_as_i() << ")\n";
   // the opposite however id not allowed!
   // datetime<microseconds> d5(year(2015), month(12), day_of_month(30),
   //     seconds(100)); ERROR!
   // we can also use time (i.e. hours, minutes, etc..)
   datetime<seconds> d22 (year(2015), month(12), day_of_month(30), hours(12),
       minutes(50), seconds(30));
-  std::cout << "d22 = " << d22.stringify() << " (" << d22.secs() << ")\n";
+  std::cout << "d22 = " << d22.stringify() << " (" << d22.sec_as_i() << ")\n";
   // or
   datetime<seconds> d23 (year(2015), month(12), day_of_month(30), hours(12),
       minutes(50), microseconds(30000001));
-  std::cout << "d23 = " << d23.stringify() << " (" << d23.secs() << ")\n";
+  std::cout << "d23 = " << d23.stringify() << " (" << d23.sec_as_i() << ")\n";
   // or
   datetime<microseconds> d24 (year(2015), month(12), day_of_month(30), hours(12),
       minutes(50), microseconds(30000001));
-  std::cout << "d24 = " << d24.stringify() << " (" << d24.secs() << ")\n";
+  std::cout << "d24 = " << d24.stringify() << " (" << d24.sec_as_i() << ")\n";
   // but not (seconds cannot be cast to milliseconds) ERROR!
   // datetime<milliseconds> d25 (year(2015), month(12), day_of_month(30), hours(12),
   //     minutes(50), seconds(30000001));
@@ -199,11 +199,11 @@ int main()
   // this is fine; use fractional seconds (which are skipped!)
   datetime<seconds> d3 (year(2015), month(12), day_of_month(30), hours(12), 
       minutes(50), 30.001234);
-  std::cout << "d3  = " << d3.stringify() << " (" << d3.secs() << ")\n";
+  std::cout << "d3  = " << d3.stringify() << " (" << d3.sec_as_i() << ")\n";
   // or, for bigger accuracy ..
   datetime<microseconds> d31 (year(2015), month(12), day_of_month(30), hours(12),
       minutes(5), 30.0000010);
-  std::cout << "d31 = " << d31.stringify() << " (" << d31.secs() << ")\n";
+  std::cout << "d31 = " << d31.stringify() << " (" << d31.sec_as_i() << ")\n";
   std::cout<<"Part E -- OK\n\n";
     
   std::cout<<"Testing Datetime Resolution";

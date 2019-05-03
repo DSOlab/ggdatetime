@@ -30,9 +30,9 @@ int main()
   datetime<seconds> d1      = ngpt::strptime_yod_hms<seconds>(date1_str);
   datetime<milliseconds> d2 = ngpt::strptime_yod_hms<milliseconds>(date2_str);
   datetime<microseconds> d3 = ngpt::strptime_yod_hms<microseconds>(date3_str);
-  std::cout << "\nd1 = " << d1.stringify() << " (" << d1.secs() << ")";
-  std::cout << "\nd2 = " << d2.stringify() << " (" << d2.secs() << ")";
-  std::cout << "\nd3 = " << d3.stringify() << " (" << d3.secs() << ")";
+  std::cout << "\nd1 = " << d1.stringify() << " (" << d1.sec_as_i() << ")";
+  std::cout << "\nd2 = " << d2.stringify() << " (" << d2.sec_as_i() << ")";
+  std::cout << "\nd3 = " << d3.stringify() << " (" << d3.sec_as_i() << ")";
 
   gps_week w1, w2, w3;
   long sow1, sow2, sow3;

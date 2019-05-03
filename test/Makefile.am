@@ -3,7 +3,7 @@ noinst_PROGRAMS = testDatetime \
 		  testGPSt \
 		  testLeap \
 		  testOps \
-                  testSecDif
+		  testSecDif
 
 MCXXFLAGS = \
 	-std=c++17 \

@@ -105,7 +105,7 @@ public:
   /// Get the number of *seconds (as type S) of the instance.
   /// @return The number of *seconds (as type S) of the instance.
   S
-  secs() const noexcept
+  sec() const noexcept
   { return m_secs; }
     
   /// Cast to double (i.e. fractional) Modified Julian Date.
@@ -408,10 +408,16 @@ public:
   constexpr modified_julian_day
   mjd() const noexcept
   { return m_mjd; }
+  
+  /// Get the number of *seconds (as type S) of the instance.
+  /// @return The number of *seconds (as type S) of the instance.
+  S
+  sec() const noexcept
+  { return m_sec; }
     
   /// Get the *seconds as underlying_type
   constexpr typename S::underlying_type
-  secs() const noexcept
+  sec_as_i() const noexcept
   { return m_sec.as_underlying_type(); }
 
   /// @brief Add any second type T, convertible to S.
@@ -472,7 +478,7 @@ public:
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>
                >
   constexpr datetime<S>
-  add(modified_julian_day days, T secs) const noexcept
+  add(modified_julian_day days, T secs=T{0}) const noexcept
   { 
     datetime<S> new_dt { days+m_mjd, static_cast<S>(secs)+m_sec };
     new_dt.normalize();
@@ -554,7 +560,7 @@ public:
   operator+=(const datetime_interval<S>& dt) noexcept
   {
     m_mjd += dt.days();
-    m_sec += dt.secs();
+    m_sec += dt.sec();
     this->normalize();
   }
 
@@ -685,18 +691,79 @@ template<typename T,
 /// be cast to a datetime<milliseconds> instance and then the Δseconds will be
 /// computed. The return type, will be that of the most precise type (aka in
 /// the case above the difference will be returned in milliseconds).
-/*
+/// This implementation is used when S1 is more precise than S2.
+/// 
+/// @tparam S1  any second type that has a static member S1::is_of_sec_type set
+///             to True and has an Integral static variable S1::max_in_day
+/// @tparam S2  any second type that has a static member S2::is_of_sec_type set
+///             to True and has an Integral static variable S2::max_in_day
+/// @param  d1  datetime<S1> instance (deifference is d1-d2)
+/// @param  d2  datetime<S2> instance (deifference is d1-d2)
+/// @return     Difference d1-d2 in S1
 template<typename S1,
          typename S2,
-         typename = std::enable_if_t<(S1::max_in_day > S1::max_in_day)>
+         typename = std::enable_if_t<S1::is_of_sec_type>,
+         typename = std::enable_if_t<S2::is_of_sec_type>,
+         typename = std::enable_if_t<(S1::max_in_day > S2::max_in_day)>
         >
   inline S1
   delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept
 {
-  S1 diff = mjd_sec_diff<S1>(d1.mjd(), d2.mjd());
-  S1 sd   {d2.secs()*}
+  S1 diff  = mjd_sec_diff<S1>(d1.mjd(), d2.mjd()); // days dif in S1
+  S1 s2sec = cast_to<S2, S1>(d2.sec());           // cast d2 secs to S1
+  return diff + (d1.sec() - s2sec);
 }
-*/
+
+/// Difference of two datetime instances in seconds, when they are of different
+/// second type (aka datetime<seconds> and datetime<milliseconds>). This
+/// function will cast the most imprecise instance to the accuracy of the most
+/// precise one and then perform the computation. E.g. if given:
+/// a=datetime<seconds>{...} and b=datetime<milliseconds>{...}, then a will
+/// be cast to a datetime<milliseconds> instance and then the Δseconds will be
+/// computed. The return type, will be that of the most precise type (aka in
+/// the case above the difference will be returned in milliseconds).
+/// This implementation is used when S2 is more precise than S1.
+/// 
+/// @tparam S1  any second type that has a static member S1::is_of_sec_type set
+///             to True and has an Integral static variable S1::max_in_day
+/// @tparam S2  any second type that has a static member S2::is_of_sec_type set
+///             to True and has an Integral static variable S2::max_in_day
+/// @param  d1  datetime<S1> instance (deifference is d1-d2)
+/// @param  d2  datetime<S2> instance (deifference is d1-d2)
+/// @return     Difference d1-d2 in S2
+template<typename S1,
+         typename S2,
+         typename = std::enable_if_t<S1::is_of_sec_type>,
+         typename = std::enable_if_t<S2::is_of_sec_type>,
+         typename = std::enable_if_t<(S2::max_in_day > S1::max_in_day)>
+        >
+  inline S2
+  delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept
+{
+  S2 diff  = mjd_sec_diff<S2>(d1.mjd(), d2.mjd()); // days dif in S2
+  S2 s1sec = cast_to<S1, S2>(d1.sec());           // cast d1 secs to S2
+  return diff + (s1sec - d2.sec());
+}
+
+/// Because we have a function of type:
+/// delta_sec(datetime<S1> d1, datetime<S2> d2) for any S1, S2 of sec type, we
+/// should also include an implementation for when S1=S2. In that case, the
+/// implementation is just d1.delta_sec(d2) but here we are declaring a
+/// non-member function for ease of use.
+///
+/// @tparam S   any second type that has a static member S1::is_of_sec_type set
+///             to True and has an Integral static variable S1::max_in_day
+/// @param  d1  datetime<S> instance (deifference is d1-d2)
+/// @param  d2  datetime<S> instance (deifference is d1-d2)
+/// @return     Difference d1-d2 in S
+template<typename S,
+         typename = std::enable_if_t<S::is_of_sec_type>
+        >
+  inline S
+  delta_sec(datetime<S> d1, datetime<S> d2) noexcept
+{
+  return d1.delta_sec(d2);
+}
 
 /// Sec-Millisec-MicroSec of Week to Day of week
 template<typename T,
