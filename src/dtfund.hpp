@@ -1,14 +1,16 @@
 ///
 /// @file  dtfund.hpp
 ///
-/// @brief Fundamental (core) datetime constants and algorithms.
+/// @brief Fundamental (core) datetime constants, algorithms and types.
 ///
-/// This file contains fundamental constants and algorithms for manipulating
-/// date and time, targeting GNSS applications.
+/// This file contains fundamental constants, algorithms and data structures, 
+/// for manipulating date and time, targeting GNSS applications.
 ///
 /// @author xanthos
 ///
 /// @bug No known bugs.
+///
+/// @date Wed 08 May 2019 11:26:07 AM EEST (last modified)
 ///
 
 #ifndef __DTFUND_NGPT__HPP__
@@ -44,16 +46,16 @@ constexpr long jan11901 { 15385L };
 /// Seconds per day.
 /// @warning This is not always true in case of UTC dates; the day a leap second
 ///          is inserted has one more second!
-constexpr double sec_per_day { 86400.0e0 };
+constexpr double sec_per_day { 86400e0 };
 
 /// Days per Julian year.
 constexpr double days_in_julian_year { 365.25e0 };
 
 /// Days per Julian century.
-constexpr double days_in_julian_cent { 36525.0e0 };
+constexpr double days_in_julian_cent { 36525e0 };
 
 /// Reference epoch (J2000.0), Julian Date.
-constexpr double j2000_jd { 2451545.0e0 };
+constexpr double j2000_jd { 2451545e0 };
 
 /// Reference epoch (J2000.0), Modified Julian Date.
 constexpr double j2000_mjd { 51544.5e0 };
@@ -163,8 +165,16 @@ dat(modified_julian_day mjd) noexcept;
 ///
 /// A year is represented by just an integer number. There are no limits
 /// (excpept from integer overflow) to the range of the year (integer).
-/// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
-/// year (constructor) can only have positive values.
+///
+/// A year is not an integer; hence, operations with integral values (aka
+/// addition, subtraction, etc) are not allowed (they will actually triger a
+/// compilation error). The only thing that is allowed, is assigning from 
+/// integral types.
+/// @code
+///   year yr {2019};
+///   yr = year + 1; // error!
+///   yr = 2018;     // ok
+/// @endcode
 ///
 /// This is a fundamental class, which means it only has one arithmetic member
 /// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
@@ -196,11 +206,7 @@ public:
   explicit constexpr
   year(underlying_type i=1900) noexcept
     : m_year(i)
-  {
-#ifdef USE_DATETIME_CHECKS
-    assert(i > 0);
-#endif
-  }
+  {}
 
   /// assignment operator from any integral type
   template<typename Int,

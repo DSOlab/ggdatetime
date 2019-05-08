@@ -2,6 +2,7 @@
 #include <chrono>
 #include <cassert>
 #include <limits>
+#include <random>
 
 #include "dtfund.hpp"
 #include "dtcalendar.hpp"
@@ -206,7 +207,7 @@ int main()
   std::cout << "d31 = " << d31.stringify() << " (" << d31.sec_as_i() << ")\n";
   std::cout<<"Part E -- OK\n\n";
     
-  std::cout<<"Testing Datetime Resolution";
+  std::cout<<"Testing Datetime Resolution\n";
   std::cout<<"-------------------------------------------------------------\n";
   //
   // Manipulation of datetime objects
@@ -214,6 +215,7 @@ int main()
   //
   d2.add_seconds(seconds(10));
   // remember datetime<seconds> d2(year(2015), month(12), day_of_month(30));
+  auto d2_copy = d2;
 
   std::cout<<"\n\nSequentialy adding seconds to a date.\n";
   std::chrono::steady_clock::time_point begin, end;
@@ -240,7 +242,33 @@ int main()
           << ", is it? " << std::boolalpha 
           << (((mjd2 - mjd1)*86400000.0 - 2.5*86400000.0) == 0.0e0) << "\n";
   std::cout << "d2: " << d2.stringify() << ", MJD = " << d2.as_mjd() << "\n";
-  std::cout<<"Part E -- OK\n\n";
+  
+  // go back to initial epoch d2 by removing seconds
+  std::cout <<"\nd2: " << d2.stringify() << ", MJD = " << d2.as_mjd();
+  std::cout <<"\nd:  " << d2_copy.stringify() << ", MJD = " << d2_copy.as_mjd();
+  // delta_sec(datetime<seconds>-datetime<seconds>) -> seconds, aka
+  // sdif is seconds
+  auto sdif = delta_sec(d2, d2_copy); 
+  std::cout<<"\nDifference in seconds between d2 and original date is: "<<sdif.as_underlying_type();
+  std::cout<<"\nLet's go back by subtracting seconds";
+  d2.remove_seconds(sdif);
+  std::cout <<"d2: " << d2.stringify() << ", MJD = " << d2.as_mjd() << "\n";
+  assert( d2 == d2_copy );
+
+  std::cout<<"\nAdd and then subtract random seconds from dates";
+  long max_sec = 7 * 86400; // one week in seconds
+  std::random_device rd;
+  std::mt19937 rng(rd());
+  std::uniform_int_distribution<long> uni(-max_sec, max_sec);
+  for (int i=0; i<1000; i++) {
+    seconds rand_sec {uni(rng)};
+    d2.add_seconds(rand_sec);
+    d2.remove_seconds(rand_sec);
+    assert( d2 == d2_copy );
+  }
+  std::cout<<"\nAdded/Subtracted 1000 times randoms seconds; everything looks ok!";
+  
+  std::cout<<"\nPart E -- OK\n\n";
 
   std::cout << "\n";
   return 0;   
