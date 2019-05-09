@@ -11,6 +11,14 @@ declare -a errornuous_units_tests
 ## We will replace any line of type:
 ## "//[....]CMP_ERROR" with the part in braces, aka "[....]"
 for sc in "${unit_tests[@]}" ; do
+  ## find have many lines we have, that contain CMP_ERROR
+  OCC=$(cat $sc | grep '\(//\)\(.*;\)\( *\)\(CMP_ERROR\)' | wc -l)
+  if test "${OCC}" -lt 1 ; then
+    for OCC_NR in $(seq 1 $OCC) ; do
+      error_file=${sc/.cpp/_error${OCC_NR}.cpp}
+      tr '\n' '^' < $sc \
+      sed 's:\(//\)\(.*;\)\( *\)\(CMP_ERROR\):\2:g' \
+      > ${error_file}
   error_file=${sc/.cpp/_error.cpp}
   cat $sc | sed 's:\(//\)\(.*;\)\( *\)\(CMP_ERROR\):\2:g' > ${error_file}
   errornuous_units_tests+=(${error_file})
