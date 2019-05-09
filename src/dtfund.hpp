@@ -256,6 +256,8 @@ private:
 /// @warning Most functions (within ngpt) accept months in the range [1,12];
 ///          do not use the range [0,11], except if you realy know what you're
 ///          doing.
+///
+/// @example test_month.cpp
 class month
 {
 public:
@@ -288,10 +290,12 @@ public:
 
   /// @brief Constructor from a c-string.
   ///
-  /// @param[in] str The month's name; The 3 first characters should match
-  ///                a month in the month::short_names array.
+  /// @param[in] str The month's name; The string should match a month in the 
+  ///                month::short_names or month::long_names array.
   /// @throw         An std::invalid_argument exception is thrown if a) no
   ///                match is found, or b) the input string is too short.
+  /// @note The matching is performed in a case-insensitive way, aka "JUL", "Jul"
+  ///       "JULY", etc, will all be matched to the month July.
   explicit
   month(const char* str);
   

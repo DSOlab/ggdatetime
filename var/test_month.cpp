@@ -27,20 +27,20 @@ int main()
   assert( mn34 == mn35 );
   assert( mn35 == mn36 );
 
-  const char* invalid_names[] = {"Jully", "Ju", "J" };
+  const char* invalid_names[] = {"Jully", "Ju", "J", "Julyy" };
   int sz = sizeof invalid_names / sizeof invalid_names[0];
   bool exception_thrown = false;
   for (int i=0; i<sz; i++) {
     exception_thrown = false;
     try {
-      std::cout<<"\nUsing invalid month name "<<invalid_names[i]
-               <<" to initialize month";
+      //std::cout<<"\nUsing invalid month name "<<invalid_names[i]
+      //         <<" to initialize month";
       month er (invalid_names[i]);
     } catch (std::invalid_argument& e) {
-      std::cout<<"\nException: "<<e.what();
+      //std::cout<<"\nException: "<<e.what();
       exception_thrown = true;
     }
-    // assert( exception_thrown );
+    assert( exception_thrown );
   }
 
   // testing operators
@@ -59,6 +59,12 @@ int main()
   mn1++;                              // month++
 
   // testing functions
+  assert( mn1.is_valid() );
+  assert( mn2.is_valid() );
+  mn1 = month(0);
+  mn2 = month(13);
+  assert( !mn1.is_valid() );
+  assert( !mn2.is_valid() );
 
   std::cout<<"\nAll checks for ngpt::month OK\n";
   return 0;

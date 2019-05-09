@@ -79,8 +79,9 @@ ngpt::cal2mjd(ngpt::year y, ngpt::month m, ngpt::day_of_month d)
 }
 
 int
-__lower_strncmp__(const char *str1, const char *str2, std::size_t n)
+__lower_strncmp__(const char *str1, const char *str2, std::size_t n=0)
 {
+  if (!n) n = std::max(std::strlen(str1), std::strlen(str2));
   for (std::size_t i = 0; i < n; i++) 
     if ( !(std::tolower(str1[i]) == std::tolower(str2[i])) ) 
       return 1;
@@ -90,20 +91,32 @@ __lower_strncmp__(const char *str1, const char *str2, std::size_t n)
 ///
 /// Given a c-string (i.e. null-terminating char array), resolve the month.
 /// The c-string can be either a short name (i.e. a 3-character name), e.g.
-/// "Jan", or the whole, normal month name e.g. "January". Actualy, only
-/// the first 3 characters are inspected to see if they match any of the
-/// month names in the month::short_names array. If not, or if the input 
-/// string is too short, then an exception is thrown. Note that the month will
-/// be returned in the "normal" range [1,12], **not** [0-11].
+/// "Jan", or the whole, normal month name e.g. "January". 
+/// If a 3-char length string is passed in, we are going to compare using the
+/// month::short_names array; else if the length of the input string is more
+/// than 3-chars, the month::long_names array is used.
+/// The comparisson is performed with both strings (aka the input string and
+/// each of the long/short_names arrays) beeing already transformed to lowercase
+/// That means that this function is actually case-insensitive!
+/// If the input string cannot be matced to any of the strings in short_names
+/// and long_names, then an exception is thrown of type: std::invalid_argument
+/// Note that the month will be returned in the "normal" range [1,12], 
+/// **not** [0-11].
 ///
 ngpt::month::month(const char* str)
 {
   m_month = 0;
 
-  if ( std::strlen(str) >= 3 ) {
+  if ( std::strlen(str) == 3 ) {
     for (int i = 0; i < 12; ++i) {
-      // if ( !std::strncmp(short_names[i], str, 3) ) {
       if ( !__lower_strncmp__(short_names[i], str, 3) ) {
+        m_month = i+1;
+        break;
+      }
+    }
+  } else if ( std::strlen(str) > 3 ) {
+    for (int i = 0; i < 12; ++i) {
+      if ( !__lower_strncmp__(long_names[i], str) ) {
         m_month = i+1;
         break;
       }
