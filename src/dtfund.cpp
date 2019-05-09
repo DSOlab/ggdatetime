@@ -78,6 +78,15 @@ ngpt::cal2mjd(ngpt::year y, ngpt::month m, ngpt::day_of_month d)
   return ngpt::modified_julian_day{mjd};
 }
 
+int
+__lower_strncmp__(const char *str1, const char *str2, std::size_t n)
+{
+  for (std::size_t i = 0; i < n; i++) 
+    if ( !(std::tolower(str1[i]) == std::tolower(str2[i])) ) 
+      return 1;
+  return 0;
+}
+
 ///
 /// Given a c-string (i.e. null-terminating char array), resolve the month.
 /// The c-string can be either a short name (i.e. a 3-character name), e.g.
@@ -93,7 +102,8 @@ ngpt::month::month(const char* str)
 
   if ( std::strlen(str) >= 3 ) {
     for (int i = 0; i < 12; ++i) {
-      if ( !std::strncmp(short_names[i], str, 3) ) {
+      // if ( !std::strncmp(short_names[i], str, 3) ) {
+      if ( !__lower_strncmp__(short_names[i], str, 3) ) {
         m_month = i+1;
         break;
       }

@@ -161,6 +161,7 @@ dat(year iy, month im) noexcept;
 int
 dat(modified_julian_day mjd) noexcept;
 
+/// @class year
 /// @brief A wrapper class for years.
 ///
 /// A year is represented by just an integer number. There are no limits
@@ -180,6 +181,11 @@ dat(modified_julian_day mjd) noexcept;
 /// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
 /// '>=') are going to be implemented using kinda reflection, using template
 /// function overloadnig outside the class.
+/// The same goes for operators '++' (post- pre-increment) and '--' (post- 
+/// pre-decrement), '+=T' and '-=T' where T is either a year or any integral 
+/// type.
+/// 
+/// @example test_year.cpp
 class year
 {
 public:
@@ -203,21 +209,12 @@ public:
   { return m_year; }
 
   /// Constructor; default year is 1900.
-  explicit constexpr
+  /// Note that the constrcutor is NOT explicit to allow construction from
+  /// int (aka to allow lines of codes of type: year y = 1901;)
+  constexpr
   year(underlying_type i=1900) noexcept
     : m_year(i)
   {}
-
-  /// assignment operator from any integral type
-  template<typename Int,
-           typename = std::enable_if_t<std::is_integral_v<Int>>
-           >
-    constexpr year&
-    operator=(Int i) noexcept
-  {
-    m_year = i;
-    return *this;
-  }
 
   /// Get the year as year::underlying_type.
   inline constexpr underlying_type
@@ -235,6 +232,7 @@ private:
 
 }; // class year
 
+/// @class month
 /// @brief A wrapper class for months.
 ///
 /// A month is represented by just an integer number. There are no limits
@@ -246,13 +244,14 @@ private:
 /// month::is_valid method.
 /// Most functions (within ngpt) accept months in the range [1,12]; do not
 /// use the range [0,11], except if you realy know what you're doing.
-/// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
-/// month (constructor) can only have positive values in the range [1,12].
 ///
 /// This is a fundamental class, which means it only has one arithmetic member
 /// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
 /// '>=') are going to be implemented using kinda reflection, using template
 /// function overloadnig outside the class.
+/// The same goes for operators '++' (post- pre-increment) and '--' (post- 
+/// pre-decrement), '+=T' and '-=T' where T is either a year or any integral 
+/// type.
 ///
 /// @warning Most functions (within ngpt) accept months in the range [1,12];
 ///          do not use the range [0,11], except if you realy know what you're
@@ -280,14 +279,12 @@ public:
   { return m_month; }
 
   /// Constructor; default month is 1.
+  /// This is an explicit constructor, we do not want users to be able to do
+  /// month m = 1;
   explicit constexpr
   month(underlying_type i=1) noexcept
     : m_month(i)
-  {
-#ifdef USE_DATETIME_CHECKS
-    assert( this->is_valid() );
-#endif
-  };
+  {};
 
   /// @brief Constructor from a c-string.
   ///
@@ -299,6 +296,7 @@ public:
   month(const char* str);
   
   /// assignment operator from any integral type
+  /*
   template<typename Int,
            typename = std::enable_if_t<std::is_integral_v<Int>>
            >
@@ -308,6 +306,7 @@ public:
     m_month = i;
     return *this;
   }
+  */
 
   /// Get the month as month::underlying_type
   inline constexpr underlying_type

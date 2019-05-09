@@ -19,8 +19,27 @@ done
 echo "Compilable unit tests    : ${unit_tests[@]}"
 echo "Non-Compilable unit tests: ${errornuous_units_tests[@]}"
 
-## If any of the non-compilable source codes compiles, trigger an error and stop
-CFL="-std=c++17 -Wall -I../src -L../src -lggdatetime"
-for nc in "${errornuous_units_tests[@]}" ; do
-  g++ "${CFL}" $nc
+## Compile all compilable source code
+echo "Compiling unit tests ..."
+for nc in "${unit_tests[@]}" ; do
+  echo "g++ -std=c++17 -Wall -I../src -L../src ${nc} -o ${nc/.cpp/.o}"
+  if ! g++ -std=c++17 -Wall -I../src -L../src ${nc} -o ${nc/.cpp/.o} ; then
+    echo "FAILED; stoping with error" 1>&2
+    exit 1
+  fi
 done
+
+## If any of the non-compilable source codes compiles, trigger an error and stop
+echo "Compiling erronuous unit tests ... (they should fail)"
+for nc in "${errornuous_units_tests[@]}" ; do
+  echo -n "g++ -std=c++17 -Wall -I../src -L../src ${nc} -o ${nc/.cpp/.o} ..."
+  if g++ -std=c++17 -Wall -I../src -L../src ${nc} -o ${nc/.cpp/.o} 2>/dev/null ; then
+    echo "FAILED; stoping with error" 1>&2
+    exit 2
+  else
+    echo -n "failed"
+  fi
+done
+echo ""
+
+exit 0
