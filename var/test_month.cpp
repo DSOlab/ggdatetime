@@ -8,6 +8,7 @@ int main()
 {
   month mn1 {9};
   month mn2 {8};
+  // mn2 = 8 +1 -1; CMP_ERROR
   // mn2 = mn2 + 1 -1; CMP_ERROR
   // month mn23 = mn1 + 1; CMP_ERROR
   // month mn24 = mn2.as_underlying_type() + 1; CMP_ERROR

@@ -198,12 +198,15 @@ public:
 
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
+  /// @return reference to the instance's member variable (as year::underlying_type)
   inline constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_year; }
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
+  /// @return const reference to the instance's member variable (as 
+  ///         year::underlying_type)
   inline constexpr underlying_type&
   __member_ref__() noexcept
   { return m_year; }
@@ -239,7 +242,7 @@ private:
 /// (excpept from integer overflow) to the range of the month (integer), i.e. 
 /// the month is not checked (by default) to be in the range [1,12]. So, a user
 /// can construct a month from whatever integer, e.g. :
-/// month m (200);
+/// month m (-200);
 /// will work fine! To check if the month is within the range [1,12], use the
 /// month::is_valid method.
 /// Most functions (within ngpt) accept months in the range [1,12]; do not
@@ -320,6 +323,10 @@ public:
   /// Return the corresponding short name (i.e. 3-char name) e.g. "Jan".
   /// @return Returns a pointer to the class's (static member) month::short_names
   ///         string array.
+  /// @warning No check is performed for the validity of the month; if the 
+  ///          month is not valie (e.g. it is not in range [0,12], then the
+  ///          function has undefined behaviour
+  /// @todo maybe throw here, instead of UB
   const char*
   short_name() const noexcept
   { return short_names[m_month-1]; }
@@ -327,6 +334,10 @@ public:
   /// Return the corresponding long name (i.e. normal month name) e.g. "January".
   /// @return Returns a pointer to the class's (static member) month::long_names
   ///         string array.
+  /// @warning No check is performed for the validity of the month; if the 
+  ///          month is not valie (e.g. it is not in range [0,12], then the
+  ///          function has undefined behaviour
+  /// @todo maybe throw here, instead of UB
   const char*
   long_name() const noexcept
   { return long_names[m_month-1]; }
@@ -358,6 +369,7 @@ private:
 
 }; // class month
 
+/// @class gps_week
 /// @brief A wrapper class for GPS Week.
 ///
 /// The GPS Week Number count began at approximately midnight on the evening 
@@ -367,12 +379,17 @@ private:
 /// A gps week is represented by just an integer number. There are no limits
 /// (excpept from integer overflow) to the range of the month (integer), i.e. 
 /// the week is not checked (by default) to be in any range. So, a user
-/// can construct a month from whatever integer.
+/// can construct a gps_week from whatever integer.
 ///
 /// This is a fundamental class, which means it only has one arithmetic member
 /// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
 /// '>=') are going to be implemented using kinda reflection, using template
 /// function overloadnig outside the class.
+/// The same goes for operators '++' (post- pre-increment) and '--' (post- 
+/// pre-decrement), '+=T' and '-=T' where T is either a year or any integral 
+/// type.
+///
+/// @example test_gps_week.cpp
 class gps_week
 {
 public:
@@ -396,16 +413,15 @@ public:
   { return m_week; }
 
   /// Constructor; default week is 1.
+  /// This is an explicit constructor, we do not want users to be able to do
+  /// gps_week w = 1;
   explicit constexpr
   gps_week(underlying_type i=1) noexcept
     : m_week(i)
-  {
-#ifdef USE_DATETIME_CHECKS
-    assert( this->is_valid() );
-#endif
-  };
+  {};
   
   /// assignment operator from any integral type
+  /*
   template<typename Int,
            typename = std::enable_if_t<std::is_integral_v<Int>>
            >
@@ -415,17 +431,17 @@ public:
     m_week = i;
     return *this;
   }
+  */
 
   /// Get the month as month::underlying_type
   inline constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_week; }
 
-  /// Return the corresponding short name (i.e. 3-char name) e.g. "Jan".
-  /// Check if the month is within the interval [1,12].
+  /// Check if the instance is valid, aka if the week is the range [0,+Inf)
   inline bool
   is_valid() const noexcept
-  { return m_week >=0; }
+  { return m_week>=0; }
   
 private:
   /// The month as underlying_type.
@@ -433,20 +449,22 @@ private:
 
 }; // class month
 
+/// @class day_of_month
 /// @brief A wrapper class for day of month.
 /// 
 /// A day_of_month is just an integer, representing the day of month. No limits
 /// are set though, so the user can construct a day_of_month from whatever 
 /// integer. Inluding negative numbers!
-/// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
-/// day_of_month (constructor) can only have positive values.
 ///
 /// This is a fundamental class, which means it only has one arithmetic member
 /// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
 /// '>=') are going to be implemented using kinda reflection, using template
 /// function overloadnig outside the class.
+/// The same goes for operators '++' (post- pre-increment) and '--' (post- 
+/// pre-decrement), '+=T' and '-=T' where T is either a year or any integral 
+/// type.
 ///
-/// @todo Provide a day_of_month::validate method.
+/// @example test-day_of_month.cpp
 class day_of_month
 {
 public:
@@ -473,13 +491,10 @@ public:
   explicit constexpr
   day_of_month(underlying_type i=1) noexcept
     : m_dom(i)
-  {
-#ifdef USE_DATETIME_CHECKS
-    assert(i>0 && i<32);
-#endif
-  };
+  {};
   
   /// assignment operator from any integral type
+  /*
   template<typename Int,
            typename = std::enable_if_t<std::is_integral_v<Int>>
            >
@@ -489,6 +504,7 @@ public:
     m_dom = i;
     return *this;
   }
+  */
     
   /// Get the day_of_month as day_of_month::underlying_type
   inline constexpr underlying_type
@@ -510,29 +526,30 @@ private:
 
 }; // class day_of_month
 
+/// @class modified_julian_day
 /// @brief A wrapper class for Modified Julian Day.
 ///
 /// A Modified Julian Day is represented by a long integer (there is no
 /// fractional part). Thus, a modified_julian_day only represents a date *not*
 /// a datetime.
 /// The Modified Julian Day, was introduced by space scientists in the late
-/// 1950's. It is defined as \f$MJD = JD - 2400000.5\f$ The half day (used in JD) 
-/// is subtracted so that the day starts at midnight in conformance with civil
-/// time reckoning.
+/// 1950's. It is defined as \f$MJD = JD - 2400000.5\f$ The half day (used in 
+/// JD) is subtracted so that the day starts at midnight in conformance with 
+/// civil time reckoning.
 /// The MJD is a convenient dating system with only 5 digits, sufficient for
 /// most modern purposes. To convert between MJD and JD we need the Julian
 /// Date of Modified Julian Date zero, aka ngpt::mjd0_jd, which is 2400000.5
-/// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
-/// modified_julian_day can only have positive values, or
-/// std::numeric_limits<underlying_type>::min(), which is the only negative
-/// value allowed.
 ///
 /// This is a fundamental class, which means it only has one arithmetic member
 /// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
 /// '>=') are going to be implemented using kinda reflection, using template
 /// function overloadnig outside the class.
+/// The same goes for operators '++' (post- pre-increment) and '--' (post- 
+/// pre-decrement), '+=T' and '-=T' where T is either a year or any integral 
+/// type.
 ///
 /// @see http://tycho.usno.navy.mil/mjd.html
+/// @example test_modified_julian_day.cpp
 class modified_julian_day
 {
 public:
@@ -557,23 +574,19 @@ public:
 
   /// Max possible modified_julian_day
   constexpr static modified_julian_day
-  plus_infinity() noexcept
+  max() noexcept
   { return modified_julian_day{std::numeric_limits<underlying_type>::max()}; }
     
   /// Min possible modified_julian_day
   constexpr static modified_julian_day
-  minus_infinity() noexcept
+  min() noexcept
   { return modified_julian_day{std::numeric_limits<underlying_type>::min()}; }
     
   /// Constructor; default Modified Julian Day is 1.
   explicit constexpr
   modified_julian_day(underlying_type i=1) noexcept
     : m_mjd(i) 
-  {
-#ifdef USE_DATETIME_CHECKS
-    assert(i>0 || i==std::numeric_limits<underlying_type>::min());
-#endif
-  };
+  {};
     
   /// @brief Constructor from Year and DayOfYear.
   /// 
@@ -605,9 +618,6 @@ public:
   inline constexpr modified_julian_day
   operator-(const modified_julian_day& mjd) const noexcept
   {
-#ifdef USE_DATETIME_CHECKS
-    assert( m_mjd - mjd.m_mjd > 0 );
-#endif
     return modified_julian_day {m_mjd-mjd.m_mjd};
   }
     
@@ -626,8 +636,6 @@ public:
   ///
   /// @see    "Remondi Date/Time Algorithms",
   ///          http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
-  /// @todo change return type
-  // std::tuple<year, day_of_year>
   ydoy_date
   to_ydoy() const noexcept;
     
