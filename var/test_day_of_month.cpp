@@ -10,11 +10,11 @@ int main()
 {
   day_of_month dm1 {9};
   day_of_month dm2 {8};
-  // dm2 = 8 +1 -1; CMP_ERROR
+  dm2 = 8 +1 -1;
   // dm2 = dm2 + 1 -1; CMP_ERROR
-  // day_of_month dm23 = dm1 + 1; CMP_ERROR
-  // day_of_month dm24 = dm2.as_underlying_type() + 1; CMP_ERROR
-  // day_of_month dm21 = 8; CMP_ERROR
+  // day_of_month dm21 = dm1 + 1; CMP_ERROR
+  // day_of_month dm22 = dm2.as_underlying_type() + 1; CMP_ERROR
+  // day_of_month dm23 = 8; CMP_ERROR
   day_of_month dm3(dm1);
   
   // testing operators

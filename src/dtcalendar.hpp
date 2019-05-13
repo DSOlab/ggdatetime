@@ -241,13 +241,13 @@ public:
   /// possible).
   constexpr static datetime
   max() noexcept
-  { return datetime{modified_julian_day::plus_infinity(), S{0}}; }
+  { return datetime{modified_julian_day::max(), S{0}}; }
     
   /// Minimum possible date (seconds are 0, modified_julian_day is min
   /// possible).
   constexpr static datetime
   min() noexcept
-  { return datetime{modified_julian_day::minus_infinity(), S{0}}; }
+  { return datetime{modified_julian_day::min(), S{0}}; }
 
   /// Default (zero) constructor.
   explicit constexpr

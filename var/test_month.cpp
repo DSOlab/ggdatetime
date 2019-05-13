@@ -10,9 +10,9 @@ int main()
   month mn2 {8};
   // mn2 = 8 +1 -1; CMP_ERROR
   // mn2 = mn2 + 1 -1; CMP_ERROR
-  // month mn23 = mn1 + 1; CMP_ERROR
-  // month mn24 = mn2.as_underlying_type() + 1; CMP_ERROR
-  // month mn21 = 8; CMP_ERROR
+  // month mn21 = mn1 + 1; CMP_ERROR
+  // month mn22 = mn2.as_underlying_type() + 1; CMP_ERROR
+  // month mn23 = 8; CMP_ERROR
   month mn3(mn1);
   
   // testing constructors from strings

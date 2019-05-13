@@ -8,11 +8,11 @@ int main()
 {
   gps_week gw1 {1920};
   gps_week gw2 {1919};
-  // gw2 = gw2 + 1 -1; CMP_ERROR
-  // gw2 = 1919 +1 -1; CMP_ERROR
-  // gps_week gw23 = gw1 + 1; CMP_ERROR
+  gw2 = 1919 +1 -1;
+  // gw21 = gw2 + 1 -1; CMP_ERROR
+  // gps_week gw22 = gw1 + 1; CMP_ERROR
   // gps_week gw24 = gw2.as_underlying_type() + 1; CMP_ERROR
-  // gps_week gw21 = 8; CMP_ERROR
+  // gps_week gw24 = 8; CMP_ERROR
   gps_week gw3(gw1);
   
   // testing operators

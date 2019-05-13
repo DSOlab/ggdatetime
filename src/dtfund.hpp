@@ -219,6 +219,20 @@ public:
     : m_year(i)
   {}
 
+  /// Overload operator '=' where the the right-hand-side is any integral type.
+  /// @tparam  I any integral type, aka any type for which 
+  ///          std::is_integral_v<I> is true
+  /// @param   _intv Any integral value; set the instance's value equal to this
+  template<typename I,
+           typename = std::enable_if_t<std::is_integral_v<I>>
+           >
+    inline constexpr year&
+    operator=(I _intv) noexcept
+  {
+    __member_ref__() = static_cast<underlying_type>(_intv);
+    return *this;
+  }
+
   /// Get the year as year::underlying_type.
   inline constexpr underlying_type
   as_underlying_type() const noexcept
@@ -301,19 +315,6 @@ public:
   ///       "JULY", etc, will all be matched to the month July.
   explicit
   month(const char* str);
-  
-  /// assignment operator from any integral type
-  /*
-  template<typename Int,
-           typename = std::enable_if_t<std::is_integral_v<Int>>
-           >
-    constexpr month&
-    operator=(Int i) noexcept
-  {
-    m_month = i;
-    return *this;
-  }
-  */
 
   /// Get the month as month::underlying_type
   inline constexpr underlying_type
@@ -420,18 +421,19 @@ public:
     : m_week(i)
   {};
   
-  /// assignment operator from any integral type
-  /*
-  template<typename Int,
-           typename = std::enable_if_t<std::is_integral_v<Int>>
+  /// Overload operator '=' where the the right-hand-side is any integral type.
+  /// @tparam  I any integral type, aka any type for which 
+  ///          std::is_integral_v<I> is true
+  /// @param   _intv Any integral value; set the instance's value equal to this
+  template<typename I,
+           typename = std::enable_if_t<std::is_integral_v<I>>
            >
-    constexpr gps_week&
-    operator=(Int i) noexcept
+    inline constexpr gps_week&
+    operator=(I _intv) noexcept
   {
-    m_week = i;
+    __member_ref__() = static_cast<underlying_type>(_intv);
     return *this;
   }
-  */
 
   /// Get the month as month::underlying_type
   inline constexpr underlying_type
@@ -447,7 +449,7 @@ private:
   /// The month as underlying_type.
   underlying_type m_week;
 
-}; // class month
+}; // class gps_week 
 
 /// @class day_of_month
 /// @brief A wrapper class for day of month.
@@ -493,19 +495,20 @@ public:
     : m_dom(i)
   {};
   
-  /// assignment operator from any integral type
-  /*
-  template<typename Int,
-           typename = std::enable_if_t<std::is_integral_v<Int>>
+  /// Overload operator '=' where the the right-hand-side is any integral type.
+  /// @tparam  I any integral type, aka any type for which 
+  ///          std::is_integral_v<I> is true
+  /// @param   _intv Any integral value; set the instance's value equal to this
+  template<typename I,
+           typename = std::enable_if_t<std::is_integral_v<I>>
            >
-    constexpr day_of_month&
-    operator=(Int i) noexcept
+    inline constexpr day_of_month&
+    operator=(I _intv) noexcept
   {
-    m_dom = i;
+    __member_ref__() = static_cast<underlying_type>(_intv);
     return *this;
   }
-  */
-    
+  
   /// Get the day_of_month as day_of_month::underlying_type
   inline constexpr underlying_type
   as_underlying_type() const noexcept
@@ -598,14 +601,17 @@ public:
   explicit constexpr
   modified_julian_day(year iy, day_of_year id) noexcept;
   
-  /// assignment operator from any integral type
-  template<typename Int,
-           typename = std::enable_if_t<std::is_integral_v<Int>>
+  /// Overload operator '=' where the the right-hand-side is any integral type.
+  /// @tparam  I any integral type, aka any type for which 
+  ///          std::is_integral_v<I> is true
+  /// @param   _intv Any integral value; set the instance's value equal to this
+  template<typename I,
+           typename = std::enable_if_t<std::is_integral_v<I>>
            >
-    constexpr modified_julian_day&
-    operator=(Int i) noexcept
+    inline constexpr modified_julian_day&
+    operator=(I _intv) noexcept
   {
-    m_mjd = i;
+    __member_ref__() = static_cast<underlying_type>(_intv);
     return *this;
   }
     
@@ -1640,6 +1646,39 @@ private:
   underlying_type m_sec;
 
 }; // class microseconds
+  
+/// Overload operator '=' where the left-hand-side is any fundamental type and
+/// the right-hand-side is any integral type. That is, i want to be able to do:
+/// month m {};
+/// m = -189;
+/// Note that this operator (obviously) does not mean that we can construct-
+/// initilize fundamental types using this operator, aka
+/// month m = -189; // compilation error!
+/// this is dependent on each classes' constructor.
+///
+/// This function will be resolved for any type DType, which 
+/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and 
+/// 2. has a member function named DType::__member_ref__()
+/// 3. right operand is any Integral type
+/// This function will allow e.g.
+/// modified_julian_day mjd (123);
+/// mjd = 124;
+/// Now mjd's internal member, will have a value of 124.
+/*
+template<typename DType,
+         typename I,
+         typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+         typename = std::enable_if_t<std::is_member_function_pointer
+                  <decltype(&DType::__member_ref__)>::value>,
+         typename = std::enable_if_t<std::is_integral_v<I>>
+         >
+  inline DType&
+  operator=(DType& _a, I _intv) noexcept
+{
+  _a.__member_ref__() = _intv;
+  return _a;
+}
+*/
 
 /// Overload bool operator '==' for datetime fundamental types.
 /// This function will be resolved for any type DType, which 
