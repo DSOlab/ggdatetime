@@ -38,14 +38,14 @@ int main()
   assert( dm1.is_valid(yr, month(1)) );
   dm1 = day_of_month(31);
   assert( dm1.is_valid(yr, month(1)) );
-  ++dm1;
+  ++dm1;    // dm = 32
   assert( !(dm1.is_valid(yr, month(1))) );
-  dm1 -= 3; // dm = 28
-  assert( dm1.is_valid(yr, month(1)) );
-  assert( dm1.is_valid(ly, month(1)) );
+  dm1 -= 4; // dm = 28
+  assert( dm1.is_valid(yr, month(2)) );
+  assert( dm1.is_valid(ly, month(2)) );
   ++dm1;    // dm = 29
-  assert( !(dm1.is_valid(yr, month(1))) ); // non-leap year, 20-FEB is invalid
-  assert( dm1.is_valid(ly, month(1)) ); // leap year, 20-FEB is valid
+  assert( !(dm1.is_valid(yr, month(2))) ); // non-leap year, 29-FEB is invalid
+  assert( dm1.is_valid(ly, month(2)) ); // leap year, 29-FEB is valid
 
   std::cout<<"\nAll checks for ngpt::day_of_month OK\n";
   return 0;

@@ -30,7 +30,7 @@ constexpr static long month_day[2][13] = {
 /// Given a calendar date (i.e. year, month and day of month), compute the 
 /// corresponding Modified Julian Day. The input date is checked and an 
 /// exception is thrown if it is invalid.
-long
+constexpr long
 ngpt::cal2mjd(int iy, int im, int id)
 {
   // Month lengths in days
@@ -71,9 +71,10 @@ ngpt::cal2mjd(int iy, int im, int id)
 ngpt::modified_julian_day
 ngpt::cal2mjd(ngpt::year y, ngpt::month m, ngpt::day_of_month d)
 {
-  long mjd { ngpt::cal2mjd(y.as_underlying_type(),
-                           m.as_underlying_type(), 
-                           d.as_underlying_type()) };
+  ngpt::modified_julian_day::underlying_type mjd { 
+      ngpt::cal2mjd(y.as_underlying_type(),
+      m.as_underlying_type(), 
+      d.as_underlying_type()) };
 
   return ngpt::modified_julian_day{mjd};
 }
@@ -137,7 +138,11 @@ ngpt::month::month(const char* str)
 bool
 ngpt::day_of_month::is_valid(ngpt::year y, ngpt::month m) const noexcept
 {
+  std::cout<<"\n --- checking "<<y.as_underlying_type()<<"/"<<m.as_underlying_type()<<"/"<<m_dom;
   if (m_dom <=0 || m_dom >= 32) return false;
+  std::cout<<"\n\t --- DOM ok";
+  if (!m.is_valid()) return false;
+  std::cout<<"\n\t --- MONTH ok";
 
   auto iy = y.as_underlying_type();
   auto im = m.as_underlying_type();
@@ -145,14 +150,13 @@ ngpt::day_of_month::is_valid(ngpt::year y, ngpt::month m) const noexcept
   // Month lengths in days
   constexpr int mtab[] =  {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-  // lets check the month first ....
-  assert(im>0 && im<13);
-
   // If February in a leap year, 1, otherwise 0
   int ly ( (im == 2) && is_leap(iy) );
+  std::cout<<"\n --- is the year leap? "<<ly;
 
+  std::cout<<"\n --- checking "<<iy<<"/"<<im<<"/"<<m_dom<<" should be <= "<< mtab[im];
   // Validate day, taking into account leap years
-  return (m_dom <= mtab[m_dom-1] + ly);
+  return (m_dom <= mtab[im-1] + ly);
 }
 
 ///

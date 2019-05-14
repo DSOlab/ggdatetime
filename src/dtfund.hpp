@@ -95,7 +95,7 @@ class  microseconds;
 /// @see ngpt::cal2mjd
 ///
 /// Reference: iauCal2jd
-long
+constexpr long
 cal2mjd(int iy, int im, int id);
 
 /// @brief Check if year is leap.
@@ -529,144 +529,6 @@ private:
 
 }; // class day_of_month
 
-/// @class modified_julian_day
-/// @brief A wrapper class for Modified Julian Day.
-///
-/// A Modified Julian Day is represented by a long integer (there is no
-/// fractional part). Thus, a modified_julian_day only represents a date *not*
-/// a datetime.
-/// The Modified Julian Day, was introduced by space scientists in the late
-/// 1950's. It is defined as \f$MJD = JD - 2400000.5\f$ The half day (used in 
-/// JD) is subtracted so that the day starts at midnight in conformance with 
-/// civil time reckoning.
-/// The MJD is a convenient dating system with only 5 digits, sufficient for
-/// most modern purposes. To convert between MJD and JD we need the Julian
-/// Date of Modified Julian Date zero, aka ngpt::mjd0_jd, which is 2400000.5
-///
-/// This is a fundamental class, which means it only has one arithmetic member
-/// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
-/// '>=') are going to be implemented using kinda reflection, using template
-/// function overloadnig outside the class.
-/// The same goes for operators '++' (post- pre-increment) and '--' (post- 
-/// pre-decrement), '+=T' and '-=T' where T is either a year or any integral 
-/// type.
-///
-/// @see http://tycho.usno.navy.mil/mjd.html
-/// @example test_modified_julian_day.cpp
-class modified_julian_day
-{
-public:
-  /// MJDs are represented as long ints.
-  typedef long underlying_type;
-  
-  /// Is fundamental datetime type
-  static constexpr bool
-  is_dt_fundamental_type { true };
-  
-  /// If fundamental type, the class should have an "expose the only member var"
-  /// function
-  inline constexpr underlying_type
-  __member_const_ref__() const noexcept
-  { return m_mjd; }
-  
-  /// If fundamental type, the class should have an "expose the only member var"
-  /// function
-  inline constexpr underlying_type&
-  __member_ref__() noexcept
-  { return m_mjd; }
-
-  /// Max possible modified_julian_day
-  constexpr static modified_julian_day
-  max() noexcept
-  { return modified_julian_day{std::numeric_limits<underlying_type>::max()}; }
-    
-  /// Min possible modified_julian_day
-  constexpr static modified_julian_day
-  min() noexcept
-  { return modified_julian_day{std::numeric_limits<underlying_type>::min()}; }
-    
-  /// Constructor; default Modified Julian Day is 1.
-  explicit constexpr
-  modified_julian_day(underlying_type i=1) noexcept
-    : m_mjd(i) 
-  {};
-    
-  /// @brief Constructor from Year and DayOfYear.
-  /// 
-  /// @param[in] iy The year.
-  /// @param[in] id The day of year.
-  ///
-  /// @see "Remondi Date/Time Algorithms", http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
-  /// @bug Where the fuck is this definition?
-  explicit constexpr
-  modified_julian_day(year iy, day_of_year id) noexcept;
-  
-  /// Overload operator '=' where the the right-hand-side is any integral type.
-  /// @tparam  I any integral type, aka any type for which 
-  ///          std::is_integral_v<I> is true
-  /// @param   _intv Any integral value; set the instance's value equal to this
-  template<typename I,
-           typename = std::enable_if_t<std::is_integral_v<I>>
-           >
-    inline constexpr modified_julian_day&
-    operator=(I _intv) noexcept
-  {
-    __member_ref__() = static_cast<underlying_type>(_intv);
-    return *this;
-  }
-    
-  /// Get the modified_julian_day as modified_julian_day::underlying_type
-  inline constexpr underlying_type
-  as_underlying_type() const noexcept
-  { return m_mjd; }
-    
-  /// Operator - (subtraction).
-  inline constexpr modified_julian_day
-  operator-(const modified_julian_day& mjd) const noexcept
-  {
-    return modified_julian_day {m_mjd-mjd.m_mjd};
-  }
-    
-  /// Operator + (addition).
-  inline constexpr modified_julian_day
-  operator+(const modified_julian_day& mjd) const noexcept
-  { return modified_julian_day {m_mjd+mjd.m_mjd}; }
-  
-  /// @brief Convert a Modified Julian Day to Year and Day of year.
-  ///
-  /// @return A tuple with two elements: (year, day_of_year)
-  /// @throw  Does not throw.
-  ///
-  /// @warning No check if performed to see if the resulting day of year is
-  ///          valid! If you want to be sure, check the returned value(s).
-  ///
-  /// @see    "Remondi Date/Time Algorithms",
-  ///          http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
-  ydoy_date
-  to_ydoy() const noexcept;
-    
-  /// @brief Convert a Modified Julian Day to Calendar Date.
-  ///
-  /// @return A tuple with three elements: (year, month, day_of_month)
-  /// @throw  Does not throw.
-  ///
-  /// @warning No check if performed to see if the resulting month and day of
-  ///          month is valid! If you want to be sure, check the returned
-  ///          value(s).
-  ///
-  /// @see    "Remondi Date/Time Algorithms",
-  ///          http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
-  /// @todo change return type
-  // std::tuple<year, month, day_of_month>
-  ymd_date
-  to_ymd() const noexcept;
-    
-private:
-  /// The modified julian day as underlying type.
-  underlying_type m_mjd;
-
-}; // class modified_julian_day
-
 /// @brief A wrapper class for day of year.
 ///
 /// A day of year (doy) is represented by an integer; any integer will do, no
@@ -740,6 +602,183 @@ private:
   /// The day_of_year as day_of_year::underlying_type.
   underlying_type m_doy;   
 }; // class day_of_year
+
+/// @class modified_julian_day
+/// @brief A wrapper class for Modified Julian Day.
+///
+/// A Modified Julian Day is represented by a long integer (there is no
+/// fractional part). Thus, a modified_julian_day only represents a date *not*
+/// a datetime.
+/// The Modified Julian Day, was introduced by space scientists in the late
+/// 1950's. It is defined as \f$MJD = JD - 2400000.5\f$ The half day (used in 
+/// JD) is subtracted so that the day starts at midnight in conformance with 
+/// civil time reckoning.
+/// The MJD is a convenient dating system with only 5 digits, sufficient for
+/// most modern purposes. To convert between MJD and JD we need the Julian
+/// Date of Modified Julian Date zero, aka ngpt::mjd0_jd, which is 2400000.5
+///
+/// This is a fundamental class, which means it only has one arithmetic member
+/// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
+/// '>=') are going to be implemented using kinda reflection, using template
+/// function overloadnig outside the class.
+/// The same goes for operators '++' (post- pre-increment) and '--' (post- 
+/// pre-decrement), '+=T' and '-=T' where T is either a year or any integral 
+/// type.
+///
+/// @see http://tycho.usno.navy.mil/mjd.html
+/// @example test_modified_julian_day.cpp
+///
+/// @bug  Addition between integer and modified_julian_day should not be 
+/// allowed, but it is. E.g, the following compiles fine:
+/// @code
+///  modified_julian_day dm1 {58484};
+///  modified_julian_day dm2 {58483};
+///  dm2 = 58483 + 1 - 1;
+///  dm2 = dm2 + 1 -1;
+///  modified_julian_day dm21 = dm1 + 1;
+/// @endcode
+class modified_julian_day
+{
+public:
+  /// MJDs are represented as long ints.
+  typedef long underlying_type;
+  
+  /// Is fundamental datetime type
+  static constexpr bool
+  is_dt_fundamental_type { true };
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type
+  __member_const_ref__() const noexcept
+  { return m_mjd; }
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type&
+  __member_ref__() noexcept
+  { return m_mjd; }
+
+  /// Max possible modified_julian_day
+  constexpr static modified_julian_day
+  max() noexcept
+  { return modified_julian_day{std::numeric_limits<underlying_type>::max()}; }
+    
+  /// Min possible modified_julian_day
+  constexpr static modified_julian_day
+  min() noexcept
+  { return modified_julian_day{std::numeric_limits<underlying_type>::min()}; }
+    
+  /// Constructor; default Modified Julian Day is 1.
+  /// This is a non-explicit constructor, hence we can perform:
+  /// modified_julian_day mjd = 123456;
+  constexpr
+  modified_julian_day(underlying_type i=1) noexcept
+    : m_mjd(i) 
+  {};
+    
+  /// @brief Constructor from Year and DayOfYear.
+  /// 
+  /// @param[in] iy The year.
+  /// @param[in] id The day of year.
+  ///
+  /// @see "Remondi Date/Time Algorithms", http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
+  /// @bug Where the fuck is this definition?
+  explicit
+  modified_julian_day(year iy, day_of_year id) noexcept
+    : m_mjd{ ydoy2mjd(iy, id).as_underlying_type() }
+  {};
+
+  /// @brief Constructor from  calendar date
+  /// 
+  /// @param[in] y The year.
+  /// @param[in] m The month.
+  /// @param[in] d The day of month
+  ///
+  /// @see "Remondi Date/Time Algorithms", http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
+  explicit
+  modified_julian_day(year y, month m, day_of_month d)
+    : m_mjd{ cal2mjd(y, m, d).as_underlying_type() }
+  {};
+  
+  /// Overload operator '=' where the the right-hand-side is any integral type.
+  /// @tparam  I any integral type, aka any type for which 
+  ///          std::is_integral_v<I> is true
+  /// @param   _intv Any integral value; set the instance's value equal to this
+  template<typename I,
+           typename = std::enable_if_t<std::is_integral_v<I>>
+           >
+    inline constexpr modified_julian_day&
+    operator=(I _intv) noexcept
+  {
+    __member_ref__() = static_cast<underlying_type>(_intv);
+    return *this;
+  }
+    
+  /// Get the modified_julian_day as modified_julian_day::underlying_type
+  inline constexpr underlying_type
+  as_underlying_type() const noexcept
+  { return m_mjd; }
+    
+  /// Operator - (subtraction).
+  inline constexpr modified_julian_day
+  operator-(modified_julian_day mjd) const noexcept
+  {
+    return modified_julian_day {m_mjd-mjd.m_mjd};
+  }
+    
+  /// Operator + (addition).
+  inline /*constexpr*/ modified_julian_day
+  operator+(modified_julian_day mjd) const noexcept
+  {
+    std::cout<<"\n --- yes, using tis"; 
+    return modified_julian_day {m_mjd+mjd.m_mjd};
+  }
+
+  /// Transform to Julian Day
+  /// The Julian Day is returned as a double; computed by the formula:
+  /// MJD = JD − 2400000.5
+  /// see https://en.wikipedia.org/wiki/Julian_day
+  inline double
+  to_julian_day() const noexcept
+  {
+    return static_cast<double>(m_mjd) + mjd0_jd;
+  }
+  
+  /// @brief Convert a Modified Julian Day to Year and Day of year.
+  ///
+  /// @return A tuple with two elements: (year, day_of_year)
+  /// @throw  Does not throw.
+  ///
+  /// @warning No check if performed to see if the resulting day of year is
+  ///          valid! If you want to be sure, check the returned value(s).
+  ///
+  /// @see    "Remondi Date/Time Algorithms",
+  ///          http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
+  ydoy_date
+  to_ydoy() const noexcept;
+    
+  /// @brief Convert a Modified Julian Day to Calendar Date.
+  ///
+  /// @return A tuple with three elements: (year, month, day_of_month)
+  /// @throw  Does not throw.
+  ///
+  /// @warning No check if performed to see if the resulting month and day of
+  ///          month is valid! If you want to be sure, check the returned
+  ///          value(s).
+  ///
+  /// @see    "Remondi Date/Time Algorithms",
+  ///          http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
+  /// @todo change return type
+  // std::tuple<year, month, day_of_month>
+  ymd_date
+  to_ymd() const noexcept;
+    
+private:
+  /// The modified julian day as underlying type.
+  underlying_type m_mjd;
+
+}; // class modified_julian_day
 
 /// @struct ymd_date
 /// @brief This struct represent a date in Year-Month-Day of Month format. 

@@ -5,7 +5,7 @@ echo "        Kind-a automated, bash/gcc unit testing for ggdatetime         "
 echo "+=====================================================================+"
 
 ## Unit tests, compilable source files
-unit_tests=( test_year.cpp test_month.cpp test_gps_week.cpp test_day_of_month.cpp )
+unit_tests=( test_year.cpp test_month.cpp test_gps_week.cpp test_day_of_month.cpp test_modified_julian_day.cpp )
 echo " Intial source files:"
 for fl in "${unit_tests[@]}" ; do echo "    * $fl" ; done
 
@@ -76,6 +76,17 @@ for nc in "${errornuous_units_tests[@]}" ; do
   fi
 done
 echo ""
+
+##  Now we need to run the compiled programs and check that they don;t
+##+ results in assertion error.
+echo "Running compiled programs ...."
+for nc in "${unit_tests[@]}" ; do
+  prg=${nc/.cpp/.o}
+  if ! ./${prg}  ; then
+    echo "FAILED; stoping with error" 1>&2
+    exit 1
+  fi
+done
 
 echo " Everything appears to have worked as expected!"
 echo "+=====================================================================+"
