@@ -5,15 +5,16 @@
 
 using ngpt::modified_julian_day;
 
-/// @todo operator mjd+int should not be allowed
+/// @todo operator mjd+int should not be allowed -> Ok fixed!
 
 int main()
 {
   modified_julian_day dm1 {58484};
   modified_julian_day dm2 {58483};
   dm2 = 58483 + 1 - 1;
-  dm2 = dm2 + 1 -1;
-  modified_julian_day dm21 = dm1 + 1;
+  // MJD +- IntegralType is not allowed;
+  // dm2 = dm2 + 1 -1; CMP_ERROR
+  // modified_julian_day dm21 = dm1 + 1; CMP_ERROR
   modified_julian_day dm22 = dm2.as_underlying_type() + 1;
   modified_julian_day dm23 = 8;
   modified_julian_day dm3(dm1);
@@ -56,8 +57,8 @@ int main()
   ++dm1;                                     // ++modified_julian_day
   assert( ( dm1-=modified_julian_day(1) ) == dm2 ); // modified_julian_day += modified_julian_day
   dm1++;                                     // modified_julian_day++
-  assert( dm1 + modified_julian_day(1) == dm2 ); // MJD + MJD
-  assert( dm2 - modified_julian_day(1) == dm1 ); // MJD + MJD
+  assert( dm1 - modified_julian_day(1) == dm2 ); // MJD + MJD
+  assert( dm2 + modified_julian_day(1) == dm1 ); // MJD + MJD
 
   // testing functions
 

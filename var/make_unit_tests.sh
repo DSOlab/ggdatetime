@@ -23,7 +23,8 @@ declare -a errornuous_units_tests
 ##
 ##  We will replace any line of type:
 ##+ "//[....]CMP_ERROR" with the part in braces, aka "[....]"
-echo " Preparing erronuous (non-compilable source files"
+echo " Preparing erronuous (non-compilable) source files"
+echo "+---------------------------------------------------------------------+"
 for sc in "${unit_tests[@]}" ; do
   ## find have many lines we have, that contain CMP_ERROR
   OCC=$(cat $sc | grep '\(//\)\(.*;\)\( *\)\(CMP_ERROR\)' | wc -l)
@@ -34,26 +35,32 @@ for sc in "${unit_tests[@]}" ; do
       | sed "s:\(//\)\( *[^;]*\)\(; *CMP_ERROR\):\2;:${OCC_NR}" \
       | tr '^' '\n' \
       > ${error_file}
-      echo "    *$sc -> ${OCC_NR}/${OCC} created file: $error_file"
+      echo "    * $sc -> ${OCC_NR}/${OCC} created file: $error_file"
       errornuous_units_tests+=(${error_file})
     done
   elif test "${OCC}" -eq 1 ; then
     error_file=${sc/.cpp/_error.cpp}
     cat $sc | sed 's:\(//\)\(.*;\)\( *\)\(CMP_ERROR\):\2:g' > ${error_file}
-    echo "    *$sc -> 1/1 created file: $error_file"
+    echo "    * $sc -> 1/1 created file: $error_file"
     errornuous_units_tests+=(${error_file})
   else
-    echo "    *$sc -> No file to create"
+    echo "    * $sc -> No file(s) to create"
   fi
 done
 
-echo " Compilable unit tests    : ${unit_tests[@]}"
-echo " Non-Compilable unit tests: ${errornuous_units_tests[@]}"
+echo " Compilable unit tests    :"
+echo "+---------------------------------------------------------------------+"
+for nc in "${unit_tests[@]}" ; do echo "    * $nc" ; done
+echo " Non-Compilable unit tests: "
+echo "+---------------------------------------------------------------------+"
+for nc in "${errornuous_units_tests[@]}" ; do echo "    * $nc" ; done
 >comp.log
 echo " Ready to start compiling; all output directed to comp.log"
+echo "+---------------------------------------------------------------------+"
 
 ## Compile all compilable source code
-echo " Compiling unit tests ..."
+echo " Compiling (correct) unit tests ..."
+echo "+---------------------------------------------------------------------+"
 for nc in "${unit_tests[@]}" ; do
   echo "    g++ -std=c++17 -Wall -I../src -L../src ${nc} -o ${nc/.cpp/.o} -lggdatetime"
   if ! g++ -std=c++17 -Wall -I../src -L../src ${nc} -o ${nc/.cpp/.o} \
@@ -65,6 +72,7 @@ done
 
 ## If any of the non-compilable source codes compiles, trigger an error and stop
 echo " Compiling erronuous unit tests ... (they should fail)"
+echo "+---------------------------------------------------------------------+"
 for nc in "${errornuous_units_tests[@]}" ; do
   echo -n "    g++ -std=c++17 -Wall -I../src -L../src ${nc} -o ${nc/.cpp/.o} -lggdatetime ..."
   if g++ -std=c++17 -Wall -I../src -L../src ${nc} -o ${nc/.cpp/.o} \
@@ -79,7 +87,8 @@ echo ""
 
 ##  Now we need to run the compiled programs and check that they don;t
 ##+ results in assertion error.
-echo "Running compiled programs ...."
+echo "Running compiled programs (hopefully they don't throw/assert) ...."
+echo "+---------------------------------------------------------------------+"
 for nc in "${unit_tests[@]}" ; do
   prg=${nc/.cpp/.o}
   if ! ./${prg}  ; then

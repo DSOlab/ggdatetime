@@ -624,19 +624,12 @@ private:
 /// The same goes for operators '++' (post- pre-increment) and '--' (post- 
 /// pre-decrement), '+=T' and '-=T' where T is either a year or any integral 
 /// type.
+/// Operators "modified_julian_day::operator+(modified_julian_day)" and 
+/// respectively for operator "-" are also defined, so users can add/subtract
+/// modified_julian_day instances.
 ///
 /// @see http://tycho.usno.navy.mil/mjd.html
 /// @example test_modified_julian_day.cpp
-///
-/// @bug  Addition between integer and modified_julian_day should not be 
-/// allowed, but it is. E.g, the following compiles fine:
-/// @code
-///  modified_julian_day dm1 {58484};
-///  modified_julian_day dm2 {58483};
-///  dm2 = 58483 + 1 - 1;
-///  dm2 = dm2 + 1 -1;
-///  modified_julian_day dm21 = dm1 + 1;
-/// @endcode
 class modified_julian_day
 {
 public:
@@ -683,7 +676,6 @@ public:
   /// @param[in] id The day of year.
   ///
   /// @see "Remondi Date/Time Algorithms", http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
-  /// @bug Where the fuck is this definition?
   explicit
   modified_julian_day(year iy, day_of_year id) noexcept
     : m_mjd{ ydoy2mjd(iy, id).as_underlying_type() }
@@ -720,20 +712,61 @@ public:
   as_underlying_type() const noexcept
   { return m_mjd; }
     
-  /// Operator - (subtraction).
+  /// Operator - (subtraction) between two modified_julian_day instances
   inline constexpr modified_julian_day
   operator-(modified_julian_day mjd) const noexcept
   {
     return modified_julian_day {m_mjd-mjd.m_mjd};
   }
+
+  /// Prohibit implicit conversion in operator '-' (subtraction).
+  /// Why have this ? Well, because the constructor is not explicit, and we
+  /// have defined the "modified_julian_day::operator-(modified_julian_day)",
+  /// that enables the expression:
+  /// modified_julian_day dm2 {...};
+  /// dm2 = dm2 - 1;
+  /// modified_julian_day dm21 = dm1 - 1;
+  /// via implicit conversion of the right-hand-side to a modified_julian_day
+  /// instance (from an int/IntegralType). We define this template function
+  /// here, to prohibit this behaviour, aka the implicit conversion when using
+  /// the "-" operator. Now the "-" can only work if the right-hand-side is
+  /// a modified_julian_day instance.
+  /// 
+  /// @tparam     I    Any integral type
+  /// @param[in] _intv Any instance of type I
+  template<typename I,
+           typename = std::enable_if_t<std::is_integral_v<I>>
+           >
+  inline constexpr modified_julian_day
+  operator-(I _intv) const noexcept = delete;
     
-  /// Operator + (addition).
-  inline /*constexpr*/ modified_julian_day
+  /// Operator + (addition) between two modified_julian_day instances
+  inline constexpr modified_julian_day
   operator+(modified_julian_day mjd) const noexcept
   {
-    std::cout<<"\n --- yes, using tis"; 
     return modified_julian_day {m_mjd+mjd.m_mjd};
   }
+
+  /// Prohibit implicit conversion in operator '+' (addition).
+  /// Why have this ? Well, because the constructor is not explicit, and we
+  /// have defined the "modified_julian_day::operator+(modified_julian_day)",
+  /// that enables the expression:
+  /// modified_julian_day dm2 {...};
+  /// dm2 = dm2 + 1;
+  /// modified_julian_day dm21 = dm1 + 1;
+  /// via implicit conversion of the right-hand-side to a modified_julian_day
+  /// instance (from an int/IntegralType). We define this template function
+  /// here, to prohibit this behaviour, aka the implicit conversion when using
+  /// the "+" operator. Now the "+" can only work if the right-hand-side is
+  /// a modified_julian_day instance.
+  /// 
+  /// @tparam     I    Any integral type
+  /// @param[in] _intv Any instance of type I
+  template<typename I,
+           typename = std::enable_if_t<std::is_integral_v<I>>
+           >
+  inline constexpr modified_julian_day
+  operator+(I _intv) const noexcept = delete;
 
   /// Transform to Julian Day
   /// The Julian Day is returned as a double; computed by the formula:

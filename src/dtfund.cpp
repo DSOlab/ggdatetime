@@ -138,11 +138,8 @@ ngpt::month::month(const char* str)
 bool
 ngpt::day_of_month::is_valid(ngpt::year y, ngpt::month m) const noexcept
 {
-  std::cout<<"\n --- checking "<<y.as_underlying_type()<<"/"<<m.as_underlying_type()<<"/"<<m_dom;
   if (m_dom <=0 || m_dom >= 32) return false;
-  std::cout<<"\n\t --- DOM ok";
   if (!m.is_valid()) return false;
-  std::cout<<"\n\t --- MONTH ok";
 
   auto iy = y.as_underlying_type();
   auto im = m.as_underlying_type();
@@ -152,9 +149,7 @@ ngpt::day_of_month::is_valid(ngpt::year y, ngpt::month m) const noexcept
 
   // If February in a leap year, 1, otherwise 0
   int ly ( (im == 2) && is_leap(iy) );
-  std::cout<<"\n --- is the year leap? "<<ly;
 
-  std::cout<<"\n --- checking "<<iy<<"/"<<im<<"/"<<m_dom<<" should be <= "<< mtab[im];
   // Validate day, taking into account leap years
   return (m_dom <= mtab[im-1] + ly);
 }
