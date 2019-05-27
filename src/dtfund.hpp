@@ -466,7 +466,7 @@ private:
 /// pre-decrement), '+=T' and '-=T' where T is either a year or any integral 
 /// type.
 ///
-/// @example test-day_of_month.cpp
+/// @example test_day_of_month.cpp
 class day_of_month
 {
 public:
@@ -529,6 +529,7 @@ private:
 
 }; // class day_of_month
 
+/// @class day_of_year
 /// @brief A wrapper class for day of year.
 ///
 /// A day of year (doy) is represented by an integer; any integer will do, no
@@ -536,13 +537,13 @@ private:
 /// [1,365/6]. In fact, one can actually use a negative integer to represent
 /// a doy. It the user wishes to check wether the given doy is indeed valid,
 /// then the method day_of_year::validate() can be used.
-/// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
-/// day_of_year (constructor) can only have zero or positive values.
 ///
 /// This is a fundamental class, which means it only has one arithmetic member
 /// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
 /// '>=') are going to be implemented using kinda reflection, using template
 /// function overloadnig outside the class.
+///
+/// @example test_day_of_month.cpp
 class day_of_year
 {
 public:
@@ -569,11 +570,7 @@ public:
   explicit constexpr
   day_of_year(underlying_type i=0) noexcept
     : m_doy(i)
-  {
-#ifdef USE_DATETIME_CHECKS
-    assert(i>=0);
-#endif
-  };
+  {};
   
   /// assignment operator from any integral type
   template<typename Int,

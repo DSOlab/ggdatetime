@@ -30,6 +30,8 @@ constexpr static long month_day[2][13] = {
 /// Given a calendar date (i.e. year, month and day of month), compute the 
 /// corresponding Modified Julian Day. The input date is checked and an 
 /// exception is thrown if it is invalid.
+///
+/// @note The algorithm used is valid from -4800 March 1
 constexpr long
 ngpt::cal2mjd(int iy, int im, int id)
 {
@@ -42,7 +44,7 @@ ngpt::cal2mjd(int iy, int im, int id)
   }
 
   // If February in a leap year, 1, otherwise 0
-  int ly ( (im == 2) && /*ngpt::*/is_leap(iy) );
+  int ly = ((im == 2) && !(iy%4) && (iy%100 || !(iy%400)));
 
   // Validate day, taking into account leap years
   if ( (id < 1) || (id > (mtab[im-1] + ly))) {

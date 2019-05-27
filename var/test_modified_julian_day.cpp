@@ -21,16 +21,28 @@ int main()
 
   // Constructors/transformation to calendar dates
   modified_julian_day dm12(ngpt::year(2019), ngpt::day_of_year(1));
-  assert( dm12 == dm1 );
+  modified_julian_day dm12_(ngpt::year(2019), 
+    ngpt::month(1), 
+    ngpt::day_of_month(1));
+  assert( dm12 == dm1 && dm12==dm12_ );
   modified_julian_day dm24(ngpt::year(2018), ngpt::day_of_year(365));
-  assert( dm24 == dm2 );
+  modified_julian_day dm24_(ngpt::year(2018), 
+    ngpt::month(12), 
+    ngpt::day_of_month(31));
+  assert( dm24 == dm2 && dm24==dm24_ );
   modified_julian_day dm13(ngpt::year(2097), ngpt::day_of_year(1));
-  assert( modified_julian_day(86974) == dm13 );
+  modified_julian_day dm13_(ngpt::year(2097), 
+    ngpt::month(1), 
+    ngpt::day_of_month(1));
+  assert( modified_julian_day(86974) == dm13 && dm13==dm13_ );
   modified_julian_day dm14(ngpt::year(1858), ngpt::month(11), ngpt::day_of_month(1));
   assert( dm14.to_julian_day() == 2399984.5e0 );
   modified_julian_day dm15(ngpt::year(1858), ngpt::month(1), ngpt::day_of_month(1));
   assert( dm15.to_julian_day() == 2399680.5e0 );
-  //modified_julian_day dm16(ngpt::year(-4713), ngpt::month(1), ngpt::day_of_month(2));
+  // Start of the JD count is from 0 at 12 noon 1 JAN -4712 (4713 BC), Julian 
+  // proleptic calendar
+  modified_julian_day dm16(ngpt::year(-4713), ngpt::month(1), ngpt::day_of_month(1));
+  std::cout<<"\n----- First date is: "<<dm16.to_julian_day();
   //assert( dm16.to_julian_day() == 0.5e0 );
   std::vector<modified_julian_day> mjds;
   mjds.push_back(dm12);
@@ -38,7 +50,7 @@ int main()
   mjds.push_back(dm13);
   mjds.push_back(dm14);
   mjds.push_back(dm15);
-  //mjds.push_back(dm16);
+  mjds.push_back(dm16);
   for (auto m : mjds) {
     assert( m >= modified_julian_day::min() && m<= modified_julian_day::max() );
   }

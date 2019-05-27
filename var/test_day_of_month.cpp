@@ -37,6 +37,7 @@ int main()
   year yr {2017};
   assert( dm1.is_valid(yr, month(1)) );
   dm1 = day_of_month(31);
+  dm1 = 31;
   assert( dm1.is_valid(yr, month(1)) );
   ++dm1;    // dm = 32
   assert( !(dm1.is_valid(yr, month(1))) );
