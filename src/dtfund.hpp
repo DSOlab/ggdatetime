@@ -837,6 +837,10 @@ struct ymd_date
   is_valid() const noexcept
   { return __dom.is_valid(__year, __month); }
 
+  /// @brief Transform to year and day-of-year
+  ydoy_date
+  to_ydoy() const noexcept;
+
   year         __year;     ///< the year
   month        __month;    ///< the month
   day_of_month __dom;      ///< day of month
@@ -867,6 +871,10 @@ struct ydoy_date
   bool
   is_valid() const noexcept
   { return __doy.is_valid(__year); }
+  
+  /// @brief Transform to year, month, day-of-month
+  ymd_date
+  to_ymd() const noexcept;
 
   year        __year;     ///< the year
   day_of_year __doy;      ///< day of year

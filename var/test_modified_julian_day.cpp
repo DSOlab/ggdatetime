@@ -83,49 +83,42 @@ int main()
   modified_julian_day dms1(year(-4713), month(1), day_of_month(1));
   assert( dms1.to_julian_day() == -327.5e0 );
   auto _dms1 = dms1.to_ymd();
-  //std::cout<<"\n---"<<_dms1.__year.as_underlying_type()<<"/"<<_dms1.__month.as_underlying_type()<<"/"<<_dms1.__dom.as_underlying_type();
   assert( _dms1.__year == year(-4713) && 
     (_dms1.__month == month(1) && _dms1.__dom == day_of_month(1)) );
 
   modified_julian_day dms2(year(-4712), month(1), day_of_month(1));
   assert( dms2.to_julian_day() == 37.5e0 );
   auto _dms2 = dms2.to_ymd();
-  //std::cout<<"\n---"<<_dms2.__year.as_underlying_type()<<"/"<<_dms2.__month.as_underlying_type()<<"/"<<_dms2.__dom.as_underlying_type();
   assert( _dms2.__year == year(-4712) && 
     (_dms2.__month == month(1) && _dms2.__dom == day_of_month(1)) );
 
   modified_julian_day dms3(year(-4711), month(1), day_of_month(1));
   assert( dms3.to_julian_day() == 403.5e0 );
   auto _dms3 = dms3.to_ymd();
-  //std::cout<<"\n---"<<_dms3.__year.as_underlying_type()<<"/"<<_dms3.__month.as_underlying_type()<<"/"<<_dms3.__dom.as_underlying_type();
   assert( _dms3.__year == year(-4711) && 
     (_dms3.__month == month(1) && _dms3.__dom == day_of_month(1)) );
   
   modified_julian_day dms4(year(-1), month(1), day_of_month(1));
   assert( dms4.to_julian_day() == 1720694.5e0 );
   auto _dms4 = dms4.to_ymd();
-  //std::cout<<"\n---"<<_dms4.__year.as_underlying_type()<<"/"<<_dms4.__month.as_underlying_type()<<"/"<<_dms4.__dom.as_underlying_type();
   assert( _dms4.__year == year(-1) && 
     (_dms4.__month == month(1) && _dms4.__dom == day_of_month(1)) );
   
   modified_julian_day dms5(year(0), month(1), day_of_month(1));
   assert( dms5.to_julian_day() == 1721059.5e0 );
   auto _dms5 = dms5.to_ymd();
-  //std::cout<<"\n---"<<_dms5.__year.as_underlying_type()<<"/"<<_dms5.__month.as_underlying_type()<<"/"<<_dms5.__dom.as_underlying_type();
   assert( _dms5.__year == year(0) && 
     (_dms5.__month == month(1) && _dms5.__dom == day_of_month(1)) );
   
   modified_julian_day dms6(year(1), month(1), day_of_month(1));
   assert( dms6.to_julian_day() == 1721425.5e0 );
   auto _dms6 = dms6.to_ymd();
-  //std::cout<<"\n---"<<_dms6.__year.as_underlying_type()<<"/"<<_dms6.__month.as_underlying_type()<<"/"<<_dms6.__dom.as_underlying_type();
   assert( _dms6.__year == year(1) && 
     (_dms6.__month == month(1) && _dms6.__dom == day_of_month(1)) );
 
   modified_julian_day dms7(year(-4713), month(11), day_of_month(24));
   assert( dms7.to_julian_day() == -0.5e0 );
   auto _dms7 = dms7.to_ymd();
-  //std::cout<<"\n---"<<_dms7.__year.as_underlying_type()<<"/"<<_dms7.__month.as_underlying_type()<<"/"<<_dms7.__dom.as_underlying_type();
   assert( _dms7.__year == year(-4713) && 
     (_dms7.__month == month(11) && _dms7.__dom == day_of_month(24)) );
 

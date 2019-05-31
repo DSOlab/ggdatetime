@@ -12,6 +12,7 @@
 ///
 
 #include "dtfund.hpp"
+#include <cassert>
 
 /// Definition for static month array (short names).
 /// @see ngpt::month
@@ -185,24 +186,6 @@ ngpt::modified_julian_day::to_ydoy() const noexcept
 ngpt::ymd_date
 ngpt::modified_julian_day::to_ymd() const noexcept
 {
-  /*
-  auto ydoy = this->to_ydoy();
-  auto y    = ydoy.__year;
-  auto doy  = ydoy.__doy;
-  ymd_date ymd;
-  
-  long yday  { static_cast<long>(doy.as_underlying_type()) };
-  long leap  { ((y.as_underlying_type()%4L) == 0) };
-  long guess { static_cast<long>(yday*0.032) };
-  long more  { ((yday-month_day[leap][guess+1]) > 0) };
-
-  ymd.__year  = y;
-  ymd.__month = month{static_cast<month::underlying_type>(guess+more+1)};
-  ymd.__dom   = day_of_month{static_cast<day_of_month::underlying_type>
-                  (yday-month_day[leap][guess+more])};
-
-  return ymd;
-  */
   ymd_date ymd;
   
   // Express day in Gregorian calendar
@@ -217,7 +200,7 @@ ngpt::modified_julian_day::to_ymd() const noexcept
   l = k / 11L;
   ymd.__month = month{ static_cast<month::underlying_type>
                        (k + 2L - 12L * l) };
-  ymd.__year  = year{ static_cast<year::underlying_type>
+  ymd.__year  = year { static_cast<year::underlying_type>
                       (100L * (n - 49L) + i + l) };
 
   return ymd;
@@ -236,4 +219,39 @@ ngpt::ydoy2mjd(ngpt::year yr, ngpt::day_of_year doy) noexcept
 
     return modified_julian_day {((iyr-1901)/4)*1461 + ((iyr-1901)%4)*365 +
         idy - 1 + ngpt::jan11901};
+}
+
+/// 
+ngpt::ydoy_date
+ngpt::ymd_date::to_ydoy() const noexcept
+{
+  ydoy_date yd;
+  yd.__year = __year;
+  int leap  = __year.is_leap();
+  int md    = __month.as_underlying_type() - 1;
+#ifdef DEBUG
+  assert( md >= 0 && md < 12 );
+#endif
+  yd.__doy  = month_day[leap][md] + __dom.as_underlying_type();
+  return yd;
+}
+
+ngpt::ymd_date
+ngpt::ydoy_date::to_ymd() const noexcept
+{
+  ymd_date yd;
+  yd.__year = __year;
+  int guess = __doy.as_underlying_type() * 0.032;
+  int leap = __year.is_leap();
+#ifdef DEBUG
+  assert( guess >= 0 && guess < 11 );
+#endif
+  int more = (( __doy.as_underlying_type() - month_day[leap][guess+1] ) > 0);
+  yd.__month = month{guess + more + 1};
+#ifdef DEBUG
+  assert( guess+more >= 0 && guess+more < 12 );
+#endif
+  yd.__dom   = day_of_month(__doy.as_underlying_type()
+                           - month_day[leap][guess+more]);
+  return yd;
 }
