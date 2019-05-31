@@ -180,11 +180,12 @@ ngpt::modified_julian_day::to_ydoy() const noexcept
 
 ///
 /// Given a modified_julian_day convert it to a calendar date, i.e. a tuple
-/// containing (year, month, day_of_month). 
+/// containing (year, month, day_of_month). Calendar date is Gregorian.
 ///
 ngpt::ymd_date
 ngpt::modified_julian_day::to_ymd() const noexcept
 {
+  /*
   auto ydoy = this->to_ydoy();
   auto y    = ydoy.__year;
   auto doy  = ydoy.__doy;
@@ -199,6 +200,25 @@ ngpt::modified_julian_day::to_ymd() const noexcept
   ymd.__month = month{static_cast<month::underlying_type>(guess+more+1)};
   ymd.__dom   = day_of_month{static_cast<day_of_month::underlying_type>
                   (yday-month_day[leap][guess+more])};
+
+  return ymd;
+  */
+  ymd_date ymd;
+  
+  // Express day in Gregorian calendar
+  long l = m_mjd + (68569L + 2400000L + 1);
+  long n = (4L * l) / 146097L;
+  l -= (146097L * n + 3L) / 4L;
+  long i = (4000L * (l + 1L)) / 1461001L;
+  l -= (1461L * i) / 4L - 31L;
+  long k = (80L * l) / 2447L;
+  ymd.__dom = day_of_month{ static_cast<day_of_month::underlying_type>
+                            (l - (2447L * k) / 80L) };
+  l = k / 11L;
+  ymd.__month = month{ static_cast<month::underlying_type>
+                       (k + 2L - 12L * l) };
+  ymd.__year  = year{ static_cast<year::underlying_type>
+                      (100L * (n - 49L) + i + l) };
 
   return ymd;
 }
