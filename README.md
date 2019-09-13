@@ -180,3 +180,26 @@ public:
 };
 ```
 the third one is the fastest (if no optimizations are allowed).
+
+
+## Time Scales
+==============================================================================
+
+* TAI (International Atomic Time): the official timekeeping standard.
+* UTC (Coordinated Universal Time): the basis of civil time.
+* UT1 (Universal Time): based on Earth rotation.
+* TT (Terrestrial Time): used for solar system ephemeris look-up. 2
+* TCG (Geocentric Coordinate Time): used for calculations centered on the Earth in space.
+* TCB (Barycentric Coordinate Time): used for calculations beyond Earth orbit.
+* TDB (Barycentric Dynamical Time): a scaled form of TCB that keeps in step with TT
+  on the average.
+
+### \Delta UT1 = UT1 - UTC
+--------------------------
+To obtain UT1 starting from UTC, it is necessary to look up the value of ∆UT1 = UT1−UTC for
+the date concerned in tables published by the International Earth Rotation and Reference Sys-
+tems Service (IERS); this is then added to the UTC. The quantity UT1−UTC, which typically
+changes by 1-2 ms per day, can be obtained only by observation, principally very long baseline
+interferometry (VLBI) using extragalactic radio sources, though seasonal effects are present and
+the IERS listings are able to predict some way into the future with adequate accuracy for most
+applications.
