@@ -509,6 +509,20 @@ public:
     return;
   }
 
+  /// Cast to any datetime<T> instance, regardless of what T is
+  ///
+  /// @tparam    T    A 'second type'
+  /// @return    The calling object as an instance of type datetime<T>
+  template<class T,
+    typename = std::enable_if_t<T::is_of_sec_type>
+    >
+  inline datetime<T>
+  cast_to() const noexcept
+  {
+    T nsec = ngpt::cast_to<S,T>(this->sec());
+    return datetime<T>(this->mjd(), nsec);
+  }
+
   /// Return the difference of two datetimes as second type S.
   ///
   /// The difference computed is: calling_instance - passed_instance, aka

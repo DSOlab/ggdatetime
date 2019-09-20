@@ -203,3 +203,18 @@ changes by 1-2 ms per day, can be obtained only by observation, principally very
 interferometry (VLBI) using extragalactic radio sources, though seasonal effects are present and
 the IERS listings are able to predict some way into the future with adequate accuracy for most
 applications.
+The value of \Delta UT1 can be obtained from 
+[Bulletin D](https://datacenter.iers.org/productMetadata.php?id=17) 
+published by IERS
+
+### \Delta AT = TAI - UTC
+--------------------------
+
+### \Delta T = TT - UT1
+-----------------------
+The difference between UT1 and TT (formerly ET) is called ∆T, and in the present era can be
+written out as
+∆T = TT − UT1 = 32.184(sec) + ∆AT - ∆UT1
+∆T is important for interpreting historical observations of solar system phenomena, where mod-
+ern ephemerides provide the time of the event accurately but its appearance at a specified
+geographical location depends on knowing the Earth orientation.
