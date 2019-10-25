@@ -126,7 +126,13 @@ public:
   {
     typename S::underlying_type secs { m_secs.as_underlying_type() };
     m_days += secs / S::max_in_day;
-    m_secs  = secs / S::max_in_day;
+    m_secs  = secs % S::max_in_day;
+    // handle negative seconds
+    // @todo SHIT i don't want a loop in here! how could i avoid that??
+    if (m_secs < S{0}) {
+      --m_days;
+      m_secs = S{S::max_in_day} + m_secs;
+    }
     return;
   }
 
