@@ -426,6 +426,67 @@ public:
   sec_as_i() const noexcept
   { return m_sec.as_underlying_type(); }
 
+  /// @brief Add seconds (of type S) to the isntance
+  /// 
+  /// Add to the datetime instance an amount of sec 'second type'. If the total
+  /// amount of the 'second type' adds up to more than a day, the instance is
+  /// normalized.
+  ///
+  /// @param[in] t The amount of S to add to the datetime instance.
+  /// @throw       Does not throw
+  /// 
+  /// @note
+  ///     - If the total amount of the 'second type' adds up to more than a
+  ///       day, the instance is normalized.
+  ///     - The parameter t should not be negative! If the total time of day
+  ///       adds up to a negative number, the normalization my fail. If you
+  ///       need to add a negative amount of seconds, use
+  ///       datetime::remove_seconds
+  ///
+  /// @see datetime::remove_seconds
+  /// @todo make sure the input parameter cannot be negative
+  constexpr void
+  add_seconds(S sec) noexcept
+  {
+    m_sec += sec;
+    this->normalize();
+    return;
+  }
+  
+  /// @brief Add any second type T with lower resolution than S
+  /// 
+  /// Add to the datetime instance an amount of t 'second type'. If the total
+  /// amount of the 'second type' adds up to more than a day, the instance is
+  /// normalized.
+  ///
+  /// @tparam    T A 'second type' that is or can be converted to S
+  /// @param[in] t The amount of T to add to the datetime instance.
+  /// @throw       Does not throw
+  /// 
+  /// @note
+  ///     - If the total amount of the 'second type' adds up to more than a
+  ///       day, the instance is normalized.
+  ///     - The parameter t should not be negative! If the total time of day
+  ///       adds up to a negative number, the normalization my fail. If you
+  ///       need to add a negative amount of seconds, use
+  ///       datetime::remove_seconds
+  ///
+  /// @see datetime::remove_seconds
+  /// @todo make sure the input parameter cannot be negative
+  template<class T,
+    typename = std::enable_if_t<T::is_of_sec_type>,
+    typename = std::enable_if_t<(T::max_in_day < S::max_in_day)>
+    >
+  constexpr void
+  add_seconds(T sec) noexcept
+  {
+    S ssec = cast_to<T, S>(sec);
+    m_sec += ssec;
+    this->normalize();
+    return;
+  }
+
+  /*
   /// @brief Add any second type T, convertible to S.
   /// 
   /// Add to the datetime instance an amount of t 'second type'. If the total
@@ -458,6 +519,7 @@ public:
     this->normalize();
     return;
   }
+  */
 
   /// @brief Add a Modified Julian Day and any second type T to a datetime.
   ///
@@ -490,31 +552,7 @@ public:
     new_dt.normalize();
     return new_dt;
   }
-    
-  /// Subtract any second type T, convertible to S.
-  ///
-  /// @tparam    T    A 'second type' that is or can be converted to S
-  /// @param[in] t    The amount of T to subtract from the datetime instance.
-  /// @throw          Does not throw
-  ///
-  /// Given a normalized intstance, after the operation, the instance will 
-  /// still be normalized.
-  template<class T,
-    typename = std::enable_if_t<T::is_of_sec_type>,
-    typename = std::enable_if_t<
-                std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>
-               >
-  constexpr void
-  remove_seconds(T t) noexcept
-  { 
-    m_sec -= (S)t;
-    this->normalize();
-#ifdef USE_DATETIME_CHECKS
-    assert(m_mjd >= modified_julian_day{0} && m_sec >= S{0});
-#endif
-    return;
-  }
-
+  
   /// Cast to any datetime<T> instance, regardless of what T is
   ///
   /// @tparam    T    A 'second type'
@@ -527,6 +565,53 @@ public:
   {
     T nsec = ngpt::cast_to<S,T>(this->sec());
     return datetime<T>(this->mjd(), nsec);
+  }
+
+  /// Given a normalized intstance, after the operation, the instance will 
+  /// still be normalized.
+  /// Subtract any S's from the instance
+  ///
+  /// @param[in] sec  The amount of S to subtract from the datetime instance.
+  /// @throw          Does not throw
+  ///
+  /// Given a normalized intstance, after the operation, the instance will 
+  /// still be normalized.
+  constexpr void
+  remove_seconds(S sec) noexcept
+  { 
+    m_sec -= sec;
+    this->normalize();
+#ifdef USE_DATETIME_CHECKS
+    assert(m_mjd >= modified_julian_day{0} && m_sec >= S{0});
+#endif
+    return;
+  }
+
+  /// Subtract any second type T from the instance, where T is of lower 
+  /// resolution than S. For the computation, the input seconds t_sec will be
+  /// converted to S.
+  ///
+  /// @tparam    T    A 'second type' that can be cast to S (via cast_to())
+  /// @param[in] t    The amount of T to subtract from the datetime instance.
+  /// @throw          Does not throw
+  ///
+  /// Given a normalized intstance, after the operation, the instance will 
+  /// still be normalized.
+  template<typename T,
+    typename = std::enable_if_t<T::is_of_sec_type>,
+    typename = std::enable_if_t<(S::max_in_day > T::max_in_day)>
+    >
+  constexpr void
+  remove_seconds(T t_sec) noexcept
+  {
+    // S is of higher resolution; cast T to S
+    S s_sec = cast_to<T, S>(t_sec);
+    m_sec -= s_sec;
+    this->normalize();
+#ifdef USE_DATETIME_CHECKS
+    assert(m_mjd >= modified_julian_day{0} && m_sec >= S{0});
+#endif
+    return;
   }
 
   /// Return the difference of two datetimes as second type S.
@@ -723,8 +808,8 @@ template<typename T,
 ///             to True and has an Integral static variable S1::max_in_day
 /// @tparam S2  any second type that has a static member S2::is_of_sec_type set
 ///             to True and has an Integral static variable S2::max_in_day
-/// @param  d1  datetime<S1> instance (deifference is d1-d2)
-/// @param  d2  datetime<S2> instance (deifference is d1-d2)
+/// @param  d1  datetime<S1> instance (difference is d1-d2)
+/// @param  d2  datetime<S2> instance (difference is d1-d2)
 /// @return     Difference d1-d2 in S1
 template<typename S1,
          typename S2,
@@ -754,8 +839,8 @@ template<typename S1,
 ///             to True and has an Integral static variable S1::max_in_day
 /// @tparam S2  any second type that has a static member S2::is_of_sec_type set
 ///             to True and has an Integral static variable S2::max_in_day
-/// @param  d1  datetime<S1> instance (deifference is d1-d2)
-/// @param  d2  datetime<S2> instance (deifference is d1-d2)
+/// @param  d1  datetime<S1> instance (difference is d1-d2)
+/// @param  d2  datetime<S2> instance (difference is d1-d2)
 /// @return     Difference d1-d2 in S2
 template<typename S1,
          typename S2,
