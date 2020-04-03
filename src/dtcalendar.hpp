@@ -488,8 +488,8 @@ public:
   constexpr void
   add_seconds(T sec) noexcept
   {
-    typedef std::integral_constant<bool, (S::max_id_day>T::max_in_day)> cmp__;
-    cmp__ btype;
+    typedef std::integral_constant<bool, (S::max_in_day>T::max_in_day)> cmp__;
+    cmp__ btype{};
     __add_seconds_impl(sec, btype);
   }
   
@@ -508,8 +508,8 @@ public:
   constexpr void
   remove_seconds(T sec) noexcept
   {
-    typedef std::integral_constant<bool, (S::max_id_day>T::max_in_day)> cmp__;
-    cmp__ btype;
+    typedef std::integral_constant<bool, (S::max_in_day>T::max_in_day)> cmp__;
+    cmp__ btype{};
     __remove_seconds_impl(sec, btype);
   }
   
@@ -818,7 +818,7 @@ private:
   /// @return nothing
   template<typename T>
   constexpr void
-  __remove_seconds__impl(T sec, std::true_type) noexcept
+  __remove_seconds_impl(T sec, std::true_type) noexcept
   { 
     S ssec = cast_to<T, S>(sec);
     m_sec -= ssec;

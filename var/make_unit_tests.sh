@@ -5,7 +5,7 @@ echo "        Kind-a automated, bash/gcc unit testing for ggdatetime         "
 echo "+=====================================================================+"
 
 ## Unit tests, compilable source files
-unit_tests=( test_year.cpp test_month.cpp test_gps_week.cpp test_day_of_month.cpp test_modified_julian_day.cpp test_day_of_year.cpp )
+unit_tests=( test_year.cpp test_month.cpp test_gps_week.cpp test_day_of_month.cpp test_modified_julian_day.cpp test_day_of_year.cpp test_seconds.cpp )
 echo " Intial source files:"
 for fl in "${unit_tests[@]}" ; do echo "    * $fl" ; done
 
