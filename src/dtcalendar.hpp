@@ -773,7 +773,7 @@ private:
     constexpr void
     __add_seconds_impl(T sec, std::true_type) noexcept
   {
-    S ssec = cast_to<T, S>(sec);
+    S ssec = ngpt::cast_to<T, S>(sec);
     m_sec += ssec;
     this->normalize();
     return;
@@ -798,9 +798,9 @@ private:
     constexpr void
     __add_seconds_impl(T sec, std::false_type) noexcept
   {
-    T sect = cast_to<S, T>(m_sec);
+    T sect = ngpt::cast_to<S, T>(m_sec);
     sect += sec;
-    m_sec = cast_to<T, S>(sect);
+    m_sec = ngpt::cast_to<T, S>(sect);
     this->normalize();
     return;
   }
@@ -820,7 +820,7 @@ private:
   constexpr void
   __remove_seconds_impl(T sec, std::true_type) noexcept
   { 
-    S ssec = cast_to<T, S>(sec);
+    S ssec = ngpt::cast_to<T, S>(sec);
     m_sec -= ssec;
     this->normalize();
 #ifdef USE_DATETIME_CHECKS
@@ -848,9 +848,9 @@ private:
     constexpr void
     __remove_seconds_impl(T sec, std::false_type) noexcept
   {
-    T sect = cast_to<S, T>(m_sec);
+    T sect = ngpt::cast_to<S, T>(m_sec);
     sect -= sec;
-    m_sec = cast_to<T, S>(sect);
+    m_sec = ngpt::cast_to<T, S>(sect);
     this->normalize();
 #ifdef USE_DATETIME_CHECKS
     assert(m_mjd >= modified_julian_day{0} && m_sec >= S{0});
@@ -902,7 +902,7 @@ template<typename S1,
   delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept
 {
   S1 diff  = mjd_sec_diff<S1>(d1.mjd(), d2.mjd()); // days dif in S1
-  S1 s2sec = cast_to<S2, S1>(d2.sec());           // cast d2 secs to S1
+  S1 s2sec = ngpt::cast_to<S2, S1>(d2.sec());      // cast d2 secs to S1
   return diff + (d1.sec() - s2sec);
 }
 
@@ -933,7 +933,7 @@ template<typename S1,
   delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept
 {
   S2 diff  = mjd_sec_diff<S2>(d1.mjd(), d2.mjd()); // days dif in S2
-  S2 s1sec = cast_to<S1, S2>(d1.sec());           // cast d1 secs to S2
+  S2 s1sec = ngpt::cast_to<S1, S2>(d1.sec());      // cast d1 secs to S2
   return diff + (s1sec - d2.sec());
 }
 
