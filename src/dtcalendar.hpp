@@ -453,39 +453,66 @@ public:
     return;
   }
   
-  /// @brief Add any second type T with lower resolution than S
-  /// 
-  /// Add to the datetime instance an amount of t 'second type'. If the total
-  /// amount of the 'second type' adds up to more than a day, the instance is
-  /// normalized.
+  /// Given a normalized intstance, after the operation, the instance will 
+  /// still be normalized.
+  /// Subtract any S's from the instance
   ///
-  /// @tparam    T A 'second type' that is or can be converted to S
-  /// @param[in] t The amount of T to add to the datetime instance.
-  /// @throw       Does not throw
-  /// 
-  /// @note
-  ///     - If the total amount of the 'second type' adds up to more than a
-  ///       day, the instance is normalized.
-  ///     - The parameter t should not be negative! If the total time of day
-  ///       adds up to a negative number, the normalization my fail. If you
-  ///       need to add a negative amount of seconds, use
-  ///       datetime::remove_seconds
+  /// @param[in] sec  The amount of S to subtract from the datetime instance.
+  /// @throw          Does not throw
   ///
-  /// @see datetime::remove_seconds
-  /// @todo make sure the input parameter cannot be negative
-  template<class T,
-    typename = std::enable_if_t<T::is_of_sec_type>,
-    typename = std::enable_if_t<(T::max_in_day < S::max_in_day)>
-    >
+  /// Given a normalized intstance, after the operation, the instance will 
+  /// still be normalized.
   constexpr void
-  add_seconds(T sec) noexcept
-  {
-    S ssec = cast_to<T, S>(sec);
-    m_sec += ssec;
+  remove_seconds(S sec) noexcept
+  { 
+    m_sec -= sec;
     this->normalize();
+#ifdef USE_DATETIME_CHECKS
+    assert(m_mjd >= modified_julian_day{0} && m_sec >= S{0});
+#endif
     return;
   }
 
+  /// @brief Add any second type T to an instance of type S
+  ///
+  /// This function will add to the instance a number of seconds (of type T).
+  /// This works with tag-dispatch, thus this function is actually only a shell.
+  ///
+  /// @tparam    T   Any seconds type
+  /// @param[in] sec Seconds of T-type 
+  /// @return nothing
+  ///
+  /// @warning If the input seconds type is of higher resolution than the
+  ///          instance, then loss of accuracy may happen.
+  template<class T, typename = std::enable_if_t<T::is_of_sec_type>>
+  constexpr void
+  add_seconds(T sec) noexcept
+  {
+    typedef std::integral_constant<bool, (S::max_id_day>T::max_in_day)> cmp__;
+    cmp__ btype;
+    __add_seconds_impl(sec, btype);
+  }
+  
+  /// @brief Subtract any second type T to an instance of type S
+  ///
+  /// This function will remove to the instance a number of seconds (of type T).
+  /// This works with tag-dispatch, thus this function is actually only a shell.
+  ///
+  /// @tparam    T   Any seconds type
+  /// @param[in] sec Seconds of T-type 
+  /// @return nothing
+  ///
+  /// @warning If the input seconds type is of higher resolution than the
+  ///          instance, then loss of accuracy may happen.
+  template<class T, typename = std::enable_if_t<T::is_of_sec_type>>
+  constexpr void
+  remove_seconds(T sec) noexcept
+  {
+    typedef std::integral_constant<bool, (S::max_id_day>T::max_in_day)> cmp__;
+    cmp__ btype;
+    __remove_seconds_impl(sec, btype);
+  }
+  
   /*
   /// @brief Add any second type T, convertible to S.
   /// 
@@ -567,53 +594,6 @@ public:
     return datetime<T>(this->mjd(), nsec);
   }
 
-  /// Given a normalized intstance, after the operation, the instance will 
-  /// still be normalized.
-  /// Subtract any S's from the instance
-  ///
-  /// @param[in] sec  The amount of S to subtract from the datetime instance.
-  /// @throw          Does not throw
-  ///
-  /// Given a normalized intstance, after the operation, the instance will 
-  /// still be normalized.
-  constexpr void
-  remove_seconds(S sec) noexcept
-  { 
-    m_sec -= sec;
-    this->normalize();
-#ifdef USE_DATETIME_CHECKS
-    assert(m_mjd >= modified_julian_day{0} && m_sec >= S{0});
-#endif
-    return;
-  }
-
-  /// Subtract any second type T from the instance, where T is of lower 
-  /// resolution than S. For the computation, the input seconds t_sec will be
-  /// converted to S.
-  ///
-  /// @tparam    T    A 'second type' that can be cast to S (via cast_to())
-  /// @param[in] t    The amount of T to subtract from the datetime instance.
-  /// @throw          Does not throw
-  ///
-  /// Given a normalized intstance, after the operation, the instance will 
-  /// still be normalized.
-  template<typename T,
-    typename = std::enable_if_t<T::is_of_sec_type>,
-    typename = std::enable_if_t<(S::max_in_day > T::max_in_day)>
-    >
-  constexpr void
-  remove_seconds(T t_sec) noexcept
-  {
-    // S is of higher resolution; cast T to S
-    S s_sec = cast_to<T, S>(t_sec);
-    m_sec -= s_sec;
-    this->normalize();
-#ifdef USE_DATETIME_CHECKS
-    assert(m_mjd >= modified_julian_day{0} && m_sec >= S{0});
-#endif
-    return;
-  }
-
   /// Return the difference of two datetimes as second type S.
   ///
   /// The difference computed is: calling_instance - passed_instance, aka
@@ -683,7 +663,7 @@ public:
     m_sec  = secs % S::max_in_day;
     // handle negative seconds
     // @todo SHIT i don't want a loop in here! how could i avoid that??
-    if (m_sec < S{0}) {
+    while (m_sec < S{0}) {
       --m_mjd;
       m_sec = S{S::max_in_day} + m_sec;
     }
@@ -777,6 +757,107 @@ public:
   }
 
 private:
+  
+  /// @brief Add any second type T where S is of higher resolution than T
+  ///
+  /// This is the implementation for adding any type of seconds (T), where T is
+  /// of lower resolution than S, to the instanece. The input seconds sec will
+  /// be cast to S-type and then added to the instanece.
+  /// This is the implementation function meant to work via tag dispatch, so it
+  /// needs a dummy parameter of type std::true_type
+  ///
+  /// @tparam T Any seconds type where S::max_id_day > T::max_in_day
+  /// @param[in] sec Seconds of T-type where S::max_id_day > T::max_in_day
+  /// @return nothing
+  template<class T>
+    constexpr void
+    __add_seconds_impl(T sec, std::true_type) noexcept
+  {
+    S ssec = cast_to<T, S>(sec);
+    m_sec += ssec;
+    this->normalize();
+    return;
+  }
+  
+  /// @brief Add any second type T where T is of higher resolution than S
+  ///
+  /// This is the implementation for adding any type of seconds (T), where T is
+  /// of higher resolution than S, to the instance. The instance will first be
+  /// cast into T-type, the input seconds are added to the instance and then
+  /// the instance will be re-casted to S-type. 
+  /// This is the implementation function meant to work via tag dispatch, so it
+  /// needs a dummy parameter of type std::false_type
+  ///
+  /// @tparam T Any seconds type where T::max_id_day > S::max_in_day
+  /// @param[in] sec Seconds of T-type where T::max_id_day > S::max_in_day
+  /// @return nothing
+  ///
+  /// @warning The input seconds (parameter) is of higher resolution than the
+  ///          instance, thus loss of accuracy may happen.
+  template<class T>
+    constexpr void
+    __add_seconds_impl(T sec, std::false_type) noexcept
+  {
+    T sect = cast_to<S, T>(m_sec);
+    sect += sec;
+    m_sec = cast_to<T, S>(sect);
+    this->normalize();
+    return;
+  }
+  
+  /// @brief Subtract any second type T where S is of higher resolution than T
+  ///
+  /// This is the implementation for removing any type of seconds (T), where T
+  /// is of lower resolution than S, to the instanece. The input seconds sec will
+  /// be cast to S-type and then subtracted from the instanece.
+  /// This is the implementation function meant to work via tag dispatch, so it
+  /// needs a dummy parameter of type std::true_type
+  ///
+  /// @tparam T Any seconds type where S::max_id_day > T::max_in_day
+  /// @param[in] sec Seconds of T-type where S::max_id_day > T::max_in_day
+  /// @return nothing
+  template<typename T>
+  constexpr void
+  __remove_seconds__impl(T sec, std::true_type) noexcept
+  { 
+    S ssec = cast_to<T, S>(sec);
+    m_sec -= ssec;
+    this->normalize();
+#ifdef USE_DATETIME_CHECKS
+    assert(m_mjd >= modified_julian_day{0} && m_sec >= S{0});
+#endif
+    return;
+  }
+  
+  /// @brief Subtract any second type T where T is of higher resolution than S
+  ///
+  /// This is the implementation for removing any type of seconds (T), where T is
+  /// of higher resolution than S, to the instance. The instance will first be
+  /// cast into T-type, the input seconds are subtracted from the instance and
+  /// then the instance will be re-casted to S-type. 
+  /// This is the implementation function meant to work via tag dispatch, so it
+  /// needs a dummy parameter of type std::false_type
+  ///
+  /// @tparam T Any seconds type where T::max_id_day > S::max_in_day
+  /// @param[in] sec Seconds of T-type where T::max_id_day > S::max_in_day
+  /// @return nothing
+  ///
+  /// @warning The input seconds (parameter) is of higher resolution than the
+  ///          instance, thus loss of accuracy may happen.
+  template<class T>
+    constexpr void
+    __remove_seconds_impl(T sec, std::false_type) noexcept
+  {
+    T sect = cast_to<S, T>(m_sec);
+    sect -= sec;
+    m_sec = cast_to<T, S>(sect);
+    this->normalize();
+#ifdef USE_DATETIME_CHECKS
+    assert(m_mjd >= modified_julian_day{0} && m_sec >= S{0});
+#endif
+    return;
+  }
+
   modified_julian_day m_mjd;  ///< Modified Julian Day
   S                   m_sec;  ///< Time of day in S precision.
 
