@@ -823,7 +823,7 @@ struct ymd_date
   /// @brief ymd_date constructor; can have any number of arguments from 0 to 3.
   /// No check for validity will be performed. If you want to check the
   /// validity of the created instance, use ymd_date::is_valid
-  explicit
+  explicit constexpr
   ymd_date(year y=year{}, month m=month{}, day_of_month d=day_of_month{})
   noexcept
     : __year(y),
@@ -859,7 +859,7 @@ struct ydoy_date
   /// @brief ymd_date constructor; can have any number of arguments from 0 to 2.
   /// No check for validity will be performed. If you want to check the
   /// validity of the created instance, use ymd_date::is_valid
-  explicit
+  explicit constexpr
   ydoy_date(year y=year{}, day_of_year d=day_of_year{})
   noexcept
     : __year(y),

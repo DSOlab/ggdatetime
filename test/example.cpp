@@ -128,11 +128,17 @@ int main()
   // -----------------------------------------------------------------------
   //
   seconds sec1 {10};
+  assert(sec1==seconds(10));
   milliseconds mlsec1 {10};
+  assert(mlsec1==milliseconds(10));
   microseconds mcsec1 {10};
+  assert(mcsec1==microseconds(10));
   seconds sec2 {mcsec1};        // casting microsec to sec is allowed
+  assert( sec2==(ngpt::cast_to<microseconds,seconds>(mcsec1)) );
   seconds sec3 {mlsec1};        // casting millisec to sec is allowed
+  assert( sec3==(ngpt::cast_to<milliseconds,seconds>(mlsec1)) );
   milliseconds mlsec2 {mcsec1}; // casting microsec to millisec is allowed
+  assert( mlsec2==(ngpt::cast_to<microseconds,milliseconds>(mcsec1)) );
   // However, it is not allowed to cast from lower to higher precsision, e.g.
   // milliseconds ml1 {sec1};   // ERROR!
   // microseconds mc1 {mlsec1}; // ERROR!

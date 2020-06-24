@@ -2,17 +2,17 @@
 #include <chrono>
 #include <cassert>
 #include <limits>
-
 #include "dtfund.hpp"
 #include "dtcalendar.hpp"
 #include "datetime_read.hpp"
 
 using namespace ngpt;
-
+/*
 constexpr long MilliSec = 1000L;
 constexpr long MicroSec = 1000000L;
 constexpr long NanoSec  = 1000000000L;
 constexpr long maxL     = std::numeric_limits<long int>::max();
+*/
 
 int main()
 {
