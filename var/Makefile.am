@@ -15,5 +15,5 @@ MCXXFLAGS = \
 	-DDEBUG
 
 testSecDifTime_SOURCES   = sec_dif_time.cpp
-testSecDifTime_CXXFLAGS  = $(MCXXFLAGS) -I$(top_srcdir)/src -L$(top_srcdir)/src
+testSecDifTime_CXXFLAGS  = $(MCXXFLAGS) -I$(top_srcdir)/src ## -L$(top_srcdir)/src
 testSecDifTime_LDADD     = $(top_srcdir)/src/libggdatetime.la
