@@ -1,92 +1,91 @@
-# ggdatetime C++ library
-==============================================================================
+# C++ Datetime library
 
 [![Build Status](https://travis-ci.com/xanthospap/ggdatetime.svg?branch=master)](https://travis-ci.com/xanthospap/ggdatetime)
+
+## Introduction
 
 ggdatetime is a C++ library to assist Geodesy and GNSS-processing related
 fields.
 
-## Prerequisites
-==============================================================================
+## Compilation / Installation
 
-* C++ standards:
-tested under C++14 and C++17
+Source code is ISO C++17. Compilation should be trivial using any C++ compiler
+[supporting the c++17](https://en.wikipedia.org/wiki/C%2B%2B17#Compiler_support) 
+standard (option `-std=c++17` in gcc and clang).
 
-* Compilers
-tested under g++
+> This software is meant to be implemented on Unix-type OS's. No effort will be
+> undertaken for compatibility with other OS types.
 
-## Installation
-==============================================================================
+To compile the library, just follow the basic steps: (*note that the library is still at development phase so users need to configure the project before compiling*)
 
 For the following, `ROOTDIR` will be the root directory of this repository,
 aka the directory under which `/src`, `/test` and `/doc` folders live.
 
-### Production Version
-----------------------
-To build the "production" version, follow the "standard procedure", aka
-(in the `ROOT_DIR`) type the following commands:
-```
-$> ./configure ## (run configure placed in ROOTDIR)
-$> make all
-$> sudo make install
-```
+**If you do not need the DEBUG version** (which most probably you don't), create the `Makefile.am` templates. This means that you
+should rename [Makefile.am.production](src/Makefile.am.production) and [Makefile.am.production](test/Makefile.am.production) to
+`src/Makefile.am` and `test/Makefile.am` respectively, that is:
 
-The library will be placed under `/usr/local/lib`, as
-- libggdatetime.a (dynamic version)
-- libggdatetime.so (static version)
-
-Note that you have to update/add the above path to be able to link against the
-library. This can be done in a number of ways, e.g. have your system
-administrator add `/usr/local/lib` to `/etc/ld.so.conf`
-
-### Debug Version
------------------
-To build the "debug" version, you will need to re-make the `Makefile.in` files
-(in `ROOTDIR/src` and `ROOTDIR/test`). To do this, you will need to use the
-`Makefile.am.debug` files, under `ROOTDIR/src` and `ROOTDIR/test`.
-So, rename these files to `Makefile.am`
-```
-$> mv ROOTDIR/src/Makefile.am.debug ROOTDIR/src/Makefile.am
-$> mv ROOTDIR/test/Makefile.am.debug ROOTDIR/test/Makefile.am
+```bash
+mv src/Makefile.am.production src/Makefile.am
+mv test/Makefile.am.production test/Makefile.am
 ```
 
-Run `autoreconf --install` to produce the respective, new, `Makefile.in` files.
-(Note that autoreconf is part of Autotools package; you may have to install this
-package)
-`$> autoreconf -i`
+Then run Autotools and compile:
 
-Now follow the the "standard procedure", aka
-(in the `ROOT_DIR`) type the following commands:
-```
-$> ./configure ## (run configure placed in ROOTDIR)
-$> make all
-$> sudo make install
+```bash
+autoreconf -if
+./configure
+make
+sudo make install
 ```
 
-Note that you only need the "debug" version if you want to mess with the code.
+## Verify & Test
 
-### Verification
-----------------
-After a successeful installation, you should be able to run the test programs:
+After a succesefull installation, users should have:
 
-* `ROOTDIR/test/testDatetime`
-* `ROOTDIR/test/testGPSt`
-* `ROOTDIR/test/testLeap`
-* `ROOTDIR/test/testOps`
-* `ROOTDIR/test/testRead`
+1. all library header files in `/usr/local/include/ggdatetime/`
+2. the library (both a static and shared) in `/usr/local/lib/`
 
-Additionaly, unit-testing for erronuous (actually non-compilable) source code,
-is performed by the program:
+~~To run a validity check, just run: `make check` at the root directory. Hopefully, 
+you 'll see all checks passing!~~
 
-* `ROOTDIR/script/test_source.sh`
+Link, include and have fun!
+
+## The Library
+
+Here is a list of the provided utilities:
+
+### How to use the library (TODO)
+
+### Namespaces
+
+The whole of the library is wrapped around the `ngpt` namespace
+
+### Linking
+
+- static
+- dynamic
+
+## Documentation & Library API (TODO)
+
+- build dox with doxygen (or link to dox)
+
+## TODO
+
+## Bugs & Maintanance
+Xanthos, xanthos@mail.ntua.gr
+Mitsos, danast@mail.ntua.gr
+
+
+## FAQ
 
 ## Implementation Notes
-==============================================================================
 
 ### Fundamental Types
----------------------
+
 The following classes are defined as datetime "fundamental" classes:
-```
+
+```cpp
 class  year;
 class  month;
 class  gps_week;
@@ -99,6 +98,7 @@ class  seconds;
 class  milliseconds;
 class  microseconds;
 ```
+
 Implementation-wise, this means that they only have one member variable, which
 is of integral type (actually either an `int` or a `long`).
 For these fundamental types, a kinda reflection is used and the following 
@@ -120,7 +120,8 @@ operators are defined:
     E.g. `year y1(2012); y1 = 2015;`
 
 A simple usage example follows:
-```
+
+```cpp
   ngpt::year y(2019), y1(2018), y2(2020), y3(2019);
   assert( y == y3 );
   assert( y >= y1 );
@@ -138,17 +139,19 @@ A simple usage example follows:
   assert( --y == y1 );
   assert( (y = 2020) == y2 );
 ```
+
 For a detailed example, see the file `test/test_operators`. To make sure that
 these operators only work for the types they are supposed to, use the script
 `script/test_source.sh`; this performs a kina unit-testing, using erronuous
 source code.
 
 ### Integer Division
---------------------
+
 In general, use '/' and '%' operators (not e.g. a loop or std::div). Normally,
 if the code is optimized it will make no difference, but (at least for my computer,
 x86_64 GNU/Linux) out of the three implementations:
-```
+
+```cpp
 class A {
 public:
   static constexpr long maxi = 3600L;
@@ -185,7 +188,6 @@ the third one is the fastest (if no optimizations are allowed).
 
 
 ## Time Scales
-==============================================================================
 
 * TAI (International Atomic Time): the official timekeeping standard.
 * UTC (Coordinated Universal Time): the basis of civil time.
@@ -196,8 +198,8 @@ the third one is the fastest (if no optimizations are allowed).
 * TDB (Barycentric Dynamical Time): a scaled form of TCB that keeps in step with TT
   on the average.
 
-### \Delta UT1 = UT1 - UTC
---------------------------
+### ΔUT1 = UT1 - UTC
+
 To obtain UT1 starting from UTC, it is necessary to look up the value of ∆UT1 = UT1−UTC for
 the date concerned in tables published by the International Earth Rotation and Reference Sys-
 tems Service (IERS); this is then added to the UTC. The quantity UT1−UTC, which typically
@@ -209,11 +211,10 @@ The value of \Delta UT1 can be obtained from
 [Bulletin D](https://datacenter.iers.org/productMetadata.php?id=17) 
 published by IERS
 
-### \Delta AT = TAI - UTC
---------------------------
+### ΔAT = TAI - UTC
 
-### \Delta T = TT - UT1
------------------------
+### ΔT = TT - UT1
+
 The difference between UT1 and TT (formerly ET) is called ∆T, and in the present era can be
 written out as
 ∆T = TT − UT1 = 32.184(sec) + ∆AT - ∆UT1
