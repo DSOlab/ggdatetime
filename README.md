@@ -1,6 +1,8 @@
 # ggdatetime C++ library
 ==============================================================================
 
+[![Build Status](https://travis-ci.com/xanthospap/ggdatetime.svg?branch=master)](https://travis-ci.com/xanthospap/ggdatetime)
+
 ggdatetime is a C++ library to assist Geodesy and GNSS-processing related
 fields.
 
