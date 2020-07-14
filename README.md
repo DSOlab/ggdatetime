@@ -49,6 +49,20 @@ After a succesefull installation, users should have:
 ~~To run a validity check, just run: `make check` at the root directory. Hopefully, 
 you 'll see all checks passing!~~
 
+**__The following step is optional__**
+A validation test script (kind of unit-testing) can be run to check that the library 
+works as expected. You do not need to have the library installed on your system to 
+perform the check (aka the step `sudo make install` is not needed) you only need to 
+have it compiled (aka `make` should be successeful). If you built the library in 
+a seperate folder you may need to edit the script, because it assumes that the 
+(newly compiled) library is located in `ROOTDIR/src/.libs` witch is the default case.
+The validation script can be found is [make_unit_tests.sh](https://github.com/xanthospap/ggdatetime/blob/master/var/make_unit_tests.sh) 
+and to run it (assuming you are in `ROOTDIR`):
+`cd var && bash make_unit_tests.sh`. The script will use a number of source files 
+located in the [ROOT/var](https://github.com/xanthospap/ggdatetime/blob/master/var/) folder 
+to check the compile-ibility of the sources and the reported results. At the end 
+of the report, you should see the meesage: `Everything appears to have worked as expected!`
+
 Link, include and have fun!
 
 ## The Library
