@@ -4,7 +4,8 @@ echo "+=====================================================================+"
 echo "        Kind-a automated, bash/gcc unit testing for ggdatetime         "
 echo "+=====================================================================+"
 
-## We need the freshly-compiled library NOT the system one!
+## We need the freshly-compiled library NOT the system one! Locate the library
+## and update LD_LIBRARY_PATH for the linker
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 ROOTDIR=${DIR%\/var}
 LNPTH=${ROOTDIR}/src/.libs
@@ -12,6 +13,7 @@ if ! test -f ${LNPTH}/libggdatetime.la && ! test -f ${LNPTH}/libggdatetime.so ; 
   echo echo "FAILED; stoping with error" 1>&2
   exit 3
 fi
+export LD_LIBRARY_PATH=${LNPTH}:$LD_LIBRARY_PATH
 
 ## Unit tests, compilable source files
 unit_tests=( test_year.cpp test_month.cpp test_gps_week.cpp test_day_of_month.cpp test_modified_julian_day.cpp test_day_of_year.cpp test_seconds.cpp )
