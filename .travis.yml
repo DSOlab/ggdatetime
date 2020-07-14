@@ -9,3 +9,4 @@ script:
  - autoreconf -if
  - ./configure
  - make
+ - cd var && ./make_unit_tests.sh
