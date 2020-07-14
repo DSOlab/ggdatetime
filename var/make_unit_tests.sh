@@ -1,4 +1,4 @@
-#! /usr/bin/bash
+#!/usr/bin/env sh
 
 echo "+=====================================================================+"
 echo "        Kind-a automated, bash/gcc unit testing for ggdatetime         "
