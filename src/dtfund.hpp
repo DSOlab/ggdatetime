@@ -35,7 +35,7 @@ namespace ngpt
 {
 
 /// Check if long is big enough to hold two days in microseconds.
-static_assert( 86400L  * 1000000L * 2 < std::numeric_limits<long>::max(),
+static_assert( 86400L  * 1000000000L * 2 < std::numeric_limits<long>::max(),
   "FUCK! Long is not big enough to hold two days in microseconds" );
 
 /// Jan 1st 1980 for GPS Time
@@ -80,6 +80,7 @@ class  minutes;
 class  seconds;
 class  milliseconds;
 class  microseconds;
+class  nanoseconds;
 
 /// @brief Calendar date to Modified Julian Day.
 ///
@@ -1723,6 +1724,226 @@ private:
   underlying_type m_sec;
 
 }; // class microseconds
+
+/// @brief A wrapper class for nanoseconds (i.e 10**-9 sec.).
+/// 
+/// nanoseconds is just a wrapper class around long integer numbers, i.e. a
+/// nanosecond is just a long int and can be either positive or negative. 
+/// Users are however restricted by integer overflow. The maximum number of days
+/// that can be expressed in nanoseconds without fear of overflow is given by
+/// the template function ngpt::max_days_allowed.
+/// Negative nanoseconds are allowed (so that a user can perform basic 
+/// operations like e.g. addition), but some functions expect only positive 
+/// nanoseconds (nanoseconds::remove_days, nanoseconds::to_days).
+/// nanoseconds is a class which represents a second subdivision (as is 
+/// ngpt::seconds, ngpt::milliseconds, etc); quite a few methods should be 
+/// common to all of these classes, all of which have a member variable
+/// nanoseconds::is_of_sec_type which is set to true.
+/// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
+/// nanoseconds (constructor) can only have zero or positive values.
+///
+/// This is a fundamental class, which means it only has one arithmetic member
+/// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>', 
+/// '>=') are going to be implemented using kinda reflection, using template
+/// function overloadnig outside the class.
+/// 
+/// @note nanoseconds can be cast to ngpt::seconds, ngpt::milliseconds and 
+/// ngpt::microseconds (via a static_cast or a C-type cast) but the opposite is 
+/// not true; i.e. ngpt::seconds cannot be cast to nanoseconds.This is still 
+/// an open question!
+///
+/// @see ngpt::seconds
+/// @see ngpt::milliseconds
+///
+class nanoseconds
+{
+public:
+  /// Nanoseconds are represented as long integers.
+  typedef long underlying_type;
+  
+  /// Is fundamental datetime type
+  static constexpr bool
+  is_dt_fundamental_type { true };
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type
+  __member_const_ref__() const noexcept
+  { return m_sec; }
+  
+  /// If fundamental type, the class should have an "expose the only member var"
+  /// function
+  inline constexpr underlying_type&
+  __member_ref__() noexcept
+  { return m_sec; }
+  
+  /// Microseconds is a subdivision of seconds.
+  static constexpr bool
+  is_of_sec_type { true };
+  
+  /// Max nanoseconds in day.
+  static constexpr long
+  max_in_day { 86400L * 1000000000L };
+
+  /// The scale factor to transform from seconds to nanoseconds.
+  template<typename T>
+    static constexpr T
+    sec_factor() noexcept
+  { return static_cast<T>(1000000000); }
+
+  /// Constructor; default nanoseconds is 0.
+  explicit constexpr
+  nanoseconds(underlying_type i=0L) noexcept
+    : m_sec(i)
+  {
+#ifdef USE_DATETIME_CHECKS
+    assert(i>=0L);
+#endif
+  };
+    
+  /// Constructor from hours, minutes, microseconds.
+  explicit constexpr
+  nanoseconds(hours h, minutes m, nanoseconds c) noexcept
+    : m_sec { c.as_underlying_type()
+            +(m.as_underlying_type()*60L
+            + h.as_underlying_type()*3600L) * sec_factor<underlying_type>() }
+  {};
+    
+  /// Constructor from hours, minutes, fractional seconds.
+  /// @note Fractional seconds with precission larger than microseconds are
+  ///       not taken into account; i.e. we only consider the fractiona part
+  ///       up to 10e-9.
+  explicit constexpr
+  nanoseconds(hours h, minutes m, double fs) noexcept
+    : m_sec{ static_cast<underlying_type>(fs * sec_factor<double>())
+            + (m.as_underlying_type()*60L
+            + h.as_underlying_type()*3600L) * sec_factor<underlying_type>() }
+  {};
+  
+  /// assignment operator from any integral type
+  template<typename Int,
+           typename = std::enable_if_t<std::is_integral_v<Int>>
+           >
+    constexpr nanoseconds&
+    operator=(Int i) noexcept
+  {
+    m_sec = i;
+    return *this;
+  }
+
+  /// Nanoseconds can be cast to microseconds will a loss of accuracy.
+  inline constexpr explicit
+  operator microseconds() const
+  { return microseconds(m_sec / 1000L); }
+    
+  /// Nanoseconds can be cast to milliseconds will a loss of accuracy.
+  inline constexpr explicit
+  operator milliseconds() const
+  { return milliseconds(m_sec / 1000000L); }
+  
+  /// Microseconds can be cast to seconds will a loss of accuracy.
+  inline constexpr explicit
+  operator seconds() const
+  { return seconds(m_sec / sec_factor<underlying_type>()); }
+  
+  /// Addition between nanoseconds.
+  inline constexpr nanoseconds
+  operator+(const nanoseconds& sec) const noexcept
+  { return nanoseconds{m_sec+sec.m_sec}; }
+
+  /// Subtraction between nanoseconds.
+  inline constexpr nanoseconds
+  operator-(const nanoseconds& n) const noexcept
+  { return nanoseconds{m_sec-n.m_sec}; }
+  
+  /// Do the nanoseconds sum up to more than one day?
+  inline constexpr bool
+  more_than_day() const noexcept
+  { return m_sec>max_in_day; }
+  
+  /// Cast to nanoseconds::underlying_type.
+  inline constexpr underlying_type
+  as_underlying_type() const noexcept
+  { return m_sec; }
+    
+  /// @brief Normalize nanoseconds and return the integeral days.
+  ///
+  /// If the nanoseconds sum up to more (or equal to) one day, remove the integer
+  /// days and return them as integer; reset the nanoseconds to nanoseconds of the
+  /// new day.
+  ///
+  /// @return The integer number of days (if the nanoseconds are more than a day).
+  /// @throw  Does not throw.
+  ///
+  /// @note   The number of days returned can be negative (!!), if the nanoseconds
+  ///         are negative (i.e. if m_sec = -86400, -1 will be returned and
+  ///         m_sec will be set to 0).
+  ///
+  constexpr int
+  remove_days() noexcept
+  {
+    int days = m_sec / max_in_day;
+    m_sec    = m_sec % max_in_day;
+    return days;
+  }
+    
+  /// @brief Cast to days.
+  ///
+  /// If the nanoseconds sum up to more (or equal to) one day, return the 
+  /// (integral) number of days.
+  ///
+  /// @return The integer number of days (if the nanoseconds are more than a day).
+  /// @throw  Does not throw.
+  ///
+  /// @note   The number of days returned can be negative (!!), if the seconds
+  ///         are negative (i.e. if m_sec = -86400, -1 will be returned).
+  ///
+  inline constexpr int
+  to_days() const noexcept
+  { return static_cast<int>(m_sec/max_in_day); }
+  
+  /// Cast to fractional days.
+  inline constexpr double
+  fractional_days() const noexcept
+  {
+    return static_cast<double>(m_sec) / static_cast<double>(max_in_day);
+  }
+    
+  /// Cast to fractional seconds
+  inline constexpr double
+  to_fractional_seconds() const noexcept
+  { return static_cast<double>(m_sec) * 1.0e-6; }
+    
+  /// Translate to hours, minutes, seconds and microseconds.
+  /// @bug need more documentation
+  /*
+  constexpr std::tuple<hours, minutes, seconds, long>
+  to_hmsf() const noexcept
+  {
+    long hr { m_sec/3600000000L                       };  // hours
+    long mn { (m_sec%3600000000L)/60000000L           };  // minutes
+    long sc { ((m_sec%3600000000L)%60000000L)/1000000L};  // seconds
+    long ns { m_sec-((hr*60L+mn)*60L+sc)*1000000L     };  // microsec.
+    return std::make_tuple( hours  { static_cast<hours::underlying_type>(hr) },
+                            minutes{ static_cast<minutes::underlying_type>(mn) },
+                            seconds{ sc },
+                            ns );
+  }
+  */
+
+private:
+  /// Cast to any arithmetic type.
+  template<typename T,
+           typename = std::enable_if_t<std::is_arithmetic<T>::value>
+           >
+    constexpr T
+    cast_to() const noexcept
+  { return static_cast<T>(m_sec); }
+
+  /// Microseconds as long ints.
+  underlying_type m_sec;
+
+}; // class nanoseconds
   
 /// Overload operator '=' where the left-hand-side is any fundamental type and
 /// the right-hand-side is any integral type. That is, i want to be able to do:
