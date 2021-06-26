@@ -1912,24 +1912,22 @@ public:
   /// Cast to fractional seconds
   inline constexpr double
   to_fractional_seconds() const noexcept
-  { return static_cast<double>(m_sec) * 1.0e-6; }
+  { return static_cast<double>(m_sec) * 1.0e-9; }
     
   /// Translate to hours, minutes, seconds and microseconds.
   /// @bug need more documentation
-  /*
   constexpr std::tuple<hours, minutes, seconds, long>
   to_hmsf() const noexcept
   {
-    long hr { m_sec/3600000000L                       };  // hours
-    long mn { (m_sec%3600000000L)/60000000L           };  // minutes
-    long sc { ((m_sec%3600000000L)%60000000L)/1000000L};  // seconds
-    long ns { m_sec-((hr*60L+mn)*60L+sc)*1000000L     };  // microsec.
+    long hr { m_sec/(3600L * 1000000000L)             };  // hours
+    long mn { (m_sec%(3600L * 1000000000L))/60000000000L           };  // minutes
+    long sc { ((m_sec%(3600L * 1000000000L))%60000000000L)/1000000000L};  // seconds
+    long ns { m_sec-((hr*60L+mn)*60L+sc)*1000000000L     };  // microsec.
     return std::make_tuple( hours  { static_cast<hours::underlying_type>(hr) },
                             minutes{ static_cast<minutes::underlying_type>(mn) },
                             seconds{ sc },
                             ns );
   }
-  */
 
 private:
   /// Cast to any arithmetic type.
