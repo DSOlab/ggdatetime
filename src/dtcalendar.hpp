@@ -26,6 +26,18 @@
 namespace ngpt
 {
 
+constexpr modified_julian_day
+cal2mjd(year y, month m, day_of_month d) {
+  long mjd = cal2mjd(y.as_underlying_type(), m.as_underlying_type(), d.as_underlying_type());
+  return modified_julian_day{mjd};
+}
+
+constexpr modified_julian_day
+ydoy2mjd(year y, day_of_year d) noexcept {
+  auto mjd = ydoy2mjd(y.as_underlying_type(), d.as_underlying_type());
+  return modified_julian_day{mjd};
+}
+
 /// @brief A generic, templatized class to hold a datetime period/interval.
 ///
 /// A datetime_interval represents a time (datetime) interval or period, i.e.
@@ -263,7 +275,7 @@ public:
   {};
     
   /// Constructor from year, month, day of month and sec type.
-  explicit constexpr
+  constexpr
   datetime(year y, month m, day_of_month d, S s) noexcept
     : m_mjd{cal2mjd(y, m, d)},
       m_sec{s}
@@ -284,7 +296,7 @@ public:
     typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>
                >
-  explicit
+  constexpr
   datetime(year y, month m, day_of_month d, T t) noexcept
     : m_mjd{cal2mjd(y, m, d)},
       m_sec{S(t)}
@@ -299,7 +311,7 @@ public:
     typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>
                >
-  explicit
+  constexpr
   datetime(year y, day_of_year d, T t) noexcept
     : m_mjd{ydoy2mjd(y, d)},
       m_sec{S(t)}
@@ -314,7 +326,7 @@ public:
     typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>
                >
-  explicit
+  constexpr
   datetime(year y, month m, day_of_month d, hours hr, minutes mn, T sec)
   noexcept
     : m_mjd{cal2mjd(y, m, d)},
@@ -330,7 +342,7 @@ public:
     typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>
               >
-  explicit
+  constexpr 
   datetime(year y, day_of_year d, hours hr, minutes mn, T sec) noexcept
     : m_mjd{ydoy2mjd(y, d)},
       m_sec{hr, mn, S(sec)}
@@ -339,7 +351,7 @@ public:
   }
 
   /// Constructor from year, month, day of month and fractional seconds.
-  explicit
+  constexpr 
   datetime(year y, month m, day_of_month d, hours hr, minutes mn, double fsecs)
   noexcept
     : m_mjd{cal2mjd(y, m, d)},
@@ -349,7 +361,7 @@ public:
   }
     
   /// Constructor from year, day of year and fractional seconds.
-  explicit
+  constexpr
   datetime(year y, day_of_year d, hours hr, minutes mn, double fsecs) noexcept
     : m_mjd{ydoy2mjd(y, d)},
       m_sec{hr, mn, fsecs}
@@ -359,7 +371,7 @@ public:
     
   /// Constructor from year, month, day of month, hours, minutes and
   /// second type S.
-  explicit
+  constexpr
   datetime(year y, month m, day_of_month d, hours hr=hours(),
            minutes mn=minutes(), S sec=S()) noexcept
     : m_mjd{cal2mjd(y, m, d)},
@@ -370,7 +382,7 @@ public:
     
   /// Constructor from year, day of year, hours, minutes and
   /// second type S.
-  explicit
+  constexpr
   datetime(year y, day_of_year d, hours hr=hours(), 
            minutes mn=minutes(), S sec=S()) noexcept
     : m_mjd{ydoy2mjd(y, d)},
@@ -381,7 +393,7 @@ public:
     
   /// Constructor from modified julian day, hours, minutes and 
   /// second type S.
-  explicit
+  constexpr
   datetime(modified_julian_day mjd, hours hr=hours(), minutes mn=minutes(),
            S sec=S()) noexcept
     : m_mjd{mjd},
@@ -391,7 +403,7 @@ public:
   }
     
   /// Constructor from modified julian day, and second type S.
-  explicit
+  constexpr
   datetime(modified_julian_day mjd, S sec=S()) noexcept
     : m_mjd{mjd},
       m_sec{sec}
@@ -400,7 +412,7 @@ public:
   }
 
   /// Constructor from GPS Week and Seconds of Week
-  explicit
+  constexpr 
   datetime(gps_week w, S sow) noexcept
     : m_mjd{w.as_underlying_type()*7
            +sow.as_underlying_type()/S::max_in_day
@@ -417,7 +429,7 @@ public:
   
   /// Get the number of *seconds (as type S) of the instance.
   /// @return The number of *seconds (as type S) of the instance.
-  S
+  constexpr S
   sec() const noexcept
   { return m_sec; }
     
@@ -587,7 +599,7 @@ public:
   template<class T,
     typename = std::enable_if_t<T::is_of_sec_type>
     >
-  inline datetime<T>
+  inline constexpr datetime<T>
   cast_to() const noexcept
   {
     T nsec = ngpt::cast_to<S,T>(this->sec());

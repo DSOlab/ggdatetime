@@ -25,7 +25,6 @@
 #include <tuple>
 #include <cstring>
 #include <string>
-
 #ifdef DEBUG
 # include <iostream>
 #endif
@@ -83,6 +82,9 @@ class  microseconds;
 class  nanoseconds;
 
 /// @brief Calendar date to Modified Julian Day.
+/// Given a calendar date (i.e. year, month and day of month), compute the 
+/// corresponding Modified Julian Day. The input date is checked and an 
+/// exception is thrown if it is invalid.
 ///
 /// @param[in] iy The year (int).
 /// @param[in] im The month (int).
@@ -90,14 +92,40 @@ class  nanoseconds;
 /// @return    The Modified Julian Date (as long).
 /// @throw     A runtime_error if the month and/or day is invalid.
 ///
-/// @note There is another version of this function, that is way more type-safe
-///       Whenever possible, use that one instead of this.
+/// @note The algorithm used is valid from -4800 March 1
+///       Declared and defined here cause its constexpr.
 ///
 /// @see ngpt::cal2mjd
 ///
 /// Reference: iauCal2jd
 constexpr long
-cal2mjd(int iy, int im, int id);
+cal2mjd(int iy, int im, int id) {
+  // Month lengths in days
+  constexpr int mtab[] =  {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+  // Validate month
+  if ( im < 1 || im > 12 ) {
+    // throw in runtime, fail to compile at compile-time
+    throw std::out_of_range("ngpt::cal2mjd -> Invalid Month.");
+  }
+
+  // If February in a leap year, 1, otherwise 0
+  int ly = ((im == 2) && !(iy%4) && (iy%100 || !(iy%400)));
+
+  // Validate day, taking into account leap years
+  if ( (id < 1) || (id > (mtab[im-1] + ly))) {
+    throw std::out_of_range("ngpt::cal2mjd -> Invalid Day of Month.");
+  }
+
+  // Compute mjd
+  int  my    { (im-14) / 12 };
+  long iypmy { static_cast<long>(iy + my) };
+
+  return  (1461L * (iypmy + 4800L)) / 4L
+          + (367L * static_cast<long>(im - 2 - 12 * my)) / 12L
+          - (3L * ((iypmy + 4900L) / 100L)) / 4L
+          + static_cast<long>(id) - 2432076L;
+}
 
 /// @brief Check if year is leap.
 ///
@@ -106,7 +134,7 @@ cal2mjd(int iy, int im, int id);
 ///
 /// @throw Does not throw.
 ///
-inline constexpr bool
+constexpr bool
 is_leap(int iy) noexcept
 { 
   return !(iy%4) && (iy%100 || !(iy%400));
@@ -121,13 +149,20 @@ is_leap(int iy) noexcept
 /// 
 /// @throw       This function will throw if ngpt::cal2mjd throws, i.e. if
 ///              the input date is invalid.
-///
-modified_julian_day
+/*
+constexpr modified_julian_day
 cal2mjd(year, month, day_of_month);
+*/
 
-/// Convert a pair of Year, Day of year toMJDay.
-modified_julian_day
-ydoy2mjd(year, day_of_year) noexcept;
+/// Convert a pair of Year, Day of year to MJDay.
+/// Convert a pair of year, day_of_year to a modified_julian_day. No check is
+/// performed whatsoever, at the input arguments (e.g. to see if indeed 
+/// the given doy is within a valid range).
+constexpr long
+ydoy2mjd(long iyr, long idoy) noexcept {
+  return ((iyr-1901)/4)*1461 + ((iyr-1901)%4)*365 +
+    idoy - 1 + ngpt::jan11901;
+}
 
 /// @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
 ///
@@ -161,6 +196,23 @@ dat(year iy, month im) noexcept;
 /// @see ngpt::dat
 int
 dat(modified_julian_day mjd) noexcept;
+
+constexpr void mjd2ymd(long mjd, int& iyear, int& imonth, int& idom) noexcept {
+  // Express day in Gregorian calendar
+  long l = mjd + (68569L + 2400000L + 1);
+  long n = (4L * l) / 146097L;
+  l -= (146097L * n + 3L) / 4L;
+  long i = (4000L * (l + 1L)) / 1461001L;
+  l -= (1461L * i) / 4L - 31L;
+  long k = (80L * l) / 2447L;
+
+  idom = l - (2447L * k) / 80L;
+  l = k / 11L;
+  imonth = k + 2L - 12L * l;
+  iyear  =  100L * (n - 49L) + i + l;
+
+  return;
+}
 
 /// @class year
 /// @brief A wrapper class for years.
@@ -200,7 +252,7 @@ public:
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
   /// @return reference to the instance's member variable (as year::underlying_type)
-  inline constexpr underlying_type
+  constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_year; }
   
@@ -208,7 +260,7 @@ public:
   /// function
   /// @return const reference to the instance's member variable (as 
   ///         year::underlying_type)
-  inline constexpr underlying_type&
+  constexpr underlying_type&
   __member_ref__() noexcept
   { return m_year; }
 
@@ -227,7 +279,7 @@ public:
   template<typename I,
            typename = std::enable_if_t<std::is_integral_v<I>>
            >
-    inline constexpr year&
+    constexpr year&
     operator=(I _intv) noexcept
   {
     __member_ref__() = static_cast<underlying_type>(_intv);
@@ -235,12 +287,12 @@ public:
   }
 
   /// Get the year as year::underlying_type.
-  inline constexpr underlying_type
+  constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_year; }
 
   /// Check if year is leap (aka has 366 --integer-- days instead of 365)
-  inline constexpr bool
+  constexpr bool
   is_leap() const noexcept
   { return ngpt::is_leap(m_year); }
 
@@ -288,13 +340,13 @@ public:
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type
+  constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_month; }
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type&
+  constexpr underlying_type&
   __member_ref__() noexcept
   { return m_month; }
 
@@ -318,7 +370,7 @@ public:
   month(const char* str);
 
   /// Get the month as month::underlying_type
-  inline constexpr underlying_type
+  constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_month; }
 
@@ -345,7 +397,7 @@ public:
   { return long_names[m_month-1]; }
 
   /// Check if the month is within the interval [1,12].
-  inline bool
+  constexpr bool
   is_valid() const noexcept
   { return m_month > 0 && m_month <= 12; }
   
@@ -404,13 +456,13 @@ public:
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type
+  constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_week; }
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type&
+  constexpr underlying_type&
   __member_ref__() noexcept
   { return m_week; }
 
@@ -429,7 +481,7 @@ public:
   template<typename I,
            typename = std::enable_if_t<std::is_integral_v<I>>
            >
-    inline constexpr gps_week&
+    constexpr gps_week&
     operator=(I _intv) noexcept
   {
     __member_ref__() = static_cast<underlying_type>(_intv);
@@ -437,12 +489,12 @@ public:
   }
 
   /// Get the month as month::underlying_type
-  inline constexpr underlying_type
+  constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_week; }
 
   /// Check if the instance is valid, aka if the week is the range [0,+Inf)
-  inline bool
+  constexpr bool
   is_valid() const noexcept
   { return m_week>=0; }
   
@@ -480,13 +532,13 @@ public:
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type
+  constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_dom; }
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type&
+  constexpr underlying_type&
   __member_ref__() noexcept
   { return m_dom; }
     
@@ -503,7 +555,7 @@ public:
   template<typename I,
            typename = std::enable_if_t<std::is_integral_v<I>>
            >
-    inline constexpr day_of_month&
+    constexpr day_of_month&
     operator=(I _intv) noexcept
   {
     __member_ref__() = static_cast<underlying_type>(_intv);
@@ -511,18 +563,35 @@ public:
   }
   
   /// Get the day_of_month as day_of_month::underlying_type
-  inline constexpr underlying_type
+  constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_dom; }
 
   /// Check if a given instance is valid.
-  ///
+  /// Validate a given day_of_month. To do this, we obviously need the month the
+  /// dom refers to (to see how many day the month actualy has) and the year, to
+  /// check if it is leap or not.
   /// @param[in] y  The year the dom referes to (will check for leap)
   /// @param[in] m  The month the dom refers to; range [1,12]
   /// @return       If the dom is valid (considering the year and month) true
   ///               is returned; else, the function will return false.
-  bool
-  is_valid(ngpt::year y, ngpt::month m) const noexcept;
+  constexpr bool
+  is_valid(ngpt::year y, ngpt::month m) const noexcept {
+    if (m_dom <=0 || m_dom >= 32) return false;
+    if (!m.is_valid()) return false;
+
+    auto iy = y.as_underlying_type();
+    auto im = m.as_underlying_type();
+
+    // Month lengths in days
+    constexpr int mtab[] =  {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+    // If February in a leap year, 1, otherwise 0
+    int ly ( (im == 2) && is_leap(iy) );
+
+    // Validate day, taking into account leap years
+    return (m_dom <= mtab[im-1] + ly);
+  }
   
 private:
   /// The day of month as underlying_type.
@@ -557,13 +626,13 @@ public:
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type
+  constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_doy; }
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type&
+  constexpr underlying_type&
   __member_ref__() noexcept
   { return m_doy; }
     
@@ -585,14 +654,14 @@ public:
   }
   
   /// Cast to underlying type
-  inline constexpr underlying_type
+  constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_doy; }
 
   /// Check validity (doy must belong to a year to check this)
   /// A day of yeay is valid if it is in the range [0,365] or [0,366] for
   /// leap years.
-  inline constexpr bool
+  constexpr bool
   is_valid(year y) const noexcept
   { return m_doy > 0 && m_doy < (365 + y.is_leap() + 1); }
 
@@ -600,6 +669,42 @@ private:
   /// The day_of_year as day_of_year::underlying_type.
   underlying_type m_doy;   
 }; // class day_of_year
+
+/// @struct ymd_date
+/// @brief This struct represent a date in Year-Month-Day of Month format. 
+///
+/// This struct is only designed to ease the input/output parameters to various
+/// functions. Users can actually construct any date, even non-valid ones
+/// (e.g. set month to 0). The constructor will not check the input parameters.
+/// If users want to check the instance for validity, then they should use the
+/// ymd_date::is_valid function.
+struct ymd_date
+{
+  /// @brief ymd_date constructor; can have any number of arguments from 0 to 3.
+  /// No check for validity will be performed. If you want to check the
+  /// validity of the created instance, use ymd_date::is_valid
+  constexpr
+  ymd_date(year y=year{}, month m=month{}, day_of_month d=day_of_month{})
+  noexcept
+    : __year(y),
+      __month(m),
+      __dom(d)
+  {}
+
+  /// @brief Check if the date is a valid calendar date
+  /// @return True if the date is valid, false otherwise.
+  constexpr bool
+  is_valid() const noexcept
+  { return __dom.is_valid(__year, __month); }
+
+  /// @brief Transform to year and day-of-year
+  constexpr ydoy_date
+  to_ydoy() const noexcept;
+
+  year         __year;     ///< the year
+  month        __month;    ///< the month
+  day_of_month __dom;      ///< day of month
+};// ymd_date
 
 /// @class modified_julian_day
 /// @brief A wrapper class for Modified Julian Day.
@@ -640,13 +745,13 @@ public:
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type
+  constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_mjd; }
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type&
+  constexpr underlying_type&
   __member_ref__() noexcept
   { return m_mjd; }
 
@@ -674,9 +779,9 @@ public:
   /// @param[in] id The day of year.
   ///
   /// @see "Remondi Date/Time Algorithms", http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
-  explicit
+  constexpr
   modified_julian_day(year iy, day_of_year id) noexcept
-    : m_mjd{ ydoy2mjd(iy, id).as_underlying_type() }
+    : m_mjd{ ydoy2mjd(iy.as_underlying_type(), id.as_underlying_type()) }
   {};
 
   /// @brief Constructor from  calendar date
@@ -686,9 +791,11 @@ public:
   /// @param[in] d The day of month
   ///
   /// @see "Remondi Date/Time Algorithms", http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
-  explicit
+  constexpr 
   modified_julian_day(year y, month m, day_of_month d)
-    : m_mjd{ cal2mjd(y, m, d).as_underlying_type() }
+    : m_mjd{ cal2mjd(y.as_underlying_type(), 
+              m.as_underlying_type(), 
+              d.as_underlying_type()) }
   {};
   
   /// Overload operator '=' where the the right-hand-side is any integral type.
@@ -698,7 +805,7 @@ public:
   template<typename I,
            typename = std::enable_if_t<std::is_integral_v<I>>
            >
-    inline constexpr modified_julian_day&
+    constexpr modified_julian_day&
     operator=(I _intv) noexcept
   {
     __member_ref__() = static_cast<underlying_type>(_intv);
@@ -706,12 +813,12 @@ public:
   }
     
   /// Get the modified_julian_day as modified_julian_day::underlying_type
-  inline constexpr underlying_type
+  constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_mjd; }
     
   /// Operator - (subtraction) between two modified_julian_day instances
-  inline constexpr modified_julian_day
+  constexpr modified_julian_day
   operator-(modified_julian_day mjd) const noexcept
   {
     return modified_julian_day {m_mjd-mjd.m_mjd};
@@ -735,11 +842,11 @@ public:
   template<typename I,
            typename = std::enable_if_t<std::is_integral_v<I>>
            >
-  inline constexpr modified_julian_day
+  constexpr modified_julian_day
   operator-(I _intv) const noexcept = delete;
     
   /// Operator + (addition) between two modified_julian_day instances
-  inline constexpr modified_julian_day
+  constexpr modified_julian_day
   operator+(modified_julian_day mjd) const noexcept
   {
     return modified_julian_day {m_mjd+mjd.m_mjd};
@@ -763,14 +870,14 @@ public:
   template<typename I,
            typename = std::enable_if_t<std::is_integral_v<I>>
            >
-  inline constexpr modified_julian_day
+  constexpr modified_julian_day
   operator+(I _intv) const noexcept = delete;
 
   /// Transform to Julian Day
   /// The Julian Day is returned as a double; computed by the formula:
   /// MJD = JD − 2400000.5
   /// see https://en.wikipedia.org/wiki/Julian_day
-  inline double
+  constexpr double
   to_julian_day() const noexcept
   {
     return static_cast<double>(m_mjd) + mjd0_jd;
@@ -786,7 +893,7 @@ public:
   ///
   /// @see    "Remondi Date/Time Algorithms",
   ///          http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
-  ydoy_date
+  constexpr ydoy_date
   to_ydoy() const noexcept;
     
   /// @brief Convert a Modified Julian Day to Calendar Date.
@@ -802,50 +909,19 @@ public:
   ///          http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
   /// @todo change return type
   // std::tuple<year, month, day_of_month>
-  ymd_date
-  to_ymd() const noexcept;
+  constexpr ymd_date
+  to_ymd() const noexcept {
+    ymd_date ymd;
+    mjd2ymd(m_mjd, ymd.__year.__member_ref__(), ymd.__month.__member_ref__(), 
+      ymd.__dom.__member_ref__());
+    return ymd;
+}
     
 private:
   /// The modified julian day as underlying type.
   underlying_type m_mjd;
 
 }; // class modified_julian_day
-
-/// @struct ymd_date
-/// @brief This struct represent a date in Year-Month-Day of Month format. 
-///
-/// This struct is only designed to ease the input/output parameters to various
-/// functions. Users can actually construct any date, even non-valid ones
-/// (e.g. set month to 0). The constructor will not check the input parameters.
-/// If users want to check the instance for validity, then they should use the
-/// ymd_date::is_valid function.
-struct ymd_date
-{
-  /// @brief ymd_date constructor; can have any number of arguments from 0 to 3.
-  /// No check for validity will be performed. If you want to check the
-  /// validity of the created instance, use ymd_date::is_valid
-  explicit constexpr
-  ymd_date(year y=year{}, month m=month{}, day_of_month d=day_of_month{})
-  noexcept
-    : __year(y),
-      __month(m),
-      __dom(d)
-  {}
-
-  /// @brief Check if the date is a valid calendar date
-  /// @return True if the date is valid, false otherwise.
-  bool
-  is_valid() const noexcept
-  { return __dom.is_valid(__year, __month); }
-
-  /// @brief Transform to year and day-of-year
-  ydoy_date
-  to_ydoy() const noexcept;
-
-  year         __year;     ///< the year
-  month        __month;    ///< the month
-  day_of_month __dom;      ///< day of month
-};// ymd_date
 
 /// @struct ydoy_date
 /// @brief This struct represent a date in Year-Day of Year format. 
@@ -860,7 +936,7 @@ struct ydoy_date
   /// @brief ymd_date constructor; can have any number of arguments from 0 to 2.
   /// No check for validity will be performed. If you want to check the
   /// validity of the created instance, use ymd_date::is_valid
-  explicit constexpr
+  constexpr
   ydoy_date(year y=year{}, day_of_year d=day_of_year{})
   noexcept
     : __year(y),
@@ -869,12 +945,12 @@ struct ydoy_date
 
   /// @brief Check if the date is a valid calendar date
   /// @return True if the date is valid, false otherwise.
-  bool
+  constexpr bool
   is_valid() const noexcept
   { return __doy.is_valid(__year); }
   
   /// @brief Transform to year, month, day-of-month
-  ymd_date
+  constexpr ymd_date
   to_ymd() const noexcept;
 
   year        __year;     ///< the year
@@ -912,13 +988,13 @@ public:
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type
+  constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_hours; }
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type&
+  constexpr underlying_type&
   __member_ref__() noexcept
   { return m_hours; }
     
@@ -944,7 +1020,7 @@ public:
   }
     
   /// Get the hours as hours::underlying_type
-  inline constexpr underlying_type
+  constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_hours; }
 
@@ -1003,13 +1079,13 @@ public:
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type
+  constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_min; }
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type&
+  constexpr underlying_type&
   __member_ref__() noexcept
   { return m_min; }
     
@@ -1035,7 +1111,7 @@ public:
   }
 
   /// Get the minutes as minutes::underlying_type
-  inline constexpr underlying_type
+  constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_min; }
     
@@ -1104,13 +1180,13 @@ public:
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type
+  constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_sec; }
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type&
+  constexpr underlying_type&
   __member_ref__() noexcept
   { return m_sec; }
   
@@ -1172,7 +1248,7 @@ public:
   }
   
   /// Overload - operator (subtraction).
-  inline constexpr seconds
+  constexpr seconds
   operator-(const seconds& n) const noexcept
   { 
 #ifdef USE_DATETIME_CHECKS
@@ -1182,17 +1258,17 @@ public:
   }
 
   /// Overload + operator (addition).
-  inline constexpr seconds
+  constexpr seconds
   operator+(const seconds& sec) const noexcept
   { return seconds{m_sec + sec.m_sec}; }
 
   /// Do the secods sum up to more than one day?
-  inline constexpr bool
+  constexpr bool
   more_than_day() const noexcept
   { return m_sec > max_in_day; }
   
   /// Get the seconds as seconds::underlying_type .
-  inline constexpr underlying_type
+  constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_sec; }
   
@@ -1223,7 +1299,7 @@ public:
   ///
   /// @warning Negative seconds are not handled.
   ///
-  inline constexpr int
+  constexpr int
   to_days() const noexcept
   {
 #ifdef USE_DATETIME_CHECKS
@@ -1242,7 +1318,7 @@ public:
   }
     
   /// Cast to double (i.e. fractional seconds).
-  inline constexpr double
+  constexpr double
   to_fractional_seconds() const noexcept
   { return static_cast<double>(m_sec); }
 
@@ -1315,13 +1391,13 @@ public:
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type
+  constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_sec; }
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type&
+  constexpr underlying_type&
   __member_ref__() noexcept
   { return m_sec; }
   
@@ -1384,29 +1460,29 @@ public:
   
   /// @brief Cast to ngpt::seconds.
   /// Milliseconds can be cast to seconds (with a loss of precission).
-  inline constexpr explicit
+  constexpr explicit
   operator seconds() const noexcept
   { 
     return seconds {m_sec / sec_factor<underlying_type>()};
   }
   
   /// Addition operator.
-  inline constexpr milliseconds
+  constexpr milliseconds
   operator+(const milliseconds& sec) const noexcept
   { return milliseconds{m_sec+sec.m_sec}; }
   
   /// Subtraction operator.
-  inline constexpr milliseconds
+  constexpr milliseconds
   operator-(const milliseconds& n) const noexcept
   { return milliseconds{m_sec - n.m_sec}; }
   
   /// Do the milliseconds sum up to more than one day ?
-  inline constexpr bool
+  constexpr bool
   more_than_day() const noexcept
   { return m_sec>max_in_day; }
   
   /// Get the milliseconds as milliseconds::underlying_type.
-  inline constexpr underlying_type
+  constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_sec; }
     
@@ -1437,21 +1513,21 @@ public:
   /// @note   The number of days returned can be negative (!!), if the seconds
   ///         are negative (i.e. if m_sec = -86400, -1 will be returned).
   ///
-  inline constexpr int
+  constexpr int
   to_days() const noexcept
   {
     return int{static_cast<int>(m_sec/max_in_day)};
   }
     
   /// Cast to fractional days.
-  inline constexpr double
+  constexpr double
   fractional_days() const noexcept
   {
     return static_cast<double>(m_sec)/static_cast<double>(max_in_day);
   }
     
   /// Cast to fractional ngpt::seconds
-  inline constexpr double
+  constexpr double
   to_fractional_seconds() const noexcept
   { return static_cast<double>(m_sec)*1.0e-3; }
     
@@ -1554,13 +1630,13 @@ public:
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type
+  constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_sec; }
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type&
+  constexpr underlying_type&
   __member_ref__() noexcept
   { return m_sec; }
   
@@ -1619,32 +1695,32 @@ public:
   }
     
   /// Microseconds can be cast to milliseconds will a loss of accuracy.
-  inline constexpr explicit
+  constexpr explicit
   operator milliseconds() const
   { return milliseconds(m_sec / 1000L); }
   
   /// Microseconds can be cast to seconds will a loss of accuracy.
-  inline constexpr explicit
+  constexpr explicit
   operator seconds() const
   { return seconds(m_sec / sec_factor<underlying_type>()); }
   
   /// Addition between microseconds.
-  inline constexpr microseconds
+  constexpr microseconds
   operator+(const microseconds& sec) const noexcept
   { return microseconds{m_sec+sec.m_sec}; }
 
   /// Subtraction between microseconds.
-  inline constexpr microseconds
+  constexpr microseconds
   operator-(const microseconds& n) const noexcept
   { return microseconds{m_sec-n.m_sec}; }
   
   /// Do the microseconds sum up to more than one day?
-  inline constexpr bool
+  constexpr bool
   more_than_day() const noexcept
   { return m_sec>max_in_day; }
   
   /// Cast to microseconds::underlying_type.
-  inline constexpr underlying_type
+  constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_sec; }
     
@@ -1680,19 +1756,19 @@ public:
   /// @note   The number of days returned can be negative (!!), if the seconds
   ///         are negative (i.e. if m_sec = -86400, -1 will be returned).
   ///
-  inline constexpr int
+  constexpr int
   to_days() const noexcept
   { return static_cast<int>(m_sec/max_in_day); }
   
   /// Cast to fractional days.
-  inline constexpr double
+  constexpr double
   fractional_days() const noexcept
   {
     return static_cast<double>(m_sec) / static_cast<double>(max_in_day);
   }
     
   /// Cast to fractional seconds
-  inline constexpr double
+  constexpr double
   to_fractional_seconds() const noexcept
   { return static_cast<double>(m_sec) * 1.0e-6; }
     
@@ -1767,13 +1843,13 @@ public:
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type
+  constexpr underlying_type
   __member_const_ref__() const noexcept
   { return m_sec; }
   
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
-  inline constexpr underlying_type&
+  constexpr underlying_type&
   __member_ref__() noexcept
   { return m_sec; }
   
@@ -1832,37 +1908,37 @@ public:
   }
 
   /// Nanoseconds can be cast to microseconds will a loss of accuracy.
-  inline constexpr explicit
+  constexpr explicit
   operator microseconds() const
   { return microseconds(m_sec / 1000L); }
     
   /// Nanoseconds can be cast to milliseconds will a loss of accuracy.
-  inline constexpr explicit
+  constexpr explicit
   operator milliseconds() const
   { return milliseconds(m_sec / 1000000L); }
   
   /// Microseconds can be cast to seconds will a loss of accuracy.
-  inline constexpr explicit
+  constexpr explicit
   operator seconds() const
   { return seconds(m_sec / sec_factor<underlying_type>()); }
   
   /// Addition between nanoseconds.
-  inline constexpr nanoseconds
+  constexpr nanoseconds
   operator+(const nanoseconds& sec) const noexcept
   { return nanoseconds{m_sec+sec.m_sec}; }
 
   /// Subtraction between nanoseconds.
-  inline constexpr nanoseconds
+  constexpr nanoseconds
   operator-(const nanoseconds& n) const noexcept
   { return nanoseconds{m_sec-n.m_sec}; }
   
   /// Do the nanoseconds sum up to more than one day?
-  inline constexpr bool
+  constexpr bool
   more_than_day() const noexcept
   { return m_sec>max_in_day; }
   
   /// Cast to nanoseconds::underlying_type.
-  inline constexpr underlying_type
+  constexpr underlying_type
   as_underlying_type() const noexcept
   { return m_sec; }
     
@@ -1898,19 +1974,19 @@ public:
   /// @note   The number of days returned can be negative (!!), if the seconds
   ///         are negative (i.e. if m_sec = -86400, -1 will be returned).
   ///
-  inline constexpr int
+  constexpr int
   to_days() const noexcept
   { return static_cast<int>(m_sec/max_in_day); }
   
   /// Cast to fractional days.
-  inline constexpr double
+  constexpr double
   fractional_days() const noexcept
   {
     return static_cast<double>(m_sec) / static_cast<double>(max_in_day);
   }
     
   /// Cast to fractional seconds
-  inline constexpr double
+  constexpr double
   to_fractional_seconds() const noexcept
   { return static_cast<double>(m_sec) * 1.0e-9; }
     
@@ -2060,7 +2136,7 @@ template<typename DType,
          typename = std::enable_if_t<std::is_member_function_pointer
                   <decltype(&DType::__member_const_ref__)>::value>
          >
-  inline constexpr bool
+  constexpr bool
   operator<=(DType a, DType b) noexcept
 {
   return a.__member_const_ref__() <= b.__member_const_ref__();
@@ -2083,7 +2159,7 @@ template<typename DType,
                   <decltype(&DType::__member_ref__)>::value>,
          typename = std::enable_if_t<std::is_integral_v<I>>
          >
-  inline constexpr DType&
+  constexpr DType&
   operator+=(DType& _a, I _intv) noexcept
 {
   _a.__member_ref__() += _intv;
@@ -2105,7 +2181,7 @@ template<typename DType,
          typename = std::enable_if_t<std::is_member_function_pointer
                   <decltype(&DType::__member_ref__)>::value>
          >
-  inline constexpr DType&
+  constexpr DType&
   operator+=(DType& _a, DType _b) noexcept
 {
   _a.__member_ref__() += _b.__member_const_ref__();
@@ -2129,7 +2205,7 @@ template<typename DType,
                   <decltype(&DType::__member_ref__)>::value>,
          typename = std::enable_if_t<std::is_integral_v<I>>
          >
-  inline constexpr DType&
+  constexpr DType&
   operator-=(DType& _a, I _intv) noexcept
 {
   _a.__member_ref__() -= _intv;
@@ -2151,7 +2227,7 @@ template<typename DType,
          typename = std::enable_if_t<std::is_member_function_pointer
                   <decltype(&DType::__member_ref__)>::value>
          >
-  inline constexpr DType&
+  constexpr DType&
   operator-=(DType& _a, DType _b) noexcept
 {
   _a.__member_ref__() -= _b.__member_const_ref__();
@@ -2171,7 +2247,7 @@ template<typename DType,
          typename = std::enable_if_t<std::is_member_function_pointer
                   <decltype(&DType::__member_ref__)>::value>
          >
-  inline constexpr DType&
+  constexpr DType&
   operator++(DType& _a) noexcept
 {
   ++(_a.__member_ref__());
@@ -2191,7 +2267,7 @@ template<typename DType,
          typename = std::enable_if_t<std::is_member_function_pointer
                   <decltype(&DType::__member_ref__)>::value>
          >
-  inline constexpr DType
+  constexpr DType
   operator++(DType& _a, int) noexcept
 {
   auto tmp {_a};
@@ -2212,7 +2288,7 @@ template<typename DType,
          typename = std::enable_if_t<std::is_member_function_pointer
                   <decltype(&DType::__member_ref__)>::value>
          >
-  inline constexpr DType&
+  constexpr DType&
   operator--(DType& _a) noexcept
 {
   --(_a.__member_ref__());
@@ -2232,7 +2308,7 @@ template<typename DType,
          typename = std::enable_if_t<std::is_member_function_pointer
                   <decltype(&DType::__member_ref__)>::value>
          >
-  inline constexpr DType
+  constexpr DType
   operator--(DType& _a, int) noexcept
 {
   auto tmp {_a};
@@ -2277,7 +2353,7 @@ template<typename S,
 template<typename S,
         typename = std::enable_if_t<S::is_of_sec_type>
         >
-  inline S
+  constexpr S
   mjd_sec_diff(modified_julian_day d1, modified_julian_day d2) noexcept
 {
   modified_julian_day d {d1-d2};
@@ -2309,7 +2385,7 @@ template<typename Ssrc,
          typename = std::enable_if_t<Ssrc::is_of_sec_type>,
          typename = std::enable_if_t<Strg::is_of_sec_type>
         >
-  inline Strg
+  constexpr Strg
   cast_to(Ssrc s) noexcept
 {
   // this is tricky! We must first compute the numerator and then the fraction.
