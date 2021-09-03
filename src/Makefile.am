@@ -9,7 +9,7 @@ lib_LTLIBRARIES = libggdatetime.la
 ## ----------------------------------------------------
 ##
 libggdatetime_la_CXXFLAGS = \
-	-std=c++17 \
+	-std=c++20 \
 	-g \
 	-pg \
 	-Wall \

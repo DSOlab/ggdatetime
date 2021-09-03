@@ -1,7 +1,7 @@
 noinst_PROGRAMS = testSecDifTime
 
 MCXXFLAGS = \
-	-std=c++17 \
+	-std=c++20 \
 	-g \
 	-pg \
 	-Wno-unused-variable \

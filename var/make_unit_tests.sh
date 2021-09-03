@@ -73,7 +73,7 @@ echo "+---------------------------------------------------------------------+"
 echo " Compiling (correct) unit tests ..."
 echo "+---------------------------------------------------------------------+"
 for nc in "${unit_tests[@]}" ; do
-  echo "    g++ -std=c++17 -Wall -I${ROOTDIR}/src -L${LNPTH} ${nc} -o ${nc/.cpp/.o} -lggdatetime"
+  echo "    g++ -std=c++20 -Wall -I${ROOTDIR}/src -L${LNPTH} ${nc} -o ${nc/.cpp/.o} -lggdatetime"
   if ! g++ -std=c++17 -Wall -I${ROOTDIR}/src -L${LNPTH} ${nc} -o ${nc/.cpp/.o} \
       -lggdatetime 2>>comp.log; then
     echo "FAILED; stoping with error" 1>&2
@@ -85,7 +85,7 @@ done
 echo " Compiling erronuous unit tests ... (they should fail)"
 echo "+---------------------------------------------------------------------+"
 for nc in "${errornuous_units_tests[@]}" ; do
-  echo -n "    g++ -std=c++17 -Wall -I${ROOTDIR}/src -L${LNPTH} ${nc} -o ${nc/.cpp/.o} -lggdatetime ..."
+  echo -n "    g++ -std=c++20 -Wall -I${ROOTDIR}/src -L${LNPTH} ${nc} -o ${nc/.cpp/.o} -lggdatetime ..."
   if g++ -std=c++17 -Wall -I${ROOTDIR}/src -L${LNPTH} ${nc} -o ${nc/.cpp/.o} \
       -lggdatetime 2>>comp.log ; then
     echo "FAILED; stoping with error" 1>&2
