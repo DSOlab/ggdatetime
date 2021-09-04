@@ -2209,9 +2209,13 @@ constexpr S mjd_sec_diff(modified_julian_day d1,
 ///          seconds. E.g.
 ///          cast_to<seconds, milliseconds>(seconds {1}) // result is 1000
 ///          cast_to<milliseconds, seconds>(milliseconds {1}) // result is 0
+#if __cplusplus >= 202002L
+template<gconcepts::is_sec_dt Ssrc, gconcepts::is_sec_dt Strg> 
+#else
 template <typename Ssrc, typename Strg,
           typename = std::enable_if_t<Ssrc::is_of_sec_type>,
           typename = std::enable_if_t<Strg::is_of_sec_type>>
+#endif
 constexpr Strg cast_to(Ssrc s) noexcept {
   // this is tricky! We must first compute the numerator and then the fraction.
   // why? check this out

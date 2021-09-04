@@ -27,7 +27,7 @@ constexpr static long month_day[2][13] = {
     {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365},
     {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}};
 
-int __lower_strncmp__(const char *str1, const char *str2, std::size_t n = 0) {
+int __lower_strncmp__(const char *str1, const char *str2, std::size_t n = 0) noexcept {
   if (!n)
     n = std::max(std::strlen(str1), std::strlen(str2));
   for (std::size_t i = 0; i < n; i++)
@@ -36,7 +36,6 @@ int __lower_strncmp__(const char *str1, const char *str2, std::size_t n = 0) {
   return 0;
 }
 
-///
 /// Given a c-string (i.e. null-terminating char array), resolve the month.
 /// The c-string can be either a short name (i.e. a 3-character name), e.g.
 /// "Jan", or the whole, normal month name e.g. "January".
@@ -50,7 +49,6 @@ int __lower_strncmp__(const char *str1, const char *str2, std::size_t n = 0) {
 /// and long_names, then an exception is thrown of type: std::invalid_argument
 /// Note that the month will be returned in the "normal" range [1,12],
 /// **not** [0-11].
-///
 ngpt::month::month(const char *str) {
   m_month = 0;
 
@@ -76,10 +74,8 @@ ngpt::month::month(const char *str) {
   }
 }
 
-///
-/// Given a modified_julian_day convert it to a tuple (i.e. a pair) of
-/// year and day_of_year.
-///
+/// Given a modified_julian_day convert it to a year and day_of_year, aka
+/// an instance of ngpt::ydoy_date
 constexpr ngpt::ydoy_date ngpt::modified_julian_day::to_ydoy() const noexcept {
   long days_fr_jan1_1901{m_mjd - ngpt::jan11901};
   long num_four_yrs{days_fr_jan1_1901 / 1461L};
