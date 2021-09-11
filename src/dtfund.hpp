@@ -22,7 +22,9 @@
 #include <limits>
 #include <tuple>
 #include <cstdint>
+#include <stdexcept>
 #ifdef DEBUG
+#include <cstdio>
 #include <iostream>
 #include <iomanip>
 #include <ostream>
@@ -1872,6 +1874,52 @@ namespace gconcepts {
     template <typename DType> concept is_fundamental_and_has_ref = is_fundamental_dt<DType> && has_ref_dt<DType>;
 }// gconcepts
 #endif
+
+/* new part */
+struct t_hmsf {
+  hours _hours;
+  minutes _minutes;
+  seconds _seconds;
+  double _fraction;
+
+#if __cplusplus >= 202002L
+template<gconcepts::is_sec_dt S> 
+#else
+template <typename S,
+          typename = std::enable_if_t<S::is_of_sec_type>>
+#endif
+  constexpr t_hmsf(S sec) noexcept {
+    long fac = S::template sec_factor<long>();
+    typename S::underlying_type fac_36L = fac * 3600L;
+    typename S::underlying_type _sec = sec.as_underlying_type();
+
+    long hr {_sec / fac_36L}; // hours
+    long mn {(_sec % fac_36L) / 60L / fac}; // minutes
+    typename S::underlying_type sc {(_sec - (hr * 3600L + mn * 60L)*fac) / fac };
+    #ifdef DEBUG
+    // this way is a tiny bit slower
+    typename S::underlying_type sc1 { (_sec % (60L*fac)) / fac}; // seconds
+    assert(sc1 != sc);
+    #endif
+    typename S::underlying_type fs {_sec - ((hr * 60L + mn) * 60L + sc)*fac}; // remaining S's
+
+    /*
+    printf("-->debug on hmsf constructor: got seconds: %ld\n", _sec);
+    printf("\thours    : %d\n", (int)hr);
+    printf("\tminutes  : %d\n", (int)mn);
+    printf("\tseconds  : %ld\n", sc);
+    printf("\tfraction : %ld\n", fs);
+    */
+
+    _hours = hours{hr};
+    _minutes = minutes{mn};
+    _seconds = seconds(sc);
+    _fraction = static_cast<double>(fs) / S::template sec_factor<double>();
+    // printf("\tfseconds : %.9f\n", _fraction);
+  }
+};// hmsf
+/* new part */
+
 
 /// Overload bool operator '==' for datetime fundamental types.
 /// This function will be resolved for any type DType, which
