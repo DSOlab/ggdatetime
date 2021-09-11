@@ -923,6 +923,41 @@ public:
     return *this;
   }
 
+  /// @brief Equality operator; right-hand-side can be an instance of hours, or
+  ///        any integral value.
+  ///        Example:
+  ///        ngpt::hours h(10);
+  ///        assert(h == ngpt::hours(10));
+  ///        assert(h == 10);
+  #if __cplusplus >= 202002L
+  template<typename T> requires std::integral<T> || std::same_as<T, hours>
+  #else
+  template <typename T, typename = std::enable_if_t<std::is_integral_v<T> ||
+                                                    std::is_same_v<T, hours>>>
+  #endif
+  constexpr bool operator==(T hr) const noexcept {
+    if constexpr (std::is_same_v<T,hours>)
+      return m_hours == hr.m_hours;
+    else
+      return m_hours == hr;
+  }
+  
+  /// @brief InEquality operator; right-hand-side can be an instance of hours, or
+  ///        any integral value.
+  ///        Example:
+  ///        ngpt::hours h(10);
+  ///        assert(h != ngpt::hours(10));
+  ///        assert(h != 10);
+  #if __cplusplus >= 202002L
+  template<typename T> requires std::integral<T> || std::same_as<T, hours>
+  #else
+  template <typename T, typename = std::enable_if_t<std::is_integral_v<T> ||
+                                                    std::is_same_v<T, hours>>>
+  #endif
+  constexpr bool operator==(T hr) const noexcept {
+    return !(*this == hr);
+  }
+
   /// Get the hours as hours::underlying_type
   constexpr underlying_type as_underlying_type() const noexcept {
     return m_hours;
@@ -999,6 +1034,41 @@ public:
   constexpr minutes &operator=(Int i) noexcept {
     m_min = i;
     return *this;
+  }
+
+  /// @brief Equality operator; right-hand-side can be an instance of minutes,
+  ///        or any integral value.
+  ///        Example:
+  ///        ngpt::minutes m(10);
+  ///        assert(m == ngpt::minutes(10));
+  ///        assert(m == 10);
+  #if __cplusplus >= 202002L
+  template<typename T> requires std::integral<T> || std::same_as<T, minutes>
+  #else
+  template <typename T, typename = std::enable_if_t<std::is_integral_v<T> ||
+                                                    std::is_same_v<T, minutes>>>
+  #endif
+  constexpr bool operator==(T mn) const noexcept {
+    if constexpr (std::is_same_v<T,minutes>)
+      return m_min == mn.m_min;
+    else
+      return m_min == mn.m_min;
+  }
+  
+  /// @brief InEquality operator; right-hand-side can be an instance of minutes,
+  ///        or any integral value.
+  ///        Example:
+  ///        ngpt::minutes m(10);
+  ///        assert(m != ngpt::minutes(10));
+  ///        assert(m != 10);
+  #if __cplusplus >= 202002L
+  template<typename T> requires std::integral<T> || std::same_as<T, minutes>
+  #else
+  template <typename T, typename = std::enable_if_t<std::is_integral_v<T> ||
+                                                    std::is_same_v<T, minutes>>>
+  #endif
+  constexpr bool operator==(T mn) const noexcept {
+    return !(*this == mn);
   }
 
   /// Get the minutes as minutes::underlying_type
@@ -1916,6 +1986,14 @@ template <typename S,
     _seconds = seconds(sc);
     _fraction = static_cast<double>(fs) / S::template sec_factor<double>();
     // printf("\tfseconds : %.9f\n", _fraction);
+  }
+
+  constexpr bool operator==(const t_hmsf& other) const noexcept {
+    return (_hours==other._hours && _minutes == other._minutes && _seconds==other._seconds && _fraction==other._fraction);
+  }
+
+  constexpr bool operator!=(const t_hmsf& other) const noexcept {
+    return !(*this == other);
   }
 };// hmsf
 /* new part */
