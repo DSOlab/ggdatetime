@@ -27,7 +27,8 @@ constexpr static long month_day[2][13] = {
     {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365},
     {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}};
 
-int __lower_strncmp__(const char *str1, const char *str2, std::size_t n = 0) noexcept {
+int __lower_strncmp__(const char *str1, const char *str2,
+                      std::size_t n = 0) noexcept {
   if (!n)
     n = std::max(std::strlen(str1), std::strlen(str2));
   for (std::size_t i = 0; i < n; i++)

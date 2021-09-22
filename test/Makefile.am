@@ -6,7 +6,7 @@ noinst_PROGRAMS = testDatetime \
 		  testSecDif
 
 MCXXFLAGS = \
-	-std=c++17 \
+	-std=c++20 \
 	-g \
 	-pg \
 	-Wno-unused-variable \

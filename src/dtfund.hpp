@@ -18,17 +18,17 @@
 
 #include <cassert>
 #include <cmath>
+#include <cstdint>
 #include <cstdio>
 #include <limits>
-#include <tuple>
-#include <cstdint>
 #include <stdexcept>
+#include <tuple>
 #ifdef DEBUG
 #include <cstdio>
-#include <iostream>
-#include <iomanip>
-#include <ostream>
 #include <cstring>
+#include <iomanip>
+#include <iostream>
+#include <ostream>
 #include <string>
 #endif
 
@@ -36,8 +36,9 @@ namespace ngpt {
 
 #if __cplusplus >= 202002L
 namespace gconcepts {
-    template <typename T> concept arithmetic = std::is_arithmetic_v<T>;
-}// gconcepts
+template <typename T>
+concept arithmetic = std::is_arithmetic_v<T>;
+} // namespace gconcepts
 #endif
 
 /// Check if long is big enough to hold two days in microseconds.
@@ -87,7 +88,7 @@ class seconds;
 class milliseconds;
 class microseconds;
 class nanoseconds;
-  
+
 /// @brief Calendar date to Modified Julian Day.
 /// Given a calendar date (i.e. year, month and day of month), compute the
 /// corresponding Modified Julian Day. The input date is checked and an
@@ -252,15 +253,16 @@ public:
   /// int (aka to allow lines of codes of type: year y = 1901;)
   constexpr year(underlying_type i = 1900) noexcept : m_year(i) {}
 
-  /// Overload operator '=' where the the right-hand-side is any integral type.
-  /// @tparam  I any integral type, aka any type for which
-  ///          std::is_integral_v<I> is true
-  /// @param   _intv Any integral value; set the instance's value equal to this
-  #if __cplusplus >= 202002L
-  template<typename I> requires std::integral<I>
-  #else
+/// Overload operator '=' where the the right-hand-side is any integral type.
+/// @tparam  I any integral type, aka any type for which
+///          std::is_integral_v<I> is true
+/// @param   _intv Any integral value; set the instance's value equal to this
+#if __cplusplus >= 202002L
+  template <typename I>
+  requires std::integral<I>
+#else
   template <typename I, typename = std::enable_if_t<std::is_integral_v<I>>>
-  #endif
+#endif
   constexpr year &operator=(I _intv) noexcept {
     __member_ref__() = static_cast<underlying_type>(_intv);
     return *this;
@@ -432,15 +434,16 @@ public:
   /// gps_week w = 1;
   explicit constexpr gps_week(underlying_type i = 1) noexcept : m_week(i){};
 
-  /// Overload operator '=' where the the right-hand-side is any integral type.
-  /// @tparam  I any integral type, aka any type for which
-  ///          std::is_integral_v<I> is true
-  /// @param   _intv Any integral value; set the instance's value equal to this
-  #if __cplusplus >= 202002L
-  template<typename I> requires std::integral<I>
-  #else
+/// Overload operator '=' where the the right-hand-side is any integral type.
+/// @tparam  I any integral type, aka any type for which
+///          std::is_integral_v<I> is true
+/// @param   _intv Any integral value; set the instance's value equal to this
+#if __cplusplus >= 202002L
+  template <typename I>
+  requires std::integral<I>
+#else
   template <typename I, typename = std::enable_if_t<std::is_integral_v<I>>>
-  #endif
+#endif
   constexpr gps_week &operator=(I _intv) noexcept {
     __member_ref__() = static_cast<underlying_type>(_intv);
     return *this;
@@ -497,15 +500,16 @@ public:
   /// Constructor; default day of month is 1.
   explicit constexpr day_of_month(underlying_type i = 1) noexcept : m_dom(i){};
 
-  /// Overload operator '=' where the the right-hand-side is any integral type.
-  /// @tparam  I any integral type, aka any type for which
-  ///          std::is_integral_v<I> is true
-  /// @param   _intv Any integral value; set the instance's value equal to this
-  #if __cplusplus >= 202002L
-  template<typename I> requires std::integral<I>
-  #else
+/// Overload operator '=' where the the right-hand-side is any integral type.
+/// @tparam  I any integral type, aka any type for which
+///          std::is_integral_v<I> is true
+/// @param   _intv Any integral value; set the instance's value equal to this
+#if __cplusplus >= 202002L
+  template <typename I>
+  requires std::integral<I>
+#else
   template <typename I, typename = std::enable_if_t<std::is_integral_v<I>>>
-  #endif
+#endif
   constexpr day_of_month &operator=(I _intv) noexcept {
     __member_ref__() = static_cast<underlying_type>(_intv);
     return *this;
@@ -585,12 +589,13 @@ public:
   /// Constructor; default day of year is 0.
   explicit constexpr day_of_year(underlying_type i = 0) noexcept : m_doy(i){};
 
-  /// assignment operator from any integral type
-  #if __cplusplus >= 202002L
-  template<typename Int> requires std::integral<Int>
-  #else
+/// assignment operator from any integral type
+#if __cplusplus >= 202002L
+  template <typename Int>
+  requires std::integral<Int>
+#else
   template <typename Int, typename = std::enable_if_t<std::is_integral_v<Int>>>
-  #endif
+#endif
   constexpr day_of_year &operator=(Int i) noexcept {
     m_doy = i;
     return *this;
@@ -725,15 +730,16 @@ public:
       : m_mjd{cal2mjd(y.as_underlying_type(), m.as_underlying_type(),
                       d.as_underlying_type())} {};
 
-  /// Overload operator '=' where the the right-hand-side is any integral type.
-  /// @tparam  I any integral type, aka any type for which
-  ///          std::is_integral_v<I> is true
-  /// @param   _intv Any integral value; set the instance's value equal to this
-  #if __cplusplus >= 202002L
-  template<typename I> requires std::integral<I>
-  #else
+/// Overload operator '=' where the the right-hand-side is any integral type.
+/// @tparam  I any integral type, aka any type for which
+///          std::is_integral_v<I> is true
+/// @param   _intv Any integral value; set the instance's value equal to this
+#if __cplusplus >= 202002L
+  template <typename I>
+  requires std::integral<I>
+#else
   template <typename I, typename = std::enable_if_t<std::is_integral_v<I>>>
-  #endif
+#endif
   constexpr modified_julian_day &operator=(I _intv) noexcept {
     __member_ref__() = static_cast<underlying_type>(_intv);
     return *this;
@@ -750,26 +756,27 @@ public:
     return modified_julian_day{m_mjd - mjd.m_mjd};
   }
 
-  /// Prohibit implicit conversion in operator '-' (subtraction).
-  /// Why have this ? Well, because the constructor is not explicit, and we
-  /// have defined the "modified_julian_day::operator-(modified_julian_day)",
-  /// that enables the expression:
-  /// modified_julian_day dm2 {...};
-  /// dm2 = dm2 - 1;
-  /// modified_julian_day dm21 = dm1 - 1;
-  /// via implicit conversion of the right-hand-side to a modified_julian_day
-  /// instance (from an int/IntegralType). We define this template function
-  /// here, to prohibit this behaviour, aka the implicit conversion when using
-  /// the "-" operator. Now the "-" can only work if the right-hand-side is
-  /// a modified_julian_day instance.
-  ///
-  /// @tparam     I    Any integral type
-  /// @param[in] _intv Any instance of type I
-  #if __cplusplus >= 202002L
-  template<typename I> requires std::integral<I>
-  #else
+/// Prohibit implicit conversion in operator '-' (subtraction).
+/// Why have this ? Well, because the constructor is not explicit, and we
+/// have defined the "modified_julian_day::operator-(modified_julian_day)",
+/// that enables the expression:
+/// modified_julian_day dm2 {...};
+/// dm2 = dm2 - 1;
+/// modified_julian_day dm21 = dm1 - 1;
+/// via implicit conversion of the right-hand-side to a modified_julian_day
+/// instance (from an int/IntegralType). We define this template function
+/// here, to prohibit this behaviour, aka the implicit conversion when using
+/// the "-" operator. Now the "-" can only work if the right-hand-side is
+/// a modified_julian_day instance.
+///
+/// @tparam     I    Any integral type
+/// @param[in] _intv Any instance of type I
+#if __cplusplus >= 202002L
+  template <typename I>
+  requires std::integral<I>
+#else
   template <typename I, typename = std::enable_if_t<std::is_integral_v<I>>>
-  #endif
+#endif
   constexpr modified_julian_day operator-(I _intv) const noexcept = delete;
 
   /// Operator + (addition) between two modified_julian_day instances
@@ -778,26 +785,27 @@ public:
     return modified_julian_day{m_mjd + mjd.m_mjd};
   }
 
-  /// Prohibit implicit conversion in operator '+' (addition).
-  /// Why have this ? Well, because the constructor is not explicit, and we
-  /// have defined the "modified_julian_day::operator+(modified_julian_day)",
-  /// that enables the expression:
-  /// modified_julian_day dm2 {...};
-  /// dm2 = dm2 + 1;
-  /// modified_julian_day dm21 = dm1 + 1;
-  /// via implicit conversion of the right-hand-side to a modified_julian_day
-  /// instance (from an int/IntegralType). We define this template function
-  /// here, to prohibit this behaviour, aka the implicit conversion when using
-  /// the "+" operator. Now the "+" can only work if the right-hand-side is
-  /// a modified_julian_day instance.
-  ///
-  /// @tparam     I    Any integral type
-  /// @param[in] _intv Any instance of type I
-  #if __cplusplus >= 202002L
-  template<typename I> requires std::integral<I>
-  #else
+/// Prohibit implicit conversion in operator '+' (addition).
+/// Why have this ? Well, because the constructor is not explicit, and we
+/// have defined the "modified_julian_day::operator+(modified_julian_day)",
+/// that enables the expression:
+/// modified_julian_day dm2 {...};
+/// dm2 = dm2 + 1;
+/// modified_julian_day dm21 = dm1 + 1;
+/// via implicit conversion of the right-hand-side to a modified_julian_day
+/// instance (from an int/IntegralType). We define this template function
+/// here, to prohibit this behaviour, aka the implicit conversion when using
+/// the "+" operator. Now the "+" can only work if the right-hand-side is
+/// a modified_julian_day instance.
+///
+/// @tparam     I    Any integral type
+/// @param[in] _intv Any instance of type I
+#if __cplusplus >= 202002L
+  template <typename I>
+  requires std::integral<I>
+#else
   template <typename I, typename = std::enable_if_t<std::is_integral_v<I>>>
-  #endif
+#endif
   constexpr modified_julian_day operator+(I _intv) const noexcept = delete;
 
   /// Transform to Julian Day
@@ -910,19 +918,21 @@ public:
   constexpr underlying_type &__member_ref__() noexcept { return m_hours; }
 
   /// Constructor; default hours is 0.
-  explicit constexpr hours(underlying_type i = 0) noexcept : m_hours(i) {};
+  explicit constexpr hours(underlying_type i = 0) noexcept : m_hours(i){};
 
-  /// assignment operator from any integral type
-  #if __cplusplus >= 202002L
-  template<typename Int> requires std::integral<Int>
-  #else
+/// assignment operator from any integral type
+#if __cplusplus >= 202002L
+  template <typename Int>
+  requires std::integral<Int>
+#else
   template <typename Int, typename = std::enable_if_t<std::is_integral_v<Int>>>
-  #endif
+#endif
   constexpr hours &operator=(Int i) noexcept {
     m_hours = i;
     return *this;
   }
 
+  /*
   /// @brief Equality operator; right-hand-side can be an instance of hours, or
   ///        any integral value.
   ///        Example:
@@ -941,8 +951,9 @@ public:
     else
       return m_hours == hr;
   }
-  
-  /// @brief InEquality operator; right-hand-side can be an instance of hours, or
+
+  /// @brief InEquality operator; right-hand-side can be an instance of hours,
+  or
   ///        any integral value.
   ///        Example:
   ///        ngpt::hours h(10);
@@ -957,6 +968,7 @@ public:
   constexpr bool operator==(T hr) const noexcept {
     return !(*this == hr);
   }
+  */
 
   /// Get the hours as hours::underlying_type
   constexpr underlying_type as_underlying_type() const noexcept {
@@ -1022,20 +1034,21 @@ public:
   constexpr underlying_type &__member_ref__() noexcept { return m_min; }
 
   /// Constructor
-  explicit constexpr minutes(underlying_type i = 0) noexcept : m_min(i) {
-  };
+  explicit constexpr minutes(underlying_type i = 0) noexcept : m_min(i){};
 
-  /// assignment operator from any integral type
-  #if __cplusplus >= 202002L
-  template<typename Int> requires std::integral<Int>
-  #else
+/// assignment operator from any integral type
+#if __cplusplus >= 202002L
+  template <typename Int>
+  requires std::integral<Int>
+#else
   template <typename Int, typename = std::enable_if_t<std::is_integral_v<Int>>>
-  #endif
+#endif
   constexpr minutes &operator=(Int i) noexcept {
     m_min = i;
     return *this;
   }
 
+  /*
   /// @brief Equality operator; right-hand-side can be an instance of minutes,
   ///        or any integral value.
   ///        Example:
@@ -1054,7 +1067,7 @@ public:
     else
       return m_min == mn.m_min;
   }
-  
+
   /// @brief InEquality operator; right-hand-side can be an instance of minutes,
   ///        or any integral value.
   ///        Example:
@@ -1070,6 +1083,7 @@ public:
   constexpr bool operator==(T mn) const noexcept {
     return !(*this == mn);
   }
+  */
 
   /// Get the minutes as minutes::underlying_type
   constexpr underlying_type as_underlying_type() const noexcept {
@@ -1158,8 +1172,7 @@ public:
   }
 
   /// Constructor; default seconds is 0.
-  explicit constexpr seconds(underlying_type i = 0) noexcept : m_sec(i) {
-  };
+  explicit constexpr seconds(underlying_type i = 0) noexcept : m_sec(i){};
 
   /// Constructor from hours, minutes, seconds.
   explicit constexpr seconds(hours h, minutes m, seconds c) noexcept
@@ -1172,15 +1185,15 @@ public:
   ///       the fractional part is ommited.
   explicit constexpr seconds(hours h, minutes m, double fs) noexcept
       : m_sec{static_cast<underlying_type>(fs) + m.as_underlying_type() * 60L +
-              h.as_underlying_type() * 3600L} {
-  }
+              h.as_underlying_type() * 3600L} {}
 
-  /// assignment operator from any integral type
-  #if __cplusplus >= 202002L
-  template<typename Int> requires std::integral<Int>
-  #else
+/// assignment operator from any integral type
+#if __cplusplus >= 202002L
+  template <typename Int>
+  requires std::integral<Int>
+#else
   template <typename Int, typename = std::enable_if_t<std::is_integral_v<Int>>>
-  #endif
+#endif
   constexpr seconds &operator=(Int i) noexcept {
     m_sec = i;
     return *this;
@@ -1258,16 +1271,15 @@ public:
   }
 
 private:
-  /// Cast to any arithmetic type.
-  #if __cplusplus >= 202002L
-  template<typename T> requires gconcepts::arithmetic<T>
-  #else
+/// Cast to any arithmetic type.
+#if __cplusplus >= 202002L
+  template <typename T>
+  requires gconcepts::arithmetic<T>
+#else
   template <typename T,
             typename = std::enable_if_t<std::is_arithmetic<T>::value>>
-  #endif
-  constexpr T cast_to() const noexcept {
-    return static_cast<T>(m_sec);
-  }
+#endif
+  constexpr T cast_to() const noexcept { return static_cast<T>(m_sec); }
 
   /// The seconds as underlying type.
   underlying_type m_sec;
@@ -1333,8 +1345,7 @@ public:
   }
 
   /// Constructor; default milliseconds is 0.
-  explicit constexpr milliseconds(underlying_type i = 0L) noexcept : m_sec(i) {
-  };
+  explicit constexpr milliseconds(underlying_type i = 0L) noexcept : m_sec(i){};
 
   /// Constructor from hours, minutes, milliseconds.
   explicit constexpr milliseconds(hours h, minutes m, milliseconds c) noexcept
@@ -1351,15 +1362,15 @@ public:
   explicit constexpr milliseconds(hours h, minutes m, double fs) noexcept
       : m_sec{static_cast<underlying_type>(fs * sec_factor<double>()) +
               (m.as_underlying_type() * 60L + h.as_underlying_type() * 3600L) *
-                  sec_factor<underlying_type>()} {
-  };
+                  sec_factor<underlying_type>()} {};
 
-  /// assignment operator from any integral type
-  #if __cplusplus >= 202002L
-  template<typename Int> requires std::integral<Int>
-  #else
+/// assignment operator from any integral type
+#if __cplusplus >= 202002L
+  template <typename Int>
+  requires std::integral<Int>
+#else
   template <typename Int, typename = std::enable_if_t<std::is_integral_v<Int>>>
-  #endif
+#endif
   constexpr milliseconds &operator=(Int i) noexcept {
     m_sec = i;
     return *this;
@@ -1472,16 +1483,15 @@ public:
   }
 
 private:
-  /// Cast to any arithmetic type.
-  #if __cplusplus >= 202002L
-  template<typename T> requires gconcepts::arithmetic<T>
-  #else
+/// Cast to any arithmetic type.
+#if __cplusplus >= 202002L
+  template <typename T>
+  requires gconcepts::arithmetic<T>
+#else
   template <typename T,
             typename = std::enable_if_t<std::is_arithmetic<T>::value>>
-  #endif
-  constexpr T cast_to() const noexcept {
-    return static_cast<T>(m_sec);
-  }
+#endif
+  constexpr T cast_to() const noexcept { return static_cast<T>(m_sec); }
 
   /// Milliseconds as underlying type.
   underlying_type m_sec;
@@ -1547,8 +1557,7 @@ public:
   }
 
   /// Constructor; default microseconds is 0.
-  explicit constexpr microseconds(underlying_type i = 0L) noexcept : m_sec(i) {
-  };
+  explicit constexpr microseconds(underlying_type i = 0L) noexcept : m_sec(i){};
 
   /// Constructor from hours, minutes, microseconds.
   explicit constexpr microseconds(hours h, minutes m, microseconds c) noexcept
@@ -1566,11 +1575,12 @@ public:
                   sec_factor<underlying_type>()} {};
 
   /// assignment operator from any integral type
-  #if __cplusplus >= 202002L
-  template<typename Int> requires std::integral<Int>
-  #else
+#if __cplusplus >= 202002L
+  template <typename Int>
+  requires std::integral<Int>
+#else
   template <typename Int, typename = std::enable_if_t<std::is_integral_v<Int>>>
-  #endif
+#endif
   constexpr microseconds &operator=(Int i) noexcept {
     m_sec = i;
     return *this;
@@ -1664,16 +1674,15 @@ public:
   }
 
 private:
-  /// Cast to any arithmetic type.
-  #if __cplusplus >= 202002L
-  template<typename T> requires gconcepts::arithmetic<T>
-  #else
+/// Cast to any arithmetic type.
+#if __cplusplus >= 202002L
+  template <typename T>
+  requires gconcepts::arithmetic<T>
+#else
   template <typename T,
             typename = std::enable_if_t<std::is_arithmetic<T>::value>>
-  #endif
-  constexpr T cast_to() const noexcept {
-    return static_cast<T>(m_sec);
-  }
+#endif
+  constexpr T cast_to() const noexcept { return static_cast<T>(m_sec); }
 
   /// Microseconds as long ints.
   underlying_type m_sec;
@@ -1740,8 +1749,7 @@ public:
   }
 
   /// Constructor; default nanoseconds is 0.
-  explicit constexpr nanoseconds(underlying_type i = 0L) noexcept : m_sec(i) {
-  };
+  explicit constexpr nanoseconds(underlying_type i = 0L) noexcept : m_sec(i){};
 
   /// Constructor from hours, minutes, nanoseconds.
   explicit constexpr nanoseconds(hours h, minutes m, nanoseconds c) noexcept
@@ -1758,12 +1766,13 @@ public:
               (m.as_underlying_type() * 60L + h.as_underlying_type() * 3600L) *
                   sec_factor<underlying_type>()} {};
 
-  /// assignment operator from any integral type
-  #if __cplusplus >= 202002L
-  template<typename Int> requires std::integral<Int>
-  #else
+/// assignment operator from any integral type
+#if __cplusplus >= 202002L
+  template <typename Int>
+  requires std::integral<Int>
+#else
   template <typename Int, typename = std::enable_if_t<std::is_integral_v<Int>>>
-  #endif
+#endif
   constexpr nanoseconds &operator=(Int i) noexcept {
     m_sec = i;
     return *this;
@@ -1863,16 +1872,15 @@ public:
   }
 
 private:
-  /// Cast to any arithmetic type.
-  #if __cplusplus >= 202002L
-  template<typename T> requires gconcepts::arithmetic<T>
-  #else
+/// Cast to any arithmetic type.
+#if __cplusplus >= 202002L
+  template <typename T>
+  requires gconcepts::arithmetic<T>
+#else
   template <typename T,
             typename = std::enable_if_t<std::is_arithmetic<T>::value>>
-  #endif
-  constexpr T cast_to() const noexcept {
-    return static_cast<T>(m_sec);
-  }
+#endif
+  constexpr T cast_to() const noexcept { return static_cast<T>(m_sec); }
 
   /// Microseconds as long ints.
   underlying_type m_sec;
@@ -1914,97 +1922,56 @@ template<typename DType,
 
 #if __cplusplus >= 202002L
 namespace gconcepts {
-    /// @brief concept has_const_ref_dt -> Make sure that the class has a 
-    /// member function __member_const_ref__()
-    template <typename DType> concept has_const_ref_dt = requires(DType t) {
-      t.__member_const_ref__();
-    };
-    
-    /// @brief concept has_const_ref_dt -> Make sure that the class has a 
-    /// member function __member_ref__()
-    template <typename DType> concept has_ref_dt = requires(DType t) {
-      t.__member_ref__();
-    };
-    
-    /// @brief concept is_fundamental_dt -> Make sure that the class has a
-    /// static member variable called DType::is_dt_fundamental_type and it is
-    /// set to true
-    template <typename DType> concept is_fundamental_dt = requires(DType) {
-      DType::is_dt_fundamental_type == true;
-    };
-    
-    /// @brief concept is_sec_dt -> Make sure that the class has a
-    /// static member variable called DType::is_of_sec_type and it is
-    /// set to true
-    template <typename DType> concept is_sec_dt = requires(DType) {
-      DType::is_of_sec_type == true;
-    };
+/// @brief concept has_const_ref_dt -> Make sure that the class has a
+/// member function __member_const_ref__()
+template <typename DType>
+concept has_const_ref_dt = requires(DType t) {
+  t.__member_const_ref__();
+};
 
-    template <typename DType> concept is_fundamental_and_has_const_ref = is_fundamental_dt<DType> && has_const_ref_dt<DType>;
-    template <typename DType> concept is_fundamental_and_has_ref = is_fundamental_dt<DType> && has_ref_dt<DType>;
-}// gconcepts
+/// @brief concept has_const_ref_dt -> Make sure that the class has a
+/// member function __member_ref__()
+template <typename DType>
+concept has_ref_dt = requires(DType t) {
+  t.__member_ref__();
+};
+
+/// @brief concept is_fundamental_dt -> Make sure that the class has a
+/// static member variable called DType::is_dt_fundamental_type and it is
+/// set to true
+template <typename DType>
+concept is_fundamental_dt = requires(DType) {
+  DType::is_dt_fundamental_type == true;
+};
+
+/// @brief concept is_sec_dt -> Make sure that the class has a
+/// static member variable called DType::is_of_sec_type and it is
+/// set to true
+template <typename DType>
+concept is_sec_dt = requires(DType) {
+  DType::is_of_sec_type == true;
+};
+
+template <typename DType>
+concept is_fundamental_and_has_const_ref =
+    is_fundamental_dt<DType> && has_const_ref_dt<DType>;
+
+template <typename DType>
+concept is_fundamental_and_has_ref =
+    is_fundamental_dt<DType> && has_ref_dt<DType>;
+} // namespace gconcepts
 #endif
 
-/* new part */
-struct t_hmsf {
-  hours _hours;
-  minutes _minutes;
-  seconds _seconds;
-  double _fraction;
-
-#if __cplusplus >= 202002L
-template<gconcepts::is_sec_dt S> 
-#else
-template <typename S,
-          typename = std::enable_if_t<S::is_of_sec_type>>
-#endif
-  constexpr t_hmsf(S sec) noexcept {
-    long fac = S::template sec_factor<long>();
-    typename S::underlying_type fac_36L = fac * 3600L;
-    typename S::underlying_type _sec = sec.as_underlying_type();
-
-    long hr {_sec / fac_36L}; // hours
-    long mn {(_sec % fac_36L) / 60L / fac}; // minutes
-    typename S::underlying_type sc {(_sec - (hr * 3600L + mn * 60L)*fac) / fac };
-    #ifdef DEBUG
-    // this way is a tiny bit slower
-    typename S::underlying_type sc1 { (_sec % (60L*fac)) / fac}; // seconds
-    assert(sc1 != sc);
-    #endif
-    typename S::underlying_type fs {_sec - ((hr * 60L + mn) * 60L + sc)*fac}; // remaining S's
-
-    /*
-    printf("-->debug on hmsf constructor: got seconds: %ld\n", _sec);
-    printf("\thours    : %d\n", (int)hr);
-    printf("\tminutes  : %d\n", (int)mn);
-    printf("\tseconds  : %ld\n", sc);
-    printf("\tfraction : %ld\n", fs);
-    */
-
-    _hours = hours{hr};
-    _minutes = minutes{mn};
-    _seconds = seconds(sc);
-    _fraction = static_cast<double>(fs) / S::template sec_factor<double>();
-    // printf("\tfseconds : %.9f\n", _fraction);
-  }
-
-  constexpr bool operator==(const t_hmsf& other) const noexcept {
-    return (_hours==other._hours && _minutes == other._minutes && _seconds==other._seconds && _fraction==other._fraction);
-  }
-
-  constexpr bool operator!=(const t_hmsf& other) const noexcept {
-    return !(*this == other);
-  }
-};// hmsf
-/* new part */
 
 
 /// Overload bool operator '==' for datetime fundamental types.
 /// This function will be resolved for any type DType, which
 /// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
 /// 2. has a member function named DType::__member_const_ref__()
+/// @note that this function only allows comparisson when both right/left sides
+///       of the expression satisfly (1) and (2)
 #if __cplusplus >= 202002L
-template<gconcepts::is_fundamental_and_has_const_ref DType> 
+template <gconcepts::is_fundamental_and_has_const_ref DType>
 #else
 template <typename DType,
           typename = std::enable_if_t<DType::is_dt_fundamental_type>,
@@ -2015,12 +1982,37 @@ constexpr bool operator==(DType a, DType b) noexcept {
   return a.__member_const_ref__() == b.__member_const_ref__();
 }
 
+/// @todo do we want to allow this?
+///
+/// Overload bool operator '==' for comparing datetime fundamental types with
+/// integers, aka
+/// month m(3);
+/// assert(m == 3)
+/// This function will be resolved for any type DType, which
+/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
+/// 2. has a member function named DType::__member_const_ref__()
+/*
+#if __cplusplus >= 202002L
+template <gconcepts::is_fundamental_and_has_const_ref DType, std::integral DInt>
+#else
+template <typename DType,
+          typename DInt,
+          typename = std::enable_if_t<std::is_integral_v<DInt>>,
+          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+          typename = std::enable_if_t<std::is_member_function_pointer<
+              decltype(&DType::__member_const_ref__)>::value>>
+#endif
+          constexpr bool operator==(DType a, DInt b) noexcept {
+  return a.__member_const_ref__() == static_cast<typename DType::underlying_type>(b);
+}
+*/
+
 /// Overload bool operator '!=' for datetime fundamental types.
 /// This function will be resolved for any type DType, which
 /// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
 /// 2. has a member function named DType::__member_const_ref__()
 #if __cplusplus >= 202002L
-template<gconcepts::is_fundamental_and_has_const_ref DType> 
+template <gconcepts::is_fundamental_and_has_const_ref DType>
 #else
 template <typename DType,
           typename = std::enable_if_t<DType::is_dt_fundamental_type>,
@@ -2036,7 +2028,7 @@ constexpr bool operator!=(DType a, DType b) noexcept {
 /// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
 /// 2. has a member function named DType::__member_const_ref__()
 #if __cplusplus >= 202002L
-template<gconcepts::is_fundamental_and_has_const_ref DType> 
+template <gconcepts::is_fundamental_and_has_const_ref DType>
 #else
 template <typename DType,
           typename = std::enable_if_t<DType::is_dt_fundamental_type>,
@@ -2052,7 +2044,7 @@ constexpr bool operator>(DType a, DType b) noexcept {
 /// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
 /// 2. has a member function named DType::__member_const_ref__()
 #if __cplusplus >= 202002L
-template<gconcepts::is_fundamental_and_has_const_ref DType> 
+template <gconcepts::is_fundamental_and_has_const_ref DType>
 #else
 template <typename DType,
           typename = std::enable_if_t<DType::is_dt_fundamental_type>,
@@ -2068,7 +2060,7 @@ constexpr bool operator>=(DType a, DType b) noexcept {
 /// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
 /// 2. has a member function named DType::__member_const_ref__()
 #if __cplusplus >= 202002L
-template<gconcepts::is_fundamental_and_has_const_ref DType> 
+template <gconcepts::is_fundamental_and_has_const_ref DType>
 #else
 template <typename DType,
           typename = std::enable_if_t<DType::is_dt_fundamental_type>,
@@ -2084,7 +2076,7 @@ constexpr bool operator<(DType a, DType b) noexcept {
 /// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
 /// 2. has a member function named DType::__member_const_ref__()
 #if __cplusplus >= 202002L
-template<gconcepts::is_fundamental_and_has_const_ref DType> 
+template <gconcepts::is_fundamental_and_has_const_ref DType>
 #else
 template <typename DType,
           typename = std::enable_if_t<DType::is_dt_fundamental_type>,
@@ -2126,7 +2118,7 @@ constexpr DType &operator+=(DType &_a, I _intv) noexcept {
 /// mjd1 += mjd2;
 /// Now mjd's internal member, will have a value of 155.
 #if __cplusplus >= 202002L
-template<gconcepts::is_fundamental_and_has_ref DType> 
+template <gconcepts::is_fundamental_and_has_ref DType>
 #else
 template <typename DType,
           typename = std::enable_if_t<DType::is_dt_fundamental_type>,
@@ -2169,7 +2161,7 @@ constexpr DType &operator-=(DType &_a, I _intv) noexcept {
 /// mjd1 -= mjd2;
 /// Now mjd's internal member, will have a value of 23.
 #if __cplusplus >= 202002L
-template<gconcepts::is_fundamental_and_has_ref DType> 
+template <gconcepts::is_fundamental_and_has_ref DType>
 #else
 template <typename DType,
           typename = std::enable_if_t<DType::is_dt_fundamental_type>,
@@ -2190,7 +2182,7 @@ constexpr DType &operator-=(DType &_a, DType _b) noexcept {
 /// ++mjd;
 /// Now mjd's internal member, will have a value of 124.
 #if __cplusplus >= 202002L
-template<gconcepts::is_fundamental_and_has_ref DType> 
+template <gconcepts::is_fundamental_and_has_ref DType>
 #else
 template <typename DType,
           typename = std::enable_if_t<DType::is_dt_fundamental_type>,
@@ -2211,7 +2203,7 @@ constexpr DType &operator++(DType &_a) noexcept {
 /// mjd++;
 /// Now mjd's internal member, will have a value of 124.
 #if __cplusplus >= 202002L
-template<gconcepts::is_fundamental_and_has_ref DType> 
+template <gconcepts::is_fundamental_and_has_ref DType>
 #else
 template <typename DType,
           typename = std::enable_if_t<DType::is_dt_fundamental_type>,
@@ -2233,7 +2225,7 @@ constexpr DType operator++(DType &_a, int) noexcept {
 /// --mjd;
 /// Now mjd's internal member, will have a value of 122.
 #if __cplusplus >= 202002L
-template<gconcepts::is_fundamental_and_has_ref DType> 
+template <gconcepts::is_fundamental_and_has_ref DType>
 #else
 template <typename DType,
           typename = std::enable_if_t<DType::is_dt_fundamental_type>,
@@ -2254,7 +2246,7 @@ constexpr DType &operator--(DType &_a) noexcept {
 /// mjd--;
 /// Now mjd's internal member, will have a value of 122.
 #if __cplusplus >= 202002L
-template<gconcepts::is_fundamental_and_has_ref DType> 
+template <gconcepts::is_fundamental_and_has_ref DType>
 #else
 template <typename DType,
           typename = std::enable_if_t<DType::is_dt_fundamental_type>,
@@ -2277,7 +2269,7 @@ constexpr DType operator--(DType &_a, int) noexcept {
 /// @tparam S Any class of second type, i.e. any class S that has a (static)
 ///           member variable S::is_of_sec_type set to true.
 #if __cplusplus >= 202002L
-template<gconcepts::is_sec_dt S> 
+template <gconcepts::is_sec_dt S>
 #else
 template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
@@ -2305,7 +2297,7 @@ constexpr typename S::underlying_type max_days_allowed() {
 ///         difference can only produce a positive amount; hence be sure that
 ///         d1>=d2
 #if __cplusplus >= 202002L
-template<gconcepts::is_sec_dt S> 
+template <gconcepts::is_sec_dt S>
 #else
 template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
@@ -2336,7 +2328,7 @@ constexpr S mjd_sec_diff(modified_julian_day d1,
 ///          cast_to<seconds, milliseconds>(seconds {1}) // result is 1000
 ///          cast_to<milliseconds, seconds>(milliseconds {1}) // result is 0
 #if __cplusplus >= 202002L
-template<gconcepts::is_sec_dt Ssrc, gconcepts::is_sec_dt Strg> 
+template <gconcepts::is_sec_dt Ssrc, gconcepts::is_sec_dt Strg>
 #else
 template <typename Ssrc, typename Strg,
           typename = std::enable_if_t<Ssrc::is_of_sec_type>,
@@ -2351,6 +2343,63 @@ constexpr Strg cast_to(Ssrc s) noexcept {
   auto numerator{s.__member_ref__() * Strg::template sec_factor<long>()};
   return Strg{numerator / Ssrc::template sec_factor<long>()};
 }
+
+/// @class t_hmsf A simple wrapper class to hold time as hours, minutes, seconds
+///        and fractional seconds.
+struct t_hmsf {
+  hours _hours;
+  minutes _minutes;
+  seconds _seconds;
+  double _fraction;
+
+/// @brief Constructor from any type that has S::is_of_sec_type member, aka
+///        any sec-type
+#if __cplusplus >= 202002L
+  template <gconcepts::is_sec_dt S>
+#else
+  template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
+#endif
+  constexpr t_hmsf(S sec) noexcept {
+    long fac = S::template sec_factor<long>();
+    typename S::underlying_type fac_36L = fac * 3600L;
+    typename S::underlying_type _sec = sec.as_underlying_type();
+
+    long hr{_sec / fac_36L};               // hours
+    long mn{(_sec % fac_36L) / 60L / fac}; // minutes
+    typename S::underlying_type sc{(_sec - (hr * 3600L + mn * 60L) * fac) /
+                                   fac};
+#ifdef DEBUG
+    // this way is a tiny bit slower
+    typename S::underlying_type sc1{(_sec % (60L * fac)) / fac}; // seconds
+    assert(sc1 != sc);
+#endif
+    typename S::underlying_type fs{_sec - ((hr * 60L + mn) * 60L + sc) *
+                                              fac}; // remaining S's
+
+    /*
+    printf("-->debug on hmsf constructor: got seconds: %ld\n", _sec);
+    printf("\thours    : %d\n", (int)hr);
+    printf("\tminutes  : %d\n", (int)mn);
+    printf("\tseconds  : %ld\n", sc);
+    printf("\tfraction : %ld\n", fs);
+    */
+
+    _hours = hours{hr};
+    _minutes = minutes{mn};
+    _seconds = seconds(sc);
+    _fraction = static_cast<double>(fs) / S::template sec_factor<double>();
+    // printf("\tfseconds : %.9f\n", _fraction);
+  }
+  
+  constexpr bool operator==(const t_hmsf &other) const noexcept {
+    return (_hours == other._hours && _minutes == other._minutes &&
+            _seconds == other._seconds && _fraction == other._fraction);
+  }
+
+  constexpr bool operator!=(const t_hmsf &other) const noexcept {
+    return !(*this == other);
+  }
+}; // hmsf
 
 /// For user-defined literals, i am going to replace long with
 /// unsigned long long int.

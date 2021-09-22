@@ -71,7 +71,7 @@ constexpr modified_julian_day ydoy2mjd(year y, day_of_year d) noexcept {
 ///          part), call the function datetime_interval::normalize().
 ///
 #if __cplusplus >= 202002L
-template<gconcepts::is_sec_dt S> 
+template <gconcepts::is_sec_dt S>
 #else
 template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
@@ -232,7 +232,7 @@ private:
 /// should
 ///      not be over 1 day). We have to make sure that this is always the case.
 #if __cplusplus >= 202002L
-template<gconcepts::is_sec_dt S> 
+template <gconcepts::is_sec_dt S>
 #else
 template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
@@ -420,7 +420,7 @@ public:
   /// @warning If the input seconds type is of higher resolution than the
   ///          instance, then loss of accuracy may happen.
 #if __cplusplus >= 202002L
-template<gconcepts::is_sec_dt T> 
+  template <gconcepts::is_sec_dt T>
 #else
   template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
@@ -442,7 +442,7 @@ template<gconcepts::is_sec_dt T>
   /// @warning If the input seconds type is of higher resolution than the
   ///          instance, then loss of accuracy may happen.
 #if __cplusplus >= 202002L
-template<gconcepts::is_sec_dt T> 
+  template <gconcepts::is_sec_dt T>
 #else
   template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
@@ -521,7 +521,7 @@ template<gconcepts::is_sec_dt T>
   /// @tparam    T    A 'second type'
   /// @return    The calling object as an instance of type datetime<T>
 #if __cplusplus >= 202002L
-template<gconcepts::is_sec_dt T> 
+  template <gconcepts::is_sec_dt T>
 #else
   template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
@@ -765,7 +765,7 @@ private:
 /// Difference between two dates in MJdays and T.
 /// Diff is dt1 - dt2
 #if __cplusplus >= 202002L
-template<gconcepts::is_sec_dt T> 
+template <gconcepts::is_sec_dt T>
 #else
 template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
@@ -840,7 +840,7 @@ inline S2 delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept {
 /// @param  d2  datetime<S> instance (deifference is d1-d2)
 /// @return     Difference d1-d2 in S
 #if __cplusplus >= 202002L
-template<gconcepts::is_sec_dt S> 
+template <gconcepts::is_sec_dt S>
 #else
 template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
@@ -850,7 +850,7 @@ inline S delta_sec(datetime<S> d1, datetime<S> d2) noexcept {
 
 /// Sec-Millisec-MicroSec of Week to Day of week
 #if __cplusplus >= 202002L
-template<gconcepts::is_sec_dt T> 
+template <gconcepts::is_sec_dt T>
 #else
 template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
@@ -872,7 +872,7 @@ constexpr int day_of_week(T sow) noexcept {
 /// @see IAU SOFA (iau-dat.c)
 /// @see ngpt::dat
 #if __cplusplus >= 202002L
-template<gconcepts::is_sec_dt T> 
+template <gconcepts::is_sec_dt T>
 #else
 template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
