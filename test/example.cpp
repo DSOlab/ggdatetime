@@ -8,7 +8,7 @@
 #include "dtcalendar.hpp"
 #include "dtfund.hpp"
 
-using namespace ngpt;
+using namespace dso;
 
 constexpr long MilliSec = 1000L;
 constexpr long MicroSec = 1000000L;
@@ -50,7 +50,7 @@ int main() {
   std::cout << "Part A -- OK\n\n";
 
   //
-  // Let's try the user defined literals (these need namespace ngpt)
+  // Let's try the user defined literals (these need namespace dso)
   // -----------------------------------------------------------------------
   //
   std::cout << "Testing constructors & user-defined literals\n";
@@ -92,26 +92,26 @@ int main() {
   const char *date3_str = "2015-12-30 12:09:30.000011";
   const char *date4_str = "2015 12 30 12 9 30";
   datetime<seconds> dfs1 =
-      ngpt::strptime_ymd_hms<seconds>(date1_str /*, &__end*/);
+      dso::strptime_ymd_hms<seconds>(date1_str /*, &__end*/);
   datetime<seconds> dfs2 =
-      ngpt::strptime_ymd_hms<seconds>(date2_str /*, &__end*/);
+      dso::strptime_ymd_hms<seconds>(date2_str /*, &__end*/);
   datetime<seconds> dfs3 =
-      ngpt::strptime_ymd_hms<seconds>(date3_str /*, &__end*/);
+      dso::strptime_ymd_hms<seconds>(date3_str /*, &__end*/);
   datetime<seconds> dfs4 =
-      ngpt::strptime_ymd_hms<seconds>(date4_str /*, &__end*/);
+      dso::strptime_ymd_hms<seconds>(date4_str /*, &__end*/);
   datetime<seconds> dfs1_{year(2015), month(12),  day_of_month(30),
                           hours(12),  minutes(9), seconds(30)};
   assert(dfs1 == dfs1_ && dfs1 == dfs2 && dfs2 == dfs3 && dfs3 == dfs4);
 
-  auto dfs5 = ngpt::strptime_ymd_hms<microseconds>(date3_str);
+  auto dfs5 = dso::strptime_ymd_hms<microseconds>(date3_str);
   datetime<microseconds> dfs5_{year(2015), month(12),  day_of_month(30),
                                hours(12),  minutes(9), microseconds(30000011)};
   assert(dfs5 == dfs5_);
 
   const char *date6_str = "2015-12-30";
-  datetime<seconds> dfs6 = ngpt::strptime_ymd<seconds>(date6_str);
+  datetime<seconds> dfs6 = dso::strptime_ymd<seconds>(date6_str);
   const char *date7_str = "2015-12-30 0 0 0";
-  datetime<seconds> dfs7 = ngpt::strptime_ymd<seconds>(date7_str);
+  datetime<seconds> dfs7 = dso::strptime_ymd<seconds>(date7_str);
   datetime<seconds> dfs7_{year(2015), month(12),  day_of_month(30),
                           hours(0),   minutes(0), seconds(0)};
   assert(dfs6 == dfs7 && dfs7 == dfs7_);
@@ -120,10 +120,10 @@ int main() {
   const char *date9_str = "2015/DEC/30 12 9 30";
   const char *date10_str = "2015-DEC-30 12 9 30";
   const char *date11_str = "2015-DEC-30 12 09 30";
-  datetime<seconds> dfs8 = ngpt::strptime_yod_hms<seconds>(date8_str);
-  datetime<seconds> dfs9 = ngpt::strptime_yod_hms<seconds>(date9_str);
-  datetime<seconds> dfs10 = ngpt::strptime_yod_hms<seconds>(date10_str);
-  datetime<seconds> dfs11 = ngpt::strptime_yod_hms<seconds>(date11_str);
+  datetime<seconds> dfs8 = dso::strptime_yod_hms<seconds>(date8_str);
+  datetime<seconds> dfs9 = dso::strptime_yod_hms<seconds>(date9_str);
+  datetime<seconds> dfs10 = dso::strptime_yod_hms<seconds>(date10_str);
+  datetime<seconds> dfs11 = dso::strptime_yod_hms<seconds>(date11_str);
   assert(dfs8 == dfs9 && dfs9 == dfs10);
   assert(dfs10 == dfs11);
   assert(dfs1 == dfs1_ && dfs1 == dfs8 && dfs8 == dfs9 && dfs9 == dfs10);
@@ -144,11 +144,11 @@ int main() {
   microseconds mcsec1{10};
   assert(mcsec1 == microseconds(10));
   seconds sec2{mcsec1}; // casting microsec to sec is allowed
-  assert(sec2 == (ngpt::cast_to<microseconds, seconds>(mcsec1)));
+  assert(sec2 == (dso::cast_to<microseconds, seconds>(mcsec1)));
   seconds sec3{mlsec1}; // casting millisec to sec is allowed
-  assert(sec3 == (ngpt::cast_to<milliseconds, seconds>(mlsec1)));
+  assert(sec3 == (dso::cast_to<milliseconds, seconds>(mlsec1)));
   milliseconds mlsec2{mcsec1}; // casting microsec to millisec is allowed
-  assert(mlsec2 == (ngpt::cast_to<microseconds, milliseconds>(mcsec1)));
+  assert(mlsec2 == (dso::cast_to<microseconds, milliseconds>(mcsec1)));
   // However, it is not allowed to cast from lower to higher precsision, e.g.
   // milliseconds ml1 {sec1};   // ERROR!
   // microseconds mc1 {mlsec1}; // ERROR!

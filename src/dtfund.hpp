@@ -32,7 +32,7 @@
 #include <string>
 #endif
 
-namespace ngpt {
+namespace dso {
 
 #if __cplusplus >= 202002L
 namespace gconcepts {
@@ -42,7 +42,7 @@ concept arithmetic = std::is_arithmetic_v<T>;
 #endif
 
 /// Check if long is big enough to hold two days in microseconds.
-static_assert(86400L * 1000000000L * 2 < std::numeric_limits<long>::max(),
+static_assert(86400L * 1'000'000'000L * 2 < std::numeric_limits<long>::max(),
               "FUCK! Long is not big enough to hold two days in microseconds");
 
 /// Jan 1st 1980 for GPS Time
@@ -103,7 +103,7 @@ class nanoseconds;
 /// @note The algorithm used is valid from -4800 March 1
 ///       Declared and defined here cause its constexpr.
 ///
-/// @see ngpt::cal2mjd
+/// @see dso::cal2mjd
 ///
 /// Reference: iauCal2jd
 constexpr long cal2mjd(int iy, int im, int id) {
@@ -113,7 +113,7 @@ constexpr long cal2mjd(int iy, int im, int id) {
   // Validate month
   if (im < 1 || im > 12) {
     // throw in runtime, fail to compile at compile-time
-    throw std::out_of_range("ngpt::cal2mjd -> Invalid Month.");
+    throw std::out_of_range("dso::cal2mjd -> Invalid Month.");
   }
 
   // If February in a leap year, 1, otherwise 0
@@ -121,7 +121,7 @@ constexpr long cal2mjd(int iy, int im, int id) {
 
   // Validate day, taking into account leap years
   if ((id < 1) || (id > (mtab[im - 1] + ly))) {
-    throw std::out_of_range("ngpt::cal2mjd -> Invalid Day of Month.");
+    throw std::out_of_range("dso::cal2mjd -> Invalid Day of Month.");
   }
 
   // Compute mjd
@@ -150,7 +150,7 @@ constexpr bool is_leap(int iy) noexcept {
 /// the given doy is within a valid range).
 constexpr long ydoy2mjd(long iyr, long idoy) noexcept {
   return ((iyr - 1901) / 4) * 1461 + ((iyr - 1901) % 4) * 365 + idoy - 1 +
-         ngpt::jan11901;
+         dso::jan11901;
 }
 
 /// @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
@@ -159,7 +159,7 @@ constexpr long ydoy2mjd(long iyr, long idoy) noexcept {
 /// happen at the begining, i.e. the first day of a month.
 ///
 /// @note In case using MJD (and not calendar date) is more convinient, use the
-///       overloaded function ngpt::dat
+///       overloaded function dso::dat
 ///
 /// @warning
 ///         - This version only works for post-1972 dates! For a more complete
@@ -167,13 +167,13 @@ constexpr long ydoy2mjd(long iyr, long idoy) noexcept {
 ///         - No checks are performed for the validity of the input date.
 ///
 /// @see IAU SOFA (iau-dat.c)
-/// @see ngpt::dat
+/// @see dso::dat
 int dat(year iy, month im) noexcept;
 
-/// @overload ngpt::dat(ngpt::year iy, ngpt::month im) noexcept
+/// @overload dso::dat(dso::year iy, dso::month im) noexcept
 ///
 /// @note In case using calendar date (and not MJD) is more convinient, use the
-///       overloaded function ngpt::dat
+///       overloaded function dso::dat
 ///
 /// @warning
 ///         - This version only works for post-1972 dates! For a more complete
@@ -181,7 +181,7 @@ int dat(year iy, month im) noexcept;
 ///         - No checks are performed for the validity of the input date.
 ///
 /// @see IAU SOFA (iau-dat.c)
-/// @see ngpt::dat
+/// @see dso::dat
 int dat(modified_julian_day mjd) noexcept;
 
 constexpr void mjd2ymd(long mjd, int &iyear, int &imonth, int &idom) noexcept {
@@ -274,7 +274,7 @@ public:
   }
 
   /// Check if year is leap (aka has 366 --integer-- days instead of 365)
-  constexpr bool is_leap() const noexcept { return ngpt::is_leap(m_year); }
+  constexpr bool is_leap() const noexcept { return dso::is_leap(m_year); }
 
 private:
   /// The year as underlying type.
@@ -292,7 +292,7 @@ private:
 /// month m (-200);
 /// will work fine! To check if the month is within the range [1,12], use the
 /// month::is_valid method.
-/// Most functions (within ngpt) accept months in the range [1,12]; do not
+/// Most functions (within dso) accept months in the range [1,12]; do not
 /// use the range [0,11], except if you realy know what you're doing.
 ///
 /// This is a fundamental class, which means it only has one arithmetic member
@@ -303,7 +303,7 @@ private:
 /// pre-decrement), '+=T' and '-=T' where T is either a year or any integral
 /// type.
 ///
-/// @warning Most functions (within ngpt) accept months in the range [1,12];
+/// @warning Most functions (within dso) accept months in the range [1,12];
 ///          do not use the range [0,11], except if you realy know what you're
 ///          doing.
 ///
@@ -528,7 +528,7 @@ public:
   /// @param[in] m  The month the dom refers to; range [1,12]
   /// @return       If the dom is valid (considering the year and month) true
   ///               is returned; else, the function will return false.
-  constexpr bool is_valid(ngpt::year y, ngpt::month m) const noexcept {
+  constexpr bool is_valid(dso::year y, dso::month m) const noexcept {
     if (m_dom <= 0 || m_dom >= 32)
       return false;
     if (!m.is_valid())
@@ -660,7 +660,7 @@ struct ymd_date {
 /// civil time reckoning.
 /// The MJD is a convenient dating system with only 5 digits, sufficient for
 /// most modern purposes. To convert between MJD and JD we need the Julian
-/// Date of Modified Julian Date zero, aka ngpt::mjd0_jd, which is 2400000.5
+/// Date of Modified Julian Date zero, aka dso::mjd0_jd, which is 2400000.5
 ///
 /// This is a fundamental class, which means it only has one arithmetic member
 /// variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>',
@@ -891,7 +891,7 @@ struct ydoy_date {
 /// hours
 /// -- normally hour of day, although no such restriction exists --.
 /// In case a subdivision is needed (e.g. minutes, seconds, etc), then use
-/// the corresponsing classes (nngpt::minutes, ngpt::seconds, etc...).
+/// the corresponsing classes (ndso::minutes, dso::seconds, etc...).
 /// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
 /// hours (constructor) can only have zero or positive values.
 ///
@@ -936,8 +936,8 @@ public:
   /// @brief Equality operator; right-hand-side can be an instance of hours, or
   ///        any integral value.
   ///        Example:
-  ///        ngpt::hours h(10);
-  ///        assert(h == ngpt::hours(10));
+  ///        dso::hours h(10);
+  ///        assert(h == dso::hours(10));
   ///        assert(h == 10);
   #if __cplusplus >= 202002L
   template<typename T> requires std::integral<T> || std::same_as<T, hours>
@@ -956,8 +956,8 @@ public:
   or
   ///        any integral value.
   ///        Example:
-  ///        ngpt::hours h(10);
-  ///        assert(h != ngpt::hours(10));
+  ///        dso::hours h(10);
+  ///        assert(h != dso::hours(10));
   ///        assert(h != 10);
   #if __cplusplus >= 202002L
   template<typename T> requires std::integral<T> || std::same_as<T, hours>
@@ -1007,7 +1007,7 @@ private:
 /// hours/minutes/(milli|nano|...)seconds, so they only represent integeral
 /// minutes -- normally min of hours, although no such restriction exists --.
 /// In case a subdivision is needed (e.g. seconds, milliseconds etc), then use
-/// the corresponsing classes (ngpt::seconds, ngpt::milliseconds, etc...).
+/// the corresponsing classes (dso::seconds, dso::milliseconds, etc...).
 /// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
 /// minutes (constructor) can only have zero or positive values.
 ///
@@ -1052,8 +1052,8 @@ public:
   /// @brief Equality operator; right-hand-side can be an instance of minutes,
   ///        or any integral value.
   ///        Example:
-  ///        ngpt::minutes m(10);
-  ///        assert(m == ngpt::minutes(10));
+  ///        dso::minutes m(10);
+  ///        assert(m == dso::minutes(10));
   ///        assert(m == 10);
   #if __cplusplus >= 202002L
   template<typename T> requires std::integral<T> || std::same_as<T, minutes>
@@ -1071,8 +1071,8 @@ public:
   /// @brief InEquality operator; right-hand-side can be an instance of minutes,
   ///        or any integral value.
   ///        Example:
-  ///        ngpt::minutes m(10);
-  ///        assert(m != ngpt::minutes(10));
+  ///        dso::minutes m(10);
+  ///        assert(m != dso::minutes(10));
   ///        assert(m != 10);
   #if __cplusplus >= 202002L
   template<typename T> requires std::integral<T> || std::same_as<T, minutes>
@@ -1120,12 +1120,12 @@ private:
 /// is just a long int and can be either positive or negative. Users are however
 /// restricted by integer overflow. The maximum number of days that can be
 /// expressed in seconds without fear of overflow is given by the template
-/// function ngpt::max_days_allowed.
+/// function dso::max_days_allowed.
 /// Negative seconds are allowed (so that a user can perform basic operations
 /// like e.g. addition), but some functions expect only positive seconds
 /// (seconds::remove_days, seconds::to_days).
 /// seconds is a class which represents a second subdivision (as is
-/// ngpt::milliseconds, ngpt::microseconds, etc); quite a few methods should be
+/// dso::milliseconds, dso::microseconds, etc); quite a few methods should be
 /// common to all of these classes, all of which have a member variable
 /// seconds::is_of_sec_type which is set to true.
 /// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
@@ -1138,10 +1138,10 @@ private:
 ///
 /// @warning The maximum number of days that can be expressed in seconds without
 ///          fear of overflow is given by the template function
-///          ngpt::max_days_allowed
+///          dso::max_days_allowed
 ///
-/// @see ngpt::milliseconds
-/// @see ngpt::microseconds
+/// @see dso::milliseconds
+/// @see dso::microseconds
 class seconds {
 public:
   /// Seconds are represented as long ints.
@@ -1292,12 +1292,12 @@ private:
 /// millisecond is just a long int and can be either positive or negative.
 /// Users are however restricted by integer overflow. The maximum number of days
 /// that can be expressed in milliseconds without fear of overflow is given by
-/// the template function ngpt::max_days_allowed.
+/// the template function dso::max_days_allowed.
 /// Negative milliseconds are allowed (so that a user can perform basic
 /// operations like e.g. addition), but some functions expect only positive
 /// milliseconds (milliseconds::remove_days, milliseconds::to_days).
 /// milliseconds is a class which represents a second subdivision (as is
-/// ngpt::seconds, ngpt::microseconds, etc); quite a few methods should be
+/// dso::seconds, dso::microseconds, etc); quite a few methods should be
 /// common to all of these classes, all of which have a member variable
 /// milliseconds::is_of_sec_type which is set to true.
 /// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
@@ -1308,12 +1308,12 @@ private:
 /// '>=') are going to be implemented using kinda reflection, using template
 /// function overloadnig outside the class.
 ///
-/// @note milliseconds can be cast to ngpt::seconds (via a static_cast or
-/// a C-type cast) but the opposite is not true; i.e. ngpt::seconds cannot be
+/// @note milliseconds can be cast to dso::seconds (via a static_cast or
+/// a C-type cast) but the opposite is not true; i.e. dso::seconds cannot be
 /// cast to milliseconds. This is still an open question!
 ///
-/// @see ngpt::seconds
-/// @see ngpt::microseconds
+/// @see dso::seconds
+/// @see dso::microseconds
 ///
 class milliseconds {
 public:
@@ -1376,7 +1376,7 @@ public:
     return *this;
   }
 
-  /// @brief Cast to ngpt::seconds.
+  /// @brief Cast to dso::seconds.
   /// Milliseconds can be cast to seconds (with a loss of precission).
   constexpr explicit operator seconds() const noexcept {
     return seconds{m_sec / sec_factor<underlying_type>()};
@@ -1436,14 +1436,14 @@ public:
     return static_cast<double>(m_sec) / static_cast<double>(max_in_day);
   }
 
-  /// Cast to fractional ngpt::seconds
+  /// Cast to fractional dso::seconds
   constexpr double to_fractional_seconds() const noexcept {
     return static_cast<double>(m_sec) * 1.0e-3;
   }
 
   /// @brief Resolve to (integer) seconds and fractional seconds.
   ///
-  /// Split the milliseconds to ngpt::seconds and fractional seconds.
+  /// Split the milliseconds to dso::seconds and fractional seconds.
   ///
   /// @param[out] fraction Fractional seconds
   /// @return              Integral seconds
@@ -1504,12 +1504,12 @@ private:
 /// microsecond is just a long int and can be either positive or negative.
 /// Users are however restricted by integer overflow. The maximum number of days
 /// that can be expressed in microseconds without fear of overflow is given by
-/// the template function ngpt::max_days_allowed.
+/// the template function dso::max_days_allowed.
 /// Negative microseconds are allowed (so that a user can perform basic
 /// operations like e.g. addition), but some functions expect only positive
 /// microiseconds (microseconds::remove_days, microseconds::to_days).
 /// microseconds is a class which represents a second subdivision (as is
-/// ngpt::seconds, ngpt::milliseconds, etc); quite a few methods should be
+/// dso::seconds, dso::milliseconds, etc); quite a few methods should be
 /// common to all of these classes, all of which have a member variable
 /// microseconds::is_of_sec_type which is set to true.
 /// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
@@ -1520,12 +1520,12 @@ private:
 /// '>=') are going to be implemented using kinda reflection, using template
 /// function overloadnig outside the class.
 ///
-/// @note microseconds can be cast to ngpt::seconds and ngpt::milliseconds (via
+/// @note microseconds can be cast to dso::seconds and dso::milliseconds (via
 /// a static_cast or a C-type cast) but the opposite is not true; i.e.
-/// ngpt::seconds cannot be cast to microseconds.This is still an open question!
+/// dso::seconds cannot be cast to microseconds.This is still an open question!
 ///
-/// @see ngpt::seconds
-/// @see ngpt::milliseconds
+/// @see dso::seconds
+/// @see dso::milliseconds
 ///
 class microseconds {
 public:
@@ -1549,11 +1549,11 @@ public:
   static constexpr bool is_of_sec_type{true};
 
   /// Max microseconds in day.
-  static constexpr underlying_type max_in_day{86400L * 1000000L};
+  static constexpr underlying_type max_in_day{86400L * 1'000'000L};
 
   /// The scale factor to transform from seconds to microseconds.
   template <typename T> static constexpr T sec_factor() noexcept {
-    return static_cast<T>(1000000);
+    return static_cast<T>(1'000'000);
   }
 
   /// Constructor; default microseconds is 0.
@@ -1687,7 +1687,7 @@ private:
   /// Microseconds as long ints.
   underlying_type m_sec;
 
-}; // class microseconds
+}; // microseconds
 
 /// @brief A wrapper class for nanoseconds (i.e 10**-9 sec.).
 ///
@@ -1695,12 +1695,12 @@ private:
 /// nanosecond is just a long int and can be either positive or negative.
 /// Users are however restricted by integer overflow. The maximum number of days
 /// that can be expressed in nanoseconds without fear of overflow is given by
-/// the template function ngpt::max_days_allowed.
+/// the template function dso::max_days_allowed.
 /// Negative nanoseconds are allowed (so that a user can perform basic
 /// operations like e.g. addition), but some functions expect only positive
 /// nanoseconds (nanoseconds::remove_days, nanoseconds::to_days).
 /// nanoseconds is a class which represents a second subdivision (as is
-/// ngpt::seconds, ngpt::milliseconds, etc); quite a few methods should be
+/// dso::seconds, dso::milliseconds, etc); quite a few methods should be
 /// common to all of these classes, all of which have a member variable
 /// nanoseconds::is_of_sec_type which is set to true.
 /// If the code is compiled with the switch USE_DATETIME_CHECKS, then the
@@ -1711,13 +1711,13 @@ private:
 /// '>=') are going to be implemented using kinda reflection, using template
 /// function overloadnig outside the class.
 ///
-/// @note nanoseconds can be cast to ngpt::seconds, ngpt::milliseconds and
-/// ngpt::microseconds (via a static_cast or a C-type cast) but the opposite is
-/// not true; i.e. ngpt::seconds cannot be cast to nanoseconds.This is still
+/// @note nanoseconds can be cast to dso::seconds, dso::milliseconds and
+/// dso::microseconds (via a static_cast or a C-type cast) but the opposite is
+/// not true; i.e. dso::seconds cannot be cast to nanoseconds.This is still
 /// an open question!
 ///
-/// @see ngpt::seconds
-/// @see ngpt::milliseconds
+/// @see dso::seconds
+/// @see dso::milliseconds
 ///
 class nanoseconds {
 public:
@@ -1962,8 +1962,6 @@ concept is_fundamental_and_has_ref =
 } // namespace gconcepts
 #endif
 
-
-
 /// Overload bool operator '==' for datetime fundamental types.
 /// This function will be resolved for any type DType, which
 /// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
@@ -2003,7 +2001,8 @@ template <typename DType,
               decltype(&DType::__member_const_ref__)>::value>>
 #endif
           constexpr bool operator==(DType a, DInt b) noexcept {
-  return a.__member_const_ref__() == static_cast<typename DType::underlying_type>(b);
+  return a.__member_const_ref__() == static_cast<typename
+DType::underlying_type>(b);
 }
 */
 
@@ -2259,11 +2258,35 @@ constexpr DType operator--(DType &_a, int) noexcept {
   return tmp;
 }
 
+#if __cplusplus >= 202002L
+template <gconcepts::is_fundamental_and_has_const_ref DType>
+#else
+template <typename DType,
+          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+          typename = std::enable_if_t<std::is_member_function_pointer<
+              decltype(&DType::__member_const_ref__)>::value>>
+#endif
+constexpr DType operator+(DType _a, DType _b) noexcept {
+  return DType(_a.__member_const_ref__() + _b.__member_const_ref__());
+}
+
+#if __cplusplus >= 202002L
+template <gconcepts::is_fundamental_and_has_const_ref DType>
+#else
+template <typename DType,
+          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+          typename = std::enable_if_t<std::is_member_function_pointer<
+              decltype(&DType::__member_const_ref__)>::value>>
+#endif
+constexpr DType operator-(DType _a, DType _b) noexcept {
+  return DType(_a.__member_const_ref__() - _b.__member_const_ref__());
+}
+
 /// @brief Number of expressible days for any second type.
 ///
 /// This (template) function will return the number of whole days that can be
-/// expressed using any instance of a second type (i.e. ngpt::seconds,
-/// ngpt::milliseconds, etc). For any of these types, trying to hold more days
+/// expressed using any instance of a second type (i.e. dso::seconds,
+/// dso::milliseconds, etc). For any of these types, trying to hold more days
 /// than this limit may result in overflow.
 ///
 /// @tparam S Any class of second type, i.e. any class S that has a (static)
@@ -2283,10 +2306,10 @@ constexpr typename S::underlying_type max_days_allowed() {
 ///
 /// @tparam S Any class of second type, i.e. any class S that has a (static)
 ///           member variable S::is_of_sec_type set to true.
-/// @param[in] d1 The first ngpt::modified_julian_day (difference is d1-d2)
-/// @param[in] d2 The second ngpt::modified_julian_day (difference is d1-d2)
+/// @param[in] d1 The first dso::modified_julian_day (difference is d1-d2)
+/// @param[in] d2 The second dso::modified_julian_day (difference is d1-d2)
 /// @return       The difference between d1 and d2 in the second type S (e.g.
-///               ngpt::seconds, ngpt::milliseconds, etc)
+///               dso::seconds, dso::milliseconds, etc)
 ///
 /// @note
 ///       - The difference between two Modified Julian Days is always an
@@ -2390,7 +2413,7 @@ struct t_hmsf {
     _fraction = static_cast<double>(fs) / S::template sec_factor<double>();
     // printf("\tfseconds : %.9f\n", _fraction);
   }
-  
+
   constexpr bool operator==(const t_hmsf &other) const noexcept {
     return (_hours == other._hours && _minutes == other._minutes &&
             _seconds == other._seconds && _fraction == other._fraction);
@@ -2447,6 +2470,6 @@ constexpr microseconds operator"" _microsec(ddetail::ulli i) noexcept {
   return microseconds{static_cast<microseconds::underlying_type>(i)};
 }
 
-} // namespace ngpt
+} // dso 
 
 #endif // define DATETIME

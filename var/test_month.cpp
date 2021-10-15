@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include "dtfund.hpp"
 
-using ngpt::month;
+using dso::month;
 
 int main()
 {
@@ -67,6 +67,6 @@ int main()
   assert( !mn1.is_valid() );
   assert( !mn2.is_valid() );
 
-  std::cout<<"\nAll checks for ngpt::month OK\n";
+  std::cout<<"\nAll checks for dso::month OK\n";
   return 0;
 }

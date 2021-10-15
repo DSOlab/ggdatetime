@@ -1,10 +1,10 @@
 ///
 /// @file  datetime_read.hpp
 ///
-/// @brief Functions to read in ngpt::datetime objects from various input
+/// @brief Functions to read in dso::datetime objects from various input
 ///        formats.
 ///
-/// @see ngpt::datetime
+/// @see dso::datetime
 ///
 /// @author xanthos
 ///
@@ -24,7 +24,7 @@
 #include <iostream>
 #endif
 
-namespace ngpt {
+namespace dso {
 
 /// @brief Read from YYYY-MM-DD
 ///
@@ -232,6 +232,6 @@ datetime<T> strptime_ydoy_hms(const char *str, char **stop = nullptr) {
                      minutes{ints[3]}, secs};
 }
 
-} // namespace ngpt
+} // dso 
 
 #endif

@@ -1,9 +1,9 @@
 ///
 /// @file  datetime_write.hpp
 ///
-/// @brief Function to format ngpt::datetime objects as strings
+/// @brief Function to format dso::datetime objects as strings
 ///
-/// @see ngpt::datetime
+/// @see dso::datetime
 ///
 /// @author xanthos
 ///
@@ -20,7 +20,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace ngpt {
+namespace dso {
 
 /// Format a double to an std::string using std::fixed and a precision on
 /// n digits
@@ -75,6 +75,6 @@ std::string strftime_ymd_hms(const datetime<T> &t, char del = '-') {
          _i2s_(std::get<2>(hmsf).as_underlying_type(), 2);
 }
 
-} // namespace ngpt
+} // dso
 
 #endif

@@ -6,7 +6,7 @@
 #include <iostream>
 #include <limits>
 
-using namespace ngpt;
+using namespace dso;
 /*
 constexpr long MilliSec = 1000L;
 constexpr long MicroSec = 1000000L;
@@ -26,9 +26,9 @@ int main() {
   const char *date2_str = "2019/MAR/18 13 25 24.1230";
   const char *date3_str = "2019-MAR-18 13 25 24.1231230";
 
-  datetime<seconds> d1 = ngpt::strptime_yod_hms<seconds>(date1_str);
-  datetime<milliseconds> d2 = ngpt::strptime_yod_hms<milliseconds>(date2_str);
-  datetime<microseconds> d3 = ngpt::strptime_yod_hms<microseconds>(date3_str);
+  datetime<seconds> d1 = dso::strptime_yod_hms<seconds>(date1_str);
+  datetime<milliseconds> d2 = dso::strptime_yod_hms<milliseconds>(date2_str);
+  datetime<microseconds> d3 = dso::strptime_yod_hms<microseconds>(date3_str);
   std::cout << "\nd1 = " << d1.stringify() << " (" << d1.sec_as_i() << ")";
   std::cout << "\nd2 = " << d2.stringify() << " (" << d2.sec_as_i() << ")";
   std::cout << "\nd3 = " << d3.stringify() << " (" << d3.sec_as_i() << ")";
@@ -51,9 +51,9 @@ int main() {
   assert(sow1 == sow2 && sow2 == sow3);
   std::cout << "\n>Date to GPS Week & SecOfWeek OK!";
 
-  ngpt::seconds sow;
-  ngpt::milliseconds mlsow;
-  ngpt::microseconds mcsow;
+  dso::seconds sow;
+  dso::milliseconds mlsow;
+  dso::microseconds mcsow;
   w1 = d1.as_gps_wsow(sow);
   std::cout << "\nDate is GPS Week: " << w1.as_underlying_type()
             << ", Seconds OW     :" << sow.as_underlying_type();

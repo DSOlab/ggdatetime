@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include "dtfund.hpp"
 
-using ngpt::gps_week;
+using dso::gps_week;
 
 int main()
 {
@@ -38,6 +38,6 @@ int main()
   assert( !gw1.is_valid() );
   assert( !gw2.is_valid() );
 
-  std::cout<<"\nAll checks for ngpt::gps_week OK\n";
+  std::cout<<"\nAll checks for dso::gps_week OK\n";
   return 0;
 }

@@ -7,7 +7,7 @@
 #include "dtcalendar.hpp"
 #include "dtfund.hpp"
 
-using namespace ngpt;
+using namespace dso;
 
 int main() {
   std::cout << "Testing datetime subtract/difference functions\n";
@@ -17,10 +17,10 @@ int main() {
   const char *date2_str = "2015/12/30 12:09:30.001";
   const char *date3_str = "2015-12-30 12:09:30.000011";
   const char *date4_str = "2015-12-30 12:09:30.000012";
-  auto d1 = ngpt::strptime_ymd_hms<seconds>(date1_str);
-  auto d2 = ngpt::strptime_ymd_hms<milliseconds>(date2_str);
-  auto d3 = ngpt::strptime_ymd_hms<microseconds>(date3_str);
-  auto d4 = ngpt::strptime_ymd_hms<microseconds>(date4_str);
+  auto d1 = dso::strptime_ymd_hms<seconds>(date1_str);
+  auto d2 = dso::strptime_ymd_hms<milliseconds>(date2_str);
+  auto d3 = dso::strptime_ymd_hms<microseconds>(date3_str);
+  auto d4 = dso::strptime_ymd_hms<microseconds>(date4_str);
 
   auto df12 = delta_sec(d1, d2); // 0 - 1 milliseconds
   std::cout << "\nDifference: " << date1_str << " - " << date2_str << " = "

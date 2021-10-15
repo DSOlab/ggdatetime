@@ -2,11 +2,11 @@
 #include <iomanip>
 #include <iostream>
 
-using ngpt::microseconds;
-using ngpt::milliseconds;
-using ngpt::seconds;
+using dso::microseconds;
+using dso::milliseconds;
+using dso::seconds;
 
-double to_sec(ngpt::hours h, ngpt::minutes m, ngpt::seconds s, double fs) {
+double to_sec(dso::hours h, dso::minutes m, dso::seconds s, double fs) {
   long sec = h.as_underlying_type() * 3600 + m.as_underlying_type() * 60 +
              s.as_underlying_type();
   return (double)sec + fs;

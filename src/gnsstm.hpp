@@ -7,7 +7,7 @@
 #ifndef __GNSS_TIME_SCALES_HPP__
 #define __GNSS_TIME_SCALES_HPP__
 
-namespace ngpt {
+namespace dso {
 
 /// @enum GnssTimeSystem
 /// Time-Systems used in GNSS, see Rinex v3.xx
@@ -31,6 +31,6 @@ enum class GnssTimeSystem : char {
   irn  ///< to identify IRNSS time
 };     // GnssTimeSystem
 
-} // namespace ngpt
+} // dso
 
 #endif

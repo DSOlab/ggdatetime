@@ -3,11 +3,11 @@
 #include <stdexcept>
 #include "dtfund.hpp"
 
-using ngpt::modified_julian_day;
-using ngpt::year;
-using ngpt::month;
-using ngpt::day_of_year;
-using ngpt::day_of_month;
+using dso::modified_julian_day;
+using dso::year;
+using dso::month;
+using dso::day_of_year;
+using dso::day_of_month;
 
 /// @todo operator mjd+int should not be allowed -> Ok fixed!
 
@@ -28,11 +28,11 @@ int main()
   modified_julian_day dm12_(year(2019), month(1), day_of_month(1));
   assert( dm12 == dm1 && dm12==dm12_ );
 
-  modified_julian_day dm24(year(2018), ngpt::day_of_year(365));
+  modified_julian_day dm24(year(2018), dso::day_of_year(365));
   modified_julian_day dm24_(year(2018), month(12), day_of_month(31));
   assert( dm24 == dm2 && dm24==dm24_ );
 
-  modified_julian_day dm13(year(2097), ngpt::day_of_year(1));
+  modified_julian_day dm13(year(2097), dso::day_of_year(1));
   modified_julian_day dm13_(year(2097), month(1), day_of_month(1));
   assert( modified_julian_day(86974) == dm13 && dm13==dm13_ );
 
@@ -122,6 +122,6 @@ int main()
   assert( _dms7.__year == year(-4713) && 
     (_dms7.__month == month(11) && _dms7.__dom == day_of_month(24)) );
 
-  std::cout<<"\nAll checks for ngpt::modified_julian_day OK\n";
+  std::cout<<"\nAll checks for dso::modified_julian_day OK\n";
   return 0;
 }

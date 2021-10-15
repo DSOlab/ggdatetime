@@ -3,9 +3,9 @@
 #include <stdexcept>
 #include "dtfund.hpp"
 
-using ngpt::hours;
-using ngpt::minutes;
-using ngpt::seconds;
+using dso::hours;
+using dso::minutes;
+using dso::seconds;
 
 int main()
 {
@@ -25,7 +25,7 @@ int main()
                                      // exactly 86401 seconds and the fractional
                                      // part will be ignored
 
-  // conversion from ‘int’ to non-scalar type ‘ngpt::seconds’
+  // conversion from ‘int’ to non-scalar type ‘dso::seconds’
   // seconds s4 = 86401; CMP_ERROR
   seconds s5;
   s5 = 86402;
@@ -75,25 +75,25 @@ int main()
   assert( dm1 - seconds(1) == dm2 ); 
   assert( dm2 + seconds(1) == dm1 );
   // however, we should not be able to do seconds+=microseconds
-  // dm1+=(ngpt::milliseconds(1)); CMP_ERROR
-  // dm1-=(ngpt::milliseconds(1)); CMP_ERROR
+  // dm1+=(dso::milliseconds(1)); CMP_ERROR
+  // dm1-=(dso::milliseconds(1)); CMP_ERROR
   // we could cast though the milliseconds to seconds and do the operation
-  ngpt::milliseconds mlsec(1000);
-  assert( (dm2+ngpt::cast_to<ngpt::milliseconds, seconds>(mlsec)) == dm1 );
+  dso::milliseconds mlsec(1000);
+  assert( (dm2+dso::cast_to<dso::milliseconds, seconds>(mlsec)) == dm1 );
 
   // Cast seconds to milli/micro - seconds
-  ngpt::milliseconds m1 (1001); // Note that casting milliseconds to seconds
+  dso::milliseconds m1 (1001); // Note that casting milliseconds to seconds
                                 // will result in loss of accuracy; 1001 mlsec
                                 // is 1.001 sec, from which we only keep the
                                 // integral part
   // implicit cast at constructor
   seconds s7 (m1);
-  // cast with static_cast<> and using the operator
+  // cast with cast<> and using the operator
   seconds s8 = static_cast<seconds>(m1);
   seconds s9 = seconds(m1);
   assert(s7==s8 && s8==s9);
   assert(s7==seconds(1));
 
-  std::cout<<"\nAll checks for ngpt::seconds OK\n";
+  std::cout<<"\nAll checks for dso::seconds OK\n";
   return 0;
 }

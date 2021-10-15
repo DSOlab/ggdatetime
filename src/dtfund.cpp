@@ -15,12 +15,12 @@
 #include <cassert>
 
 /// Definition for static month array (short names).
-/// @see ngpt::month
-constexpr const char *ngpt::month::short_names[];
+/// @see dso::month
+constexpr const char *dso::month::short_names[];
 
 /// Definition for static month array (long names).
-/// @see ngpt::month
-constexpr const char *ngpt::month::long_names[];
+/// @see dso::month
+constexpr const char *dso::month::long_names[];
 
 /// Number of days past at the end of non-leap and leap years.
 constexpr static long month_day[2][13] = {
@@ -50,7 +50,7 @@ int __lower_strncmp__(const char *str1, const char *str2,
 /// and long_names, then an exception is thrown of type: std::invalid_argument
 /// Note that the month will be returned in the "normal" range [1,12],
 /// **not** [0-11].
-ngpt::month::month(const char *str) {
+dso::month::month(const char *str) {
   m_month = 0;
 
   if (std::strlen(str) == 3) {
@@ -76,9 +76,9 @@ ngpt::month::month(const char *str) {
 }
 
 /// Given a modified_julian_day convert it to a year and day_of_year, aka
-/// an instance of ngpt::ydoy_date
-constexpr ngpt::ydoy_date ngpt::modified_julian_day::to_ydoy() const noexcept {
-  long days_fr_jan1_1901{m_mjd - ngpt::jan11901};
+/// an instance of dso::ydoy_date
+constexpr dso::ydoy_date dso::modified_julian_day::to_ydoy() const noexcept {
+  long days_fr_jan1_1901{m_mjd - dso::jan11901};
   long num_four_yrs{days_fr_jan1_1901 / 1461L};
   long years_so_far{1901L + 4 * num_four_yrs};
   long days_left{days_fr_jan1_1901 - 1461 * num_four_yrs};
@@ -94,7 +94,7 @@ constexpr ngpt::ydoy_date ngpt::modified_julian_day::to_ydoy() const noexcept {
 }
 
 ///
-constexpr ngpt::ydoy_date ngpt::ymd_date::to_ydoy() const noexcept {
+constexpr dso::ydoy_date dso::ymd_date::to_ydoy() const noexcept {
   ydoy_date yd;
   yd.__year = __year;
   int leap = __year.is_leap();
@@ -106,7 +106,7 @@ constexpr ngpt::ydoy_date ngpt::ymd_date::to_ydoy() const noexcept {
   return yd;
 }
 
-constexpr ngpt::ymd_date ngpt::ydoy_date::to_ymd() const noexcept {
+constexpr dso::ymd_date dso::ydoy_date::to_ymd() const noexcept {
   ymd_date yd;
   yd.__year = __year;
   int guess = __doy.as_underlying_type() * 0.032;

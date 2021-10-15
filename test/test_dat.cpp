@@ -3,14 +3,14 @@
 #include <iostream>
 #include <vector>
 
-using namespace ngpt;
+using namespace dso;
 
 int main() {
   std::cout << "\nTesting function dat, aka TAI-UTC difference (sec)";
   std::cout << "\nThis program will test if the functions:";
-  std::cout << "\n\tngpt::dat(year, day_of_year)";
-  std::cout << "\n\tngpt::dat(datetime<T>)";
-  std::cout << "\n\tngpt::dat(modified_julian_day)";
+  std::cout << "\n\tdso::dat(year, day_of_year)";
+  std::cout << "\n\tdso::dat(datetime<T>)";
+  std::cout << "\n\tdso::dat(modified_julian_day)";
   std::cout
       << "\nall produce identical results; if not, an assertion error will";
   std::cout << "\nbe thrown. Let's see ...";

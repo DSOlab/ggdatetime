@@ -23,7 +23,7 @@
 #include <sstream> // std::ostringstream
 #endif
 
-namespace ngpt {
+namespace dso {
 
 constexpr modified_julian_day cal2mjd(year y, month m, day_of_month d) {
   long mjd = cal2mjd(y.as_underlying_type(), m.as_underlying_type(),
@@ -53,13 +53,13 @@ constexpr modified_julian_day ydoy2mjd(year y, day_of_year d) noexcept {
 ///
 /// @tparam S Any class of 'second type', i.e. any class S that has a (static)
 ///           member variable S::is_of_sec_type set to true. This can be
-///           ngpt::seconds, ngpt::milliseconds, ngpt::microseconds.
+///           dso::seconds, dso::milliseconds, dso::microseconds.
 ///
 ///
 /// @note  - Any instance of the class has two members, m_days an integer
 ///          representing the (MJ) days and m_secs, an instance of type S,
 ///          representing the fractional day part. However, the parts may be
-///          mixed (!), that is if e.g. S is ngpt::seconds, the m_secs part may
+///          mixed (!), that is if e.g. S is dso::seconds, the m_secs part may
 ///          actualy have any value, including ones larger than 86400. That is
 ///          to say that an instance can be constructed as:
 ///        \code{.cpp}
@@ -82,7 +82,7 @@ public:
 
   /// Constructor given a Modified Julian Day and *seconds (type S).
   ///
-  /// param[in] d  Number of days; a ngpt::modified_julian_day instance.
+  /// param[in] d  Number of days; a dso::modified_julian_day instance.
   /// param[in] s  Number of *seconds; an instance of type S
   ///
   /// @note  A datetime_interval can only have positive values for its member
@@ -102,7 +102,7 @@ public:
   };
 
   /// Get the number of days of the instance.
-  /// @return The number of days in the instance, as ngpt::modified_julian_day
+  /// @return The number of days in the instance, as dso::modified_julian_day
   modified_julian_day days() const noexcept { return m_days; }
 
   /// Get the number of *seconds (as type S) of the instance.
@@ -189,13 +189,13 @@ private:
 /// - a time part (i.e. holding hours/minutes/*seconds)
 ///
 /// A datetime holds both a date and a time (i.e. of day). The date is recorded
-/// as a Modified Julian Day (i.e. ngpt::modified_julian_day). The time of day
-/// can be expressed via any class of 'second type', i.e. ngpt::seconds,
-/// ngpt::milliseconds, or ngpt::microseconds). Actually, there is no
+/// as a Modified Julian Day (i.e. dso::modified_julian_day). The time of day
+/// can be expressed via any class of 'second type', i.e. dso::seconds,
+/// dso::milliseconds, or dso::microseconds). Actually, there is no
 /// restriction for the time to be 'time of day'; in-fact, it can hold even days
-/// (e.g. 2 or 3 days in ngpt::seconds), but usually this is not good practice
+/// (e.g. 2 or 3 days in dso::seconds), but usually this is not good practice
 /// and should be avoided. Especially when the second type is e.g.
-/// ngpt::milliseconds, then holding multiple days in the time part could result
+/// dso::milliseconds, then holding multiple days in the time part could result
 /// in overflow. Additionaly, some member functions (e.g. the equality
 /// operators), expect the datetime to be split as date and time (of day), so
 /// make sure you conform to this. To remove whole days from the time part and
@@ -213,12 +213,12 @@ private:
 ///
 /// @tparam S Any class of 'second type', i.e. any class S that has a (static)
 ///           member variable S::is_of_sec_type set to true. This can be
-///           ngpt::seconds, ngpt::milliseconds, ngpt::microseconds.
+///           dso::seconds, dso::milliseconds, dso::microseconds.
 ///
 /// @note Constructors can be called with the time part being more than one day;
 ///       (e.g.
 ///       \code{.cpp}
-///         datetime<ngpt::seconds> d {year(2016), month(12), day_of_month(15),
+///         datetime<dso::seconds> d {year(2016), month(12), day_of_month(15),
 ///         seconds(86401};)
 ///       \endcode
 ///       If you think that this is a posibility, then call datetime::normalize
@@ -254,7 +254,7 @@ public:
   }
 
   /// Default (zero) constructor.
-  explicit constexpr datetime() noexcept : m_mjd(ngpt::j2000_mjd), m_sec(0){};
+  explicit constexpr datetime() noexcept : m_mjd(dso::j2000_mjd), m_sec(0){};
 
   /// Constructor from year, month, day of month and sec type.
   constexpr datetime(year y, month m, day_of_month d, S s) noexcept
@@ -516,6 +516,11 @@ public:
     return new_dt;
   }
 
+  constexpr datetime<S> operator+(const datetime_interval<S> &dt) const noexcept {
+    return this->add(dt.days(), dt.sec());
+  }
+
+
   /// Cast to any datetime<T> instance, regardless of what T is
   ///
   /// @tparam    T    A 'second type'
@@ -526,7 +531,7 @@ public:
   template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
   inline constexpr datetime<T> cast_to() const noexcept {
-    T nsec = ngpt::cast_to<S, T>(this->sec());
+    T nsec = dso::cast_to<S, T>(this->sec());
     return datetime<T>(this->mjd(), nsec);
   }
 
@@ -609,6 +614,9 @@ public:
     dt.normalize();
     return dt;
   }
+  constexpr datetime_interval<S> operator-(const datetime &d) const noexcept {
+    return this->delta_date(d);
+  }
 
   /// Cast to double (i.e. fractional) Modified Julian Date.
   constexpr double as_mjd() const noexcept {
@@ -684,7 +692,7 @@ private:
   /// @return nothing
   template <class T>
   constexpr void __add_seconds_impl(T sec, std::true_type) noexcept {
-    S ssec = ngpt::cast_to<T, S>(sec);
+    S ssec = dso::cast_to<T, S>(sec);
     m_sec += ssec;
     this->normalize();
     return;
@@ -707,9 +715,9 @@ private:
   ///          instance, thus loss of accuracy may happen.
   template <class T>
   constexpr void __add_seconds_impl(T sec, std::false_type) noexcept {
-    T sect = ngpt::cast_to<S, T>(m_sec);
+    T sect = dso::cast_to<S, T>(m_sec);
     sect += sec;
-    m_sec = ngpt::cast_to<T, S>(sect);
+    m_sec = dso::cast_to<T, S>(sect);
     this->normalize();
     return;
   }
@@ -727,7 +735,7 @@ private:
   /// @return nothing
   template <typename T>
   constexpr void __remove_seconds_impl(T sec, std::true_type) noexcept {
-    S ssec = ngpt::cast_to<T, S>(sec);
+    S ssec = dso::cast_to<T, S>(sec);
     m_sec -= ssec;
     this->normalize();
     return;
@@ -750,9 +758,9 @@ private:
   ///          instance, thus loss of accuracy may happen.
   template <class T>
   constexpr void __remove_seconds_impl(T sec, std::false_type) noexcept {
-    T sect = ngpt::cast_to<S, T>(m_sec);
+    T sect = dso::cast_to<S, T>(m_sec);
     sect -= sec;
-    m_sec = ngpt::cast_to<T, S>(sect);
+    m_sec = dso::cast_to<T, S>(sect);
     this->normalize();
     return;
   }
@@ -797,7 +805,7 @@ template <typename S1, typename S2,
           typename = std::enable_if_t<(S1::max_in_day > S2::max_in_day)>>
 inline S1 delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept {
   S1 diff = mjd_sec_diff<S1>(d1.mjd(), d2.mjd()); // days dif in S1
-  S1 s2sec = ngpt::cast_to<S2, S1>(d2.sec());     // cast d2 secs to S1
+  S1 s2sec = dso::cast_to<S2, S1>(d2.sec());     // cast d2 secs to S1
   return diff + (d1.sec() - s2sec);
 }
 
@@ -824,7 +832,7 @@ template <typename S1, typename S2,
           typename = std::enable_if_t<(S2::max_in_day > S1::max_in_day)>>
 inline S2 delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept {
   S2 diff = mjd_sec_diff<S2>(d1.mjd(), d2.mjd()); // days dif in S2
-  S2 s1sec = ngpt::cast_to<S1, S2>(d1.sec());     // cast d1 secs to S2
+  S2 s1sec = dso::cast_to<S1, S2>(d1.sec());     // cast d1 secs to S2
   return diff + (s1sec - d2.sec());
 }
 
@@ -870,16 +878,16 @@ constexpr int day_of_week(T sow) noexcept {
 ///         - No checks are performed for the validity of the input date.
 ///
 /// @see IAU SOFA (iau-dat.c)
-/// @see ngpt::dat
+/// @see dso::dat
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt T>
 #else
 template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
 inline int dat(datetime<T> t) noexcept {
-  return ngpt::dat(t.mjd());
+  return dso::dat(t.mjd());
 }
 
-} // namespace ngpt
+}// dso 
 
 #endif

@@ -27,9 +27,9 @@
 /// The day of month is actually not needed, since all leap second insertions
 /// happen at the begining, i.e. the first day of a month.
 ///
-int ngpt::dat(ngpt::year iy, ngpt::month im) noexcept {
+int dso::dat(dso::year iy, dso::month im) noexcept {
 #ifdef USE_DATETIME_CHECKS
-  assert(iy >= ngpt::year(1972));
+  assert(iy >= dso::year(1972));
 #endif
 
   // Dates and Delta(AT)s
@@ -69,11 +69,11 @@ int ngpt::dat(ngpt::year iy, ngpt::month im) noexcept {
 /// The day of month is actually not needed, since all leap second insertions
 /// happen at the begining, i.e. the first day of a month.
 ///
-int ngpt::dat(ngpt::modified_julian_day mjd) noexcept {
+int dso::dat(dso::modified_julian_day mjd) noexcept {
 
   // Dates and Delta(AT)s
   constexpr struct {
-    ngpt::modified_julian_day::underlying_type mjday;
+    dso::modified_julian_day::underlying_type mjday;
     int delat;
   } changes[] = {{41317L, 10}, {41499L, 11}, {41683L, 12}, {42048L, 13},
                  {42413L, 14}, {42778L, 15}, {43144L, 16}, {43509L, 17},
@@ -87,7 +87,7 @@ int ngpt::dat(ngpt::modified_julian_day mjd) noexcept {
   constexpr int NDAT{(int)(sizeof changes / sizeof changes[0])};
 
   // find the preceding table entry.
-  ngpt::modified_julian_day::underlying_type today{mjd.as_underlying_type()};
+  dso::modified_julian_day::underlying_type today{mjd.as_underlying_type()};
   int idx = NDAT - 1;
   for (; idx >= 0; idx--) {
     if (today >= changes[idx].mjday)

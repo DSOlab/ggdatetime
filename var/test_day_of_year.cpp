@@ -2,9 +2,9 @@
 #include <stdexcept>
 #include "dtfund.hpp"
 
-using ngpt::year;
-using ngpt::month;
-using ngpt::day_of_year;
+using dso::year;
+using dso::month;
+using dso::day_of_year;
 
 int main()
 {
@@ -47,6 +47,6 @@ int main()
   assert( !(dm1.is_valid(yr)) ); // non-leap year, [1, 365] days
   assert( dm1.is_valid(ly) );   // leap year, [1-366] days
 
-  std::cout<<"\nAll checks for ngpt::day_of_year OK\n";
+  std::cout<<"\nAll checks for dso::day_of_year OK\n";
   return 0;
 }
