@@ -177,6 +177,21 @@ public:
     return datetime_interval{modified_julian_day{new_mjd}, S{new_sec}};
   }
 
+  /// Cast the interval to any seconds type T
+  /// @brief Constructor from any type that has S::is_of_sec_type member, aka
+  ///        any sec-type
+#if __cplusplus >= 202002L
+    template <gconcepts::is_sec_dt T>
+#else
+    template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
+#endif
+    T to_sec_type() const noexcept {
+      using intt = typename T::underlying_type;
+      T star_t{dso::cast_to<S,T>(m_secs)};
+      intt days{m_days.as_underlying_type() * T::max_in_day};
+      return star_t + T{days};
+    }
+
 private:
   modified_julian_day m_days;
   S m_secs;

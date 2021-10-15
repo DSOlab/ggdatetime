@@ -1745,7 +1745,7 @@ public:
 
   /// The scale factor to transform from seconds to nanoseconds.
   template <typename T> static constexpr T sec_factor() noexcept {
-    return static_cast<T>(1000000000);
+    return static_cast<T>(1'000'000'000);
   }
 
   /// Constructor; default nanoseconds is 0.
