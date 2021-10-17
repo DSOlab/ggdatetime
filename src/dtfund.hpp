@@ -2399,19 +2399,10 @@ struct t_hmsf {
     typename S::underlying_type fs{_sec - ((hr * 60L + mn) * 60L + sc) *
                                               fac}; // remaining S's
 
-    /*
-    printf("-->debug on hmsf constructor: got seconds: %ld\n", _sec);
-    printf("\thours    : %d\n", (int)hr);
-    printf("\tminutes  : %d\n", (int)mn);
-    printf("\tseconds  : %ld\n", sc);
-    printf("\tfraction : %ld\n", fs);
-    */
-
-    _hours = hours{hr};
-    _minutes = minutes{mn};
-    _seconds = seconds(sc);
+    _hours = hours(hr);
+    _minutes = minutes(mn);
+    _seconds = seconds{sc};
     _fraction = static_cast<double>(fs) / S::template sec_factor<double>();
-    // printf("\tfseconds : %.9f\n", _fraction);
   }
 
   constexpr bool operator==(const t_hmsf &other) const noexcept {

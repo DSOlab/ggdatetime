@@ -15,7 +15,7 @@ int main() {
   year yr2 = 2018;
   yr2 = 2018 + 1 - 1;
   // year + Int is not allowed, hence:
-  year yr4 = yr1 + 1;
+   year yr4 = yr1 + 1;
   year yr3 = yr2.as_underlying_type() + 1;
   year leap_year = 2016;
 

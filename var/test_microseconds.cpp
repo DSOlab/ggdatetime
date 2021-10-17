@@ -21,13 +21,15 @@ int main() {
 
   microseconds s2(86400 * factor);
   assert(s2 == microseconds(hours(23), minutes(60), microseconds(0)));
+  assert(s2 == microseconds(hours(24), minutes(0), microseconds(0)));
+  assert(s2 == microseconds(hours(23), minutes(59), microseconds(60*factor)));
 
-  microseconds s3(86401 * factor);
-  assert(s3 == microseconds(hours(22), minutes(60),
-                            microseconds(3600 * factor + 1 * factor)));
+  microseconds s3(86401 * factor); // one day plus one second
+  assert(s3 == microseconds(hours(23), minutes(59),
+                            microseconds(61 * factor)));
   assert(s3 ==
-         microseconds(86401.123465 *
-                      (double)factor)); // Note! this will be cast to an integer
+         microseconds(86401 * (double)factor + .123465));
+                                        // Note! this will be cast to an integer
                                         // before assignment; hence, it will be
                                         // exactly 86401 microseconds and the
                                         // fractional part will be ignored
@@ -40,7 +42,7 @@ int main() {
 
   // we can add and subtract microseconds w microseconds
   s5 = 3600 * factor;
-  s5 = s1 + s2;
+  s5 = s1 + s2; // at this point s2 is one day and s1 is one hour
   assert(s5 == microseconds(3600 * factor + 86400 * factor));
   assert(s5.more_than_day());
   s5 = s2 - s1;
@@ -49,9 +51,9 @@ int main() {
   // remove whole days and keep fractional part (of day); e.g.
   int days = s5.remove_days();
   assert(days == 0 && s5 == microseconds(86400 * factor - 3600 * factor));
-  auto s6 = s3;
+  auto s6 = s3; // s3 is one day plus one second
   days = s6.remove_days();
-  assert(days == 1 && s6 == microseconds(1));
+  assert(days == 1 && s6 == microseconds(1*factor));
   // Note again that we can't add numerics with microseconds!
   // s6 = s6 + 86400; CMP_ERROR
   // or .. do not change the instance and compute whole days
