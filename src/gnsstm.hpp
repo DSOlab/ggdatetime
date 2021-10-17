@@ -31,6 +31,6 @@ enum class GnssTimeSystem : char {
   irn  ///< to identify IRNSS time
 };     // GnssTimeSystem
 
-} // dso
+} // namespace dso
 
 #endif

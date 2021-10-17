@@ -2470,6 +2470,6 @@ constexpr microseconds operator"" _microsec(ddetail::ulli i) noexcept {
   return microseconds{static_cast<microseconds::underlying_type>(i)};
 }
 
-} // dso 
+} // namespace dso
 
 #endif // define DATETIME

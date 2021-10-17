@@ -13,6 +13,7 @@
 
 #include "dtfund.hpp"
 #include <cassert>
+#include <cstring>
 
 /// Definition for static month array (short names).
 /// @see dso::month

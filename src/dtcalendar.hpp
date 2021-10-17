@@ -181,16 +181,16 @@ public:
   /// @brief Constructor from any type that has S::is_of_sec_type member, aka
   ///        any sec-type
 #if __cplusplus >= 202002L
-    template <gconcepts::is_sec_dt T>
+  template <gconcepts::is_sec_dt T>
 #else
-    template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
+  template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
-    T to_sec_type() const noexcept {
-      using intt = typename T::underlying_type;
-      T star_t{dso::cast_to<S,T>(m_secs)};
-      intt days{m_days.as_underlying_type() * T::max_in_day};
-      return star_t + T{days};
-    }
+  T to_sec_type() const noexcept {
+    using intt = typename T::underlying_type;
+    T star_t{dso::cast_to<S, T>(m_secs)};
+    intt days{m_days.as_underlying_type() * T::max_in_day};
+    return star_t + T{days};
+  }
 
 private:
   modified_julian_day m_days;
@@ -531,10 +531,10 @@ public:
     return new_dt;
   }
 
-  constexpr datetime<S> operator+(const datetime_interval<S> &dt) const noexcept {
+  constexpr datetime<S>
+  operator+(const datetime_interval<S> &dt) const noexcept {
     return this->add(dt.days(), dt.sec());
   }
-
 
   /// Cast to any datetime<T> instance, regardless of what T is
   ///
@@ -820,7 +820,7 @@ template <typename S1, typename S2,
           typename = std::enable_if_t<(S1::max_in_day > S2::max_in_day)>>
 inline S1 delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept {
   S1 diff = mjd_sec_diff<S1>(d1.mjd(), d2.mjd()); // days dif in S1
-  S1 s2sec = dso::cast_to<S2, S1>(d2.sec());     // cast d2 secs to S1
+  S1 s2sec = dso::cast_to<S2, S1>(d2.sec());      // cast d2 secs to S1
   return diff + (d1.sec() - s2sec);
 }
 
@@ -847,7 +847,7 @@ template <typename S1, typename S2,
           typename = std::enable_if_t<(S2::max_in_day > S1::max_in_day)>>
 inline S2 delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept {
   S2 diff = mjd_sec_diff<S2>(d1.mjd(), d2.mjd()); // days dif in S2
-  S2 s1sec = dso::cast_to<S1, S2>(d1.sec());     // cast d1 secs to S2
+  S2 s1sec = dso::cast_to<S1, S2>(d1.sec());      // cast d1 secs to S2
   return diff + (s1sec - d2.sec());
 }
 
@@ -903,6 +903,6 @@ inline int dat(datetime<T> t) noexcept {
   return dso::dat(t.mjd());
 }
 
-}// dso 
+} // namespace dso
 
 #endif

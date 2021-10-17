@@ -232,6 +232,6 @@ datetime<T> strptime_ydoy_hms(const char *str, char **stop = nullptr) {
                      minutes{ints[3]}, secs};
 }
 
-} // dso 
+} // namespace dso
 
 #endif

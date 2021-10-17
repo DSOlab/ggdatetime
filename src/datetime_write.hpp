@@ -75,6 +75,6 @@ std::string strftime_ymd_hms(const datetime<T> &t, char del = '-') {
          _i2s_(std::get<2>(hmsf).as_underlying_type(), 2);
 }
 
-} // dso
+} // namespace dso
 
 #endif
