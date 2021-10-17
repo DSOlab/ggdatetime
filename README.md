@@ -13,6 +13,10 @@ Source code is ISO C++17. Compilation should be trivial using any C++ compiler
 [supporting the c++17](https://en.wikipedia.org/wiki/C%2B%2B17#Compiler_support) 
 standard (option `-std=c++17` in gcc and clang).
 
+**October 2021** Source code can also be compiled using the latest 
+[C++ 20 standard](https://en.cppreference.com/w/cpp/20). To compile against
+C++20, set the corresponding flags in the `Makefile.am` files.
+
 > This software is meant to be implemented on Unix-type OS's. No effort will be
 > undertaken for compatibility with other OS types.
 
