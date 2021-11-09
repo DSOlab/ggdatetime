@@ -16,12 +16,10 @@
 
 #include "dtfund.hpp"
 #include <cassert>
-
-#ifdef DEBUG
+// TODO these are used for std::string/iostream manipulation; remove
 #include <iomanip> // std::setprecision
 #include <iostream>
 #include <sstream> // std::ostringstream
-#endif
 
 namespace dso {
 

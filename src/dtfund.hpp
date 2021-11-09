@@ -1168,7 +1168,7 @@ public:
 
   /// The scale factor to transform from seconds to seconds.
   template <typename T> static constexpr T sec_factor() noexcept {
-    return static_cast<T>(1);
+    return static_cast<T>(1e0);
   }
 
   /// Constructor; default seconds is 0.
@@ -1341,7 +1341,7 @@ public:
 
   /// The scale factor to transform from seconds to milliseconds.
   template <typename T> static constexpr T sec_factor() noexcept {
-    return static_cast<T>(1000);
+    return static_cast<T>(1000e0);
   }
 
   /// Constructor; default milliseconds is 0.
@@ -1438,7 +1438,7 @@ public:
 
   /// Cast to fractional dso::seconds
   constexpr double to_fractional_seconds() const noexcept {
-    return static_cast<double>(m_sec) * 1.0e-3;
+    return static_cast<double>(m_sec) / sec_factor<double>();
   }
 
   /// @brief Resolve to (integer) seconds and fractional seconds.
@@ -1658,7 +1658,7 @@ public:
 
   /// Cast to fractional seconds
   constexpr double to_fractional_seconds() const noexcept {
-    return static_cast<double>(m_sec) * 1.0e-6;
+    return static_cast<double>(m_sec) / sec_factor<double>();
   }
 
   /// Translate to hours, minutes, seconds and microseconds.
@@ -1855,7 +1855,7 @@ public:
 
   /// Cast to fractional seconds
   constexpr double to_fractional_seconds() const noexcept {
-    return static_cast<double>(m_sec) * 1.0e-9;
+    return static_cast<double>(m_sec) / sec_factor<double>();
   }
 
   /// Translate to hours, minutes, seconds and microseconds.
