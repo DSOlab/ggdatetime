@@ -78,7 +78,7 @@ dso::month::month(const char *str) {
 
 /// Given a modified_julian_day convert it to a year and day_of_year, aka
 /// an instance of dso::ydoy_date
-constexpr dso::ydoy_date dso::modified_julian_day::to_ydoy() const noexcept {
+dso::ydoy_date dso::modified_julian_day::to_ydoy() const noexcept {
   long days_fr_jan1_1901{m_mjd - dso::jan11901};
   long num_four_yrs{days_fr_jan1_1901 / 1461L};
   long years_so_far{1901L + 4 * num_four_yrs};

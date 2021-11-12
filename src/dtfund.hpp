@@ -826,7 +826,7 @@ public:
   ///
   /// @see    "Remondi Date/Time Algorithms",
   ///          http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
-  constexpr ydoy_date to_ydoy() const noexcept;
+  ydoy_date to_ydoy() const noexcept;
 
   /// @brief Convert a Modified Julian Day to Calendar Date.
   ///

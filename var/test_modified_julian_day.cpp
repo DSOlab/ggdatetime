@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+#include <random>
 
 using dso::day_of_month;
 using dso::day_of_year;
