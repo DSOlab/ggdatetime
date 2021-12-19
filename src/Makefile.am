@@ -1,14 +1,14 @@
 ##
-##  The library will be called: (lib)"ggdatetime".
+##  The library will be called: (lib)"datetime".
 ## ----------------------------------------------
 ##
-lib_LTLIBRARIES = libggdatetime.la
+lib_LTLIBRARIES = libdatetime.la
 
 ##
 ##  Only use the following flags for debuging purposes.
 ## ----------------------------------------------------
 ##
-libggdatetime_la_CXXFLAGS = \
+libdatetime_la_CXXFLAGS = \
 	-std=c++17 \
 	-g \
 	-pg \
@@ -38,6 +38,6 @@ pkginclude_HEADERS = \
 ##  Source files (distributed).
 ## ----------------------------
 ##
-dist_libggdatetime_la_SOURCES = \
+dist_libdatetime_la_SOURCES = \
 	dtfund.cpp \
 	dat.cpp

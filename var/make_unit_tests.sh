@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 echo "+=====================================================================+"
-echo "        Kind-a automated, bash/gcc unit testing for ggdatetime         "
+echo "        Kind-a automated, bash/gcc unit testing for datetime         "
 echo "+=====================================================================+"
 
 ## We need the freshly-compiled library NOT the system one! Locate the library
@@ -9,7 +9,7 @@ echo "+=====================================================================+"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 ROOTDIR=${DIR%\/var}
 LNPTH=${ROOTDIR}/src/.libs
-if ! test -f ${LNPTH}/libggdatetime.la && ! test -f ${LNPTH}/libggdatetime.so ; then
+if ! test -f ${LNPTH}/libdatetime.la && ! test -f ${LNPTH}/libdatetime.so ; then
   echo echo "FAILED; stoping with error" 1>&2
   exit 3
 fi
@@ -73,9 +73,9 @@ echo "+---------------------------------------------------------------------+"
 echo " Compiling (correct) unit tests ..."
 echo "+---------------------------------------------------------------------+"
 for nc in "${unit_tests[@]}" ; do
-  echo "    g++ -std=c++17 -Wall -I${ROOTDIR}/src -L${LNPTH} ${nc} -o ${nc/.cpp/.o} -lggdatetime"
+  echo "    g++ -std=c++17 -Wall -I${ROOTDIR}/src -L${LNPTH} ${nc} -o ${nc/.cpp/.o} -ldatetime"
   if ! g++ -std=c++17 -Wall -I${ROOTDIR}/src -L${LNPTH} ${nc} -o ${nc/.cpp/.o} \
-      -lggdatetime 2>>comp.log; then
+      -ldatetime 2>>comp.log; then
     echo "FAILED; stoping with error" 1>&2
     exit 1
   fi
@@ -85,9 +85,9 @@ done
 echo " Compiling erronuous unit tests ... (they should fail)"
 echo "+---------------------------------------------------------------------+"
 for nc in "${errornuous_units_tests[@]}" ; do
-  echo -n "    g++ -std=c++17 -Wall -I${ROOTDIR}/src -L${LNPTH} ${nc} -o ${nc/.cpp/.o} -lggdatetime ..."
+  echo -n "    g++ -std=c++17 -Wall -I${ROOTDIR}/src -L${LNPTH} ${nc} -o ${nc/.cpp/.o} -ldatetime ..."
   if g++ -std=c++17 -Wall -I${ROOTDIR}/src -L${LNPTH} ${nc} -o ${nc/.cpp/.o} \
-      -lggdatetime 2>>comp.log ; then
+      -ldatetime 2>>comp.log ; then
     echo "FAILED; stoping with error" 1>&2
     exit 2
   else
