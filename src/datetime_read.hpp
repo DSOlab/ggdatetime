@@ -16,10 +16,13 @@
 
 #include "dtcalendar.hpp"
 #include "dtfund.hpp"
+#include <cstring>
+#include <cstring>
+#include <cstring>
+#include <cstring>
 #include <cctype> // for std::isalpha
 #include <cstdlib>
 #include <stdexcept>
-
 #ifdef DEBUG
 #include <iostream>
 #endif
