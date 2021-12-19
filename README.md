@@ -17,13 +17,24 @@ standard (option `-std=c++17` in gcc and clang).
 [C++ 20 standard](https://en.cppreference.com/w/cpp/20). To compile against
 C++20, set the corresponding flags in the `Makefile.am` files.
 
-> This software is meant to be implemented on Unix-type OS's. No effort will be
-> undertaken for compatibility with other OS types.
+> Since December 2021, the build system has been changed from [GNU Autotools](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html)
+> to [scons](https://scons.org/). Users can still build using the Autotools system, but
+> we advise changing to scons, as the former will be considered obsolete in the near
+> future. 
 
 To compile the library, just follow the basic steps: (*note that the library is still at development phase so users need to configure the project before compiling*)
 
 For the following, `ROOTDIR` will be the root directory of this repository,
 aka the directory under which `/src`, `/test` and `/doc` folders live.
+
+### Compile and install
+To compile and install, using [scons](https://scons.org/), just type:
+```
+scons
+sudo scons install
+```
+
+### Compilation using [Autotools](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html)
 
 **If you do not need the DEBUG version** (which most probably you don't), create the `Makefile.am` templates. This means that you
 should rename [Makefile.am.production](src/Makefile.am.production) and [Makefile.am.production](test/Makefile.am.production) to
@@ -47,7 +58,7 @@ sudo make install
 
 After a succesefull installation, users should have:
 
-1. all library header files in `/usr/local/include/ggdatetime/`
+1. all library header files in `/usr/local/include/datetime/`
 2. the library (both a static and shared) in `/usr/local/lib/`
 
 ~~To run a validity check, just run: `make check` at the root directory. Hopefully, 
@@ -77,7 +88,7 @@ Here is a list of the provided utilities:
 
 ### Namespaces
 
-The whole of the library is wrapped around the `ngpt` namespace
+The whole of the library is wrapped around the `dso` namespace
 
 ### Linking
 
