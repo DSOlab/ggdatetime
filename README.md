@@ -34,7 +34,7 @@ scons
 sudo scons install
 ```
 
-### Compilation using [Autotools](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html)
+### Compilation using [Autotools](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html) __(deprecated)__
 
 **If you do not need the DEBUG version** (which most probably you don't), create the `Makefile.am` templates. This means that you
 should rename [Makefile.am.production](src/Makefile.am.production) and [Makefile.am.production](test/Makefile.am.production) to
