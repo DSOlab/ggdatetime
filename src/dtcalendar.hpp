@@ -635,6 +635,13 @@ public:
   constexpr double as_mjd() const noexcept {
     return static_cast<double>(m_mjd.as_underlying_type()) +
            m_sec.fractional_days();
+  } 
+
+  /// @brief compute Julian centuries since J2000
+  constexpr double jcenturies_sinceJ2000() const noexcept {
+    double jd = m_mjd.to_julian_day();
+    double jc = (jd - j2000_jd)/36525e0 + m_sec.fractional_days()/36525e0;
+    return jc;
   }
 
   /// Cast to year, month, day of month
