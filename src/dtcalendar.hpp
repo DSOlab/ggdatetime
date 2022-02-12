@@ -631,11 +631,17 @@ public:
     return this->delta_date(d);
   }
 
-  /// Cast to double (i.e. fractional) Modified Julian Date.
+  /// @brief Cast to double (i.e. fractional) Modified Julian Date.
   constexpr double as_mjd() const noexcept {
     return static_cast<double>(m_mjd.as_underlying_type()) +
            m_sec.fractional_days();
-  } 
+  }
+
+  ///  @brief Cast to double (i.e. fractional) Julian Date.
+  constexpr double as_jd() const noexcept {
+    double jd = m_mjd.to_julian_day();
+    return jd + m_sec.fractional_days() / 36525e0;
+  }
 
   /// @brief compute Julian centuries since J2000
   constexpr double jcenturies_sinceJ2000() const noexcept {
