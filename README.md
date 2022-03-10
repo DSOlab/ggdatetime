@@ -1,6 +1,7 @@
 # C++ Datetime library
 
 [![Build Status](https://travis-ci.com/xanthospap/ggdatetime.svg?branch=master)](https://travis-ci.com/xanthospap/ggdatetime)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/xanthospap/ggdatetime.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/xanthospap/ggdatetime/alerts/)
 
 ## Introduction
 
