@@ -21,6 +21,28 @@ num_cpu = int(os.environ.get('NUM_CPU', 2))
 SetOption('num_jobs', num_cpu)
 print("running with -j %s" % GetOption('num_jobs'))
 
+AddOption('--cxx',
+          dest='cxx',
+          type='string',
+          nargs=1,
+          action='store',
+          metavar='CXX',
+          help='C++ Compiler',
+          default=None)
+AddOption('--std',
+          dest='std',
+          type='string',
+          nargs=1,
+          action='store',
+          metavar='STD',
+          help='C++ Standard [11/14/17/20]',
+          default='17')
+AddOption('--make-check',
+          dest='check',
+          action='store_true',
+          help='Trigger building of test programs',
+          default=False)
+
 ## Source files (for lib)
 lib_src_files = glob.glob(r"src/*.cpp")
 
@@ -30,13 +52,21 @@ hdr_src_files = glob.glob(r"src/*.hpp")
 ## Environments ...
 denv = Environment(CXXFLAGS='-std=c++17 -g -pg -Wall -Wextra -Werror -pedantic -W -Wshadow -Winline -Wdisabled-optimization -DDEBUG')
 ## g++ complains about failing to inline functions if we use the '-Winline' here ... 
-penv = Environment(CXXFLAGS='-std=c++17 -Wall -Wextra -Werror -pedantic -W -Wshadow -O2 -march=native')
+# penv = Environment(CXXFLAGS='-std=c++17 -Wall -Wextra -Werror -pedantic -W -Wshadow -O2 -march=native')
+penv = Environment(CXXFLAGS='-std=c++17 -Wall -Wextra -Werror -pedantic -W -Wshadow -O2')
 
 ## Command line arguments ...
 debug = ARGUMENTS.get('debug', 0)
 
 ## Construct the build enviroment
 env = denv.Clone() if int(debug) else penv.Clone()
+
+## What compiler should we be using ?
+if GetOption('cxx') is not None: env['CXX'] = GetOption('cxx')
+
+## Set the C++ standard
+cxxstd = GetOption('std')
+env.Append(CXXFLAGS=' --std=c++{}'.format(cxxstd))
 
 ## (shared) library ...
 vlib = env.SharedLibrary(source=lib_src_files, target=lib_name, CPPPATH=['.'], SHLIBVERSION=lib_version)
@@ -46,8 +76,10 @@ env.Alias(target='install', source=env.Install(dir=os.path.join(prefix, 'include
 env.Alias(target='install', source=env.InstallVersionedLib(dir=os.path.join(prefix, 'lib'), source=vlib))
 
 ## Tests ...
-tests_sources = glob.glob(r"test/*.cpp")
-env.Append(RPATH=root_dir)
-for tsource in tests_sources:
-  ttarget = tsource.replace('_', '-').replace('.cpp', '.out')
-  env.Program(target=ttarget, source=tsource, CPPPATH='src/', LIBS=vlib, LIBPATH='.')
+if GetOption('check') is not None and GetOption('check'):
+  tests_sources = glob.glob(r"test/*.cpp")
+  env.Append(RPATH=root_dir)
+  for tsource in tests_sources:
+    ttarget = tsource.replace('_', '-').replace('.cpp', '.out')
+    env.Program(target=ttarget, source=tsource, CPPPATH='src/',
+                LIBS=vlib+['geodesy', 'datetime', 'sofa_c'], LIBPATH='.')

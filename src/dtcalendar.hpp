@@ -270,7 +270,7 @@ public:
   explicit constexpr datetime() noexcept : m_mjd(dso::j2000_mjd), m_sec(0){};
 
   /// Constructor from year, month, day of month and sec type.
-  constexpr datetime(year y, month m, day_of_month d, S s) noexcept
+  constexpr datetime(year y, month m, day_of_month d, S s) /*noexcept*/
       : m_mjd{cal2mjd(y, m, d)}, m_sec{s} {
     this->normalize();
   };
@@ -280,7 +280,7 @@ public:
   template <class T, typename = std::enable_if_t<T::is_of_sec_type>,
             typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
-  constexpr datetime(year y, month m, day_of_month d, T t) noexcept
+  constexpr datetime(year y, month m, day_of_month d, T t) /*noexcept*/
       : m_mjd{cal2mjd(y, m, d)}, m_sec{S(t)} {
     this->normalize();
   }
@@ -301,7 +301,7 @@ public:
             typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
   constexpr datetime(year y, month m, day_of_month d, hours hr, minutes mn,
-                     T sec) noexcept
+                     T sec) /*noexcept*/
       : m_mjd{cal2mjd(y, m, d)}, m_sec{hr, mn, S(sec)} {
     this->normalize();
   }
@@ -319,7 +319,7 @@ public:
 
   /// Constructor from year, month, day of month and fractional seconds.
   constexpr datetime(year y, month m, day_of_month d, hours hr, minutes mn,
-                     double fsecs) noexcept
+                     double fsecs) /*noexcept*/
       : m_mjd{cal2mjd(y, m, d)}, m_sec{hr, mn, fsecs} {
     this->normalize();
   }
@@ -334,7 +334,7 @@ public:
   /// Constructor from year, month, day of month, hours, minutes and
   /// second type S.
   constexpr datetime(year y, month m, day_of_month d, hours hr = hours(),
-                     minutes mn = minutes(), S sec = S()) noexcept
+                     minutes mn = minutes(), S sec = S()) /*noexcept*/
       : m_mjd{cal2mjd(y, m, d)}, m_sec{hr, mn, sec} {
     this->normalize();
   }
@@ -650,15 +650,20 @@ public:
     return jc;
   }
 
-  /// Cast to year, month, day of month
+  /// @brief Cast to year, month, day of month
   /// @warning Expects normalized instance.
   constexpr ymd_date as_ymd() const noexcept { return m_mjd.to_ymd(); }
 
-  /// Cast to year, day_of_year
+  /// @brief Cast to year, day_of_year
   /// @warning Expects normalized instance.
   constexpr ydoy_date as_ydoy() const noexcept { return m_mjd.to_ydoy(); }
+  
+  /// @brief Convert to Julian Epoch
+  constexpr double as_julian_epoch() const noexcept {
+    return epj(this->as_mjd());
+  }
 
-  /// Cast to gps_week and Sec-Of-Week
+  /// @brief Cast to gps_week and Sec-Of-Week
   constexpr gps_week as_gps_wsow(long &sow) const noexcept {
     auto mjd = m_mjd.as_underlying_type();
     gps_week w{(mjd - jan61980) / 7};
@@ -669,7 +674,7 @@ public:
     return w;
   }
 
-  /// Cast to gps_week and S-Of-Week
+  /// @brief Cast to gps_week and S-Of-Week
   constexpr gps_week as_gps_wsow(S &sow) const noexcept {
     auto mjd = m_mjd.as_underlying_type();
     gps_week w{(mjd - jan61980) / 7};

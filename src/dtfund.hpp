@@ -46,32 +46,32 @@ static_assert(86400L * 1'000'000'000L * 2 < std::numeric_limits<long>::max(),
               "FUCK! Long is not big enough to hold two days in microseconds");
 
 /// Jan 1st 1980 for GPS Time
-constexpr long jan61980{44244L};
+constexpr const long jan61980{44244L};
 
-constexpr long jan11901{15385L};
+constexpr const long jan11901{15385L};
 
 /// Seconds per day.
 /// @warning This is not always true in case of UTC dates; the day a leap second
 ///          is inserted has one more second!
-constexpr double sec_per_day{86400e0};
+constexpr const double sec_per_day{86400e0};
 
 /// Days per Julian year.
-constexpr double days_in_julian_year{365.25e0};
+constexpr const double days_in_julian_year{365.25e0};
 
 /// Days per Julian century.
-constexpr double days_in_julian_cent{36525e0};
+constexpr const double days_in_julian_cent{36525e0};
 
 /// Reference epoch (J2000.0), Julian Date.
-constexpr double j2000_jd{2451545e0};
+constexpr const double j2000_jd{2451545e0};
 
 /// Reference epoch (J2000.0), Modified Julian Date.
-constexpr double j2000_mjd{51544.5e0};
+constexpr const double j2000_mjd{51544.5e0};
 
 /// Julian Date of Modified Julian Date zero.
-constexpr double mjd0_jd{2400000.5e0};
+constexpr const double mjd0_jd{2400000.5e0};
 
 /// TT minus TAI in seconds.
-constexpr double tt_minus_tai{32.184e0};
+constexpr const double tt_minus_tai{32.184e0};
 
 /// Forward declerations
 class year;
@@ -138,19 +138,40 @@ constexpr long cal2mjd(int iy, int im, int id) {
 ///
 /// @param[in] iy The year to check (int).
 /// @return true if year is leap, false otherwise.
-///
-/// @throw Does not throw.
 constexpr bool is_leap(int iy) noexcept {
   return !(iy % 4) && (iy % 100 || !(iy % 400));
 }
 
-/// Convert a pair of Year, Day of year to MJDay.
+/// @brief Convert a pair of Year, Day of year to MJDay.
 /// Convert a pair of year, day_of_year to a modified_julian_day. No check is
 /// performed whatsoever, at the input arguments (e.g. to see if indeed
 /// the given doy is within a valid range).
 constexpr long ydoy2mjd(long iyr, long idoy) noexcept {
   return ((iyr - 1901) / 4) * 1461 + ((iyr - 1901) % 4) * 365 + idoy - 1 +
          dso::jan11901;
+}
+
+/// @brief Julian Date to Julian Epoch
+/// Convert a Julian date to a Julian Epoch. The date is passed in a two-part
+/// fractional (double) numeric value, aka the Julian Date is available as a 
+/// single number by adding dj1 and dj2. The maximum resolution is achieved if 
+/// dj1 is 2451545.0 (J2000.0).
+/// @param[in] dj1 First part of julian date to convert (for maximum 
+///                resolution, should be J2000.0)
+/// @parampin] dj2 Second part of julian date to convert, aka JD = dj1 + dj2
+/// @return The input date as Julian Epoch.
+/// @see IAU SOFA epj.c
+constexpr double epj(double dj1, double dj2) noexcept {
+  return 2000e0 + ((dj1 - j2000_jd) + dj2) / days_in_julian_year;
+}
+
+/// @brief Modified Julian Date to Julian Epoch
+/// Convert a Modified Julian date to a Julian Epoch.
+/// @parampin] mjd The Modified Julian Date
+/// @return The input date as Julian Epoch.
+/// @see IAU SOFA epj.c
+constexpr double epj(double mjd) noexcept {
+  return 2000e0 + (mjd - j2000_mjd) / days_in_julian_year;
 }
 
 /// @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
@@ -199,6 +220,14 @@ constexpr void mjd2ymd(long mjd, int &iyear, int &imonth, int &idom) noexcept {
   iyear = 100L * (n - 49L) + i + l;
 
   return;
+}
+
+/// @brief Julian Epoch to Modified Julian Date
+/// @param[in] epj The Julian Epoch to convert
+/// @return The corresponding (fractional) Modified Julian Date
+/// @see IAU SOFA epj2jd
+constexpr double epj2mjd(double epj) noexcept {
+  return j2000_mjd + (epj - 2000e0) * days_in_julian_year;
 }
 
 /// @class year
