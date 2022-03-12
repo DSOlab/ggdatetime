@@ -11,6 +11,7 @@ before_install:
   - cd sofa/20210512/c/src
   - make
   - sudo make install
+  - cd ../../../../
 
 script:
  - sudo scons install
