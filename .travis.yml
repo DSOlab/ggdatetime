@@ -12,6 +12,7 @@ before_install:
   - make
   - sudo make install
   - cd ../../../../
+  - sudo ldconfig
 
 script:
  - sudo scons install

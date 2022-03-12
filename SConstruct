@@ -82,5 +82,5 @@ if GetOption('check') is not None and GetOption('check'):
   for tsource in tests_sources:
     ttarget = tsource.replace('_', '-').replace('.cpp', '.out')
     env.Program(target=ttarget, source=tsource, CPPPATH='src/',
-                LIBS=vlib+['geodesy', 'datetime', 'sofa_c'], LIBPATH='.')
+                LIBS=vlib+['datetime', 'sofa_c'], LIBPATH='.')
     #Command(target=ttarget+'-run', source=ttarget, action=ttarget)
