@@ -7,18 +7,18 @@ environment:
   # - TOXENV: py27  # https://devguide.python.org/devcycle/#end-of-life-branches
   # - TOXENV: py35
   # - TOXENV: py36    # https://devguide.python.org/#status-of-python-branches
-  - TOXENV: py37
-  - TOXENV: py38
-  - TOXENV: py39
+  # - TOXENV: py37
+  # - TOXENV: py38
+  # - TOXENV: py39
   - TOXENV: py310
   - VCVAR17: 'C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat'
-  - VCVAR17_x86: \C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat'
+  # - VCVAR17_x86: \C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat'
   - VCVAR19: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat'
-  - VCVAR19_x86: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat'
+  # - VCVAR19_x86: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat'
 
 platform:
-- x86
-- x64
+  # - x86
+  - x64
 
 before_build:
 - python -m pip install --user scons
