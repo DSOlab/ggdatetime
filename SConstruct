@@ -2,7 +2,7 @@ from __future__ import print_function
 import os, sys, glob, platform
 
 ## Prefix for install(ed) files
-if platform.system() != "Windows"
+if platform.system() != "Windows":
     prefix="/usr/local"
     if not os.path.isdir(prefix):
         print('[ERROR] Cannot find \'prefix\' directory, aka {:}; aborting'.format(prefix), file=sys.stderr)
