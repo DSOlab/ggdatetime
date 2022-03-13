@@ -1,5 +1,5 @@
-language: c++
-dist: bionic
+image: Ubuntu
+
 compiler:
   - gcc
   - clang
@@ -18,7 +18,7 @@ before_install:
   - cd ../../../../
   - sudo ldconfig
 
-script:
+build_script:
  - sudo scons install
  - scons --make-check
  - cd var && bash make_unit_tests.sh
