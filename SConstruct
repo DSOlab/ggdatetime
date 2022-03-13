@@ -45,6 +45,11 @@ AddOption('--make-check',
           action='store_true',
           help='Trigger building of test programs',
           default=False)
+AddOption('--make-db',
+          dest='build_db',
+          action='store_true',
+          help='Trigger the creation of a compilation database JSON file',
+          default=False)
 
 ## Source files (for lib)
 lib_src_files = glob.glob(r"src/*.cpp")
@@ -77,6 +82,12 @@ if GetOption('cxx') is not None: env['CXX'] = GetOption('cxx')
 ## Set the C++ standard
 cxxstd = GetOption('std')
 env.Append(CXXFLAGS = ' --std=c++{}'.format(cxxstd) if platform.system() != "Windows" else ' /std:c++{}'.format(cxxstd))
+
+## Check if we need a compilation database
+if GetOption('build_db') is not None and GetOption('build_db'):
+  env.Tool('compilation_db')
+  cdb = env.CompilationDatabase()
+  Alias('cdb', cdb)
 
 ## (shared) library ...
 vlib = env.SharedLibrary(source=lib_src_files, target=lib_name, CPPPATH=['.'], SHLIBVERSION=lib_version)

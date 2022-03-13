@@ -52,8 +52,8 @@ int __lower_strncmp__(const char *str1, const char *str2,
 /// and long_names, then an exception is thrown of type: std::invalid_argument
 /// Note that the month will be returned in the "normal" range [1,12],
 /// **not** [0-11].
-dso::month::month(const char *str) {
-  m_month = 0;
+dso::month::month(const char *str) : m_month(0) {
+  // m_month = 0;
 
   if (std::strlen(str) == 3) {
     for (int i = 0; i < 12; ++i) {
@@ -111,7 +111,7 @@ constexpr dso::ydoy_date dso::ymd_date::to_ydoy() const noexcept {
 constexpr dso::ymd_date dso::ydoy_date::to_ymd() const noexcept {
   ymd_date yd;
   yd.__year = __year;
-  int guess = __doy.as_underlying_type() * 0.032;
+  int guess = static_cast<int>(__doy.as_underlying_type() * 0.032);
   int leap = __year.is_leap();
 #ifdef DEBUG
   assert(guess >= 0 && guess < 11);
