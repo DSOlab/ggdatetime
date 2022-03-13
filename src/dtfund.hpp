@@ -1880,11 +1880,13 @@ public:
   /// Translate to hours, minutes, seconds and microseconds.
   /// @bug need more documentation
   constexpr std::tuple<hours, minutes, seconds, long> to_hmsf() const noexcept {
-    underlying_type  hr{m_sec / (3600L * 1000000000L)};                  // hours
-    underlying_type  mn{(m_sec % (3600L * 1000000000L)) / 60000000000L}; // minutes
-    underlying_type  sc{((m_sec % (3600L * 1000000000L)) % 60000000000L) /
-    underlying_type     1000000000L};                                        // seconds
-    underlying_type  ns{m_sec - ((hr * 60L + mn) * 60L + sc) * 1000000000L}; // microsec.
+    underlying_type hr{m_sec / (3600L * 1000000000L)}; // hours
+    underlying_type mn{(m_sec % (3600L * 1000000000L)) /
+                       60000000000L}; // minutes
+    underlying_type sc{((m_sec % (3600L * 1000000000L)) % 60000000000L) /
+                       1000000000L}; // seconds
+    underlying_type ns{m_sec -
+                       ((hr * 60L + mn) * 60L + sc) * 1000000000L}; // microsec.
     return std::make_tuple(hours{static_cast<hours::underlying_type>(hr)},
                            minutes{static_cast<minutes::underlying_type>(mn)},
                            seconds{sc}, ns);
