@@ -29,7 +29,7 @@ constexpr modified_julian_day cal2mjd(year y, month m, day_of_month d) {
   return modified_julian_day{mjd};
 }
 
-constexpr modified_julian_day ydoy2mjd(year y, day_of_year d) noexcept {
+constexpr modified_julian_day ydoy2mjd(year y, day_of_year d) {
   auto mjd = ydoy2mjd(y.as_underlying_type(), d.as_underlying_type());
   return modified_julian_day{mjd};
 }
@@ -290,7 +290,7 @@ public:
   template <class T, typename = std::enable_if_t<T::is_of_sec_type>,
             typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
-  constexpr datetime(year y, day_of_year d, T t) noexcept
+  constexpr datetime(year y, day_of_year d, T t) /*noexcept*/
       : m_mjd{ydoy2mjd(y, d)}, m_sec{S(t)} {
     this->normalize();
   }
@@ -312,7 +312,7 @@ public:
             typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
   constexpr datetime(year y, day_of_year d, hours hr, minutes mn,
-                     T sec) noexcept
+                     T sec) /*noexcept*/
       : m_mjd{ydoy2mjd(y, d)}, m_sec{hr, mn, S(sec)} {
     this->normalize();
   }
@@ -326,7 +326,7 @@ public:
 
   /// Constructor from year, day of year and fractional seconds.
   constexpr datetime(year y, day_of_year d, hours hr, minutes mn,
-                     double fsecs) noexcept
+                     double fsecs) /*noexcept*/
       : m_mjd{ydoy2mjd(y, d)}, m_sec{hr, mn, fsecs} {
     this->normalize();
   }
@@ -342,7 +342,7 @@ public:
   /// Constructor from year, day of year, hours, minutes and
   /// second type S.
   constexpr datetime(year y, day_of_year d, hours hr = hours(),
-                     minutes mn = minutes(), S sec = S()) noexcept
+                     minutes mn = minutes(), S sec = S()) /*noexcept*/
       : m_mjd{ydoy2mjd(y, d)}, m_sec{hr, mn, sec} {
     this->normalize();
   }

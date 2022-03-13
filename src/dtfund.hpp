@@ -83,19 +83,14 @@ class nanoseconds;
 /// Given a calendar date (i.e. year, month and day of month), compute the
 /// corresponding Modified Julian Day. The input date is checked and an
 /// exception is thrown if it is invalid.
-///
 /// @param[in] iy The year (int).
 /// @param[in] im The month (int).
 /// @param[in] id The day of month (int).
 /// @return    The Modified Julian Date (as long).
 /// @throw     A runtime_error if the month and/or day is invalid.
-///
 /// @note The algorithm used is valid from -4800 March 1
 ///       Declared and defined here cause its constexpr.
-///
-/// @see dso::cal2mjd
-///
-/// Reference: iauCal2jd
+/// @see IAU SOFA iauCal2jd
 constexpr long cal2mjd(int iy, int im, int id) {
   // Month lengths in days
   constexpr int mtab[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -103,7 +98,7 @@ constexpr long cal2mjd(int iy, int im, int id) {
   // Validate month
   if (im < 1 || im > 12) {
     // throw in runtime, fail to compile at compile-time
-    throw std::out_of_range("dso::cal2mjd -> Invalid Month.");
+    throw std::out_of_range("[ERROR] dso::cal2mjd -> Invalid Month.");
   }
 
   // If February in a leap year, 1, otherwise 0
@@ -111,7 +106,7 @@ constexpr long cal2mjd(int iy, int im, int id) {
 
   // Validate day, taking into account leap years
   if ((id < 1) || (id > (mtab[im - 1] + ly))) {
-    throw std::out_of_range("dso::cal2mjd -> Invalid Day of Month.");
+    throw std::out_of_range("[ERROR] dso::cal2mjd() -> Invalid Day of Month.");
   }
 
   // Compute mjd
@@ -125,7 +120,6 @@ constexpr long cal2mjd(int iy, int im, int id) {
 }
 
 /// @brief Check if year is leap.
-///
 /// @param[in] iy The year to check (int).
 /// @return true if year is leap, false otherwise.
 constexpr bool is_leap(int iy) noexcept {
@@ -136,7 +130,10 @@ constexpr bool is_leap(int iy) noexcept {
 /// Convert a pair of year, day_of_year to a modified_julian_day. No check is
 /// performed whatsoever, at the input arguments (e.g. to see if indeed
 /// the given doy is within a valid range).
-constexpr long ydoy2mjd(long iyr, long idoy) noexcept {
+constexpr long ydoy2mjd(long iyr, long idoy) {
+  if (idoy < 0 || idoy > 365 + is_leap(iyr)) {
+    throw std::out_of_range("[ERROR] dso::ydoy2mjd() -> Invalid Day of Year.");
+  }
   return ((iyr - 1901) / 4) * 1461 + ((iyr - 1901) % 4) * 365 + idoy - 1 +
          dso::jan11901;
 }
@@ -165,18 +162,14 @@ constexpr double epj(double mjd) noexcept {
 }
 
 /// @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
-///
 /// The day of month is actually not needed, since all leap second insertions
 /// happen at the begining, i.e. the first day of a month.
-///
 /// @note In case using MJD (and not calendar date) is more convinient, use the
 ///       overloaded function dso::dat
-///
 /// @warning
 ///         - This version only works for post-1972 dates! For a more complete
 ///           version, see the iauDat.c routine from IAU's SOFA.
 ///         - No checks are performed for the validity of the input date.
-///
 /// @see IAU SOFA (iau-dat.c)
 /// @see dso::dat
 int dat(year iy, month im) noexcept;
@@ -194,23 +187,6 @@ int dat(year iy, month im) noexcept;
 /// @see IAU SOFA (iau-dat.c)
 /// @see dso::dat
 int dat(modified_julian_day mjd) noexcept;
-
-constexpr void mjd2ymd(long mjd, int &iyear, int &imonth, int &idom) noexcept {
-  // Express day in Gregorian calendar
-  long l = mjd + (68569L + 2400000L + 1);
-  long n = (4L * l) / 146097L;
-  l -= (146097L * n + 3L) / 4L;
-  long i = (4000L * (l + 1L)) / 1461001L;
-  l -= (1461L * i) / 4L - 31L;
-  long k = (80L * l) / 2447L;
-
-  idom = l - (2447L * k) / 80L;
-  l = k / 11L;
-  imonth = k + 2L - 12L * l;
-  iyear = 100L * (n - 49L) + i + l;
-
-  return;
-}
 
 /// @brief Julian Epoch to Modified Julian Date
 /// @param[in] epj The Julian Epoch to convert
@@ -667,6 +643,28 @@ struct ymd_date {
   day_of_month __dom; ///< day of month
 };                    // ymd_date
 
+/// @brief Modified Julian Day to calendar date.
+/// @param[in] mjd The MJDay
+/// @param[out] iyear The year
+/// @param[out] imonth The month
+/// @param[out] idom The day of month
+constexpr ymd_date mjd2ymd(long mjd) noexcept {
+  // Express day in Gregorian calendar
+  long l = mjd + (68569L + 2400000L + 1);
+  long n = (4L * l) / 146097L;
+  l -= (146097L * n + 3L) / 4L;
+  long i = (4000L * (l + 1L)) / 1461001L;
+  l -= (1461L * i) / 4L - 31L;
+  long k = (80L * l) / 2447L;
+
+  int idom = l - (2447L * k) / 80L;
+  l = k / 11L;
+  int imonth = k + 2L - 12L * l;
+  int iyear = 100L * (n - 49L) + i + l;
+
+  return ymd_date(year(iyear), month(imonth), day_of_month(idom));
+}
+
 /// @class modified_julian_day
 /// @brief A wrapper class for Modified Julian Day.
 ///
@@ -861,10 +859,7 @@ public:
   /// @todo change return type
   // std::tuple<year, month, day_of_month>
   constexpr ymd_date to_ymd() const noexcept {
-    ymd_date ymd;
-    mjd2ymd(m_mjd, ymd.__year.__member_ref__(), ymd.__month.__member_ref__(),
-            ymd.__dom.__member_ref__());
-    return ymd;
+    return mjd2ymd(m_mjd);
   }
 
 private:
