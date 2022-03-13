@@ -14,14 +14,15 @@
 #include "dtfund.hpp"
 #include <cassert>
 #include <cstring>
+#include <cctype> // tolower()
 
 /// Definition for static month array (short names).
 /// @see dso::month
-constexpr const char *dso::month::short_names[];
+// constexpr const char *dso::month::short_names[];
 
 /// Definition for static month array (long names).
 /// @see dso::month
-constexpr const char *dso::month::long_names[];
+// constexpr const char *dso::month::long_names[];
 
 /// Number of days past at the end of non-leap and leap years.
 constexpr static long month_day[2][13] = {

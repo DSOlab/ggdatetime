@@ -31,9 +31,9 @@ concept arithmetic = std::is_arithmetic_v<T>;
 } // namespace gconcepts
 #endif
 
-/// Check if long is big enough to hold two days in microseconds.
-static_assert(86400L * 1'000'000'000L * 2 < std::numeric_limits<long>::max(),
-              "FUCK! Long is not big enough to hold two days in microseconds");
+/// Check if long is big enough to hold two days in microseconds. DELETEME
+// static_assert(86400L * 1'000'000'000L * 2 < std::numeric_limits<long>::max(),
+//              "FUCK! Long is not big enough to hold two days in microseconds");
 
 /// Jan 1st 1980 for GPS Time
 constexpr const long jan61980{44'244L};
@@ -1248,7 +1248,7 @@ public:
   constexpr int remove_days() noexcept {
     underlying_type days = m_sec / max_in_day;
     m_sec = m_sec % max_in_day;
-    return days;
+    return static_cast<int>(days);
   }
 
   /// @brief Cast to days.
@@ -1429,9 +1429,9 @@ public:
   /// day).
   /// @throw  Does not throw.
   constexpr int remove_days() noexcept {
-    int days = m_sec / max_in_day;
+    underlying_type days = m_sec / max_in_day;
     m_sec = m_sec % max_in_day;
-    return days;
+    return static_cast<int>(days);
   }
 
   /// @brief Cast to days.
@@ -1491,10 +1491,10 @@ public:
   /// \endcode
   /// @bug need more documentation
   constexpr std::tuple<hours, minutes, seconds, long> to_hmsf() const noexcept {
-    long hr{m_sec / 3600000L};                             // hours
-    long mn{(m_sec % 3600000L) / 60000L};                  // minutes
-    long sc{((m_sec % 3600000L) % 60000L) / 1000L};        // seconds
-    long ms{m_sec - ((hr * 60L + mn) * 60L + sc) * 1000L}; // milliseconds.
+    underlying_type hr{m_sec / 3600000L};                             // hours
+    underlying_type mn{(m_sec % 3600000L) / 60000L};                  // minutes
+    underlying_type sc{((m_sec % 3600000L) % 60000L) / 1000L};        // seconds
+    underlying_type ms{m_sec - ((hr * 60L + mn) * 60L + sc) * 1000L}; // milliseconds.
 
     return std::make_tuple(hours{static_cast<hours::underlying_type>(hr)},
                            minutes{static_cast<minutes::underlying_type>(mn)},
@@ -1568,7 +1568,7 @@ public:
   static constexpr bool is_of_sec_type{true};
 
   /// Max microseconds in day.
-  static constexpr underlying_type max_in_day{86400L * 1'000'000L};
+  static constexpr underlying_type max_in_day{86'400L * 1'000'000L};
 
   /// The scale factor to transform from seconds to microseconds.
   template <typename T> static constexpr T sec_factor() noexcept {
@@ -1649,9 +1649,9 @@ public:
   ///         m_sec will be set to 0).
   ///
   constexpr int remove_days() noexcept {
-    int days = m_sec / max_in_day;
+    underlying_type days = m_sec / max_in_day;
     m_sec = m_sec % max_in_day;
-    return days;
+    return static_cast<int>(days);
   }
 
   /// @brief Cast to days.
@@ -1683,10 +1683,10 @@ public:
   /// Translate to hours, minutes, seconds and microseconds.
   /// @bug need more documentation
   constexpr std::tuple<hours, minutes, seconds, long> to_hmsf() const noexcept {
-    long hr{m_sec / 3600000000L};                             // hours
-    long mn{(m_sec % 3600000000L) / 60000000L};               // minutes
-    long sc{((m_sec % 3600000000L) % 60000000L) / 1000000L};  // seconds
-    long ns{m_sec - ((hr * 60L + mn) * 60L + sc) * 1000000L}; // microsec.
+    underlying_type hr{m_sec / 3600000000L};                             // hours
+    underlying_type mn{(m_sec % 3600000000L) / 60000000L};               // minutes
+    underlying_type sc{((m_sec % 3600000000L) % 60000000L) / 1000000L};  // seconds
+    underlying_type ns{m_sec - ((hr * 60L + mn) * 60L + sc) * 1000000L}; // microsec.
     return std::make_tuple(hours{static_cast<hours::underlying_type>(hr)},
                            minutes{static_cast<minutes::underlying_type>(mn)},
                            seconds{sc}, ns);
@@ -1760,7 +1760,7 @@ public:
   static constexpr bool is_of_sec_type{true};
 
   /// Max nanoseconds in day.
-  static constexpr underlying_type max_in_day{86400L * 1000000000L};
+  static constexpr underlying_type max_in_day{86'400L * 1'000'000'000L};
 
   /// The scale factor to transform from seconds to nanoseconds.
   template <typename T> static constexpr T sec_factor() noexcept {
@@ -1846,9 +1846,9 @@ public:
   ///         m_sec will be set to 0).
   ///
   constexpr int remove_days() noexcept {
-    int days = m_sec / max_in_day;
+    underlying_type days = m_sec / max_in_day;
     m_sec = m_sec % max_in_day;
-    return days;
+    return static_cast<int>(days);
   }
 
   /// @brief Cast to days.
@@ -1880,11 +1880,11 @@ public:
   /// Translate to hours, minutes, seconds and microseconds.
   /// @bug need more documentation
   constexpr std::tuple<hours, minutes, seconds, long> to_hmsf() const noexcept {
-    long hr{m_sec / (3600L * 1000000000L)};                  // hours
-    long mn{(m_sec % (3600L * 1000000000L)) / 60000000000L}; // minutes
-    long sc{((m_sec % (3600L * 1000000000L)) % 60000000000L) /
-            1000000000L};                                        // seconds
-    long ns{m_sec - ((hr * 60L + mn) * 60L + sc) * 1000000000L}; // microsec.
+    underlying_type  hr{m_sec / (3600L * 1000000000L)};                  // hours
+    underlying_type  mn{(m_sec % (3600L * 1000000000L)) / 60000000000L}; // minutes
+    underlying_type  sc{((m_sec % (3600L * 1000000000L)) % 60000000000L) /
+    underlying_type     1000000000L};                                        // seconds
+    underlying_type  ns{m_sec - ((hr * 60L + mn) * 60L + sc) * 1000000000L}; // microsec.
     return std::make_tuple(hours{static_cast<hours::underlying_type>(hr)},
                            minutes{static_cast<minutes::underlying_type>(mn)},
                            seconds{sc}, ns);

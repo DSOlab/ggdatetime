@@ -2,6 +2,16 @@ image:
 - Visual Studio 2017
 - Visual Studio 2019
 
+environment:
+  matrix:
+  # - TOXENV: py27  # https://devguide.python.org/devcycle/#end-of-life-branches
+  # - TOXENV: py35
+  # - TOXENV: py36    # https://devguide.python.org/#status-of-python-branches
+  - TOXENV: py37
+  - TOXENV: py38
+  - TOXENV: py39
+  - TOXENV: py310
+
 platform:
 - x86
 - x64
