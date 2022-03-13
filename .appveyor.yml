@@ -1,24 +1,35 @@
-image: Ubuntu
+image:
+- Visual Studio 2017
+- Visual Studio 2019
 
-compiler:
-  - gcc
-  - clang
+platform:
+- x86
+- x64
 
-before_install:
-  - sudo apt-get install -y scons
-  - wget http://iausofa.org/2021_0512_C/sofa_c-20210512.tar.Z
-  - tar -xzvf sofa_c-20210512.tar.Z
-  - cd sofa/20210512/c/src
-  - sed -i 's/\/home\/travis/\/usr\/local/g' makefile
-  - make
-  - sed -i 's/\/home\/travis/\/usr\/local/g' makefile
-  - sudo make install
-  - sudo cp sofa.h sofam.h /usr/local/include
-  - sudo cp libsofa_c.a /usr/local/lib
-  - cd ../../../../
-  - sudo ldconfig
+environment:
+    VCVAR17: "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+    VCVAR17_x86: "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
+    VCVAR19: "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+    VCVAR19_x86: "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat"
+
+before_build:
+- python -m pip install --user scons
+- ps: |
+    $Architecture = $env:PLATFORM # simplified, works for x86 and x64
+    if ("$env:APPVEYOR_BUILD_WORKER_IMAGE" -eq "Visual Studio 2017") {
+      if ("$Architecture" -eq "x64") {
+        $env:VCVARSALL =  "$enc:VCVAR17"
+      } else {
+        $env:VCVARSALL =  "$enc:VCVAR17_x86"
+      }
+    } else {
+      if ("$Architecture" -eq "x64") {
+        $env:VCVARSALL =  "$enc:VCVAR19"
+      } else {
+        $env:VCVARSALL =  "$enc:VCVAR19_x86"
+      }
+    }
+- call %VCVARSALL%
 
 build_script:
- - sudo scons install
- - scons --make-check
- - cd var && bash make_unit_tests.sh
+ - sudo scons
