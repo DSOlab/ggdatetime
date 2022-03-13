@@ -1,11 +1,14 @@
 from __future__ import print_function
-import os, sys, glob
+import os, sys, glob, platform
 
-## Prefic for install(ed) files
-prefix="/usr/local"
-if not os.path.isdir(prefix):
-    print('[ERROR] Cannot find \'prefix\' directory, aka {:}; aborting'.format(prefix), file=sys.stderr)
-    sys.exit(1)
+## Prefix for install(ed) files
+if platform.system() != "Windows"
+    prefix="/usr/local"
+    if not os.path.isdir(prefix):
+        print('[ERROR] Cannot find \'prefix\' directory, aka {:}; aborting'.format(prefix), file=sys.stderr)
+        sys.exit(1)
+else:
+    prefix = os.getcwd()
 
 ## Library version
 lib_version="0.1.0"
