@@ -52,11 +52,18 @@ lib_src_files = glob.glob(r"src/*.cpp")
 ## Headers (for lib)
 hdr_src_files = glob.glob(r"src/*.hpp")
 
+## Compilation flags, aka CXXFLAGS; same for gcc/clang, different for MS VS
+## TODO Bugs creep in when using the '-march=native' option. See e.g. test/test_jdepoch_sofa.cpp
+DebugCXXFLAGS_P = '-std=c++17 -g -pg -Wall -Wextra -Werror -pedantic -W -Wshadow -Winline -Wdisabled-optimization -DDEBUG'
+ProductionCXXFLAGS_P = '-std=c++17 -Wall -Wextra -Werror -pedantic -W -Wshadow -O2'
+DebugCXXFLAGS_W = '/std:c++17 /Wall /WX /Od -DDEBUG'
+ProductionCXXFLAGS_W = '/std:c++17 /Wall /WX /O2'
+
 ## Environments ...
-denv = Environment(CXXFLAGS='-std=c++17 -g -pg -Wall -Wextra -Werror -pedantic -W -Wshadow -Winline -Wdisabled-optimization -DDEBUG')
+denv = Environment(CXXFLAGS = DebugCXXFLAGS_P if platform.system() != "Windows" else DebugCXXFLAGS_W)
 ## g++ complains about failing to inline functions if we use the '-Winline' here ... 
 # penv = Environment(CXXFLAGS='-std=c++17 -Wall -Wextra -Werror -pedantic -W -Wshadow -O2 -march=native')
-penv = Environment(CXXFLAGS='-std=c++17 -Wall -Wextra -Werror -pedantic -W -Wshadow -O2')
+penv = Environment(CXXFLAGS = ProductionCXXFLAGS_P if platform.system() != "Windows" else ProductionCXXFLAGS_W)
 
 ## Command line arguments ...
 debug = ARGUMENTS.get('debug', 0)
@@ -69,7 +76,7 @@ if GetOption('cxx') is not None: env['CXX'] = GetOption('cxx')
 
 ## Set the C++ standard
 cxxstd = GetOption('std')
-env.Append(CXXFLAGS=' --std=c++{}'.format(cxxstd))
+env.Append(CXXFLAGS = ' --std=c++{}'.format(cxxstd) if platform.system() != "Windows" else ' /std:c++{}'.format(cxxstd))
 
 ## (shared) library ...
 vlib = env.SharedLibrary(source=lib_src_files, target=lib_name, CPPPATH=['.'], SHLIBVERSION=lib_version)
