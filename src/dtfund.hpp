@@ -1,17 +1,7 @@
-///
 /// @file  dtfund.hpp
-///
 /// @brief Fundamental (core) datetime constants, algorithms and types.
-///
 /// This file contains fundamental constants, algorithms and data structures,
 /// for manipulating date and time, targeting GNSS applications.
-///
-/// @author xanthos
-///
-/// @bug No known bugs.
-///
-/// @date Wed 08 May 2019 11:26:07 AM EEST (last modified)
-///
 
 #ifndef __DTFUND_NGPT__HPP__
 #define __DTFUND_NGPT__HPP__
@@ -46,9 +36,9 @@ static_assert(86400L * 1'000'000'000L * 2 < std::numeric_limits<long>::max(),
               "FUCK! Long is not big enough to hold two days in microseconds");
 
 /// Jan 1st 1980 for GPS Time
-constexpr const long jan61980{44244L};
+constexpr const long jan61980{44'244L};
 
-constexpr const long jan11901{15385L};
+constexpr const long jan11901{15'385L};
 
 /// Seconds per day.
 /// @warning This is not always true in case of UTC dates; the day a leap second
