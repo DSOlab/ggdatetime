@@ -9,6 +9,7 @@ before_install:
   - wget http://iausofa.org/2021_0512_C/sofa_c-20210512.tar.Z
   - tar -xzvf sofa_c-20210512.tar.Z
   - cd sofa/20210512/c/src
+  - sed -i 's/\/home\/travis/\/usr\/local/g' makefile
   - make
   - sudo make install
   - cd ../../../../
