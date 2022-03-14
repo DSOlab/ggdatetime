@@ -2317,6 +2317,35 @@ constexpr typename S::underlying_type max_days_allowed() {
          S::max_in_day;
 }
 
+/*
+#if __cplusplus >= 202002L
+template <gconcepts::is_sec_dt S>
+#else
+template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
+#endif
+struct hms {
+  hours __hours;
+  minutes __minutes;
+  S __secs;
+};
+  
+#if __cplusplus >= 202002L
+template <gconcepts::is_sec_dt S>
+#else
+template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
+#endif
+constexpr hms<S> to_hmsf() const noexcept {
+  underlying_type hr{m_sec / 3600000L};                             // hours
+  underlying_type mn{(m_sec % 3600000L) / 60000L};                  // minutes
+  underlying_type sc{((m_sec % 3600000L) % 60000L) / 1000L};        // seconds
+  underlying_type ms{m_sec - ((hr * 60L + mn) * 60L + sc) * 1000L}; // milliseconds.
+
+  return std::make_tuple(hours{static_cast<hours::underlying_type>(hr)},
+                         minutes{static_cast<minutes::underlying_type>(mn)},
+                         seconds{sc}, ms);
+}
+*/
+
 /// @brief Express the difference between two Modified Julian Days as any second
 ///        type.
 ///
