@@ -247,9 +247,9 @@ private:
 /// should
 ///      not be over 1 day). We have to make sure that this is always the case.
 #if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt S, TimeScale TS/*=TimeScale::TAI*/>
+template <gconcepts::is_sec_dt S, TimeScale TS>
 #else
-template <class S, TimeScale TS/* = TimeScale::TAI*/,
+template <class S, TimeScale TS,
           typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
 class datetime {
@@ -788,9 +788,10 @@ public:
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S>
 #else
-template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
+template <class S>
 #endif
-class datetime<S, TimeScale::UTC> {
+class datetime<S, TimeScale::UTC,
+               typename std::enable_if_t<S::is_of_sec_type>> {
 public:
   /// Expose the underlying sec type S
   using sec_type = S;
@@ -825,17 +826,17 @@ private:
   hours m_hours;
   minutes m_minutes;
   S m_sec;                   ///< *Seconds in S precision.
-}
+};// datetime<S,UTC>
 
 /// Difference between two dates in MJdays and T.
 /// Diff is dt1 - dt2
 #if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt T>
+template <gconcepts::is_sec_dt T, TimeScale TS>
 #else
-template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
+template <typename T, TimeScale TS, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
-constexpr datetime_interval<T> delta_date(const datetime<T> &dt1,
-                                          const datetime<T> &dt2) noexcept {
+constexpr datetime_interval<T> delta_date(const datetime<T,TS> &dt1,
+                                          const datetime<T,TS> &dt2) noexcept {
   return dt1.delta_date(dt2);
 }
 
