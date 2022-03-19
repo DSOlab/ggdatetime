@@ -1,21 +1,11 @@
-///
 /// @file  dat.cpp
-///
 /// @brief Implementation file for computation of UTC-TAI, i.e. leap seconds.
-///
 /// This file contains the implementation of dat function(s), to compute the
 /// number of leap seconds in a UTC date/time.
-///
-/// @author xanthos
-///
-/// @bug No known bugs.
-///
 /// @see SOFA Software Collection (iauDat), http://www.iausofa.org/
-///
 
 #include "dtfund.hpp"
 
-///
 /// If the specified date is for a day which ends with a leap second,
 /// the UTC-TAI value returned is for the period leading up to the
 /// leap second.  If the date is for a day which begins as a leap
@@ -26,7 +16,6 @@
 ///
 /// The day of month is actually not needed, since all leap second insertions
 /// happen at the begining, i.e. the first day of a month.
-///
 int dso::dat(dso::year iy, dso::month im) noexcept {
 #ifdef USE_DATETIME_CHECKS
   assert(iy >= dso::year(1972));
@@ -87,7 +76,7 @@ int dso::dat(dso::modified_julian_day mjd) noexcept {
   constexpr int NDAT{(int)(sizeof changes / sizeof changes[0])};
 
   // find the preceding table entry.
-  dso::modified_julian_day::underlying_type today{mjd.as_underlying_type()};
+  const dso::modified_julian_day::underlying_type today{mjd.as_underlying_type()};
   int idx = NDAT - 1;
   for (; idx >= 0; idx--) {
     if (today >= changes[idx].mjday)

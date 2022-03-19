@@ -3,12 +3,15 @@
 #include <iostream>
 #include <limits>
 #include <random>
-
 #include "datetime_read.hpp"
 #include "dtcalendar.hpp"
 #include "dtfund.hpp"
 
 using namespace dso;
+template<typename S>
+using Datetime = datetime<S,TimeScale::TAI>;
+// template<typename S>
+// const auto Strptime_ymd_hms<S> = strptime_ymd_hms<S,TimeScale::TAI>;
 
 constexpr long MilliSec = 1000L;
 constexpr long MicroSec = 1000000L;
@@ -29,7 +32,7 @@ int main() {
   std::cout << "\nTesting implementation for this architecture.\n";
   std::cout
       << "-------------------------------------------------------------\n";
-  std::cout << "Size of datetime class is " << sizeof(datetime<seconds>)
+  std::cout << "Size of datetime class is " << sizeof(Datetime<seconds>)
             << " bytes.\n";
   std::cout << "Max representable (long) int is " << maxL << "\n";
   static_assert(86400L * MilliSec < maxL, "-- MilliSeconds Overflow --");
@@ -91,28 +94,28 @@ int main() {
   const char *date2_str = "2015/12/30 12:09:30";
   const char *date3_str = "2015-12-30 12:09:30.000011";
   const char *date4_str = "2015 12 30 12 9 30";
-  datetime<seconds> dfs1 =
-      dso::strptime_ymd_hms<seconds>(date1_str /*, &__end*/);
-  datetime<seconds> dfs2 =
-      dso::strptime_ymd_hms<seconds>(date2_str /*, &__end*/);
-  datetime<seconds> dfs3 =
-      dso::strptime_ymd_hms<seconds>(date3_str /*, &__end*/);
-  datetime<seconds> dfs4 =
-      dso::strptime_ymd_hms<seconds>(date4_str /*, &__end*/);
-  datetime<seconds> dfs1_{year(2015), month(12),  day_of_month(30),
+  Datetime<seconds> dfs1 =
+      dso::strptime_ymd_hms<seconds,TimeScale::TAI>(date1_str /*, &__end*/);
+  Datetime<seconds> dfs2 =
+      dso::strptime_ymd_hms<seconds,TimeScale::TAI>(date2_str /*, &__end*/);
+  Datetime<seconds> dfs3 =
+      dso::strptime_ymd_hms<seconds,TimeScale::TAI>(date3_str /*, &__end*/);
+  Datetime<seconds> dfs4 =
+      dso::strptime_ymd_hms<seconds,TimeScale::TAI>(date4_str /*, &__end*/);
+  Datetime<seconds> dfs1_{year(2015), month(12),  day_of_month(30),
                           hours(12),  minutes(9), seconds(30)};
   assert(dfs1 == dfs1_ && dfs1 == dfs2 && dfs2 == dfs3 && dfs3 == dfs4);
 
-  auto dfs5 = dso::strptime_ymd_hms<microseconds>(date3_str);
-  datetime<microseconds> dfs5_{year(2015), month(12),  day_of_month(30),
+  auto dfs5 = dso::strptime_ymd_hms<microseconds,TimeScale::TAI>(date3_str);
+  Datetime<microseconds> dfs5_{year(2015), month(12),  day_of_month(30),
                                hours(12),  minutes(9), microseconds(30000011)};
   assert(dfs5 == dfs5_);
 
   const char *date6_str = "2015-12-30";
-  datetime<seconds> dfs6 = dso::strptime_ymd<seconds>(date6_str);
+  Datetime<seconds> dfs6 = dso::strptime_ymd<seconds,TimeScale::TAI>(date6_str);
   const char *date7_str = "2015-12-30 0 0 0";
-  datetime<seconds> dfs7 = dso::strptime_ymd<seconds>(date7_str);
-  datetime<seconds> dfs7_{year(2015), month(12),  day_of_month(30),
+  Datetime<seconds> dfs7 = dso::strptime_ymd<seconds,TimeScale::TAI>(date7_str);
+  Datetime<seconds> dfs7_{year(2015), month(12),  day_of_month(30),
                           hours(0),   minutes(0), seconds(0)};
   assert(dfs6 == dfs7 && dfs7 == dfs7_);
 
@@ -120,10 +123,10 @@ int main() {
   const char *date9_str = "2015/DEC/30 12 9 30";
   const char *date10_str = "2015-DEC-30 12 9 30";
   const char *date11_str = "2015-DEC-30 12 09 30";
-  datetime<seconds> dfs8 = dso::strptime_yod_hms<seconds>(date8_str);
-  datetime<seconds> dfs9 = dso::strptime_yod_hms<seconds>(date9_str);
-  datetime<seconds> dfs10 = dso::strptime_yod_hms<seconds>(date10_str);
-  datetime<seconds> dfs11 = dso::strptime_yod_hms<seconds>(date11_str);
+  Datetime<seconds> dfs8 = dso::strptime_yod_hms<seconds,TimeScale::TAI>(date8_str);
+  Datetime<seconds> dfs9 = dso::strptime_yod_hms<seconds,TimeScale::TAI>(date9_str);
+  Datetime<seconds> dfs10 = dso::strptime_yod_hms<seconds,TimeScale::TAI>(date10_str);
+  Datetime<seconds> dfs11 = dso::strptime_yod_hms<seconds,TimeScale::TAI>(date11_str);
   assert(dfs8 == dfs9 && dfs9 == dfs10);
   assert(dfs10 == dfs11);
   assert(dfs1 == dfs1_ && dfs1 == dfs8 && dfs8 == dfs9 && dfs9 == dfs10);
@@ -182,7 +185,7 @@ int main() {
   // Construction of datetime objects
   // -----------------------------------------------------------------------
   //
-  datetime<seconds> d2(year(2015), month(12), day_of_month(30));
+  Datetime<seconds> d2(year(2015), month(12), day_of_month(30));
   std::cout << "d2  = " << d2.stringify() << " (" << d2.sec_as_i() << ")\n";
 
   // the following won't compile; the template parameter can be
@@ -191,22 +194,22 @@ int main() {
 
   // this is fine; microseconds to seconds is allowed (BUT fractional sec
   // are ignored!)
-  datetime<seconds> d21(year(2015), month(12), day_of_month(30),
+  Datetime<seconds> d21(year(2015), month(12), day_of_month(30),
                         milliseconds(MilliSec));
   std::cout << "d21 = " << d21.stringify() << " (" << d21.sec_as_i() << ")\n";
   // the opposite however id not allowed!
   // datetime<microseconds> d5(year(2015), month(12), day_of_month(30),
   //     seconds(100)); ERROR!
   // we can also use time (i.e. hours, minutes, etc..)
-  datetime<seconds> d22(year(2015), month(12), day_of_month(30), hours(12),
+  Datetime<seconds> d22(year(2015), month(12), day_of_month(30), hours(12),
                         minutes(50), seconds(30));
   std::cout << "d22 = " << d22.stringify() << " (" << d22.sec_as_i() << ")\n";
   // or
-  datetime<seconds> d23(year(2015), month(12), day_of_month(30), hours(12),
+  Datetime<seconds> d23(year(2015), month(12), day_of_month(30), hours(12),
                         minutes(50), microseconds(30000001));
   std::cout << "d23 = " << d23.stringify() << " (" << d23.sec_as_i() << ")\n";
   // or
-  datetime<microseconds> d24(year(2015), month(12), day_of_month(30), hours(12),
+  Datetime<microseconds> d24(year(2015), month(12), day_of_month(30), hours(12),
                              minutes(50), microseconds(30000001));
   std::cout << "d24 = " << d24.stringify() << " (" << d24.sec_as_i() << ")\n";
   // but not (seconds cannot be cast to milliseconds) ERROR!
@@ -216,11 +219,11 @@ int main() {
   // std::cout << "d25 = " << d25.stringify() << " (" << d25.secs() << ")\n";
 
   // this is fine; use fractional seconds (which are skipped!)
-  datetime<seconds> d3(year(2015), month(12), day_of_month(30), hours(12),
+  Datetime<seconds> d3(year(2015), month(12), day_of_month(30), hours(12),
                        minutes(50), 30.001234);
   std::cout << "d3  = " << d3.stringify() << " (" << d3.sec_as_i() << ")\n";
   // or, for bigger accuracy ..
-  datetime<microseconds> d31(year(2015), month(12), day_of_month(30), hours(12),
+  Datetime<microseconds> d31(year(2015), month(12), day_of_month(30), hours(12),
                              minutes(5), 30.0000010);
   std::cout << "d31 = " << d31.stringify() << " (" << d31.sec_as_i() << ")\n";
   std::cout << "Part E -- OK\n\n";

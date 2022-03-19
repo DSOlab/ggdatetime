@@ -1903,39 +1903,6 @@ private:
 
 }; // class nanoseconds
 
-/// Overload operator '=' where the left-hand-side is any fundamental type and
-/// the right-hand-side is any integral type. That is, i want to be able to do:
-/// month m {};
-/// m = -189;
-/// Note that this operator (obviously) does not mean that we can construct-
-/// initilize fundamental types using this operator, aka
-/// month m = -189; // compilation error!
-/// this is dependent on each classes' constructor.
-///
-/// This function will be resolved for any type DType, which
-/// 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
-/// 2. has a member function named DType::__member_ref__()
-/// 3. right operand is any Integral type
-/// This function will allow e.g.
-/// modified_julian_day mjd (123);
-/// mjd = 124;
-/// Now mjd's internal member, will have a value of 124.
-/*
-template<typename DType,
-         typename I,
-         typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-         typename = std::enable_if_t<std::is_member_function_pointer
-                  <decltype(&DType::__member_ref__)>::value>,
-         typename = std::enable_if_t<std::is_integral_v<I>>
-         >
-  inline DType&
-  operator=(DType& _a, I _intv) noexcept
-{
-  _a.__member_ref__() = _intv;
-  return _a;
-}
-*/
-
 #if __cplusplus >= 202002L
 namespace gconcepts {
 /// @brief concept has_const_ref_dt -> Make sure that the class has a

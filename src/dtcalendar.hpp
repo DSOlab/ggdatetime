@@ -15,11 +15,13 @@
 #define __DTCALENDAR_NGPT__HPP__
 
 #include "dtfund.hpp"
+#include "time_scales.hpp"
 #include <cassert>
 // TODO these are used for std::string/iostream manipulation; remove
 #include <iomanip> // std::setprecision
 #include <iostream>
 #include <sstream> // std::ostringstream
+#include <stdexcept>
 
 namespace dso {
 
@@ -245,9 +247,10 @@ private:
 /// should
 ///      not be over 1 day). We have to make sure that this is always the case.
 #if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt S>
+template <gconcepts::is_sec_dt S, TimeScale TS/*=TimeScale::TAI*/>
 #else
-template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
+template <class S, TimeScale TS/* = TimeScale::TAI*/,
+          typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
 class datetime {
 public:
@@ -270,7 +273,7 @@ public:
   explicit constexpr datetime() noexcept : m_mjd(dso::j2000_mjd), m_sec(0){};
 
   /// Constructor from year, month, day of month and sec type.
-  constexpr datetime(year y, month m, day_of_month d, S s) /*noexcept*/
+  constexpr datetime(year y, month m, day_of_month d, S s)
       : m_mjd{cal2mjd(y, m, d)}, m_sec{s} {
     this->normalize();
   };
@@ -280,7 +283,7 @@ public:
   template <class T, typename = std::enable_if_t<T::is_of_sec_type>,
             typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
-  constexpr datetime(year y, month m, day_of_month d, T t) /*noexcept*/
+  constexpr datetime(year y, month m, day_of_month d, T t)
       : m_mjd{cal2mjd(y, m, d)}, m_sec{S(t)} {
     this->normalize();
   }
@@ -290,7 +293,7 @@ public:
   template <class T, typename = std::enable_if_t<T::is_of_sec_type>,
             typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
-  constexpr datetime(year y, day_of_year d, T t) /*noexcept*/
+  constexpr datetime(year y, day_of_year d, T t)
       : m_mjd{ydoy2mjd(y, d)}, m_sec{S(t)} {
     this->normalize();
   }
@@ -301,7 +304,7 @@ public:
             typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
   constexpr datetime(year y, month m, day_of_month d, hours hr, minutes mn,
-                     T sec) /*noexcept*/
+                     T sec)
       : m_mjd{cal2mjd(y, m, d)}, m_sec{hr, mn, S(sec)} {
     this->normalize();
   }
@@ -312,21 +315,21 @@ public:
             typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
   constexpr datetime(year y, day_of_year d, hours hr, minutes mn,
-                     T sec) /*noexcept*/
+                     T sec)
       : m_mjd{ydoy2mjd(y, d)}, m_sec{hr, mn, S(sec)} {
     this->normalize();
   }
 
   /// Constructor from year, month, day of month and fractional seconds.
   constexpr datetime(year y, month m, day_of_month d, hours hr, minutes mn,
-                     double fsecs) /*noexcept*/
+                     double fsecs)
       : m_mjd{cal2mjd(y, m, d)}, m_sec{hr, mn, fsecs} {
     this->normalize();
   }
 
   /// Constructor from year, day of year and fractional seconds.
   constexpr datetime(year y, day_of_year d, hours hr, minutes mn,
-                     double fsecs) /*noexcept*/
+                     double fsecs)
       : m_mjd{ydoy2mjd(y, d)}, m_sec{hr, mn, fsecs} {
     this->normalize();
   }
@@ -334,7 +337,7 @@ public:
   /// Constructor from year, month, day of month, hours, minutes and
   /// second type S.
   constexpr datetime(year y, month m, day_of_month d, hours hr = hours(),
-                     minutes mn = minutes(), S sec = S()) /*noexcept*/
+                     minutes mn = minutes(), S sec = S())
       : m_mjd{cal2mjd(y, m, d)}, m_sec{hr, mn, sec} {
     this->normalize();
   }
@@ -342,7 +345,7 @@ public:
   /// Constructor from year, day of year, hours, minutes and
   /// second type S.
   constexpr datetime(year y, day_of_year d, hours hr = hours(),
-                     minutes mn = minutes(), S sec = S()) /*noexcept*/
+                     minutes mn = minutes(), S sec = S())
       : m_mjd{ydoy2mjd(y, d)}, m_sec{hr, mn, sec} {
     this->normalize();
   }
@@ -465,41 +468,6 @@ public:
     __remove_seconds_impl(sec, btype);
   }
 
-  /*
-  /// @brief Add any second type T, convertible to S.
-  ///
-  /// Add to the datetime instance an amount of t 'second type'. If the total
-  /// amount of the 'second type' adds up to more than a day, the instance is
-  /// normalized.
-  ///
-  /// @tparam    T A 'second type' that is or can be converted to S
-  /// @param[in] t The amount of T to add to the datetime instance.
-  /// @throw       Does not throw
-  ///
-  /// @note
-  ///     - If the total amount of the 'second type' adds up to more than a
-  ///       day, the instance is normalized.
-  ///     - The parameter t should not be negative! If the total time of day
-  ///       adds up to a negative number, the normalization my fail. If you
-  ///       need to add a negative amount of seconds, use
-  ///       datetime::remove_seconds
-  ///
-  /// @see datetime::remove_seconds
-  /// @todo make sure the input parameter cannot be negative
-  template<class T,
-    typename = std::enable_if_t<T::is_of_sec_type>,
-    typename = std::enable_if_t<
-                std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>
-               >
-  constexpr void
-  add_seconds(T t) noexcept
-  {
-    m_sec += static_cast<S>(t);
-    this->normalize();
-    return;
-  }
-  */
-
   /// @brief Add a Modified Julian Day and any second type T to a datetime.
   ///
   /// This is actually like adding two datetime instances, only the second
@@ -522,14 +490,14 @@ public:
   template <class T, typename = std::enable_if_t<T::is_of_sec_type>,
             typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
-  constexpr datetime<S> add(modified_julian_day days,
+  constexpr datetime<S,TS> add(modified_julian_day days,
                             T secs = T{0}) const noexcept {
-    datetime<S> new_dt{days + m_mjd, static_cast<S>(secs) + m_sec};
+    datetime<S,TS> new_dt{days + m_mjd, static_cast<S>(secs) + m_sec};
     new_dt.normalize();
     return new_dt;
   }
 
-  constexpr datetime<S>
+  constexpr datetime<S,TS>
   operator+(const datetime_interval<S> &dt) const noexcept {
     return this->add(dt.days(), dt.sec());
   }
@@ -543,9 +511,9 @@ public:
 #else
   template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
-  inline constexpr datetime<T> cast_to() const noexcept {
+  inline constexpr datetime<T,TS> cast_to() const noexcept {
     T nsec = dso::cast_to<S, T>(this->sec());
-    return datetime<T>(this->mjd(), nsec);
+    return datetime<T,TS>(this->mjd(), nsec);
   }
 
   /// Return the difference of two datetimes as second type S.
@@ -620,7 +588,6 @@ public:
 
   /// Difference between two dates in MJdays and S.
   /// d1.delta_date(d2) is d1-d2
-  ///
   /// @bug needsmore documentation
   constexpr datetime_interval<S> delta_date(const datetime &d) const noexcept {
     datetime_interval<S> dt{m_mjd - d.m_mjd, m_sec - d.m_sec};
@@ -799,7 +766,66 @@ private:
   modified_julian_day m_mjd; ///< Modified Julian Day
   S m_sec;                   ///< Time of day in S precision.
 
+public:
+  /// @brief International Atomic Time (TAI) to Coordinated Universal Time, UTC
+  /// @note interprets the calling instance as TAI
+  /// @warning Only works for post 1972 dates; see dso::dat function
+  void utc2tai() noexcept {
+    seconds leap_seconds (dat(this->m_mjd));
+    add_seconds(leap_seconds);
+  }
+
+  /// @brief International Atomic Time (TAI) to Coordinated Universal Time, UTC
+  /// @note interprets the calling instance as TAI
+  /// @warning Only works for post 1972 dates; see dso::dat function
+  void tai2utc() noexcept {
+    seconds leap_seconds (dat(this->m_mjd));
+    remove_seconds(leap_seconds);
+  }
+
 }; // datetime
+
+#if __cplusplus >= 202002L
+template <gconcepts::is_sec_dt S>
+#else
+template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
+#endif
+class datetime<S, TimeScale::UTC> {
+public:
+  /// Expose the underlying sec type S
+  using sec_type = S;
+
+  /// Maximum possible date (seconds are 0, modified_julian_day is max
+  /// possible).
+  constexpr static datetime max() noexcept {
+    return datetime{modified_julian_day::max(), S{0}};
+  }
+
+  /// Minimum possible date (seconds are 0, modified_julian_day is min
+  /// possible).
+  constexpr static datetime min() noexcept {
+    return datetime{modified_julian_day::min(), S{0}};
+  }
+
+  /// Default (zero) constructor.
+  explicit constexpr datetime() noexcept : m_mjd(dso::j2000_mjd), m_sec(0){};
+
+  /// Constructor from year, month, day of month and sec type.
+  constexpr datetime(year y, month m, day_of_month d, hours hr, minutes mn, S s)
+      : m_mjd{cal2mjd(y, m, d)}, m_hours(hr), m_minutes(mn), m_sec{s} 
+  {
+    if (m_hours>=hours(24) || m_minutes>=minutes(60) || m_sec>=S::max_in_day()) {
+      const char *errmsg="[ERROR] Invalid argument to UTC date constructor!";
+      throw std::runtime_error(errmsg);
+    }
+  };
+
+private:
+  modified_julian_day m_mjd; ///< Modified Julian Day
+  hours m_hours;
+  minutes m_minutes;
+  S m_sec;                   ///< *Seconds in S precision.
+}
 
 /// Difference between two dates in MJdays and T.
 /// Diff is dt1 - dt2
@@ -830,11 +856,11 @@ constexpr datetime_interval<T> delta_date(const datetime<T> &dt1,
 /// @param  d1  datetime<S1> instance (difference is d1-d2)
 /// @param  d2  datetime<S2> instance (difference is d1-d2)
 /// @return     Difference d1-d2 in S1
-template <typename S1, typename S2,
+template <typename S1, typename S2, TimeScale TS,
           typename = std::enable_if_t<S1::is_of_sec_type>,
           typename = std::enable_if_t<S2::is_of_sec_type>,
           typename = std::enable_if_t<(S1::max_in_day > S2::max_in_day)>>
-inline S1 delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept {
+inline S1 delta_sec(datetime<S1,TS> d1, datetime<S2,TS> d2) noexcept {
   S1 diff = mjd_sec_diff<S1>(d1.mjd(), d2.mjd()); // days dif in S1
   S1 s2sec = dso::cast_to<S2, S1>(d2.sec());      // cast d2 secs to S1
   return diff + (d1.sec() - s2sec);
@@ -857,11 +883,11 @@ inline S1 delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept {
 /// @param  d1  datetime<S1> instance (difference is d1-d2)
 /// @param  d2  datetime<S2> instance (difference is d1-d2)
 /// @return     Difference d1-d2 in S2
-template <typename S1, typename S2,
+template <typename S1, typename S2, TimeScale TS,
           typename = std::enable_if_t<S1::is_of_sec_type>,
           typename = std::enable_if_t<S2::is_of_sec_type>,
           typename = std::enable_if_t<(S2::max_in_day > S1::max_in_day)>>
-inline S2 delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept {
+inline S2 delta_sec(datetime<S1,TS> d1, datetime<S2,TS> d2) noexcept {
   S2 diff = mjd_sec_diff<S2>(d1.mjd(), d2.mjd()); // days dif in S2
   S2 s1sec = dso::cast_to<S1, S2>(d1.sec());      // cast d1 secs to S2
   return diff + (s1sec - d2.sec());
@@ -879,11 +905,11 @@ inline S2 delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept {
 /// @param  d2  datetime<S> instance (deifference is d1-d2)
 /// @return     Difference d1-d2 in S
 #if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt S>
+template <gconcepts::is_sec_dt S, TimeScale TS>
 #else
-template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
+template <typename S, TimeScale TS, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
-inline S delta_sec(datetime<S> d1, datetime<S> d2) noexcept {
+inline S delta_sec(datetime<S,TS> d1, datetime<S,TS> d2) noexcept {
   return d1.delta_sec(d2);
 }
 
@@ -911,11 +937,11 @@ constexpr int day_of_week(T sow) noexcept {
 /// @see IAU SOFA (iau-dat.c)
 /// @see dso::dat
 #if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt T>
+template <gconcepts::is_sec_dt T, TimeScale TS>
 #else
-template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
+template <typename T, TimeScale TS, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
-inline int dat(datetime<T> t) noexcept {
+inline int dat(datetime<T,TS> t) noexcept {
   return dso::dat(t.mjd());
 }
 

@@ -47,8 +47,8 @@ inline std::string _i2s_(int i, int w = 2) noexcept {
 /// str) interpreted.
 ///
 /// @throw std::invalid_argument if the input string cannot be resolved.
-template <typename T>
-std::string strftime_ymd_hmfs(const datetime<T> &t, char del = '-') {
+template <typename T, Timescale TS>
+std::string strftime_ymd_hmfs(const datetime<T,TS> &t, char del = '-') {
   auto ymd = t.as_ymd();
   auto hmsf = t.as_hmsf();
 
@@ -62,8 +62,8 @@ std::string strftime_ymd_hmfs(const datetime<T> &t, char del = '-') {
          _i2s_(std::get<1>(hmsf).as_underlying_type(), 2) + ':' +
          _d2s_(secs, 5);
 }
-template <typename T>
-std::string strftime_ymd_hms(const datetime<T> &t, char del = '-') {
+template <typename T,TimeScale TS>
+std::string strftime_ymd_hms(const datetime<T,TS> &t, char del = '-') {
   auto ymd = t.as_ymd();
   auto hmsf = t.as_hmsf();
 
