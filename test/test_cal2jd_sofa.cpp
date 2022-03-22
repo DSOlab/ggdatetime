@@ -1,5 +1,6 @@
 #include "dtcalendar.hpp"
 #include "sofa.h"
+#include "dtfund.hpp"
 #include <cassert>
 #include <cerrno>
 #include <cmath>
@@ -11,7 +12,7 @@
 int num_tests = 1000000;
 
 // store max difference (for some difference) ...
-double maxdiff = std::numeric_limits<double>::min();
+double fmjd_diff = std::numeric_limits<double>::min();
 
 // count calls to Cal2jd that have failed (due to erronuous dates)
 static std::size_t cal2jd_fails = 0;
@@ -91,6 +92,11 @@ int make_random_jd(double &d1, double &d2, Datetime<S> &t, long &fails) {
       }
     }
   }
+  // -------------------------------------------------------------------------
+  // BreakPoint [1] If we have reached this far, it means that both SOFA and
+  // datetime agree on what calendar date is indeed a valid date.
+  // Calendar date to [M]JD transformation has been performed.
+  // -------------------------------------------------------------------------
 
   // SOFA created the JD (from calendar; MJD is stored in the d2 variable)
   // the same date using datetime lib. The two dates, when represented as MJD,
@@ -98,7 +104,10 @@ int make_random_jd(double &d1, double &d2, Datetime<S> &t, long &fails) {
   // days, that is:  max_diff
   Datetime<S> t1{dso::year(iy),     dso::month(im),     dso::day_of_month(id),
                  dso::hours(ihour), dso::minutes(imin), anysec};
+  //assert(std::abs(t1.as_mjd()-d2)<max_diff);
   if (t1.as_mjd() != d2) {
+    if (std::abs(t1.as_mjd()-d2) > fmjd_diff) fmjd_diff = std::abs(t1.as_mjd()-d2);
+    // look into the difference if requested ...
     SecIntType totalsec = anysec.as_underlying_type() +
                           60 * S::template sec_factor<SecIntType>() *
                               (static_cast<SecIntType>(imin) +
@@ -108,18 +117,18 @@ int make_random_jd(double &d1, double &d2, Datetime<S> &t, long &fails) {
             "%02d:%02d:%.15f (1)\n",
             iy, im, id, ihour, imin, sec);
     fprintf(stderr, "\t*Seconds = %ld / %ld\n", anysec.as_underlying_type(), totalsec);
-    fprintf(stderr, "\tSOFA fractional day : %22.15f\n", d2);
+    fprintf(stderr, "\tSOFA fractional day : %22.15f (disregard the integral part)\n", d2);
     fprintf(stderr, "\tDatetime f day      : %22.15f\n", t1.sec().fractional_days());
+    fprintf(stderr, "\t(Aka, whole MJD is) : %22.15f\n", t1.as_mjd());
     fprintf(stderr, "\tMjd frac. difference: %.15f\n",
             std::abs(t1.as_mjd() - d2));
     fprintf(stderr, "\tFrac. day limit:      %.15f\n", max_diff);
-    // assert(std::abs(t1.as_mjd()-d2)<max_diff * 1e-1);
     fprintf(stderr, "\tHard fail ? %s\n",
             std::abs(t1.as_mjd() - d2) < max_diff ? "no" : "yes");
     ++fails;
     has_sofa_diff = true;
   }
-  //assert(std::abs(t1.as_mjd()-d2)<max_diff); // fractional MJD must match !!
+  assert(std::abs(t1.as_mjd()-d2)<max_diff); // fractional MJD must match !!
 
   // by the way, we could also transform the hours, minutes and seconds to
   // seconds, and pass this to the constructor. Should be the same!
@@ -137,16 +146,19 @@ int make_random_jd(double &d1, double &d2, Datetime<S> &t, long &fails) {
   SecIntType secs = static_cast<SecIntType>(
       std::round((fpart * 86400e0) * S::template sec_factor<double>()));
   Datetime<S> t3{t1.mjd(), S(secs)};
-  assert(t1.sec() == t3.sec());
+  assert(t1.sec() == t3.sec()); // original *seconds must match!
   if (has_sofa_diff) {
-    int iy2, im2, id2;
+    int iy2, im2, id2, ihmsf[4];;
     double dfrac;
     assert(!iauJd2cal(d1, d2, &iy2, &im2, &id2, &dfrac));
     assert(iy == iy2 && im2 == im && id2 == id);
+    assert(iauD2dtf("TAI", 9, d1, d2, &iy, &im, &id, ihmsf)>= 0);
     if (std::abs(dfrac - t3.sec().fractional_days()) > max_diff) {
       printf("iauJd2cal:: Strict comparisson would fail:\n");
       printf("\tSofa fday: %.15f\n", dfrac);
       printf("\tDatetime : %.15f\n", t3.sec().fractional_days());
+      // printf("\tSofa milliseconds: %d.%09d\n",ihmdf[2], ihmdf[3]);
+      // printf("\tDatetime         : %ld\n",);
     }
   }
 
