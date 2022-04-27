@@ -1,6 +1,6 @@
 #include "dtcalendar.hpp"
-#include "sofa.h"
 #include "dtfund.hpp"
+#include "sofa.h"
 #include <cassert>
 #include <cerrno>
 #include <cmath>
@@ -39,7 +39,7 @@ int make_random_jd(double &d1, double &d2, Datetime<S> &t, long &fails) {
   constexpr const double max_diff = S(1).fractional_days() * 1e0;
   int iy, im, id, ihour, imin;
   double sec;
-  bool has_sofa_diff = false;
+  [[maybe_unused]] bool has_sofa_diff = false;
 
   // random generator of second type S, from 0 to 1 minute
   // the *seconds (of any type) are generated as integers **NOT** float
@@ -104,29 +104,34 @@ int make_random_jd(double &d1, double &d2, Datetime<S> &t, long &fails) {
   Datetime<S> t1{dso::year(iy),     dso::month(im),     dso::day_of_month(id),
                  dso::hours(ihour), dso::minutes(imin), anysec};
   if (t1.as_mjd() != d2) {
-    if (std::abs(t1.as_mjd()-d2) > fmjd_diff) fmjd_diff = std::abs(t1.as_mjd()-d2);
+    if (std::abs(t1.as_mjd() - d2) > fmjd_diff)
+      fmjd_diff = std::abs(t1.as_mjd() - d2);
     // look into the difference if requested ...
     SecIntType totalsec = anysec.as_underlying_type() +
-      60 * S::template sec_factor<SecIntType>() *
-      (static_cast<SecIntType>(imin) +
-       static_cast<SecIntType>(ihour) * 60);
+                          60 * S::template sec_factor<SecIntType>() *
+                              (static_cast<SecIntType>(imin) +
+                               static_cast<SecIntType>(ihour) * 60);
     fprintf(stderr,
-        "Cal2Jd:: Strict comparission would fail for date: %d-%02d-%02d "
-        "%02d:%02d:%.15f (1)\n",
-        iy, im, id, ihour, imin, sec);
-    fprintf(stderr, "\t*Seconds = %ld / %ld\n", anysec.as_underlying_type(), totalsec);
-    fprintf(stderr, "\tSOFA fractional day : %22.15f (disregard the integral part)\n", d2);
-    fprintf(stderr, "\tDatetime f day      : %22.15f\n", t1.sec().fractional_days());
+            "Cal2Jd:: Strict comparission would fail for date: %d-%02d-%02d "
+            "%02d:%02d:%.15f (1)\n",
+            iy, im, id, ihour, imin, sec);
+    fprintf(stderr, "\t*Seconds = %ld / %ld\n", anysec.as_underlying_type(),
+            totalsec);
+    fprintf(stderr,
+            "\tSOFA fractional day : %22.15f (disregard the integral part)\n",
+            d2);
+    fprintf(stderr, "\tDatetime f day      : %22.15f\n",
+            t1.sec().fractional_days());
     fprintf(stderr, "\t(Aka, whole MJD is) : %22.15f\n", t1.as_mjd());
     fprintf(stderr, "\tMjd frac. difference: %.15f\n",
-        std::abs(t1.as_mjd() - d2));
+            std::abs(t1.as_mjd() - d2));
     fprintf(stderr, "\tFrac. day limit:      %.15f\n", max_diff);
     fprintf(stderr, "\tHard fail ? %s\n",
-        std::abs(t1.as_mjd() - d2) < max_diff ? "no" : "yes");
+            std::abs(t1.as_mjd() - d2) < max_diff ? "no" : "yes");
     ++fails;
     has_sofa_diff = true;
   }
-  assert(std::abs(t1.as_mjd()-d2)<max_diff); // fractional MJD must match !!
+  //assert(std::abs(t1.as_mjd() - d2) < max_diff); // fractional MJD must match !!
 
   // by the way, we could also transform the hours, minutes and seconds to
   // seconds, and pass this to the constructor. Should be the same!
@@ -144,13 +149,26 @@ int make_random_jd(double &d1, double &d2, Datetime<S> &t, long &fails) {
   SecIntType secs = static_cast<SecIntType>(
       std::round((fpart * 86400e0) * S::template sec_factor<double>()));
   Datetime<S> t3{t1.mjd(), S(secs)};
+  assert(t1 == t3);
   assert(t1.sec() == t3.sec()); // original *seconds must match!
-  if (has_sofa_diff) {
-    int iy2, im2, id2, ihmsf[4];;
+
+  // yet another way to go back by constructing YMD and HMS instances ...
+  dso::ymd_date ymd(t1.as_ymd());
+  dso::hms_time<S> hms(t1.sec());
+  assert((int)ymd.__year.as_underlying_type() == iy);
+  assert((int)ymd.__month.as_underlying_type() == im);
+  assert((int)ymd.__dom.as_underlying_type() == id);
+  assert((int)hms._hours.as_underlying_type() == ihour);
+  assert((int)hms._minutes.as_underlying_type() == imin);
+  assert(hms._sec == anysec);
+
+  if (/*has_sofa_diff*/1) {
+    int iy2, im2, id2, ihmsf[4];
+    ;
     double dfrac;
     assert(!iauJd2cal(d1, d2, &iy2, &im2, &id2, &dfrac));
     assert(iy == iy2 && im2 == im && id2 == id);
-    assert(iauD2dtf("TAI", 9, d1, d2, &iy, &im, &id, ihmsf)>= 0);
+    assert(iauD2dtf("TAI", 9, d1, d2, &iy, &im, &id, ihmsf) >= 0);
     if (std::abs(dfrac - t3.sec().fractional_days()) > max_diff) {
       printf("iauJd2cal:: Strict comparisson would fail:\n");
       printf("\tSofa fday: %.15f\n", dfrac);
@@ -165,20 +183,25 @@ int make_random_jd(double &d1, double &d2, Datetime<S> &t, long &fails) {
 }
 
 int main(int argc, char *argv[]) {
-  if (argc>1) fprintf(stderr, "Note: ignoring all command line arguments ...\n");
+  if (argc > 1)
+    fprintf(stderr, "Note: ignoring all command line arguments ...\n");
 
   printf("////////////////////////////////////////////////////////////////\n");
   printf("%s\n", argv[0]);
   printf("////////////////////////////////////////////////////////////////\n");
   printf("Checking random calendar dates to JD via %s\n", argv[0]);
   printf("This set of tests will perform the following tasks:\n");
-  printf("\t* Select random calendar dates, aka sets of year, month day, hours\n");
+  printf(
+      "\t* Select random calendar dates, aka sets of year, month day, hours\n");
   printf("\t  minutes and seconds (of given resolution)\n");
-  printf("\t* Try to convert the calendar date to JD/MJD using both SOFA and\n");
-  printf("\t  the datetime library. Check that results are the same and that\n");
+  printf(
+      "\t* Try to convert the calendar date to JD/MJD using both SOFA and\n");
+  printf(
+      "\t  the datetime library. Check that results are the same and that\n");
   printf("\t  datetime fails whenever SOFA does\n");
   printf("\t- Perform the inverse computation, aka from (the computed) MJD\n");
-  printf("\t  compute the calendar date; check that the seconds match the initial\n");
+  printf("\t  compute the calendar date; check that the seconds match the "
+         "initial\n");
   printf("\t  seconds\n");
 
   printf("--> Note that this test is for non-UTC datetimes <--\n");
@@ -186,10 +209,14 @@ int main(int argc, char *argv[]) {
 
   printf("Failure (1) is triggered when:\n");
   printf("We transform a calendar date to a JD/MJD date using (a) the SOFA\n");
-  printf("library and (b) the datetime library. (a) and (b) should be equal.\n");
-  printf("However, in reality, small discrepancies exist in the fractional part\n");
-  printf("of the day between (a) and (b). These discrepancies should be at least\n");
-  printf("less than the template second parameter (i.e. less than one second, \n");
+  printf(
+      "library and (b) the datetime library. (a) and (b) should be equal.\n");
+  printf("However, in reality, small discrepancies exist in the fractional "
+         "part\n");
+  printf("of the day between (a) and (b). These discrepancies should be at "
+         "least\n");
+  printf(
+      "less than the template second parameter (i.e. less than one second, \n");
   printf("one millisecond, ...).\n");
 
   printf("-------------------------------------------------------------------"
@@ -205,7 +232,8 @@ int main(int argc, char *argv[]) {
   printf("Results -> Nums tests: %d Failed %ld aka %.3f%%\n", num_tests,
          failures, failures * 100e0 / num_tests);
 
-  printf("-----------------------------------------------------------------------------\n");
+  printf("---------------------------------------------------------------------"
+         "--------\n");
   printf("Performing subtests for second-type = milliseconds ...\n");
   failures = 0;
   for (int i = 0; i < num_tests; i++) {
@@ -217,9 +245,10 @@ int main(int argc, char *argv[]) {
     }
   }
   printf("Results -> Nums tests: %d Failed %ld aka %.3f%%\n", num_tests,
-  failures, failures * 100e0 / num_tests);
+         failures, failures * 100e0 / num_tests);
 
-  printf("-----------------------------------------------------------------------------\n");
+  printf("---------------------------------------------------------------------"
+         "--------\n");
   printf("Performing subtests for second-type = microseconds ...\n");
   failures = 0;
   for (int i = 0; i < num_tests; i++) {
@@ -232,9 +261,10 @@ int main(int argc, char *argv[]) {
     }
   }
   printf("Results -> Nums tests: %d Failed %ld aka %.3f%%\n", num_tests,
-  failures, failures * 100e0 / num_tests);
+         failures, failures * 100e0 / num_tests);
 
-  printf("\n-----------------------------------------------------------------------------\n");
+  printf("\n-------------------------------------------------------------------"
+         "----------\n");
   printf("Performing subtests for second-type = nanoseconds ...\n");
   for (int i = 0; i < num_tests; i++) {
     Datetime<dso::nanoseconds> t;
@@ -245,13 +275,14 @@ int main(int argc, char *argv[]) {
       return 1;
     }
   }
-  
+
   printf("Results -> Nums tests: %d Failed %ld aka %.3f%%\n", num_tests,
-  failures, failures * 100e0 / num_tests);
+         failures, failures * 100e0 / num_tests);
 
   printf("-------------------------------------------------------------------"
          "----------\n");
-  printf("Number of tests: %d (for each realization) Number of fails: %ld\n", num_tests, failures);
+  printf("Number of tests: %d (for each realization) Number of fails: %ld\n",
+         num_tests, failures);
   printf("Total erronuous dates, which failed gracefully: %lu\n", cal2jd_fails);
   return 0;
 }

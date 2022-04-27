@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
          "Dates\n");
   printf("This program will create a random (but valid) calendar date and\n");
   printf("and transform it to an (M)JD; it will then transform the (M)JD back\n");
-  printf("to a calendar date and check that we have no loss of precision. If\n")
+  printf("to a calendar date and check that we have no loss of precision. If\n");
   printf("the initial and transformed-back calendar dates are not the same, \n");
   printf("the program will exit with error (an assertion will fail)\n");
 
