@@ -7,6 +7,25 @@
 #include <cstdlib>
 #include <random>
 
+// ------------------------------------------------------------------------- //
+// Test Program
+// This test will perform the following tasks:
+// 1. Create a random (but valid) calendar date
+// 2. Transform the calendar date to (M)JD
+// 3. Export the date part (into a dso::ymd_date instance)
+// 4. Export the time part (into dso::hms_time<S> instance)
+// 5. Validate the date part is exactly the same as the original epoch in (1)
+// 6. Validate that the time part is exactly the same as the original epoch 
+//    in (2)
+// 7. Repeat steps 1-6 for template parameters:
+//    * seconds
+//    * milliseconds
+//    * microseconds
+//    * nanoseconds
+// If any check fails, the program will exit with error.
+// All dates are considered non-UTC for this program.
+// ------------------------------------------------------------------------- //
+
 // number of tests to perform
 int num_tests = 1000000;
 
@@ -22,6 +41,7 @@ std::uniform_int_distribution<> ddstr(1, 31);      // range for day of month
 std::uniform_int_distribution<> hdstr(0, 23);      // range for hour of day
 std::uniform_int_distribution<> mindstr(0, 59);    // range for min in hour
 
+// Dummy class to hold a calendar date
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S>
 #else
@@ -120,10 +140,6 @@ int mjd2cal(const Datetime<S> &t, const CalendarDate<S> &cald) {
 
   // resolve time, aka HMS struct
   dso::hms_time<S> hms(t.sec());
-  // cald.print();
-  // printf("           %2d:%2d:%ld [%s]\n", hms._hours.as_underlying_type(),
-  // hms._minutes.as_underlying_type(), hms._sec.as_underlying_type(),
-  // S::unit_literal());
   assert((int)hms._hours.as_underlying_type() == cald.ihour);
   assert((int)hms._minutes.as_underlying_type() == cald.imin);
   assert(hms._sec == cald.sec);
@@ -135,52 +151,56 @@ int main(int argc, char *argv[]) {
   if (argc > 1)
     fprintf(stderr, "Note: ignoring all command line arguments ...\n");
 
-  printf("////////////////////////////////////////////////////////////////\n");
-  printf("%s\n", argv[0]);
-  printf("////////////////////////////////////////////////////////////////\n");
-  printf("Testing conversions between Calendar dates and (Modified) Julian "
-         "Dates\n");
-  printf("This program will create a random (but valid) calendar date and\n");
-  printf("and transform it to an (M)JD; it will then transform the (M)JD back\n");
-  printf("to a calendar date and check that we have no loss of precision. If\n");
-  printf("the initial and transformed-back calendar dates are not the same, \n");
-  printf("the program will exit with error (an assertion will fail)\n");
+  printf("----------------------------------------------------------------\n");
+  printf("  %s\n", argv[0]);
+  printf("----------------------------------------------------------------\n");
+  printf("| Testing conversions between Calendar dates and (Modified)    |\n");
+  printf("| Julian Dates                                                 |\n");
+  printf("| This program will create a random (but valid) calendar date  |\n");
+  printf("| and transform it to an (M)JD; it will then transform the MJD |\n");
+  printf("| back to a calendar date and check that we have no loss of    |\n");
+  printf("| precision. If the initial and transformed-back calendar dates|\n");
+  printf("| are not the same, the program will exit with error (an       |\n");
+  printf("| assertion will fail)                                         |\n");
 
-  printf("testing conversions for template parameter: seconds ...");
+  printf("| testing conversions for template parameter: seconds ...      |\n");
   Datetime<dso::seconds> t1;
   CalendarDate<dso::seconds> ct1;
   for (int i = 0; i < num_tests; i++) {
     cal2jd_random(t1, ct1);
     mjd2cal(t1, ct1);
   }
-  printf("done\n");
+  printf("| done                                                         |\n");
 
-  printf("testing conversions for template parameter: milliseconds ...");
+  printf("| testing conversions for template parameter: milliseconds ... |\n");
   Datetime<dso::milliseconds> t2;
   CalendarDate<dso::milliseconds> ct2;
   for (int i = 0; i < num_tests; i++) {
     cal2jd_random(t2, ct2);
     mjd2cal(t2, ct2);
   }
-  printf("done\n");
+  printf("| done                                                         |\n");
 
-  printf("testing conversions for template parameter: microseconds ...");
+  printf("| testing conversions for template parameter: microseconds ... |\n");
   Datetime<dso::microseconds> t3;
   CalendarDate<dso::microseconds> ct3;
   for (int i = 0; i < num_tests; i++) {
     cal2jd_random(t3, ct3);
     mjd2cal(t3, ct3);
   }
-  printf("done\n");
+  printf("| done                                                         |\n");
 
-  printf("testing conversions for template parameter: nanoseconds ...");
+  printf("| testing conversions for template parameter: nanoseconds ...  |\n");
   Datetime<dso::nanoseconds> t4;
   CalendarDate<dso::nanoseconds> ct4;
   for (int i = 0; i < num_tests; i++) {
     cal2jd_random(t4, ct4);
     mjd2cal(t4, ct4);
   }
-  printf("done\n");
+  printf("| done                                                         |\n");
+
+  printf("| All tests passed; %s success!\n", argv[0]);
+  printf("----------------------------------------------------------------\n");
 
   return 0;
 }
