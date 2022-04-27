@@ -86,12 +86,10 @@ int main() {
                               // is 1.001 sec, from which we only keep the
                               // integral part
   // implicit cast at constructor
-  seconds s7(m1);
+  // seconds s7(m1); CMP_ERROR
   // cast with cast<> and using the operator
-  seconds s8 = static_cast<seconds>(m1);
-  seconds s9 = seconds(m1);
-  assert(s7 == s8 && s8 == s9);
-  assert(s7 == seconds(1));
+  // seconds s8 = static_cast<seconds>(m1); CMP_ERROR
+  // seconds s9 = seconds(m1); CMP_ERROR
 
   std::cout << "\nAll checks for dso::seconds OK\n";
   return 0;

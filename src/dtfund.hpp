@@ -12,7 +12,6 @@
 #include <cstdio>
 #include <limits>
 #include <stdexcept>
-// #include <tuple>
 #ifdef DEBUG
 #include <cstdio>
 #include <cstring>
@@ -1120,15 +1119,6 @@ public:
               static_cast<underlying_type>(m.as_underlying_type()) * 60L +
               static_cast<underlying_type>(h.as_underlying_type()) * 3600L} {};
 
-  /// Constructor from hours, minutes, fractional seconds.
-  ///
-  /// @note Only the integral part of the input seconds (fs) is considered;
-  ///       the fractional part is ommited.
-  // explicit constexpr seconds(hours h, minutes m, double fs) noexcept
-  //     : m_sec{static_cast<underlying_type>(fs) + m.as_underlying_type() * 60L
-  //     +
-  //             h.as_underlying_type() * 3600L} {}
-
 /// assignment operator from any integral type
 #if __cplusplus >= 202002L
   template <typename Int>
@@ -1198,18 +1188,6 @@ public:
   constexpr double to_fractional_seconds() const noexcept {
     return static_cast<double>(m_sec);
   }
-
-  /// Translate to hours, minutes, seconds and fractional seconds
-  ///
-  /// Translate to hours, minutes, seconds and fractional seconds. Fractional
-  /// seconds, in this case, are obviously always 0 (aka the last element of
-  /// the returned tuple, holds 0L).
-  /// @todo don;t like this; make better
-  //constexpr std::tuple<hours, minutes, seconds, long> to_hmsf() const noexcept {
-  //  return std::make_tuple(hours{static_cast<int>(m_sec / 3600L)},
-  //                         minutes{static_cast<int>((m_sec % 3600L) / 60L)},
-  //                         seconds{(m_sec % 3600L) % 60L}, 0L);
-  //}
 
 private:
 /// Cast to any arithmetic type.
@@ -1298,17 +1276,6 @@ public:
                static_cast<underlying_type>(h.as_underlying_type()) * 60L) *
                   sec_factor<underlying_type>() * 60L} {};
 
-  /// @brief Constructor from hours, minutes, fractional seconds.
-  ///
-  /// Note that the fractional seconds are only considered with millisecond
-  /// precision; i.e. anything smaller than 10e-3 will not be considered (for
-  /// the fs input argument).
-  // explicit constexpr milliseconds(hours h, minutes m, double fs) noexcept
-  //     : m_sec{static_cast<underlying_type>(fs * sec_factor<double>()) +
-  //             (m.as_underlying_type() * 60L + h.as_underlying_type() * 3600L)
-  //             *
-  //                 sec_factor<underlying_type>()} {};
-
 /// assignment operator from any integral type
 #if __cplusplus >= 202002L
   template <typename Int>
@@ -1320,12 +1287,6 @@ public:
     m_sec = i;
     return *this;
   }
-
-  /// @brief Cast to dso::seconds.
-  /// Milliseconds can be cast to seconds (with a loss of precission).
-  // constexpr explicit operator seconds() const noexcept {
-  //   return seconds{m_sec / sec_factor<underlying_type>()};
-  // }
 
   /// Addition operator.
   constexpr milliseconds operator+(const milliseconds &sec) const noexcept {
@@ -1401,32 +1362,6 @@ public:
         static_cast<double>(m_sec % sec_factor<underlying_type>()) * 1e-3;
     return sec;
   }
-
-  /// Translate to hours, minutes, seconds and milliseconds
-  ///
-  /// The last element in the returned tuple, is the fractional part of the
-  /// seconds, expressed as milliseconds. So, e.g. to transform this instance
-  /// to hours, minutes and fracional seconds (of day), one can do:
-  /// \code{.cpp}
-  ///   std::tuple<hours, minutes, seconds, long> hmsf;
-  ///   hmsf = some_millisecond_instance.to_hmsf();
-  ///   auto secnds = std::get<3>(hmsf);
-  ///   double fractional_seconds = (double)secnds /
-  ///   milliseconds::sec_factor<double>(); fractional_seconds +=
-  ///   (double)std::get<2>(hmsf).as_underlying_type();
-  /// \endcode
-  /// @bug need more documentation
-  //constexpr std::tuple<hours, minutes, seconds, long> to_hmsf() const noexcept {
-  //  underlying_type hr{m_sec / 3600000L};                      // hours
-  //  underlying_type mn{(m_sec % 3600000L) / 60000L};           // minutes
-  //  underlying_type sc{((m_sec % 3600000L) % 60000L) / 1000L}; // seconds
-  //  underlying_type ms{m_sec -
-  //                     ((hr * 60L + mn) * 60L + sc) * 1000L}; // milliseconds.
-
-  //  return std::make_tuple(hours{static_cast<hours::underlying_type>(hr)},
-  //                         minutes{static_cast<minutes::underlying_type>(mn)},
-  //                         seconds{sc}, ms);
-  //}
 
 private:
 /// Cast to any arithmetic type.
@@ -1515,16 +1450,6 @@ public:
                static_cast<underlying_type>(h.as_underlying_type()) * 60L) *
                   sec_factor<underlying_type>() * 60L} {};
 
-  /// Constructor from hours, minutes, fractional seconds.
-  /// @note Fractional seconds with precission larger than microseconds are
-  ///       not taken into account; i.e. we only consider the fractiona part
-  ///       up to 10e-6.
-  // explicit constexpr microseconds(hours h, minutes m, double fs) noexcept
-  //     : m_sec{static_cast<underlying_type>(fs * sec_factor<double>()) +
-  //             (m.as_underlying_type() * 60L + h.as_underlying_type() * 3600L)
-  //             *
-  //                 sec_factor<underlying_type>()} {};
-
   /// assignment operator from any integral type
 #if __cplusplus >= 202002L
   template <typename Int>
@@ -1536,16 +1461,6 @@ public:
     m_sec = i;
     return *this;
   }
-
-  /// Microseconds can be cast to milliseconds will a loss of accuracy.
-  // constexpr explicit operator milliseconds() const {
-  //   return milliseconds(m_sec / 1000L);
-  // }
-
-  ///// Microseconds can be cast to seconds will a loss of accuracy.
-  // constexpr explicit operator seconds() const {
-  //   return seconds(m_sec / sec_factor<underlying_type>());
-  // }
 
   /// Addition between microseconds.
   constexpr microseconds operator+(const microseconds &sec) const noexcept {
@@ -1611,20 +1526,6 @@ public:
   constexpr double to_fractional_seconds() const noexcept {
     return static_cast<double>(m_sec) / sec_factor<double>();
   }
-
-  /// Translate to hours, minutes, seconds and microseconds.
-  /// @bug need more documentation
-  //constexpr std::tuple<hours, minutes, seconds, long> to_hmsf() const noexcept {
-  //  underlying_type hr{m_sec / 3600000000L};               // hours
-  //  underlying_type mn{(m_sec % 3600000000L) / 60000000L}; // minutes
-  //  underlying_type sc{((m_sec % 3600000000L) % 60000000L) /
-  //                     1000000L}; // seconds
-  //  underlying_type ns{m_sec -
-  //                     ((hr * 60L + mn) * 60L + sc) * 1000000L}; // microsec.
-  //  return std::make_tuple(hours{static_cast<hours::underlying_type>(hr)},
-  //                         minutes{static_cast<minutes::underlying_type>(mn)},
-  //                         seconds{sc}, ns);
-  //}
 
 private:
 /// Cast to any arithmetic type.
@@ -1714,16 +1615,6 @@ public:
                static_cast<underlying_type>(h.as_underlying_type()) * 60L) *
                   sec_factor<underlying_type>() * 60L} {};
 
-  /// Constructor from hours, minutes, fractional seconds.
-  /// @note Fractional seconds with precission larger than microseconds are
-  ///       not taken into account; i.e. we only consider the fractiona part
-  ///       up to 10e-9.
-  // explicit constexpr nanoseconds(hours h, minutes m, double fs) noexcept
-  //     : m_sec{static_cast<underlying_type>(fs * sec_factor<double>()) +
-  //             (m.as_underlying_type() * 60L + h.as_underlying_type() * 3600L)
-  //             *
-  //                 sec_factor<underlying_type>()} {};
-
 /// assignment operator from any integral type
 #if __cplusplus >= 202002L
   template <typename Int>
@@ -1800,21 +1691,6 @@ public:
   constexpr double to_fractional_seconds() const noexcept {
     return static_cast<double>(m_sec) / sec_factor<double>();
   }
-
-  /// Translate to hours, minutes, seconds and microseconds.
-  /// @bug need more documentation
-  //constexpr std::tuple<hours, minutes, seconds, long> to_hmsf() const noexcept {
-  //  underlying_type hr{m_sec / (3600L * 1000000000L)}; // hours
-  //  underlying_type mn{(m_sec % (3600L * 1000000000L)) /
-  //                     60000000000L}; // minutes
-  //  underlying_type sc{((m_sec % (3600L * 1000000000L)) % 60000000000L) /
-  //                     1000000000L}; // seconds
-  //  underlying_type ns{m_sec -
-  //                     ((hr * 60L + mn) * 60L + sc) * 1000000000L}; // microsec.
-  //  return std::make_tuple(hours{static_cast<hours::underlying_type>(hr)},
-  //                         minutes{static_cast<minutes::underlying_type>(mn)},
-  //                         seconds{sc}, ns);
-  //}
 
 private:
 /// Cast to any arithmetic type.
