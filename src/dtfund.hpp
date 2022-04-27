@@ -12,7 +12,7 @@
 #include <cstdio>
 #include <limits>
 #include <stdexcept>
-#include <tuple>
+// #include <tuple>
 #ifdef DEBUG
 #include <cstdio>
 #include <cstring>
@@ -1205,11 +1205,11 @@ public:
   /// seconds, in this case, are obviously always 0 (aka the last element of
   /// the returned tuple, holds 0L).
   /// @todo don;t like this; make better
-  constexpr std::tuple<hours, minutes, seconds, long> to_hmsf() const noexcept {
-    return std::make_tuple(hours{static_cast<int>(m_sec / 3600L)},
-                           minutes{static_cast<int>((m_sec % 3600L) / 60L)},
-                           seconds{(m_sec % 3600L) % 60L}, 0L);
-  }
+  //constexpr std::tuple<hours, minutes, seconds, long> to_hmsf() const noexcept {
+  //  return std::make_tuple(hours{static_cast<int>(m_sec / 3600L)},
+  //                         minutes{static_cast<int>((m_sec % 3600L) / 60L)},
+  //                         seconds{(m_sec % 3600L) % 60L}, 0L);
+  //}
 
 private:
 /// Cast to any arithmetic type.
@@ -1416,17 +1416,17 @@ public:
   ///   (double)std::get<2>(hmsf).as_underlying_type();
   /// \endcode
   /// @bug need more documentation
-  constexpr std::tuple<hours, minutes, seconds, long> to_hmsf() const noexcept {
-    underlying_type hr{m_sec / 3600000L};                      // hours
-    underlying_type mn{(m_sec % 3600000L) / 60000L};           // minutes
-    underlying_type sc{((m_sec % 3600000L) % 60000L) / 1000L}; // seconds
-    underlying_type ms{m_sec -
-                       ((hr * 60L + mn) * 60L + sc) * 1000L}; // milliseconds.
+  //constexpr std::tuple<hours, minutes, seconds, long> to_hmsf() const noexcept {
+  //  underlying_type hr{m_sec / 3600000L};                      // hours
+  //  underlying_type mn{(m_sec % 3600000L) / 60000L};           // minutes
+  //  underlying_type sc{((m_sec % 3600000L) % 60000L) / 1000L}; // seconds
+  //  underlying_type ms{m_sec -
+  //                     ((hr * 60L + mn) * 60L + sc) * 1000L}; // milliseconds.
 
-    return std::make_tuple(hours{static_cast<hours::underlying_type>(hr)},
-                           minutes{static_cast<minutes::underlying_type>(mn)},
-                           seconds{sc}, ms);
-  }
+  //  return std::make_tuple(hours{static_cast<hours::underlying_type>(hr)},
+  //                         minutes{static_cast<minutes::underlying_type>(mn)},
+  //                         seconds{sc}, ms);
+  //}
 
 private:
 /// Cast to any arithmetic type.
@@ -1614,17 +1614,17 @@ public:
 
   /// Translate to hours, minutes, seconds and microseconds.
   /// @bug need more documentation
-  constexpr std::tuple<hours, minutes, seconds, long> to_hmsf() const noexcept {
-    underlying_type hr{m_sec / 3600000000L};               // hours
-    underlying_type mn{(m_sec % 3600000000L) / 60000000L}; // minutes
-    underlying_type sc{((m_sec % 3600000000L) % 60000000L) /
-                       1000000L}; // seconds
-    underlying_type ns{m_sec -
-                       ((hr * 60L + mn) * 60L + sc) * 1000000L}; // microsec.
-    return std::make_tuple(hours{static_cast<hours::underlying_type>(hr)},
-                           minutes{static_cast<minutes::underlying_type>(mn)},
-                           seconds{sc}, ns);
-  }
+  //constexpr std::tuple<hours, minutes, seconds, long> to_hmsf() const noexcept {
+  //  underlying_type hr{m_sec / 3600000000L};               // hours
+  //  underlying_type mn{(m_sec % 3600000000L) / 60000000L}; // minutes
+  //  underlying_type sc{((m_sec % 3600000000L) % 60000000L) /
+  //                     1000000L}; // seconds
+  //  underlying_type ns{m_sec -
+  //                     ((hr * 60L + mn) * 60L + sc) * 1000000L}; // microsec.
+  //  return std::make_tuple(hours{static_cast<hours::underlying_type>(hr)},
+  //                         minutes{static_cast<minutes::underlying_type>(mn)},
+  //                         seconds{sc}, ns);
+  //}
 
 private:
 /// Cast to any arithmetic type.
@@ -1803,18 +1803,18 @@ public:
 
   /// Translate to hours, minutes, seconds and microseconds.
   /// @bug need more documentation
-  constexpr std::tuple<hours, minutes, seconds, long> to_hmsf() const noexcept {
-    underlying_type hr{m_sec / (3600L * 1000000000L)}; // hours
-    underlying_type mn{(m_sec % (3600L * 1000000000L)) /
-                       60000000000L}; // minutes
-    underlying_type sc{((m_sec % (3600L * 1000000000L)) % 60000000000L) /
-                       1000000000L}; // seconds
-    underlying_type ns{m_sec -
-                       ((hr * 60L + mn) * 60L + sc) * 1000000000L}; // microsec.
-    return std::make_tuple(hours{static_cast<hours::underlying_type>(hr)},
-                           minutes{static_cast<minutes::underlying_type>(mn)},
-                           seconds{sc}, ns);
-  }
+  //constexpr std::tuple<hours, minutes, seconds, long> to_hmsf() const noexcept {
+  //  underlying_type hr{m_sec / (3600L * 1000000000L)}; // hours
+  //  underlying_type mn{(m_sec % (3600L * 1000000000L)) /
+  //                     60000000000L}; // minutes
+  //  underlying_type sc{((m_sec % (3600L * 1000000000L)) % 60000000000L) /
+  //                     1000000000L}; // seconds
+  //  underlying_type ns{m_sec -
+  //                     ((hr * 60L + mn) * 60L + sc) * 1000000000L}; // microsec.
+  //  return std::make_tuple(hours{static_cast<hours::underlying_type>(hr)},
+  //                         minutes{static_cast<minutes::underlying_type>(mn)},
+  //                         seconds{sc}, ns);
+  //}
 
 private:
 /// Cast to any arithmetic type.
