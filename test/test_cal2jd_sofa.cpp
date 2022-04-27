@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include <random>
 
-// number of tests to perform
+// number of tests to perform (pre template parameter)
 int num_tests = 1000000;
 
 // store max difference (for some difference) ...
@@ -61,10 +61,9 @@ int make_random_jd(double &d1, double &d2, Datetime<S> &t, long &fails) {
     id = ddstr(gen);
     ihour = hdstr(gen);
     imin = mindstr(gen);
-    anysec = sdstr(gen); // seconds in S (milli, nano, etc)
-    // actual fractional seconds
-    sec = static_cast<double>(anysec.as_underlying_type()) /
-          S::template sec_factor<double>();
+    anysec = sdstr(gen); // seconds in S (milli, nano, etc) in range [0, 1min]
+    // actual fractional seconds (as double precision number)
+    sec = anysec.to_fractional_seconds();
     assert(sec <= 60e0);
 
     // Express as two-part JD.
@@ -84,7 +83,7 @@ int make_random_jd(double &d1, double &d2, Datetime<S> &t, long &fails) {
       } catch (std::exception &) {
         ;
       }
-      // Date part ok, now cast thetmie to fractional Jdays ...
+      // Date part ok, now cast the time to fractional Jdays ...
     } else {
       if (!iauTf2d('+', ihour, imin, sec, &d)) {
         d2 += d;
@@ -98,33 +97,32 @@ int make_random_jd(double &d1, double &d2, Datetime<S> &t, long &fails) {
   // Calendar date to [M]JD transformation has been performed.
   // -------------------------------------------------------------------------
 
-  // SOFA created the JD (from calendar; MJD is stored in the d2 variable)
+  // SOFA created the JD (from calendar); MJD is stored in the d2 variable
   // the same date using datetime lib. The two dates, when represented as MJD,
   // should differ by less than 1 sec of the the given sec-type; in fractional
   // days, that is:  max_diff
   Datetime<S> t1{dso::year(iy),     dso::month(im),     dso::day_of_month(id),
                  dso::hours(ihour), dso::minutes(imin), anysec};
-  //assert(std::abs(t1.as_mjd()-d2)<max_diff);
   if (t1.as_mjd() != d2) {
     if (std::abs(t1.as_mjd()-d2) > fmjd_diff) fmjd_diff = std::abs(t1.as_mjd()-d2);
     // look into the difference if requested ...
     SecIntType totalsec = anysec.as_underlying_type() +
-                          60 * S::template sec_factor<SecIntType>() *
-                              (static_cast<SecIntType>(imin) +
-                               static_cast<SecIntType>(ihour) * 60);
+      60 * S::template sec_factor<SecIntType>() *
+      (static_cast<SecIntType>(imin) +
+       static_cast<SecIntType>(ihour) * 60);
     fprintf(stderr,
-            "Cal2Jd:: Strict comparission would fail for date: %d-%02d-%02d "
-            "%02d:%02d:%.15f (1)\n",
-            iy, im, id, ihour, imin, sec);
+        "Cal2Jd:: Strict comparission would fail for date: %d-%02d-%02d "
+        "%02d:%02d:%.15f (1)\n",
+        iy, im, id, ihour, imin, sec);
     fprintf(stderr, "\t*Seconds = %ld / %ld\n", anysec.as_underlying_type(), totalsec);
     fprintf(stderr, "\tSOFA fractional day : %22.15f (disregard the integral part)\n", d2);
     fprintf(stderr, "\tDatetime f day      : %22.15f\n", t1.sec().fractional_days());
     fprintf(stderr, "\t(Aka, whole MJD is) : %22.15f\n", t1.as_mjd());
     fprintf(stderr, "\tMjd frac. difference: %.15f\n",
-            std::abs(t1.as_mjd() - d2));
+        std::abs(t1.as_mjd() - d2));
     fprintf(stderr, "\tFrac. day limit:      %.15f\n", max_diff);
     fprintf(stderr, "\tHard fail ? %s\n",
-            std::abs(t1.as_mjd() - d2) < max_diff ? "no" : "yes");
+        std::abs(t1.as_mjd() - d2) < max_diff ? "no" : "yes");
     ++fails;
     has_sofa_diff = true;
   }
@@ -169,9 +167,12 @@ int make_random_jd(double &d1, double &d2, Datetime<S> &t, long &fails) {
 int main(int argc, char *argv[]) {
   if (argc>1) fprintf(stderr, "Note: ignoring all command line arguments ...\n");
 
+  printf("////////////////////////////////////////////////////////////////\n");
+  printf("%s\n", argv[0]);
+  printf("////////////////////////////////////////////////////////////////\n");
   printf("Checking random calendar dates to JD via %s\n", argv[0]);
   printf("This set of tests will perform the following tasks:\n");
-  printf("\t* Select randaom calendar dates, aka sets of year, month day, hours\n");
+  printf("\t* Select random calendar dates, aka sets of year, month day, hours\n");
   printf("\t  minutes and seconds (of given resolution)\n");
   printf("\t* Try to convert the calendar date to JD/MJD using both SOFA and\n");
   printf("\t  the datetime library. Check that results are the same and that\n");
@@ -182,6 +183,14 @@ int main(int argc, char *argv[]) {
 
   printf("--> Note that this test is for non-UTC datetimes <--\n");
   long failures = 0;
+
+  printf("Failure (1) is triggered when:\n");
+  printf("We transform a calendar date to a JD/MJD date using (a) the SOFA\n");
+  printf("library and (b) the datetime library. (a) and (b) should be equal.\n");
+  printf("However, in reality, small discrepancies exist in the fractional part\n");
+  printf("of the day between (a) and (b). These discrepancies should be at least\n");
+  printf("less than the template second parameter (i.e. less than one second, \n");
+  printf("one millisecond, ...).\n");
 
   printf("-------------------------------------------------------------------"
          "----------\n");

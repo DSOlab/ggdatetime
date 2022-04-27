@@ -1088,6 +1088,8 @@ public:
   /// Is fundamental datetime type
   static constexpr bool is_dt_fundamental_type{true};
 
+  static const char *unit_literal() noexcept { return "sec"; }
+
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
   constexpr underlying_type __member_const_ref__() const noexcept {
@@ -1261,6 +1263,8 @@ public:
 
   /// Is fundamental datetime type
   static constexpr bool is_dt_fundamental_type{true};
+  
+  static const char *unit_literal() noexcept { return "millisec"; }
 
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
@@ -1476,6 +1480,8 @@ public:
 
   /// Is fundamental datetime type
   static constexpr bool is_dt_fundamental_type{true};
+  
+  static const char *unit_literal() noexcept { return "microsec"; }
 
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
@@ -1673,6 +1679,8 @@ public:
 
   /// Is fundamental datetime type
   static constexpr bool is_dt_fundamental_type{true};
+  
+  static const char *unit_literal() noexcept { return "nanosec"; }
 
   /// If fundamental type, the class should have an "expose the only member var"
   /// function
@@ -2300,6 +2308,37 @@ constexpr Strg cast_to(Ssrc s) noexcept {
   auto numerator{s.__member_ref__() * Strg::template sec_factor<long>()};
   return Strg{numerator / Ssrc::template sec_factor<long>()};
 }
+
+#if __cplusplus >= 202002L
+  template <gconcepts::is_sec_dt S>
+#else
+  template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
+#endif
+struct hms_time {
+  using SecIntType = typename S::underlying_type;
+  hours _hours;
+  minutes _minutes;
+  S       _sec;
+
+  hms_time(S seconds) noexcept {
+    SecIntType isecs = seconds.as_underlying_type();
+    constexpr const SecIntType hours_ = 3600L * S::template sec_factor<SecIntType>();
+    const SecIntType hr = isecs / hours_;
+    SecIntType remaining = isecs - hr * hours_;
+    _hours = hr;
+
+    const SecIntType minutes_ = 60L * S::template sec_factor<SecIntType>();
+    const SecIntType mn = remaining / minutes_;
+    remaining = remaining - mn * minutes_;
+    _minutes = mn;
+
+    _sec = remaining;
+
+#ifdef DEBUG
+  assert(_sec.as_underlying_type() + mn * minutes_ + hr * hours_ == seconds.as_underlying_type());
+#endif
+  }
+};// hms_time
 
 /// @class t_hmsf A simple wrapper class to hold time as hours, minutes, seconds
 ///        and fractional seconds.
