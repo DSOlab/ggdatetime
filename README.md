@@ -7,8 +7,8 @@
 
 ## Introduction
 
-ggdatetime is a C++ library to assist Geodesy and GNSS-processing related
-fields.
+ggdatetime is a C++ library to assist date and time - related computations in 
+Geodesy related fields.
 
 ## Compilation / Installation
 
@@ -20,12 +20,11 @@ standard (option `-std=c++17` in gcc and clang).
 [C++ 20 standard](https://en.cppreference.com/w/cpp/20). To compile against
 C++20, set the corresponding flags in the `Makefile.am` files.
 
-> Since December 2021, the build system has been changed from [GNU Autotools](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html)
-> to [scons](https://scons.org/). Users can still build using the Autotools system, but
-> we advise changing to scons, as the former will be considered obsolete in the near
-> future. 
+> Since December 2021, the build system has been changed from 
+> [GNU Autotools](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html)
+> to [scons](https://scons.org/). 
 
-To compile the library, just follow the basic steps: (*note that the library is still at development phase so users need to configure the project before compiling*)
+**April 2022** Building with Autotools is now deprecated and not supported.
 
 For the following, `ROOTDIR` will be the root directory of this repository,
 aka the directory under which `/src`, `/test` and `/doc` folders live.
@@ -35,26 +34,6 @@ To compile and install, using [scons](https://scons.org/), just type:
 ```
 scons
 sudo scons install
-```
-
-### Compilation using [Autotools](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html) __(deprecated)__
-
-**If you do not need the DEBUG version** (which most probably you don't), create the `Makefile.am` templates. This means that you
-should rename [Makefile.am.production](src/Makefile.am.production) and [Makefile.am.production](test/Makefile.am.production) to
-`src/Makefile.am` and `test/Makefile.am` respectively, that is:
-
-```bash
-mv src/Makefile.am.production src/Makefile.am
-mv test/Makefile.am.production test/Makefile.am
-```
-
-Then run Autotools and compile:
-
-```bash
-autoreconf -if
-./configure
-make
-sudo make install
 ```
 
 ## Verify & Test
@@ -85,10 +64,6 @@ Link, include and have fun!
 
 ## The Library
 
-Here is a list of the provided utilities:
-
-### How to use the library (TODO)
-
 ### Namespaces
 
 The whole of the library is wrapped around the `dso` namespace
@@ -107,6 +82,5 @@ The whole of the library is wrapped around the `dso` namespace
 ## Bugs & Maintanance
 Xanthos, xanthos@mail.ntua.gr
 Mitsos, danast@mail.ntua.gr
-
 
 ## FAQ
