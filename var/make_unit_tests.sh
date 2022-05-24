@@ -8,11 +8,9 @@ echo "+=====================================================================+"
 ## and update LD_LIBRARY_PATH for the linker
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 ROOTDIR=${DIR%\/var}
-# LNPTH=${ROOTDIR}/src/.libs only produced when building with Autotools, for
-# scons, use:
-LNPTH=${ROOTDIR}
+LNPTH=${ROOTDIR}/src/.libs
 if ! test -f ${LNPTH}/libdatetime.la && ! test -f ${LNPTH}/libdatetime.so ; then
-  echo echo "FAILED to find lib: ${LNPTH}/libdatetime.la or ${LNPTH}/libdatetime.so; stoping with error" 1>&2
+  echo echo "FAILED; stoping with error" 1>&2
   exit 3
 fi
 export LD_LIBRARY_PATH=${LNPTH}:$LD_LIBRARY_PATH
