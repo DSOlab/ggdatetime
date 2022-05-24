@@ -62,8 +62,8 @@ hdr_src_files = glob.glob(r"src/*.hpp")
 DebugCXXFLAGS_P = '-std=c++17 -g -pg -Wall -Wextra -Werror -pedantic -W -Wshadow -Winline -Wdisabled-optimization -DDEBUG'
 ProductionCXXFLAGS_P = '-std=c++17 -Wall -Wextra -Werror -pedantic -W -Wshadow -O2'
 ## MSVC (Replace Wall with W4)
-DebugCXXFLAGS_W = '/std:c++17 /W4 /WX /Od /EHsc /GR /FI -DDEBUG'
-ProductionCXXFLAGS_W = '/std:c++17 /W4 /WX /O2 /EHsc /GR /FI'
+DebugCXXFLAGS_W = '/std:c++17 /W4 /WX /Od -DDEBUG'
+ProductionCXXFLAGS_W = '/std:c++17 /W4 /WX /O2'
 
 ## Environments ...
 denv = Environment(CXXFLAGS = DebugCXXFLAGS_P if platform.system() != "Windows" else DebugCXXFLAGS_W)
