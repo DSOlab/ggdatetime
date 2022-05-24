@@ -7,7 +7,6 @@
 #define __DTCALENDAR_NGPT__HPP__
 
 #include "dtfund.hpp"
-#include "time_scales.hpp"
 #include <cassert>
 // TODO these are used for std::string/iostream manipulation; remove
 #include <iomanip> // std::setprecision
@@ -239,9 +238,9 @@ private:
 /// should
 ///      not be over 1 day). We have to make sure that this is always the case.
 #if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt S, TimeScale TS>
+template <gconcepts::is_sec_dt S>
 #else
-template <class S, TimeScale TS, typename = std::enable_if_t<S::is_of_sec_type>>
+template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
 class datetime {
 public:
@@ -479,14 +478,14 @@ public:
   template <class T, typename = std::enable_if_t<T::is_of_sec_type>,
             typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
-  constexpr datetime<S, TS> add(modified_julian_day days,
+  constexpr datetime<S> add(modified_julian_day days,
                                 T secs = T{0}) const noexcept {
-    datetime<S, TS> new_dt{days + m_mjd, static_cast<S>(secs) + m_sec};
+    datetime<S> new_dt{days + m_mjd, static_cast<S>(secs) + m_sec};
     new_dt.normalize();
     return new_dt;
   }
 
-  constexpr datetime<S, TS>
+  constexpr datetime<S>
   operator+(const datetime_interval<S> &dt) const noexcept {
     return this->add(dt.days(), dt.sec());
   }
@@ -500,9 +499,9 @@ public:
 #else
   template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
-  inline constexpr datetime<T, TS> cast_to() const noexcept {
+  inline constexpr datetime<T> cast_to() const noexcept {
     T nsec = dso::cast_to<S, T>(this->sec());
-    return datetime<T, TS>(this->mjd(), nsec);
+    return datetime<T>(this->mjd(), nsec);
   }
 
   /// Return the difference of two datetimes as second type S.
@@ -777,59 +776,16 @@ public:
 
 }; // datetime
 
-#if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt S>
-#else
-template <class S>
-#endif
-class datetime<S, TimeScale::UTC,
-               typename std::enable_if_t<S::is_of_sec_type>> {
-public:
-  /// Expose the underlying sec type S
-  using sec_type = S;
-
-  /// Maximum possible date (seconds are 0, modified_julian_day is max
-  /// possible).
-  constexpr static datetime max() noexcept {
-    return datetime{modified_julian_day::max(), S{0}};
-  }
-
-  /// Minimum possible date (seconds are 0, modified_julian_day is min
-  /// possible).
-  constexpr static datetime min() noexcept {
-    return datetime{modified_julian_day::min(), S{0}};
-  }
-
-  /// Default (zero) constructor.
-  explicit constexpr datetime() noexcept : m_mjd(dso::j2000_mjd), m_sec(0){};
-
-  /// Constructor from year, month, day of month and sec type.
-  constexpr datetime(year y, month m, day_of_month d, hours hr, minutes mn, S s)
-      : m_mjd{cal2mjd(y, m, d)}, m_hours(hr), m_minutes(mn), m_sec{s} {
-    if (m_hours >= hours(24) || m_minutes >= minutes(60) ||
-        m_sec >= S::max_in_day()) {
-      const char *errmsg = "[ERROR] Invalid argument to UTC date constructor!";
-      throw std::runtime_error(errmsg);
-    }
-  };
-
-private:
-  modified_julian_day m_mjd; ///< Modified Julian Day
-  hours m_hours;
-  minutes m_minutes;
-  S m_sec; ///< *Seconds in S precision.
-};         // datetime<S,UTC>
-
 /// Difference between two dates in MJdays and T.
 /// Diff is dt1 - dt2
 #if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt T, TimeScale TS>
+template <gconcepts::is_sec_dt T>
 #else
-template <typename T, TimeScale TS,
+template <typename T,
           typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
-constexpr datetime_interval<T> delta_date(const datetime<T, TS> &dt1,
-                                          const datetime<T, TS> &dt2) noexcept {
+constexpr datetime_interval<T> delta_date(const datetime<T> &dt1,
+                                          const datetime<T> &dt2) noexcept {
   return dt1.delta_date(dt2);
 }
 
@@ -850,11 +806,11 @@ constexpr datetime_interval<T> delta_date(const datetime<T, TS> &dt1,
 /// @param  d1  datetime<S1> instance (difference is d1-d2)
 /// @param  d2  datetime<S2> instance (difference is d1-d2)
 /// @return     Difference d1-d2 in S1
-template <typename S1, typename S2, TimeScale TS,
+template <typename S1, typename S2,
           typename = std::enable_if_t<S1::is_of_sec_type>,
           typename = std::enable_if_t<S2::is_of_sec_type>,
           typename = std::enable_if_t<(S1::max_in_day > S2::max_in_day)>>
-inline S1 delta_sec(datetime<S1, TS> d1, datetime<S2, TS> d2) noexcept {
+inline S1 delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept {
   S1 diff = mjd_sec_diff<S1>(d1.mjd(), d2.mjd()); // days dif in S1
   S1 s2sec = dso::cast_to<S2, S1>(d2.sec());      // cast d2 secs to S1
   return diff + (d1.sec() - s2sec);
@@ -877,11 +833,11 @@ inline S1 delta_sec(datetime<S1, TS> d1, datetime<S2, TS> d2) noexcept {
 /// @param  d1  datetime<S1> instance (difference is d1-d2)
 /// @param  d2  datetime<S2> instance (difference is d1-d2)
 /// @return     Difference d1-d2 in S2
-template <typename S1, typename S2, TimeScale TS,
+template <typename S1, typename S2,
           typename = std::enable_if_t<S1::is_of_sec_type>,
           typename = std::enable_if_t<S2::is_of_sec_type>,
           typename = std::enable_if_t<(S2::max_in_day > S1::max_in_day)>>
-inline S2 delta_sec(datetime<S1, TS> d1, datetime<S2, TS> d2) noexcept {
+inline S2 delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept {
   S2 diff = mjd_sec_diff<S2>(d1.mjd(), d2.mjd()); // days dif in S2
   S2 s1sec = dso::cast_to<S1, S2>(d1.sec());      // cast d1 secs to S2
   return diff + (s1sec - d2.sec());
@@ -899,9 +855,9 @@ inline S2 delta_sec(datetime<S1, TS> d1, datetime<S2, TS> d2) noexcept {
 /// @param  d2  datetime<S> instance (deifference is d1-d2)
 /// @return     Difference d1-d2 in S
 #if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt S, TimeScale TS>
+template <gconcepts::is_sec_dt S>
 #else
-template <typename S, TimeScale TS,
+template <typename S,
           typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
 inline S delta_sec(datetime<S, TS> d1, datetime<S, TS> d2) noexcept {
@@ -932,12 +888,12 @@ constexpr int day_of_week(T sow) noexcept {
 /// @see IAU SOFA (iau-dat.c)
 /// @see dso::dat
 #if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt T, TimeScale TS>
+template <gconcepts::is_sec_dt T>
 #else
-template <typename T, TimeScale TS,
+template <typename T,
           typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
-inline int dat(datetime<T, TS> t) noexcept {
+inline int dat(datetime<T> t) noexcept {
   return dso::dat(t.mjd());
 }
 
