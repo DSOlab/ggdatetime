@@ -479,7 +479,7 @@ public:
             typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
   constexpr datetime<S> add(modified_julian_day days,
-                                T secs = T{0}) const noexcept {
+                            T secs = T{0}) const noexcept {
     datetime<S> new_dt{days + m_mjd, static_cast<S>(secs) + m_sec};
     new_dt.normalize();
     return new_dt;
@@ -588,23 +588,24 @@ public:
 
   /// @brief Cast to double (i.e. fractional) Modified Julian Date.
   constexpr double as_mjd() const noexcept {
-    //const double mjd = static_cast<double>(m_mjd.as_underlying_type());
-    //const double fday = m_sec.fractional_days();
-    //return mjd + fday;
+    // const double mjd = static_cast<double>(m_mjd.as_underlying_type());
+    // const double fday = m_sec.fractional_days();
+    // return mjd + fday;
     return static_cast<double>(m_mjd.as_underlying_type()) +
            m_sec.fractional_days();
   }
 
   ///  @brief Cast to double (i.e. fractional) Julian Date.
   constexpr double as_jd() const noexcept {
-    double jd = m_mjd.to_julian_day();
+    const double jd = m_mjd.to_julian_day();
     return jd + m_sec.fractional_days() / 36525e0;
   }
 
   /// @brief compute Julian centuries since J2000
   constexpr double jcenturies_sinceJ2000() const noexcept {
-    double jd = m_mjd.to_julian_day();
-    double jc = (jd - j2000_jd) / 36525e0 + m_sec.fractional_days() / 36525e0;
+    const double jd = m_mjd.to_julian_day();
+    const double jc =
+        (jd - j2000_jd) / 36525e0 + m_sec.fractional_days() / 36525e0;
     return jc;
   }
 
@@ -781,8 +782,7 @@ public:
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt T>
 #else
-template <typename T,
-          typename = std::enable_if_t<T::is_of_sec_type>>
+template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
 constexpr datetime_interval<T> delta_date(const datetime<T> &dt1,
                                           const datetime<T> &dt2) noexcept {
@@ -857,10 +857,9 @@ inline S2 delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept {
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S>
 #else
-template <typename S,
-          typename = std::enable_if_t<S::is_of_sec_type>>
+template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
-inline S delta_sec(datetime<S, TS> d1, datetime<S, TS> d2) noexcept {
+inline S delta_sec(datetime<S> d1, datetime<S> d2) noexcept {
   return d1.delta_sec(d2);
 }
 
@@ -890,8 +889,7 @@ constexpr int day_of_week(T sow) noexcept {
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt T>
 #else
-template <typename T,
-          typename = std::enable_if_t<T::is_of_sec_type>>
+template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
 inline int dat(datetime<T> t) noexcept {
   return dso::dat(t.mjd());

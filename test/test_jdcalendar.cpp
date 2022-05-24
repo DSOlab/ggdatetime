@@ -30,7 +30,7 @@
 int num_tests = 1000000;
 
 // Test for Non-UTC datetimes
-template <typename S> using Datetime = dso::datetime<S, dso::TimeScale::TAI>;
+template <typename S> using Datetime = dso::datetime<S>;
 
 // Generators for random numbers ...
 std::random_device rd;

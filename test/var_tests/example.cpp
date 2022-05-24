@@ -9,7 +9,7 @@
 
 using namespace dso;
 template<typename S>
-using Datetime = datetime<S,TimeScale::TAI>;
+using Datetime = datetime<S>;
 
 constexpr long MilliSec = 1000L;
 constexpr long MicroSec = 1000000L;

@@ -31,8 +31,8 @@ namespace dso {
 /// str) interpreted.
 ///
 /// @throw std::invalid_argument if the input string cannot be resolved.
-template <typename T, TimeScale TS>
-datetime<T,TS> strptime_ymd(const char *str, char **stop = nullptr) {
+template <typename T>
+datetime<T> strptime_ymd(const char *str, char **stop = nullptr) {
   char *end;
   const char *start = str;
   int ints[3];
@@ -49,7 +49,7 @@ datetime<T,TS> strptime_ymd(const char *str, char **stop = nullptr) {
   }
   if (stop)
     *stop = end - 1;
-  return datetime<T,TS>{year{ints[0]}, month{ints[1]}, day_of_month{ints[2]},
+  return datetime<T>{year{ints[0]}, month{ints[1]}, day_of_month{ints[2]},
                      hours{0},      minutes{0},     T{0}};
 }
 
@@ -63,8 +63,8 @@ datetime<T,TS> strptime_ymd(const char *str, char **stop = nullptr) {
 /// str) interpreted.
 ///
 /// @throw std::invalid_argument if the input string cannot be resolved.
-template <typename T, TimeScale TS>
-datetime<T,TS> strptime_ydoy(const char *str, char **stop = nullptr) {
+template <typename T>
+datetime<T> strptime_ydoy(const char *str, char **stop = nullptr) {
   char *end;
   const char *start = str;
   int ints[2];
@@ -81,7 +81,7 @@ datetime<T,TS> strptime_ydoy(const char *str, char **stop = nullptr) {
   }
   if (stop)
     *stop = end - 1;
-  return datetime<T,TS>{year{ints[0]}, day_of_year{ints[1]}, hours{0}, minutes{0},
+  return datetime<T>{year{ints[0]}, day_of_year{ints[1]}, hours{0}, minutes{0},
                      T{0}};
 }
 
@@ -95,8 +95,8 @@ datetime<T,TS> strptime_ydoy(const char *str, char **stop = nullptr) {
 /// str) interpreted.
 ///
 /// @throw std::invalid_argument if the input string cannot be resolved.
-template <typename T, TimeScale TS>
-datetime<T,TS> strptime_ymd_hms(const char *str, char **stop = nullptr) {
+template <typename T>
+datetime<T> strptime_ymd_hms(const char *str, char **stop = nullptr) {
   char *end;
   const char *start = str;
   int ints[5];
@@ -120,7 +120,7 @@ datetime<T,TS> strptime_ymd_hms(const char *str, char **stop = nullptr) {
   }
   if (stop)
     *stop = end;
-  return datetime<T,TS>{year{ints[0]},  month{ints[1]},   day_of_month{ints[2]},
+  return datetime<T>{year{ints[0]},  month{ints[1]},   day_of_month{ints[2]},
                      hours{ints[3]}, minutes{ints[4]}, secs};
 }
 
@@ -136,8 +136,8 @@ datetime<T,TS> strptime_ymd_hms(const char *str, char **stop = nullptr) {
 /// or 'jan' or anything else.
 ///
 /// @throw std::invalid_argument if the input string cannot be resolved.
-template <typename T, TimeScale TS>
-datetime<T,TS> strptime_yod_hms(const char *str, char **stop = nullptr) {
+template <typename T>
+datetime<T> strptime_yod_hms(const char *str, char **stop = nullptr) {
   char *end;
   const char *start = str;
   int ints[5];
@@ -183,7 +183,7 @@ datetime<T,TS> strptime_yod_hms(const char *str, char **stop = nullptr) {
   if (stop)
     *stop = end;
 
-  return datetime<T,TS>{year{ints[0]},         mnt,
+  return datetime<T>{year{ints[0]},         mnt,
                      day_of_month{ints[2]}, hours{ints[3]},
                      minutes{ints[4]},      secs};
 }
@@ -198,8 +198,8 @@ datetime<T,TS> strptime_yod_hms(const char *str, char **stop = nullptr) {
 /// str) interpreted.
 ///
 /// @throw std::invalid_argument if the input string cannot be resolved.
-template <typename T, TimeScale TS>
-datetime<T,TS> strptime_ydoy_hms(const char *str, char **stop = nullptr) {
+template <typename T>
+datetime<T> strptime_ydoy_hms(const char *str, char **stop = nullptr) {
   char *end;
   const char *start = str;
   int ints[4];
@@ -223,7 +223,7 @@ datetime<T,TS> strptime_ydoy_hms(const char *str, char **stop = nullptr) {
   }
   if (stop)
     *stop = end;
-  return datetime<T,TS>{year{ints[0]}, day_of_year{ints[1]}, hours{ints[2]},
+  return datetime<T>{year{ints[0]}, day_of_year{ints[1]}, hours{ints[2]},
                      minutes{ints[3]}, secs};
 }
 

@@ -18,7 +18,7 @@ double fmjd_diff = std::numeric_limits<double>::min();
 static std::size_t cal2jd_fails = 0;
 
 // Test for Non-UTC datetimes
-template <typename S> using Datetime = dso::datetime<S, dso::TimeScale::TAI>;
+template <typename S> using Datetime = dso::datetime<S>;
 
 // Generators for random numbers ...
 std::random_device rd;
