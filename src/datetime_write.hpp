@@ -56,6 +56,23 @@ std::string strftime_ymd_hmfs(const datetime<T> &t, char del = '-') {
 }
 
 template <typename T>
+const char *strftime_ymd_hmfs(const datetime<T> &t, char *buf, char del = '-') {
+  auto ymd = t.as_ymd();
+  auto hmsf = as_hmsf(t.sec());
+  sprintf(buf, "%4d%c%02d%c%02d %02d:%02d:%02d.%.5f",
+          ymd.__year.as_underlying_type(), del, ymd.__month.as_underlying_type(),del,
+          ymd.__dom.as_underlying_type(), hmsf._hours.as_underlying_type(),
+          hmsf._minutes.as_underlying_type(),
+          hmsf._seconds.as_underlying_type(), hmsf._fraction);
+  //printf("--> note %4d %2d %2d and time %2d %2d %2d sec=%.5f\n", 
+  //        ymd.__year.as_underlying_type(), ymd.__month.as_underlying_type(),
+  //        ymd.__dom.as_underlying_type(), hmsf._hours.as_underlying_type(),
+  //        hmsf._minutes.as_underlying_type(),
+  //        hmsf._seconds.as_underlying_type(), hmsf._fraction);
+  return buf;
+}
+
+template <typename T>
 std::string strftime_ymd_hms(const datetime<T> &t, char del = '-') {
   auto ymd = t.as_ymd();
   auto hmsf = as_hmsf(t.sec());

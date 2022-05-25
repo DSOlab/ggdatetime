@@ -2212,11 +2212,11 @@ struct t_hmsf {
     long mn{(_sec % fac_36L) / 60L / fac}; // minutes
     typename S::underlying_type sc{(_sec - (hr * 3600L + mn * 60L) * fac) /
                                    fac};
-#ifdef DEBUG
-    // this way is a tiny bit slower
-    typename S::underlying_type sc1{(_sec % (60L * fac)) / fac}; // seconds
-    assert(sc1 != sc);
-#endif
+//#ifdef DEBUG
+//    // this way is a tiny bit slower
+//    typename S::underlying_type sc1{(_sec % (60L * fac)) / fac}; // seconds
+//    assert(sc1 != sc);
+//#endif
     typename S::underlying_type fs{_sec - ((hr * 60L + mn) * 60L + sc) *
                                               fac}; // remaining S's
 
