@@ -4,12 +4,7 @@
 namespace dso {
 
 /// @brief Time Scales
-enum class TimeScale : char {
-  TAI,
-  UTC,
-  UT1,
-  TT
-}; // TimeScale
+enum class TimeScale : char { TAI, UTC, UT1, TT }; // TimeScale
 
-}// dso
+} // namespace dso
 #endif

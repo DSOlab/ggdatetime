@@ -76,7 +76,8 @@ int dso::dat(dso::modified_julian_day mjd) noexcept {
   constexpr int NDAT{(int)(sizeof changes / sizeof changes[0])};
 
   // find the preceding table entry.
-  const dso::modified_julian_day::underlying_type today{mjd.as_underlying_type()};
+  const dso::modified_julian_day::underlying_type today{
+      mjd.as_underlying_type()};
   int idx = NDAT - 1;
   for (; idx >= 0; idx--) {
     if (today >= changes[idx].mjday)

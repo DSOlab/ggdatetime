@@ -1241,7 +1241,7 @@ public:
 
   /// Is fundamental datetime type
   static constexpr bool is_dt_fundamental_type{true};
-  
+
   static const char *unit_literal() noexcept { return "millisec"; }
 
   /// If fundamental type, the class should have an "expose the only member var"
@@ -1415,7 +1415,7 @@ public:
 
   /// Is fundamental datetime type
   static constexpr bool is_dt_fundamental_type{true};
-  
+
   static const char *unit_literal() noexcept { return "microsec"; }
 
   /// If fundamental type, the class should have an "expose the only member var"
@@ -1580,7 +1580,7 @@ public:
 
   /// Is fundamental datetime type
   static constexpr bool is_dt_fundamental_type{true};
-  
+
   static const char *unit_literal() noexcept { return "nanosec"; }
 
   /// If fundamental type, the class should have an "expose the only member var"
@@ -2089,36 +2089,6 @@ constexpr typename S::underlying_type max_days_allowed() {
          S::max_in_day;
 }
 
-/*
-#if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt S>
-#else
-template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
-#endif
-struct hms {
-  hours __hours;
-  minutes __minutes;
-  S __secs;
-};
-
-#if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt S>
-#else
-template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
-#endif
-constexpr hms<S> to_hmsf() const noexcept {
-  underlying_type hr{m_sec / 3600000L};                             // hours
-  underlying_type mn{(m_sec % 3600000L) / 60000L};                  // minutes
-  underlying_type sc{((m_sec % 3600000L) % 60000L) / 1000L};        // seconds
-  underlying_type ms{m_sec - ((hr * 60L + mn) * 60L + sc) * 1000L}; //
-milliseconds.
-
-  return std::make_tuple(hours{static_cast<hours::underlying_type>(hr)},
-                         minutes{static_cast<minutes::underlying_type>(mn)},
-                         seconds{sc}, ms);
-}
-*/
-
 /// @brief Express the difference between two Modified Julian Days as any second
 ///        type.
 ///
@@ -2186,19 +2156,20 @@ constexpr Strg cast_to(Ssrc s) noexcept {
 }
 
 #if __cplusplus >= 202002L
-  template <gconcepts::is_sec_dt S>
+template <gconcepts::is_sec_dt S>
 #else
-  template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
+template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
 struct hms_time {
   using SecIntType = typename S::underlying_type;
   hours _hours;
   minutes _minutes;
-  S       _sec;
+  S _sec;
 
   hms_time(S seconds) noexcept {
     SecIntType isecs = seconds.as_underlying_type();
-    constexpr const SecIntType hours_ = 3600L * S::template sec_factor<SecIntType>();
+    constexpr const SecIntType hours_ =
+        3600L * S::template sec_factor<SecIntType>();
     const SecIntType hr = isecs / hours_;
     SecIntType remaining = isecs - hr * hours_;
     _hours = hr;
@@ -2211,10 +2182,11 @@ struct hms_time {
     _sec = remaining;
 
 #ifdef DEBUG
-  assert(_sec.as_underlying_type() + mn * minutes_ + hr * hours_ == seconds.as_underlying_type());
+    assert(_sec.as_underlying_type() + mn * minutes_ + hr * hours_ ==
+           seconds.as_underlying_type());
 #endif
   }
-};// hms_time
+}; // hms_time
 
 /// @class t_hmsf A simple wrapper class to hold time as hours, minutes, seconds
 ///        and fractional seconds.
@@ -2262,7 +2234,7 @@ struct t_hmsf {
   constexpr bool operator!=(const t_hmsf &other) const noexcept {
     return !(*this == other);
   }
-}; // hmsf
+}; // t_hmsf
 
 /// For user-defined literals, i am going to replace long with
 /// unsigned long long int.

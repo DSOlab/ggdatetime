@@ -1,3 +1,11 @@
+# Compiler/Editor specific
+.clangd/
+.vscode/
+.sconsign.dblite
+
+# erronuous unit tests automaticaly generated in var
+var/test_*_error*.cpp
+
 # Compiled Python files
 *.pyc
 
@@ -9,6 +17,7 @@
 *.lo
 *.o
 *.obj
+*.so
 
 # Precompiled Headers
 *.gch

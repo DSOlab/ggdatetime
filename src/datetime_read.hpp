@@ -8,12 +8,9 @@
 
 #include "dtcalendar.hpp"
 #include "dtfund.hpp"
-#include <cstring>
-#include <cstring>
-#include <cstring>
-#include <cstring>
 #include <cctype> // for std::isalpha
 #include <cstdlib>
+#include <cstring>
 #include <stdexcept>
 #ifdef DEBUG
 #include <iostream>
@@ -120,8 +117,11 @@ datetime<T> strptime_ymd_hms(const char *str, char **stop = nullptr) {
   }
   if (stop)
     *stop = end;
+
+  T tsec{static_cast<typename T::underlying_type>(
+      secs * T::template sec_factor<double>())};
   return datetime<T>{year{ints[0]},  month{ints[1]},   day_of_month{ints[2]},
-                     hours{ints[3]}, minutes{ints[4]}, secs};
+                     hours{ints[3]}, minutes{ints[4]}, tsec};
 }
 
 /// @brief Read from YYYY-OOO-DD HH:MM:SS.SSSS
@@ -183,9 +183,11 @@ datetime<T> strptime_yod_hms(const char *str, char **stop = nullptr) {
   if (stop)
     *stop = end;
 
+  T tsec{static_cast<typename T::underlying_type>(
+      secs * T::template sec_factor<double>())};
   return datetime<T>{year{ints[0]},         mnt,
                      day_of_month{ints[2]}, hours{ints[3]},
-                     minutes{ints[4]},      secs};
+                     minutes{ints[4]},      tsec};
 }
 
 /// @brief Read from YYYY-DDD HH:MM:SS.SSSS

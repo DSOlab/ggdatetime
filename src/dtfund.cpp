@@ -1,20 +1,14 @@
-///
 /// @file  dtfund.cpp
-///
 /// @brief Implementation file for header dtfund.hpp.
-///
 /// This file contains fundamental constants and algorithms for manipulating
 /// date and time, targeting GNSS applications.
-///
 /// @author xanthos
-///
 /// @bug No known bugs.
-///
 
 #include "dtfund.hpp"
 #include <cassert>
-#include <cstring>
 #include <cctype> // tolower()
+#include <cstring>
 
 /// Definition for static month array (short names).
 /// @see dso::month

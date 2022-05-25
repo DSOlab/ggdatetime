@@ -1,14 +1,8 @@
-///
 /// @file  datetime_write.hpp
-///
 /// @brief Function to format dso::datetime objects as strings
-///
 /// @see dso::datetime
-///
 /// @author xanthos
-///
 /// @bug No known bugs.
-///
 
 #ifndef __NGPT_DT_WRITERS__
 #define __NGPT_DT_WRITERS__
@@ -47,32 +41,32 @@ inline std::string _i2s_(int i, int w = 2) noexcept {
 /// str) interpreted.
 ///
 /// @throw std::invalid_argument if the input string cannot be resolved.
-template <typename T, Timescale TS>
-std::string strftime_ymd_hmfs(const datetime<T,TS> &t, char del = '-') {
+template <typename T>
+std::string strftime_ymd_hmfs(const datetime<T> &t, char del = '-') {
   auto ymd = t.as_ymd();
-  auto hmsf = t.as_hmsf();
-
-  double secs = std::get<2>(hmsf).as_underlying_type() +
-                std::get<3>(hmsf) / T::template sec_factor<double>();
+  auto hmsf = as_hmsf(t.sec());
 
   return _i2s_((ymd.__year).as_underlying_type(), 4) + del +
          _i2s_((ymd.__month).as_underlying_type(), 2) + del +
          _i2s_((ymd.__dom).as_underlying_type(), 2) + ' ' +
-         _i2s_(std::get<0>(hmsf).as_underlying_type(), 2) + ':' +
-         _i2s_(std::get<1>(hmsf).as_underlying_type(), 2) + ':' +
-         _d2s_(secs, 5);
+         _i2s_(hmsf._hours.as_underlying_type(), 2) + ':' +
+         _i2s_(hmsf._minutes.as_underlying_type(), 2) + ':' +
+         _i2s_(hmsf._seconds.as_underlying_type(), 2) + ':' +
+         _d2s_(hmsf._fraction, 5);
 }
-template <typename T,TimeScale TS>
-std::string strftime_ymd_hms(const datetime<T,TS> &t, char del = '-') {
+
+template <typename T>
+std::string strftime_ymd_hms(const datetime<T> &t, char del = '-') {
   auto ymd = t.as_ymd();
-  auto hmsf = t.as_hmsf();
+  auto hmsf = as_hmsf(t.sec());
 
   return _i2s_((ymd.__year).as_underlying_type(), 4) + del +
          _i2s_((ymd.__month).as_underlying_type(), 2) + del +
          _i2s_((ymd.__dom).as_underlying_type(), 2) + ' ' +
-         _i2s_(std::get<0>(hmsf).as_underlying_type(), 2) + ':' +
-         _i2s_(std::get<1>(hmsf).as_underlying_type(), 2) + ':' +
-         _i2s_(std::get<2>(hmsf).as_underlying_type(), 2);
+         _i2s_(hmsf._hours.as_underlying_type(), 2) + ':' +
+         _i2s_(hmsf._minutes.as_underlying_type(), 2) + ':' +
+         _i2s_(hmsf._seconds.as_underlying_type(), 2) + ':' +
+         _d2s_(hmsf._fraction, 5);
 }
 
 } // namespace dso

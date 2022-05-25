@@ -598,7 +598,7 @@ public:
   ///  @brief Cast to double (i.e. fractional) Julian Date.
   constexpr double as_jd() const noexcept {
     const double jd = m_mjd.to_julian_day();
-    return jd + m_sec.fractional_days() / 36525e0;
+    return jd + m_sec.fractional_days();
   }
 
   /// @brief compute Julian centuries since J2000
@@ -640,13 +640,6 @@ public:
     sow = S{((mjd - jan61980) - w.as_underlying_type() * 7) * S::max_in_day};
     sow += m_sec;
     return w;
-  }
-
-  /// Convert the time of day to hours, minutes, seconds and S
-  /// @bug needs more documentation
-  /// @todo change return type
-  constexpr std::tuple<hours, minutes, seconds, long> as_hmsf() const noexcept {
-    return m_sec.to_hmsf();
   }
 
   std::string stringify() const {
@@ -810,7 +803,7 @@ template <typename S1, typename S2,
           typename = std::enable_if_t<S1::is_of_sec_type>,
           typename = std::enable_if_t<S2::is_of_sec_type>,
           typename = std::enable_if_t<(S1::max_in_day > S2::max_in_day)>>
-inline S1 delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept {
+inline S1 delta_sec(const datetime<S1> &d1, const datetime<S2> &d2) noexcept {
   S1 diff = mjd_sec_diff<S1>(d1.mjd(), d2.mjd()); // days dif in S1
   S1 s2sec = dso::cast_to<S2, S1>(d2.sec());      // cast d2 secs to S1
   return diff + (d1.sec() - s2sec);
@@ -837,7 +830,7 @@ template <typename S1, typename S2,
           typename = std::enable_if_t<S1::is_of_sec_type>,
           typename = std::enable_if_t<S2::is_of_sec_type>,
           typename = std::enable_if_t<(S2::max_in_day > S1::max_in_day)>>
-inline S2 delta_sec(datetime<S1> d1, datetime<S2> d2) noexcept {
+inline S2 delta_sec(const datetime<S1> &d1, const datetime<S2> &d2) noexcept {
   S2 diff = mjd_sec_diff<S2>(d1.mjd(), d2.mjd()); // days dif in S2
   S2 s1sec = dso::cast_to<S1, S2>(d1.sec());      // cast d1 secs to S2
   return diff + (s1sec - d2.sec());
@@ -859,7 +852,7 @@ template <gconcepts::is_sec_dt S>
 #else
 template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
-inline S delta_sec(datetime<S> d1, datetime<S> d2) noexcept {
+inline S delta_sec(const datetime<S> &d1, const datetime<S> &d2) noexcept {
   return d1.delta_sec(d2);
 }
 
@@ -891,8 +884,17 @@ template <gconcepts::is_sec_dt T>
 #else
 template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
-inline int dat(datetime<T> t) noexcept {
+inline int dat(const datetime<T> &t) noexcept {
   return dso::dat(t.mjd());
+}
+
+#if __cplusplus >= 202002L
+template <gconcepts::is_sec_dt T>
+#else
+template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
+#endif
+inline t_hmsf as_hmsf(T secday) noexcept {
+  return t_hmsf(secday);
 }
 
 } // namespace dso
