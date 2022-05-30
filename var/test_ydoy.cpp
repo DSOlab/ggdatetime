@@ -24,7 +24,7 @@ int main() {
     std::uniform_int_distribution<int> uni_d(1, 365+yr.is_leap());
     day_of_year doy (uni_d(rng));
     seconds sec = seconds(uni_s(rng));
-    dso::datetime<seconds, dso::TimeScale::TAI> d {yr, doy, sec};
+    dso::datetime<seconds> d {yr, doy, sec};
     auto ydoy = d.as_ydoy();
     assert(ydoy.__doy == doy + day_of_year(sec.as_underlying_type()==86400L));
   }
