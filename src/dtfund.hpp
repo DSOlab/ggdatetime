@@ -2190,6 +2190,8 @@ struct hms_time {
 
 /// @class t_hmsf A simple wrapper class to hold time as hours, minutes, seconds
 ///        and fractional seconds.
+///        The actual seconds (omitting whole minutes and hours) is:
+///        (double)_seconds + _fraction
 struct t_hmsf {
   hours _hours;
   minutes _minutes;
@@ -2233,6 +2235,10 @@ struct t_hmsf {
 
   constexpr bool operator!=(const t_hmsf &other) const noexcept {
     return !(*this == other);
+  }
+
+  constexpr double fractional_seconds() const noexcept {
+    return _fraction + static_cast<double>(_seconds.as_underlying_type());
   }
 }; // t_hmsf
 

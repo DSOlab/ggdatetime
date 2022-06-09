@@ -16,6 +16,7 @@
 
 namespace dso {
 
+namespace datetime_write {
 /// Format a double to an std::string using std::fixed and a precision on
 /// n digits
 inline std::string _d2s_(double d, int n = 2) noexcept {
@@ -30,6 +31,7 @@ inline std::string _i2s_(int i, int w = 2) noexcept {
   stream << std::setfill('0') << std::setw(w) << i;
   return stream.str();
 }
+} // namespace datetime_write
 
 /// @brief Format as YYYY-MM-DD
 ///
@@ -46,29 +48,24 @@ std::string strftime_ymd_hmfs(const datetime<T> &t, char del = '-') {
   auto ymd = t.as_ymd();
   auto hmsf = as_hmsf(t.sec());
 
-  return _i2s_((ymd.__year).as_underlying_type(), 4) + del +
-         _i2s_((ymd.__month).as_underlying_type(), 2) + del +
-         _i2s_((ymd.__dom).as_underlying_type(), 2) + ' ' +
-         _i2s_(hmsf._hours.as_underlying_type(), 2) + ':' +
-         _i2s_(hmsf._minutes.as_underlying_type(), 2) + ':' +
-         _i2s_(hmsf._seconds.as_underlying_type(), 2) + ':' +
-         _d2s_(hmsf._fraction, 5);
+  return datetime_write::_i2s_((ymd.__year).as_underlying_type(), 4) + del +
+         datetime_write::_i2s_((ymd.__month).as_underlying_type(), 2) + del +
+         datetime_write::_i2s_((ymd.__dom).as_underlying_type(), 2) + ' ' +
+         datetime_write::_i2s_(hmsf._hours.as_underlying_type(), 2) + ':' +
+         datetime_write::_i2s_(hmsf._minutes.as_underlying_type(), 2) + ':' +
+         datetime_write::_i2s_(hmsf._seconds.as_underlying_type(), 2) + ':' +
+         datetime_write::_d2s_(hmsf._fraction, 5);
 }
 
 template <typename T>
 const char *strftime_ymd_hmfs(const datetime<T> &t, char *buf, char del = '-') {
   auto ymd = t.as_ymd();
   auto hmsf = as_hmsf(t.sec());
-  sprintf(buf, "%4d%c%02d%c%02d %02d:%02d:%02d.%.5f",
-          ymd.__year.as_underlying_type(), del, ymd.__month.as_underlying_type(),del,
-          ymd.__dom.as_underlying_type(), hmsf._hours.as_underlying_type(),
-          hmsf._minutes.as_underlying_type(),
-          hmsf._seconds.as_underlying_type(), hmsf._fraction);
-  //printf("--> note %4d %2d %2d and time %2d %2d %2d sec=%.5f\n", 
-  //        ymd.__year.as_underlying_type(), ymd.__month.as_underlying_type(),
-  //        ymd.__dom.as_underlying_type(), hmsf._hours.as_underlying_type(),
-  //        hmsf._minutes.as_underlying_type(),
-  //        hmsf._seconds.as_underlying_type(), hmsf._fraction);
+  sprintf(buf, "%4d%c%02d%c%02d %02d:%02d:%012.9f",
+          ymd.__year.as_underlying_type(), del,
+          ymd.__month.as_underlying_type(), del, ymd.__dom.as_underlying_type(),
+          hmsf._hours.as_underlying_type(), hmsf._minutes.as_underlying_type(),
+          hmsf.fractional_seconds());
   return buf;
 }
 
@@ -77,13 +74,13 @@ std::string strftime_ymd_hms(const datetime<T> &t, char del = '-') {
   auto ymd = t.as_ymd();
   auto hmsf = as_hmsf(t.sec());
 
-  return _i2s_((ymd.__year).as_underlying_type(), 4) + del +
-         _i2s_((ymd.__month).as_underlying_type(), 2) + del +
-         _i2s_((ymd.__dom).as_underlying_type(), 2) + ' ' +
-         _i2s_(hmsf._hours.as_underlying_type(), 2) + ':' +
-         _i2s_(hmsf._minutes.as_underlying_type(), 2) + ':' +
-         _i2s_(hmsf._seconds.as_underlying_type(), 2) + ':' +
-         _d2s_(hmsf._fraction, 5);
+  return datetime_write::_i2s_((ymd.__year).as_underlying_type(), 4) + del +
+         datetime_write::_i2s_((ymd.__month).as_underlying_type(), 2) + del +
+         datetime_write::_i2s_((ymd.__dom).as_underlying_type(), 2) + ' ' +
+         datetime_write::_i2s_(hmsf._hours.as_underlying_type(), 2) + ':' +
+         datetime_write::_i2s_(hmsf._minutes.as_underlying_type(), 2) + ':' +
+         datetime_write::_i2s_(hmsf._seconds.as_underlying_type(), 2) + ':' +
+         datetime_write::_d2s_(hmsf._fraction, 5);
 }
 
 } // namespace dso
