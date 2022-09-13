@@ -187,6 +187,7 @@ int dat(year iy, month im) noexcept;
 /// @see IAU SOFA (iau-dat.c)
 /// @see dso::dat
 int dat(modified_julian_day mjd) noexcept;
+int dat(modified_julian_day mjd, int &extra_sec_in_day) noexcept;
 
 /// @brief Julian Epoch to Modified Julian Date
 /// @param[in] epj The Julian Epoch to convert

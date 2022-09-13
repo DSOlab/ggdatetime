@@ -123,6 +123,37 @@ datetime<T> strptime_ymd_hms(const char *str, char **stop = nullptr) {
   return datetime<T>{year{ints[0]},  month{ints[1]},   day_of_month{ints[2]},
                      hours{ints[3]}, minutes{ints[4]}, tsec};
 }
+template <typename T>
+datetime<T> strptime_utc_ymd_hms(const char *str, char **stop = nullptr) {
+  char *end;
+  const char *start = str;
+  int ints[5];
+  double secs;
+
+  for (int i = 0; i < 5; ++i) {
+    ints[i] = static_cast<int>(std::abs(std::strtol(start, &end, 10)));
+    if (errno == ERANGE || start == end) {
+      errno = 0;
+      throw std::invalid_argument("Invalid date format: \"" + std::string(str) +
+                                  "\" (argument #" + std::to_string(i + 1) +
+                                  ").");
+    }
+    start = end + 1;
+  }
+  secs = std::strtod(start, &end);
+  if (errno == ERANGE) {
+    errno = 0;
+    throw std::invalid_argument("Invalid date format: \"" + std::string(str) +
+                                "\" (argument #6)");
+  }
+  if (stop)
+    *stop = end;
+
+  T tsec{static_cast<typename T::underlying_type>(
+      secs * T::template sec_factor<double>())};
+  return datetime<T>{year{ints[0]},  month{ints[1]},   day_of_month{ints[2]},
+                     hours{ints[3]}, minutes{ints[4]}, tsec};
+}
 
 /// @brief Read from YYYY-OOO-DD HH:MM:SS.SSSS
 ///

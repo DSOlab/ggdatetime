@@ -87,3 +87,42 @@ int dso::dat(dso::modified_julian_day mjd) noexcept {
   // Get the Delta(AT).
   return changes[idx].delat;
 }
+
+int dso::dat(dso::modified_julian_day mjd, int &extra_sec_in_day) noexcept {
+  extra_sec_in_day = 0;
+
+  // Dates and Delta(AT)s
+  constexpr struct {
+    dso::modified_julian_day::underlying_type mjday;
+    int delat;
+  } changes[] = {{41317L, 10}, {41499L, 11}, {41683L, 12}, {42048L, 13},
+                 {42413L, 14}, {42778L, 15}, {43144L, 16}, {43509L, 17},
+                 {43874L, 18}, {44239L, 19}, {44786L, 20}, {45151L, 21},
+                 {45516L, 22}, {46247L, 23}, {47161L, 24}, {47892L, 25},
+                 {48257L, 26}, {48804L, 27}, {49169L, 28}, {49534L, 29},
+                 {50083L, 30}, {50630L, 31}, {51179L, 32}, {53736L, 33},
+                 {54832L, 34}, {56109L, 35}, {57204L, 36}, {57754L, 37}};
+
+  // Number of Delta(AT) changes
+  constexpr int NDAT{(int)(sizeof changes / sizeof changes[0])};
+
+  // find the preceding table entry.
+  const dso::modified_julian_day::underlying_type today{
+      mjd.as_underlying_type()};
+  int idx = NDAT - 1;
+  int next_leap = changes[idx].delat;
+  for (; idx >= 0; idx--) {
+    if (today >= changes[idx].mjday) {
+      if (idx < NDAT - 1) {
+        next_leap = changes[idx + 1].delat;
+        extra_sec_in_day = (today == changes[idx + 1].mjday - 1)
+                               ? (next_leap - changes[idx].delat)
+                               : 0;
+      }
+      break;
+    }
+  }
+
+  // Get the Delta(AT).
+  return changes[idx].delat;
+}

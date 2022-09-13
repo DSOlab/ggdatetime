@@ -113,8 +113,8 @@ if GetOption('check') is not None and GetOption('check'):
   env.Append(RPATH=root_dir)
   for tsource in tests_sources:
     ttarget = tsource.replace('_', '-').replace('.cpp', '.out')
-    #env.Program(target=ttarget, source=tsource, CPPPATH='src/',
-    #            LIBS=vlib+['datetime', 'sofa_c'], LIBPATH='.')
     env.Program(target=ttarget, source=tsource, CPPPATH='src/',
-                LIBS=vlib+['datetime'], LIBPATH='.')
+                LIBS=vlib+['datetime', 'sofa_c'], LIBPATH='.')
+    #env.Program(target=ttarget, source=tsource, CPPPATH='src/',
+    #            LIBS=vlib+['datetime'], LIBPATH='.')
     Command(target=ttarget+'-run', source=ttarget, action=ttarget)
