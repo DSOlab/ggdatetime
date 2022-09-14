@@ -3,8 +3,15 @@
 #include <vector>
 #include <cassert>
 
-// number of tests to perform (pre template parameter)
-int num_tests = 1;
+/*
+ * Unit test test_utc_dates
+ * tests function utcdates::dtf2d against the SOFA implementation (function
+ * iauDtf2d("UTC",...))
+ * 
+ * Create a number of dubius UTC dates (close or on leap seconds introduction)
+ * and try to resolve them to a two-part respresentation.
+ * If results differ from the SOFA implementation, the tests will fail.
+ */
 
 using dso::datetime;
 using dso::nanoseconds;

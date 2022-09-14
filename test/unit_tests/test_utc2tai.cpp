@@ -4,12 +4,12 @@
 #include <cassert>
 
 /*
- * Unit test test_tai2utc
- * tests function utcdates::tai2utc against the SOFA implementation (function
- * iauTaiutc)
+ * Unit test test_utc2tai
+ * tests function utcdates::utc2tai against the SOFA implementation (function
+ * iauUtctai)
  * 
- * Create a number of TAI dates (close or on leap seconds introduction)
- * and try to resolve them to a two-part UTC respresentation.
+ * Create a number of UTC dates (close or on leap seconds introduction)
+ * and try to resolve them to a two-part TAI respresentation.
  * If results differ from the SOFA implementation, the tests will fail.
  */
 
@@ -18,10 +18,84 @@ using dso::nanoseconds;
 
 typedef nanoseconds::underlying_type SecIntType;
 constexpr const SecIntType factor = nanoseconds::sec_factor<SecIntType>();
+
+struct UtcDate {
+    dso::year yr;
+    dso::month mo;
+    dso::day_of_month dm;
+    dso::hours hr;
+    dso::minutes mn;
+    nanoseconds nsec;
+
+    void print() const noexcept {
+      printf("%d/%02d/%02d", yr.as_underlying_type(), mo.as_underlying_type(),
+             dm.as_underlying_type());
+
+        SecIntType isec = nsec.as_underlying_type();
+        int extra_sec;
+        dat(dso::modified_julian_day(yr,mo,dm), extra_sec);
+        // remove hours
+        int ihr = isec / (60L * 60L * nanoseconds::template sec_factor<SecIntType>());
+        isec = isec - ihr*(60L * 60L * nanoseconds::template sec_factor<SecIntType>());
+        if (extra_sec && ihr==24) {
+            --ihr;
+            isec += (60L * 60L * nanoseconds::template sec_factor<SecIntType>());
+        }
+        // remove minutes
+        int imn = isec / (60L * nanoseconds::template sec_factor<SecIntType>());
+        isec = isec - imn*(60L * nanoseconds::template sec_factor<SecIntType>());
+        if (extra_sec && imn==60) {
+            --imn;
+            isec+=(60L * nanoseconds::template sec_factor<SecIntType>());
+        }
+        // seconds as double
+        double sec = (double)isec / (nanoseconds::template sec_factor<double>());
+        assert(sec<=60e0 + extra_sec);
+    
+      printf("   %02d/%02d/%018.15f\n", hr.as_underlying_type() + ihr,
+             imn + mn.as_underlying_type(), sec);
+      return;
+    }
+
+    // resolve to a two-part (JD) date using SOFA
+    int sofa_resolve(double &d1, double &d2) const noexcept {
+        SecIntType isec = nsec.as_underlying_type();
+        int extra_sec;
+        dat(dso::modified_julian_day(yr,mo,dm), extra_sec);
+        // remove hours
+        int ihr = isec / (60L * 60L * nanoseconds::template sec_factor<SecIntType>());
+        isec = isec - ihr*(60L * 60L * nanoseconds::template sec_factor<SecIntType>());
+        if (extra_sec && ihr==24) {
+            --ihr;
+            isec += (60L * 60L * nanoseconds::template sec_factor<SecIntType>());
+        }
+        // remove minutes
+        int imn = isec / (60L * nanoseconds::template sec_factor<SecIntType>());
+        isec = isec - imn*(60L * nanoseconds::template sec_factor<SecIntType>());
+        if (extra_sec && imn==60) {
+            --imn;
+            isec+=(60L * nanoseconds::template sec_factor<SecIntType>());
+        }
+        // seconds as double
+        double sec = (double)isec / (nanoseconds::template sec_factor<double>());
+        assert(sec<=60e0 + extra_sec);
+        return iauDtf2d("UTC", yr.as_underlying_type(), mo.as_underlying_type(),
+                      dm.as_underlying_type(), hr.as_underlying_type()+ihr,
+                      mn.as_underlying_type()+imn, sec, &d1, &d2);
+    }
+
+    UtcDate(dso::year _yr, dso::month _mo, dso::day_of_month _dm,
+            dso::hours _hr, dso::minutes _mn, nanoseconds _nsec) noexcept
+        : yr(_yr), mo(_mo), dm(_dm), hr(_hr), mn(_mn), nsec(_nsec){};
+    
+    double resolve(dso::modified_julian_day &mjd, dso::nanoseconds &leap) const noexcept {
+        return dso::dtf2d(yr, mo, dm, hr, mn, nsec, mjd, leap);
+    }
+}; // UtcDate
     
 int main() {  
-  // Some TAI dates
-  std::vector<datetime<nanoseconds>> idates;
+  // Some UTC dates
+  std::vector<UtcDate> idates;
 
   // some special dates ...
   // 0
@@ -124,34 +198,46 @@ int main() {
   for (const auto &ud : idates) {
     printf("> Test Case %d\n", i++);
 
-    // TAI to UTC
+    // resolve UTC date to MJD and fractional days
     dso::modified_julian_day utc_mjd;
-    double utc_fday = dso::tai2utc<nanoseconds>(ud, utc_mjd);
+    dso::nanoseconds leap;
+    const double utc_fday = ud.resolve(utc_mjd, leap);
 
-    // resolve using SOFA
+    // UTC to TAI
+    dso::modified_julian_day tai_mjd;
+    double tai_fday = dso::utc2tai(utc_mjd, utc_fday, tai_mjd);
+    
+    // transform using SOFA (UTC to TAI)
     double d1, d2;
-    double tai1 = (double)ud.mjd().as_underlying_type() + 2400000.5e0;
-    double tai2 = ud.sec().fractional_days();
-    if (int error; (error = iauTaiutc(tai1, tai2, &d1, &d2))) {
+    double utc1 = (double)utc_mjd.as_underlying_type() + 2400000.5e0;
+    double utc2 = utc_fday;
+    if (int error; (error = iauUtctai(utc1, utc2, &d1, &d2))) {
       fprintf(stderr, "SOFA failed to resolve date! error code=%d\n", error);
     }
 
+    // yeat another test; resolve to a two-part JD using SOFA, and then use
+    // SOFA (again) to transform to TAI
+    double sd1, sd2;
+    if (int error; (error = ud.sofa_resolve(sd1, sd2))) {
+        fprintf(stderr, "SOFA failed to resolve date! error code=%d\n", error);
+    }
+    assert(std::abs((sd1 - 2400000.5e0) - (double)utc_mjd.as_underlying_type() +
+                    sd2 - utc_fday) < 1e-15);
+    double td1, td2;
+    if (int error; (error = iauUtctai(sd1, sd2, &td1, &td2))) {
+      fprintf(stderr, "SOFA failed to resolve date! error code=%d\n", error);
+    }
+    assert(std::abs((td1-d1)+(td2-d2))<1e-15);
+
     // print results
-    double dmjd = (double)utc_mjd.as_underlying_type();
-    printf("\t%.5f + %+20.15f = %.15f\n", dmjd, utc_fday, dmjd+utc_fday);
+    double dmjd = (double)tai_mjd.as_underlying_type();
+    printf("\t%.5f + %+20.15f = %.15f\n", dmjd, tai_fday, dmjd+tai_fday);
     printf("\t%.5f + %+20.15f = %.15f\n", d1 - 2400000.5e0, d2,
            (d1 - 2400000.5e0) + d2);
 
     // assertion ....
-    assert(std::abs((dmjd+utc_fday) - ((d1 - 2400000.5e0)+d2)) < 1e-15);
+    //assert(std::abs((dmjd+utc_fday) - ((d1 - 2400000.5e0)+d2)) < 1e-15);
     }
-
-    // by the way, results for 22 and 23 should be the same
-    dso::modified_julian_day utc_mjd_22, utc_mjd_23;
-    double utc_fday_22 = dso::tai2utc<nanoseconds>(idates[22], utc_mjd_22);
-    double utc_fday_23 = dso::tai2utc<nanoseconds>(idates[23], utc_mjd_23);
-    assert(utc_mjd_22 == utc_mjd_23);
-    assert(utc_fday_22 == utc_fday_23);
-
+  
   return 0;
 }
