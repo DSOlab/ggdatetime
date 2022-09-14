@@ -67,5 +67,9 @@ double tai2utc(const dso::datetime<S> &tai,
 double utc2tai(const dso::modified_julian_day utc_mjd, double utc_fday,
                dso::modified_julian_day &tai_mjd) noexcept;
 
+double utc_strptime_ymd_hms(const char *str,
+                                 dso::modified_julian_day &utc_mjd,
+                                 char **stop = nullptr);
+
 } // namespace dso
 #endif
