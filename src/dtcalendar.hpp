@@ -897,6 +897,29 @@ inline t_hmsf as_hmsf(T secday) noexcept {
   return t_hmsf(secday);
 }
 
+namespace datetime_ranges {
+enum class OverlapComparissonType {Strict, AllowEdgesOverlap};
+}// datetime_ranges
+
+#if __cplusplus >= 202002L
+template <gconcepts::is_sec_dt T, datetime_ranges::OverlapComparissonType O>
+#else
+template <typename T, datetime_ranges::OverlapComparissonType O, typename = std::enable_if_t<T::is_of_sec_type>>
+#endif
+inline bool intervals_overlap(const datetime<T> &r1_start,
+                              const datetime<T> &r1_end,
+                              const datetime<T> &r2_start,
+                              const datetime<T> &r2_end) noexcept {
+  if constexpr (O == datetime_ranges::OverlapComparissonType::Strict) {
+    // (StartA <= EndB) and (EndA >= StartB)
+    // see https://stackoverflow.com/questions/325933/determine-whether-two-date-ranges-overlap/325964#325964
+    return (r1_start <= r2_end) && (r1_end >= r2_start);
+  } else {
+    // (StartA <= EndB) and (EndA >= StartB)
+    return (r1_start < r2_end) && (r1_end > r2_start);
+  }
+}
+
 } // namespace dso
 
 #endif

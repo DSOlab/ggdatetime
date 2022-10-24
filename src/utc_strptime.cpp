@@ -1,4 +1,5 @@
 #include "utcdates.hpp"
+#include <cstdio>
 
 typedef dso::nanoseconds::underlying_type SecIntType;
 constexpr const SecIntType MAXSDAY = dso::nanoseconds::max_in_day;
@@ -17,6 +18,7 @@ double dso::utc_strptime_ymd_hms(const char *str,
     ints[i] = static_cast<int>(std::abs(std::strtol(start, &end, 10)));
     if (errno == ERANGE || start == end) {
       errno = 0;
+      fprintf(stderr, "ERROR. Failed resolving date from string \'%s\', part:[%s] (traceback: %s)\n", str, start, __func__);
       throw std::invalid_argument("Invalid date format: \"" + std::string(str) +
                                   "\" (argument #" + std::to_string(i + 1) +
                                   ").");
