@@ -1189,6 +1189,13 @@ public:
   constexpr double to_fractional_seconds() const noexcept {
     return static_cast<double>(m_sec);
   }
+  
+  /// Cast to fractional hours
+  constexpr double to_fractional_hours() const noexcept {
+    constexpr const underlying_type secinh =
+        86400L * sec_factor<underlying_type>();
+    return static_cast<double>(m_sec) / static_cast<double>(secinh);
+  }
 
 private:
 /// Cast to any arithmetic type.
@@ -1346,6 +1353,13 @@ public:
   /// Cast to fractional dso::seconds
   constexpr double to_fractional_seconds() const noexcept {
     return static_cast<double>(m_sec) / sec_factor<double>();
+  }
+  
+  /// Cast to fractional hours
+  constexpr double to_fractional_hours() const noexcept {
+    constexpr const underlying_type secinh =
+        86400L * sec_factor<underlying_type>();
+    return static_cast<double>(m_sec) / static_cast<double>(secinh);
   }
 
   /// @brief Resolve to (integer) seconds and fractional seconds.
@@ -1527,6 +1541,13 @@ public:
   constexpr double to_fractional_seconds() const noexcept {
     return static_cast<double>(m_sec) / sec_factor<double>();
   }
+  
+  /// Cast to fractional hours
+  constexpr double to_fractional_hours() const noexcept {
+    constexpr const underlying_type secinh =
+        86400L * sec_factor<underlying_type>();
+    return static_cast<double>(m_sec) / static_cast<double>(secinh);
+  }
 
 private:
 /// Cast to any arithmetic type.
@@ -1686,6 +1707,13 @@ public:
   /// Cast to fractional days.
   constexpr double fractional_days() const noexcept {
     return static_cast<double>(m_sec) / static_cast<double>(max_in_day);
+  }
+
+  /// Cast to fractional hours
+  constexpr double to_fractional_hours() const noexcept {
+    constexpr const underlying_type secinh =
+        86400L * sec_factor<underlying_type>();
+    return static_cast<double>(m_sec) / static_cast<double>(secinh);
   }
 
   /// Cast to fractional seconds
