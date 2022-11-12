@@ -856,6 +856,34 @@ inline S delta_sec(const datetime<S> &d1, const datetime<S> &d2) noexcept {
   return d1.delta_sec(d2);
 }
 
+enum class DateTimeDifferenceType { FractionalDays, FractionalSeconds };
+
+/// @brief Return the difference d1 - d2 in the Date/Time units specified by
+///        the template parameter D
+template <DateTimeDifferenceType D, typename S,
+          typename = std::enable_if_t<S::is_of_sec_type>>
+inline double date_diff(const datetime<S> &d1,
+                        const datetime<S> &d2) noexcept {
+  if constexpr (D == DateTimeDifferenceType::FractionalSeconds) {
+    const auto sdiff = delta_sec(d1, d2);
+    return sdiff.to_fractional_seconds();
+  } else {
+    const auto ddiff = d1.delta_date(d2);
+    // TODO how to handle many days without overflow ?
+    // First effort ... (same as first)
+    // return ddiff.as_mjd();
+    // Second effort ... (same as first)
+    //const double fsec_part2 = ddiff.sec().fractional_days();
+    //const double fsec_part1 =
+    //    static_cast<double>(ddiff.days().as_underlying_type());
+    //return fsec_part2 + fsec_part1;
+    // Third effort ... (best approach, but cannot handle many days days due
+    // to possible overflow)
+    S __s = ddiff. template to_sec_type<S>();
+    return __s.fractional_days();
+  }
+}
+
 /// Sec-Millisec-MicroSec of Week to Day of week
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt T>
