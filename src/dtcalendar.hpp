@@ -621,6 +621,16 @@ public:
   constexpr double as_julian_epoch() const noexcept {
     return epj(this->as_mjd());
   }
+  
+  /// @brief Convert to fractional years, assuming a year of of 365.25 days
+  constexpr double as_fractional_years() const noexcept {
+    constexpr const ydoy_date ydoy(as_ydoy());
+    const double year = ydoy.__year.as_underlying_type();
+    const double doy = ydoy.__doy.as_underlying_type();
+    const double fday = sec().fractional_days();
+    return year + doy/365.325e0 + fday/365.25e0;
+  }
+
 
   /// @brief Cast to gps_week and Sec-Of-Week
   constexpr gps_week as_gps_wsow(long &sow) const noexcept {
