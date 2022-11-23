@@ -1,5 +1,11 @@
 language: c++
-dist: bionic
+
+matrix:
+  include:
+    - dist: bionic
+    - dist: focal
+    - dist: jammy
+
 compiler:
   - gcc
   - clang
@@ -20,5 +26,5 @@ before_install:
 
 script:
  - sudo scons install
- - scons --make-check
- - cd var && bash make_unit_tests.sh
+ #- scons --make-check
+ #- cd var && bash make_unit_tests.sh
