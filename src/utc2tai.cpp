@@ -2,7 +2,11 @@
 #include <cmath>
 
 typedef dso::nanoseconds::underlying_type SecIntType;
+
+///< Max nanoseconds in day
 constexpr const SecIntType MAXSDAY = dso::nanoseconds::max_in_day;
+
+///< nanoseconds to seconds (int type)
 constexpr const SecIntType FACTOR =
     dso::nanoseconds::template sec_factor<SecIntType>();
 
@@ -15,34 +19,22 @@ double dso::utc2tai(const dso::modified_julian_day utc_mjd, double utc_fday,
   double tai_fday = std::modf(utc_fday, &ipart);
   itai_mjd += ipart;
 
-  printf("\t>> Given %.2f + %.12f\n", (double)itai_mjd, tai_fday);
-
   // get DAT for this mjd and extra seconds in day
   int eid_m0;
   const int leap_sec_m0 = dso::dat(dso::modified_julian_day(itai_mjd), eid_m0);
   const SecIntType leap_m0 = leap_sec_m0 * FACTOR;
   const SecIntType more_m0 = eid_m0 * FACTOR;
 
-  // initial guess, TAI and UTC are in the same day
+  // scale fday to real number of seconds in day
+  tai_fday *=
+      static_cast<double>(MAXSDAY + more_m0) / static_cast<double>(MAXSDAY);
+
+  // add leap seconds
   double fday_more =
-      static_cast<double>(leap_m0) / static_cast<double>(MAXSDAY + more_m0);
+      static_cast<double>(leap_m0) / static_cast<double>(MAXSDAY);
 
-  if (tai_fday + fday_more > 1e0) {
-    // well, TAI could be ahead by one day ...
-    // get DAT for mjd+1 and extra seconds in day
-    ++itai_mjd;
-    int eid_p1;
-    const int leap_sec_p1 =
-        dso::dat(dso::modified_julian_day(itai_mjd), eid_p1);
-    const SecIntType leap_p1 = leap_sec_p1 * FACTOR;
-    const SecIntType more_p1 = eid_p1 * FACTOR;
+  tai_fday = std::modf(tai_fday+fday_more, &ipart);  
 
-    double fday_left = (tai_fday + fday_more) - 1e0;
-    fday_more = fday_left + static_cast<double>(leap_p1 - leap_m0) /
-                                static_cast<double>(MAXSDAY + more_p1);
-    tai_fday = 0e0;
-  }
-
-  tai_mjd = modified_julian_day(itai_mjd);
-  return tai_fday + fday_more;
+  tai_mjd = modified_julian_day(itai_mjd+ipart);
+  return tai_fday;
 }

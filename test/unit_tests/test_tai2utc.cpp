@@ -25,7 +25,7 @@ using dso::nanoseconds;
 typedef nanoseconds::underlying_type SecIntType;
 constexpr const SecIntType factor = nanoseconds::sec_factor<SecIntType>();
 
-int main() {
+int main([[maybe_unused]]int argc, char *argv[]) {
   // Some TAI dates
   std::vector<datetime<nanoseconds>> idates;
 
@@ -162,5 +162,6 @@ int main() {
   assert(utc_mjd_22 == utc_mjd_23);
   assert(utc_fday_22 == utc_fday_23);
 
+  printf("All tests passed in %s\n", argv[0]);
   return 0;
 }

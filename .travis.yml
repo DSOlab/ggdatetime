@@ -33,6 +33,5 @@ before_install:
   - sudo ldconfig
 
 script:
- - sudo scons install
- #- scons --make-check
- #- cd var && bash make_unit_tests.sh
+  #- sudo scons install
+  - scons --make-check

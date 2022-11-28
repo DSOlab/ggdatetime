@@ -23,10 +23,6 @@ using dso::nanoseconds;
 typedef nanoseconds::underlying_type SecIntType;
 constexpr const SecIntType factor = nanoseconds::sec_factor<SecIntType>();
 
-double fseconds(double t1, double t2, double d1, double d2) {
-  return (t1-t2)*86400e0 + (d1-d2)*86400e0;
-}
-
 struct UtcDate {
   dso::year yr;
   dso::month mo;
@@ -106,7 +102,7 @@ struct UtcDate {
   }
 }; // UtcDate
 
-int main() {
+int main([[maybe_unused]]int argc, char *argv[]) {
   // Some UTC dates
   std::vector<UtcDate> idates;
 
@@ -250,16 +246,19 @@ int main() {
 
     // print results
     double dmjd = (double)tai_mjd.as_underlying_type();
+#ifdef VERBOSE_TESTS
     printf("\t%.5f + %+20.15f = %.15f\n", dmjd, tai_fday, dmjd + tai_fday);
     printf("\t%.5f + %+20.15f = %.15f\n", d1 - 2400000.5e0, d2,
            (d1 - 2400000.5e0) + d2);
     if (std::abs((dmjd + tai_fday) - ((d1 - 2400000.5e0) + d2)) >= PRECISION)
       printf("Would fail, with difference in seconds: %.9f\n",
              fseconds(dmjd, tai_fday, d1 - 2400000.5e0, d2));
+#endif
 
     // assertion ....
-    //assert(std::abs((dmjd + tai_fday) - ((d1 - 2400000.5e0) + d2)) < PRECISION);
+    assert(std::abs((dmjd + tai_fday) - ((d1 - 2400000.5e0) + d2)) < PRECISION);
   }
 
+  printf("All tests passed in %s\n", argv[0]);
   return 0;
 }

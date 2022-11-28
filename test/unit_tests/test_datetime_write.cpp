@@ -4,7 +4,7 @@
 
 using namespace dso; 
 
-int main() {
+int main([[maybe_unused]]int argc, char *argv[]) {
   char buf[64];
 
   datetime<seconds> d1(year(2021), month(1), day_of_month(1), hours(0),
@@ -57,5 +57,6 @@ int main() {
   strftime_ymd_hmfs(g2, buf);
   assert(!std::strcmp(buf, "2021-01-01 00:00:00.000001001"));
 
+  printf("All tests passed in %s\n", argv[0]);
   return 0;
 }

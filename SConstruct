@@ -96,34 +96,22 @@ vlib = env.SharedLibrary(source=lib_src_files, target=lib_name, CPPPATH=['.'], S
 env.Alias(target='install', source=env.Install(dir=os.path.join(prefix, 'include', inc_dir), source=hdr_src_files))
 env.Alias(target='install', source=env.InstallVersionedLib(dir=os.path.join(prefix, 'lib'), source=vlib))
  
-## (Unit)  Testing
-test_targets = []
-test_sources = glob.glob(r"test/unit_tests/*.cpp")
-for tsource in test_sources:
-  ttarget = os.path.join(os.path.dirname(tsource), os.path.basename(tsource).replace('_', '-').replace('.cpp', '.out'))
-  test_targets.append(ttarget)
-  env.Program(target=ttarget, source=tsource, CXXFLAGS=env['CXXFLAGS']+' -Wl,-rpath,{}'.format(root_dir), LIBS=[lib_name,'sofa_c'], LIBPATH=root_dir, CPPPATH=os.path.join(root_dir,'src'), RPATH=root_dir)
-
 ## Tests ... if any assertion fails, this build will fail
 if GetOption('check') is not None and GetOption('check'):
+    ## (Unit)  Testing
+    test_targets = []
+    test_sources = glob.glob(r"test/unit_tests/*.cpp")
+    for tsource in test_sources:
+      ttarget = os.path.join(os.path.dirname(tsource), os.path.basename(tsource).replace('_', '-').replace('.cpp', '.out'))
+      test_targets.append(ttarget)
+      env.Program(target=ttarget, source=tsource, CXXFLAGS=env['CXXFLAGS']+' -Wl,-rpath,{}'.format(root_dir), LIBS=[lib_name,'sofa_c'], LIBPATH=root_dir, CPPPATH=os.path.join(root_dir,'src'), RPATH=root_dir)
+      Command(target=ttarget+'-run', source=ttarget, action=ttarget)
+
   
-  tests_sources = glob.glob(r"test/*.cpp")
-  env.Append(RPATH=root_dir)
-  for tsource in tests_sources:
-    ttarget = tsource.replace('_', '-').replace('.cpp', '.out')
-    env.Program(target=ttarget, source=tsource, CPPPATH='src/',
-                LIBS=vlib, LIBPATH='.')
-    #Command(target=ttarget+'-run', source=ttarget, action=ttarget)
-  
-  tests_targets = []
-  tests_sources = glob.glob(r"test/unit_tests/*.cpp")
-  for tsource in tests_sources:
-    ttarget = os.path.join(os.path.dirname(tsource), os.path.basename(tsource).replace('_', '-').replace('.cpp', '.out'))
-    tests_targets.append(ttarget)
-  env.Append(RPATH=root_dir)
-  program = env.Program(target="check", source=test_sources, LIBS=lib_name+['sofa_c'], LIBPATH=root_dir)
+  #tests_sources = glob.glob(r"test/*.cpp")
+  #env.Append(RPATH=root_dir)
   #for tsource in tests_sources:
-  #  ttarget = os.path.join(os.path.dirname(tsource), os.path.basename(tsource).replace('_', '-').replace('.cpp', '.out'))
-  #  env.Program(target=ttarget, source=tsource+[lib_src_files], CPPPATH='src/',
-  #              LIBS=lib_name+['sofa_c'], LIBPATH=root_dir)
+  #  ttarget = tsource.replace('_', '-').replace('.cpp', '.out')
+  #  env.Program(target=ttarget, source=tsource, CPPPATH='src/',
+  #              LIBS=vlib, LIBPATH='.')
   #  #Command(target=ttarget+'-run', source=ttarget, action=ttarget)

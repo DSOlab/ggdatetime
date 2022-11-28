@@ -25,7 +25,7 @@ void print_ranges(const datetime<nanoseconds> &r11,
   printf("[%s to %s]\n", buf1, buf2);
 }
 
-int main() {
+int main([[maybe_unused]]int argc, char *argv[]) {
   datetime<nanoseconds> r1_start, r1_end, r2_start, r2_end;
   r1_start = datetime<nanoseconds>(dso::year(2022), dso::month(1),
                                    dso::day_of_month(1), nanoseconds(0));
@@ -125,5 +125,6 @@ int main() {
 #endif
   assert(!overlap);
 
+  printf("All tests passed in %s\n", argv[0]);
   return 0;
 }
