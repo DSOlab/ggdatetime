@@ -34,12 +34,12 @@ int main(int argc, char *argv[]) {
   assert(dso::date_diff<dso::DateTimeDifferenceType::FractionalSeconds>(
              t2, t1) == 86400 / 2e0);
 
-  unsigned num_failed = 0;
+  [[maybe_unused]] unsigned num_failed = 0;
   for (int k = 0; k < 10; k++) {
     // start from date t1 and randomly add seconds, see what happens
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<SecIntType> distr(-86400 * 15, 86400 * 15);
+    std::uniform_int_distribution<SecIntType> distr(-86400 * 5, 86400 * 5);
     for (int i = 0; i < 1000; i++) {
       auto trand = t1;
 
@@ -51,16 +51,20 @@ int main(int argc, char *argv[]) {
       const seconds iSecDiff(distr(gen));
       trand.add_seconds(dso::cast_to<seconds, nanoseconds>(iSecDiff));
 
+#ifdef VERBOSE_TESTS
       printf("Added seconds: %ld\n", iSecDiff.as_underlying_type());
+#endif
 
       // actual difference in fractional days
       const double days_diff = iSecDiff.fractional_days();
+#ifdef VERBOSE_TESTS
       printf("Difference is %.12f, expected: %.12f\n",
              dso::date_diff<dso::DateTimeDifferenceType::FractionalDays>(t1,
                                                                          trand),
              days_diff);
+#endif
       assert(dso::date_diff<dso::DateTimeDifferenceType::FractionalDays>(
-                 t1, trand) == days_diff);
+                 t1, trand) == -days_diff);
       // if (dso::date_diff<dso::DateTimeDifferenceType::FractionalDays>(
       //            t1, trand) != -days_diff) {
       //   printf("-------> Would fail #1!\n");
@@ -69,12 +73,14 @@ int main(int argc, char *argv[]) {
 
       // actuall difference in fractional seconds
       const double sec_diff = iSecDiff.to_fractional_seconds();
+#ifdef VERBOSE_TESTS
       printf("Difference is %.12f, expected: %.12f\n",
              dso::date_diff<dso::DateTimeDifferenceType::FractionalSeconds>(
                  t1, trand),
              sec_diff);
+#endif
       assert(dso::date_diff<dso::DateTimeDifferenceType::FractionalSeconds>(
-                 t1, trand) == sec_diff);
+                 t1, trand) == -sec_diff);
       // if (dso::date_diff<dso::DateTimeDifferenceType::FractionalSeconds>(
       //            t1, trand) != -sec_diff) {
       //   printf("-------> Would fail #2!\n");

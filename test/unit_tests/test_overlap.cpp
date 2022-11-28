@@ -3,6 +3,11 @@
 #include <cassert>
 #include <cstdio>
 
+/*
+ * Unit tests to check the dso::intervals_overlap<> template function
+ * aka, check if two datetime ranges overlap
+ */
+
 using dso::datetime;
 using dso::nanoseconds;
 using dso::datetime_ranges::OverlapComparissonType;
@@ -35,10 +40,13 @@ int main() {
   bool overlap =
       dso::intervals_overlap<nanoseconds, OverlapComparissonType::Strict>(
           r1_start, r1_end, r2_start, r2_end);
+#ifdef VERBOSE_TESTS
   print_ranges(r1_start, r1_end, r2_start, r2_end);
-  //printf("Case 1: Overlap ? %d\n", overlap);
+  printf("Case 1: Overlap ? %d\n", overlap);
+#endif
   assert(!overlap);
-  overlap = dso::intervals_overlap<nanoseconds, OverlapComparissonType::AllowEdgesOverlap>(
+  overlap = dso::intervals_overlap<nanoseconds,
+                                   OverlapComparissonType::AllowEdgesOverlap>(
       r1_start, r1_end, r2_start, r2_end);
   assert(!overlap);
 
@@ -47,10 +55,13 @@ int main() {
                                  dso::day_of_month(2), nanoseconds(2));
   overlap = dso::intervals_overlap<nanoseconds, OverlapComparissonType::Strict>(
       r1_start, r1_end, r2_start, r2_end);
+#ifdef VERBOSE_TESTS
   print_ranges(r1_start, r1_end, r2_start, r2_end);
-  //printf("Case 2: Overlap ? %d\n", overlap);
+  printf("Case 2: Overlap ? %d\n", overlap);
+#endif
   assert(overlap);
-  overlap = dso::intervals_overlap<nanoseconds, OverlapComparissonType::AllowEdgesOverlap>(
+  overlap = dso::intervals_overlap<nanoseconds,
+                                   OverlapComparissonType::AllowEdgesOverlap>(
       r1_start, r1_end, r2_start, r2_end);
   assert(overlap);
 
@@ -62,10 +73,13 @@ int main() {
                                  nanoseconds(nanoseconds::max_in_day - 1));
   overlap = dso::intervals_overlap<nanoseconds, OverlapComparissonType::Strict>(
       r1_start, r1_end, r2_start, r2_end);
+#ifdef VERBOSE_TESTS
   print_ranges(r1_start, r1_end, r2_start, r2_end);
-  //printf("Case 3: Overlap ? %d\n", overlap);
+  printf("Case 3: Overlap ? %d\n", overlap);
+#endif
   assert(!overlap);
-  overlap = dso::intervals_overlap<nanoseconds, OverlapComparissonType::AllowEdgesOverlap>(
+  overlap = dso::intervals_overlap<nanoseconds,
+                                   OverlapComparissonType::AllowEdgesOverlap>(
       r1_start, r1_end, r2_start, r2_end);
   assert(!overlap);
 
@@ -77,10 +91,13 @@ int main() {
                                  nanoseconds(nanoseconds::max_in_day));
   overlap = dso::intervals_overlap<nanoseconds, OverlapComparissonType::Strict>(
       r1_start, r1_end, r2_start, r2_end);
+#ifdef VERBOSE_TESTS
   print_ranges(r1_start, r1_end, r2_start, r2_end);
-  //printf("Case 4: Overlap ? %d\n", overlap);
+  printf("Case 4: Overlap ? %d\n", overlap);
+#endif
   assert(overlap);
-  overlap = dso::intervals_overlap<nanoseconds, OverlapComparissonType::AllowEdgesOverlap>(
+  overlap = dso::intervals_overlap<nanoseconds,
+                                   OverlapComparissonType::AllowEdgesOverlap>(
       r1_start, r1_end, r2_start, r2_end);
   assert(!overlap);
 
@@ -94,15 +111,19 @@ int main() {
                                  dso::day_of_month(3), nanoseconds(0));
   overlap = dso::intervals_overlap<nanoseconds, OverlapComparissonType::Strict>(
       r1_start, r1_end, r2_start, r2_end);
+#ifdef VERBOSE_TESTS
   print_ranges(r1_start, r1_end, r2_start, r2_end);
-  //printf("Case 5: Overlap ? %d\n", overlap);
+  printf("Case 5: Overlap ? %d\n", overlap);
+#endif
   assert(overlap);
   // non-strict comparisson should give us non-overlapping ranges though!
-  overlap = dso::intervals_overlap<nanoseconds, OverlapComparissonType::AllowEdgesOverlap>(
+  overlap = dso::intervals_overlap<nanoseconds,
+                                   OverlapComparissonType::AllowEdgesOverlap>(
       r1_start, r1_end, r2_start, r2_end);
-  //printf("Case 6: Overlap ? %d\n", overlap);
+#ifdef VERBOSE_TESTS
+  printf("Case 6: Overlap ? %d\n", overlap);
+#endif
   assert(!overlap);
-
 
   return 0;
 }
