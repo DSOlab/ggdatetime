@@ -935,6 +935,21 @@ inline t_hmsf as_hmsf(T secday) noexcept {
   return t_hmsf(secday);
 }
 
+struct TwoPartDate {
+  double _big;   ///< Mjd
+  double _small; ///< fractional days
+};
+
+#if __cplusplus >= 202002L
+template <gconcepts::is_sec_dt T>
+#else
+template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
+#endif
+inline TwoPartDate as_two_part_date(const datetime<T> &date) noexcept {
+  return TwoPartDate{(double)date.mjd().as_underlying_type(),
+                     date.sec().fractional_days()};
+}
+
 namespace datetime_ranges {
 enum class OverlapComparissonType {Strict, AllowEdgesOverlap};
 }// datetime_ranges
