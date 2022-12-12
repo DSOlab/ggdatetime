@@ -102,7 +102,7 @@ datetime<T> strptime_ydoy(const char *str, const char **stop = nullptr) {
 ///
 /// @throw std::invalid_argument if the input string cannot be resolved.
 template <typename T>
-datetime<T> strptime_ymd_hms(const char *str, char **stop = nullptr) {
+datetime<T> strptime_ymd_hms(const char *str, const char **stop = nullptr) {
   char *end;
   const char *start = str;
   int ints[5];

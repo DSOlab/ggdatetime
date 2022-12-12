@@ -69,7 +69,7 @@ double utc2tai(const dso::modified_julian_day utc_mjd, double utc_fday,
 
 double utc_strptime_ymd_hms(const char *str,
                                  dso::modified_julian_day &utc_mjd,
-                                 char **stop = nullptr);
+                                 const char **stop = nullptr);
 
 } // namespace dso
 #endif
