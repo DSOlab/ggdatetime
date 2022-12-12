@@ -22,7 +22,9 @@ namespace dso {
 namespace utils {
   inline const char *skipws(const char *line) noexcept {
     const char *c = line;
-    while (*c && *c==' ') ++c;
+    while (*c &&
+           (*c == ' ' || *c == '/' || *c == '-' || *c == 'T' || *c == ':'))
+      ++c;
     return c;
   }
 }
@@ -103,7 +105,6 @@ datetime<T> strptime_ydoy(const char *str, const char **stop = nullptr) {
 /// @throw std::invalid_argument if the input string cannot be resolved.
 template <typename T>
 datetime<T> strptime_ymd_hms(const char *str, const char **stop = nullptr) {
-  char *end;
   const char *start = str;
   int ints[5];
   double secs;

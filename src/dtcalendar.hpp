@@ -624,11 +624,15 @@ public:
   
   /// @brief Convert to fractional years, assuming a year of of 365.25 days
   constexpr double as_fractional_years() const noexcept {
-    const ydoy_date ydoy(as_ydoy());
-    const double year = ydoy.__year.as_underlying_type();
-    const double doy = ydoy.__doy.as_underlying_type();
-    const double fday = sec().fractional_days();
-    return year + doy/365.325e0 + fday/365.25e0;
+    //const ydoy_date ydoy(as_ydoy());
+    //const double year = ydoy.__year.as_underlying_type();
+    //const double doy = ydoy.__doy.as_underlying_type();
+    //const double fday = sec().fractional_days();
+    //return year + doy/365.325e0 + fday/365.25e0;
+    const double dmjd(
+        static_cast<double>(m_mjd.as_underlying_type()));
+    return (dmjd - j2000_mjd) / days_in_julian_year +
+           sec().fractional_days() / days_in_julian_year;
   }
 
 
@@ -936,6 +940,26 @@ inline t_hmsf as_hmsf(T secday) noexcept {
 }
 
 struct TwoPartDate {
+
+#if __cplusplus >= 202002L
+  template <gconcepts::is_sec_dt T>
+#else
+  template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
+#endif
+  TwoPartDate(const datetime<T> &d) noexcept
+      : _big((double)d.mjd().as_underlying_type()),
+        _small(d.sec().fractional_days()){}
+
+  TwoPartDate(double b, double s) noexcept : _big(b), _small(s) {};
+  
+  // cast to double
+  explicit operator double() const noexcept { return _big + _small; }
+  
+  // difference
+  TwoPartDate operator-(const TwoPartDate &d) const noexcept {
+    return TwoPartDate(_big-d._big, _small-d._small);
+  }
+  
   double _big;   ///< Mjd
   double _small; ///< fractional days
 };
@@ -946,8 +970,7 @@ template <gconcepts::is_sec_dt T>
 template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
 inline TwoPartDate as_two_part_date(const datetime<T> &date) noexcept {
-  return TwoPartDate{(double)date.mjd().as_underlying_type(),
-                     date.sec().fractional_days()};
+  return TwoPartDate(date);
 }
 
 namespace datetime_ranges {
