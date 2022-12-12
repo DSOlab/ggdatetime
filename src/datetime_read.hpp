@@ -12,11 +12,20 @@
 #include <cstdlib>
 #include <cstring>
 #include <stdexcept>
+#include <charconv>
 #ifdef DEBUG
 #include <iostream>
 #endif
 
 namespace dso {
+
+namespace utils {
+  inline const char *skipws(const char *line) noexcept {
+    const char *c = line;
+    while (*c && *c==' ') ++c;
+    return c;
+  }
+}
 
 /// @brief Read from YYYY-MM-DD
 ///
@@ -61,7 +70,7 @@ datetime<T> strptime_ymd(const char *str, char **stop = nullptr) {
 ///
 /// @throw std::invalid_argument if the input string cannot be resolved.
 template <typename T>
-datetime<T> strptime_ydoy(const char *str, char **stop = nullptr) {
+datetime<T> strptime_ydoy(const char *str, const char **stop = nullptr) {
   char *end;
   const char *start = str;
   int ints[2];
@@ -98,25 +107,24 @@ datetime<T> strptime_ymd_hms(const char *str, char **stop = nullptr) {
   const char *start = str;
   int ints[5];
   double secs;
+  int sz = std::strlen(str);
 
   for (int i = 0; i < 5; ++i) {
-    ints[i] = static_cast<int>(std::abs(std::strtol(start, &end, 10)));
-    if (errno == ERANGE || start == end) {
-      errno = 0;
+    auto tres = std::from_chars(utils::skipws(start), str+sz, ints[i]);
+    if (tres.ec != std::errc{}) {
       throw std::invalid_argument("Invalid date format: \"" + std::string(str) +
-                                  "\" (argument #" + std::to_string(i + 1) +
-                                  ").");
+      "\" (argument #" + std::to_string(i + 1) + ").");
     }
-    start = end + 1;
+    start = tres.ptr;
   }
-  secs = std::strtod(start, &end);
-  if (errno == ERANGE) {
-    errno = 0;
+  auto tres = std::from_chars(utils::skipws(start), str+sz, secs);
+  if (tres.ec != std::errc{}) {
     throw std::invalid_argument("Invalid date format: \"" + std::string(str) +
                                 "\" (argument #6)");
   }
+
   if (stop)
-    *stop = end;
+    *stop = tres.ptr;
 
   T tsec{static_cast<typename T::underlying_type>(
       secs * T::template sec_factor<double>())};
