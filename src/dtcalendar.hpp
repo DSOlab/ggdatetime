@@ -624,15 +624,16 @@ public:
   
   /// @brief Convert to fractional years, assuming a year of of 365.25 days
   constexpr double as_fractional_years() const noexcept {
-    //const ydoy_date ydoy(as_ydoy());
-    //const double year = ydoy.__year.as_underlying_type();
-    //const double doy = ydoy.__doy.as_underlying_type();
-    //const double fday = sec().fractional_days();
-    //return year + doy/365.325e0 + fday/365.25e0;
-    const double dmjd(
-        static_cast<double>(m_mjd.as_underlying_type()));
-    return (dmjd - j2000_mjd) / days_in_julian_year +
-           sec().fractional_days() / days_in_julian_year;
+    const ydoy_date ydoy(as_ydoy());
+    const double year = ydoy.__year.as_underlying_type();
+    const double doy = ydoy.__doy.as_underlying_type();
+    const double fday = sec().fractional_days();
+    const double yeardays = days_in_julian_year + ydoy.__year.is_leap();
+    return year + doy/yeardays + fday/yeardays;
+    //const double dmjd(
+    //    static_cast<double>(m_mjd.as_underlying_type()));
+    //return (dmjd - j2000_mjd) / days_in_julian_year +
+    //       sec().fractional_days() / days_in_julian_year;
   }
 
 
@@ -964,6 +965,20 @@ struct TwoPartDate {
     return _small + _big;
   }
 
+  double jcenturies_sinceJ2000() const noexcept {
+    return (_big - j2000_mjd) / days_in_julian_cent +
+           _small / days_in_julian_cent;
+  }
+
+  double as_fractional_years() const noexcept {
+    auto cp(*this);
+    cp.normalize();
+    const datetime<dso::seconds> d(modified_julian_day((long)_big),dso::seconds(0));
+    const ydoy_date ydoy(d.as_ydoy());
+    const double daysinyear = days_in_julian_year + ydoy.__year.is_leap();
+    return _small / daysinyear + d.as_fractional_years();
+  }
+
   bool operator>(const TwoPartDate &d) const noexcept {
     return (_big>d._big) || ((_big==d._big) && (_small>d._small));
   }
@@ -975,14 +990,14 @@ struct TwoPartDate {
   void normalize() noexcept {
     double fmore,extra;
     // check if _big part has a fractional part
-    if ((fmore=std::fmod(_big, &extra)) != 0e0) {
+    if ((fmore=std::modf(_big, &extra)) != 0e0) {
       // assign fractional part to _small and keep integral part to _big
       _small += fmore;
       _big = extra;
     }
     // check if fractional part is >= 1e0
     if (_small>=1e0) {
-      _small = std::fmod(_small, &extra);
+      _small = std::modf(_small, &extra);
       _big += extra;
     }
     // all done
