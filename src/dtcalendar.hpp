@@ -960,6 +960,35 @@ struct TwoPartDate {
     return TwoPartDate(_big-d._big, _small-d._small);
   }
   
+  double mjd() const noexcept {
+    return _small + _big;
+  }
+
+  bool operator>(const TwoPartDate &d) const noexcept {
+    return (_big>d._big) || ((_big==d._big) && (_small>d._small));
+  }
+  bool operator>=(const TwoPartDate &d) const noexcept {
+    return (_big>d._big) || ((_big==d._big) && (_small>=d._small));
+  }
+
+  /// @brief Keep _small < 1e0 and _big integral only
+  void normalize() noexcept {
+    double fmore,extra;
+    // check if _big part has a fractional part
+    if ((fmore=std::fmod(_big, &extra)) != 0e0) {
+      // assign fractional part to _small and keep integral part to _big
+      _small += fmore;
+      _big = extra;
+    }
+    // check if fractional part is >= 1e0
+    if (_small>=1e0) {
+      _small = std::fmod(_small, &extra);
+      _big += extra;
+    }
+    // all done
+    return;
+  }
+  
   double _big;   ///< Mjd
   double _small; ///< fractional days
 };
