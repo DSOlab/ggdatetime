@@ -766,23 +766,6 @@ private:
   modified_julian_day m_mjd; ///< Modified Julian Day
   S m_sec;                   ///< Time of day in S precision.
 
-public:
-  /// @brief International Atomic Time (TAI) to Coordinated Universal Time, UTC
-  /// @note interprets the calling instance as TAI
-  /// @warning Only works for post 1972 dates; see dso::dat function
-  void utc2tai() noexcept {
-    seconds leap_seconds(dat(this->m_mjd));
-    add_seconds(leap_seconds);
-  }
-
-  /// @brief International Atomic Time (TAI) to Coordinated Universal Time, UTC
-  /// @note interprets the calling instance as TAI
-  /// @warning Only works for post 1972 dates; see dso::dat function
-  void tai2utc() noexcept {
-    seconds leap_seconds(dat(this->m_mjd));
-    remove_seconds(leap_seconds);
-  }
-
 }; // datetime
 
 /// Difference between two dates in MJdays and T.
@@ -960,6 +943,14 @@ struct TwoPartDate {
   TwoPartDate operator-(const TwoPartDate &d) const noexcept {
     return TwoPartDate(_big-d._big, _small-d._small);
   }
+  TwoPartDate operator+(const TwoPartDate &d) const noexcept {
+    return TwoPartDate(_big+d._big, _small+d._small);
+  }
+  
+  // As Julian date, implementing the SOFA Date & Time idiom
+  TwoPartDate jd_sofa() const noexcept {
+    return TwoPartDate(_big+dso::mjd0_jd, _small);
+  }
   
   double mjd() const noexcept {
     return _small + _big;
@@ -984,6 +975,12 @@ struct TwoPartDate {
   }
   bool operator>=(const TwoPartDate &d) const noexcept {
     return (_big>d._big) || ((_big==d._big) && (_small>=d._small));
+  }
+  bool operator<(const TwoPartDate &d) const noexcept {
+    return (_big<d._big) || ((_big==d._big) && (_small<d._small));
+  }
+  bool operator<=(const TwoPartDate &d) const noexcept {
+    return (_big<d._big) || ((_big==d._big) && (_small<=d._small));
   }
 
   /// @brief Keep _small < 1e0 and _big integral only
