@@ -934,7 +934,7 @@ struct TwoPartDate {
       : _big((double)d.mjd().as_underlying_type()),
         _small(d.sec().fractional_days()){}
 
-  TwoPartDate(double b=0, double s=0) noexcept : _big(b), _small(s) {};
+  explicit TwoPartDate(double b=0, double s=0) noexcept : _big(b), _small(s) {};
   
   // cast to double
   // explicit operator double() const noexcept { return _big + _small; }
