@@ -1000,10 +1000,18 @@ struct TwoPartDate {
     // all done
     return;
   }
+
+  TwoPartDate normalized() const noexcept {
+    TwoPartDate d(*this);
+    d.normalize();
+    return d;
+  }
   
   double _big;   ///< Mjd
   double _small; ///< fractional days
 };
+
+TwoPartDate utc2tai(const TwoPartDate &d) noexcept;
 
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt T>

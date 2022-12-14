@@ -1,6 +1,9 @@
+#include "dtcalendar.hpp"
+#include "dtfund.hpp"
 #include "utcdates.hpp"
 #include <cmath>
 
+namespace {
 typedef dso::nanoseconds::underlying_type SecIntType;
 
 ///< Max nanoseconds in day
@@ -9,6 +12,7 @@ constexpr const SecIntType MAXSDAY = dso::nanoseconds::max_in_day;
 ///< nanoseconds to seconds (int type)
 constexpr const SecIntType FACTOR =
     dso::nanoseconds::template sec_factor<SecIntType>();
+}// unnamed namespace
 
 double dso::utc2tai(const dso::modified_julian_day utc_mjd, double utc_fday,
                     dso::modified_julian_day &tai_mjd) noexcept {
@@ -37,4 +41,21 @@ double dso::utc2tai(const dso::modified_julian_day utc_mjd, double utc_fday,
 
   tai_mjd = modified_julian_day(itai_mjd+ipart);
   return tai_fday;
+}
+
+dso::TwoPartDate dso::utc2tai(const dso::TwoPartDate &dutc) noexcept {
+  // normalize so that the big part is MJD & small is fraction of day
+  auto utc = dutc.normalized();
+  
+  // Get TAI-UTC at 0h today and extra seconds in day (if any)
+  int extra;
+  const int leap =
+      dso::dat(dso::modified_julian_day((int)utc._big), extra);
+
+  // Remove any scaling applied to spread leap into preceding day
+  utc._small *= (dso::sec_per_day+extra)/dso::sec_per_day;
+
+  // Assemble the TAI result, preserving the UTC split and order
+  return dso::TwoPartDate(utc._big, utc._small + leap / dso::sec_per_day)
+      .normalized();
 }

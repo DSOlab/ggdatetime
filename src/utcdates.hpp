@@ -9,6 +9,9 @@ namespace dso {
 double dtf2d(dso::year yr, dso::month mt, dso::day_of_month dm, dso::hours hr,
              dso::minutes mn, dso::nanoseconds _sec,
              dso::modified_julian_day &mjd, dso::nanoseconds &leap) noexcept;
+TwoPartDate dtf2d(dso::year yr, dso::month mt, dso::day_of_month dm, dso::hours hr,
+             dso::minutes mn, dso::nanoseconds _sec,
+             dso::nanoseconds &leap) noexcept;
 
 /// Resolve a UTC date to an MJD and a `fractional day` part, so that the
 /// date is mjd + returned value
