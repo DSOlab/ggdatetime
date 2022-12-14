@@ -115,7 +115,7 @@ datetime<T> strptime_ymd_hms(const char *str, const char **stop = nullptr) {
     if (tres.ec != std::errc{}) {
       throw std::invalid_argument("Invalid date format: \"" + std::string(str) +
       "\" (argument #" + std::to_string(i + 1) + ").");
-    }
+    } 
     start = tres.ptr;
   }
   auto tres = std::from_chars(utils::skipws(start), str+sz, secs);

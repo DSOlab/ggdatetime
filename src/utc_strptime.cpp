@@ -1,3 +1,5 @@
+#include "dtcalendar.hpp"
+#include "dtfund.hpp"
 #include "utcdates.hpp"
 #include <cstring>
 #include <charconv>
@@ -32,23 +34,8 @@ double dso::utc_strptime_ymd_hms(const char *str,
     auto cerr = std::from_chars(skipni(start), str+sz, ints[i]);
     if (cerr.ec != std::errc{}) ++error;
     start = cerr.ptr;
-    //ints[i] = static_cast<int>(std::abs(std::strtol(start, &end, 10)));
-    //if (errno == ERANGE || start == end) {
-    //  errno = 0;
-    //  fprintf(stderr, "ERROR. Failed resolving date from string \'%s\', part:[%s] (traceback: %s)\n", str, start, __func__);
-    //  throw std::invalid_argument("Invalid date format: \"" + std::string(str) +
-    //                              "\" (argument #" + std::to_string(i + 1) +
-    //                              ").");
-    //}
-    //start = end + 1;
   }
 
-  //secs = std::strtod(start, &end);
-  //if (errno == ERANGE) {
-  //  errno = 0;
-  //  throw std::invalid_argument("Invalid date format: \"" + std::string(str) +
-  //                              "\" (argument #6)");
-  //}
   auto cerr = std::from_chars(skipni(start), str+sz, secs);
   if (cerr.ec != std::errc{}) ++error;
 
@@ -67,4 +54,10 @@ double dso::utc_strptime_ymd_hms(const char *str,
                  dso::minutes(ints[4]), dso::nanoseconds(nsec), utc_mjd, leap);
 
   return utc_fday;
+}
+
+dso::TwoPartDate dso::utc_strptime_ymd_hms(const char *str, const char **stop) {
+  dso::modified_julian_day mjd;
+  const double fd = utc_strptime_ymd_hms(str, mjd, stop);
+  return dso::TwoPartDate((double)mjd.as_underlying_type(), fd);
 }

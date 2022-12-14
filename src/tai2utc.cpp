@@ -1,9 +1,25 @@
+#include "dtcalendar.hpp"
 #include "utcdates.hpp"
 
+namespace {
 typedef dso::nanoseconds::underlying_type SecIntType;
 constexpr const SecIntType MAXSDAY = dso::nanoseconds::max_in_day;
 constexpr const SecIntType FACTOR =
     dso::nanoseconds::template sec_factor<SecIntType>();
+}// unnamed namespace
+
+dso::TwoPartDate dso::tai2utc(const dso::TwoPartDate &dtai) noexcept {
+  // do it the SOFA way ...
+  TwoPartDate utc1(dtai);
+  double small = utc1._small;
+  double big =  utc1._big;
+  for (int i=0; i<3; i++) {
+    TwoPartDate guess = utc2tai(TwoPartDate(big,small));
+    small += utc1._big - guess._big;
+    small += utc1._small - guess._small;
+  }
+  return TwoPartDate(utc1._big, small).normalized();
+}
 
 double dso::tai2utc(const dso::datetime<dso::nanoseconds> &tai,
                     dso::modified_julian_day &mjd) noexcept {

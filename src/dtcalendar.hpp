@@ -937,7 +937,7 @@ struct TwoPartDate {
   TwoPartDate(double b=0, double s=0) noexcept : _big(b), _small(s) {};
   
   // cast to double
-  explicit operator double() const noexcept { return _big + _small; }
+  // explicit operator double() const noexcept { return _big + _small; }
   
   // difference
   TwoPartDate operator-(const TwoPartDate &d) const noexcept {
@@ -945,6 +945,15 @@ struct TwoPartDate {
   }
   TwoPartDate operator+(const TwoPartDate &d) const noexcept {
     return TwoPartDate(_big+d._big, _small+d._small);
+  }
+
+  template<DateTimeDifferenceType DT>
+  double diff(const TwoPartDate &d) const noexcept {
+    if constexpr (DT==DateTimeDifferenceType::FractionalDays) {
+      return (_big-d._big)+(_small-d._small);
+    } else {
+      return (_big-d._big)*sec_per_day+(_small-d._small)*sec_per_day;
+    }
   }
   
   // As Julian date, implementing the SOFA Date & Time idiom
