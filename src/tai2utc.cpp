@@ -7,7 +7,7 @@ constexpr const SecIntType MAXSDAY = dso::nanoseconds::max_in_day;
 constexpr const SecIntType FACTOR =
     dso::nanoseconds::template sec_factor<SecIntType>();
 }// unnamed namespace
-
+/*
 dso::TwoPartDate dso::tai2utc(const dso::TwoPartDate &dtai) noexcept {
   // do it the SOFA way ...
   TwoPartDate utc1(dtai);
@@ -20,6 +20,7 @@ dso::TwoPartDate dso::tai2utc(const dso::TwoPartDate &dtai) noexcept {
   }
   return TwoPartDate(utc1._big, small).normalized();
 }
+*/
 
 double dso::tai2utc(const dso::datetime<dso::nanoseconds> &tai,
                     dso::modified_julian_day &mjd) noexcept {

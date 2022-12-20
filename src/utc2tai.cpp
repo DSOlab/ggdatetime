@@ -43,6 +43,7 @@ double dso::utc2tai(const dso::modified_julian_day utc_mjd, double utc_fday,
   return tai_fday;
 }
 
+/*
 dso::TwoPartDate dso::utc2tai(const dso::TwoPartDate &dutc) noexcept {
   // normalize so that the big part is MJD & small is fraction of day
   auto utc = dutc.normalized();
@@ -59,3 +60,4 @@ dso::TwoPartDate dso::utc2tai(const dso::TwoPartDate &dutc) noexcept {
   return dso::TwoPartDate(utc._big, utc._small + leap / dso::sec_per_day)
       .normalized();
 }
+*/

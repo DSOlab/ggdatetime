@@ -48,7 +48,7 @@ double dtf2d(dso::year yr, dso::month mt, dso::day_of_month dm, dso::hours hr,
 
 double tai2utc(const dso::datetime<dso::nanoseconds> &tai,
                     dso::modified_julian_day &mjd) noexcept;
-TwoPartDate tai2utc(const TwoPartDate &tai) noexcept;
+// TwoPartDate tai2utc(const TwoPartDate &tai) noexcept;
 
 /// Transform a datetime given in TAI time-scale to a corresponding UTC date.
 /// UTC date is returned in two parts: mjd + returned_double

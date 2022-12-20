@@ -960,6 +960,54 @@ struct TwoPartDate {
   TwoPartDate jd_sofa() const noexcept {
     return TwoPartDate(_big+dso::mjd0_jd, _small);
   }
+
+  TwoPartDate tai2tt() const noexcept {
+    constexpr const double dtat = tt_minus_tai / sec_per_day;
+    return TwoPartDate(_big, _small+dtat).normalized();
+  }
+
+  TwoPartDate utc2tai() const noexcept {
+    // normalize so that the big part is MJD & small is fraction of day
+    auto utc = this->normalized();
+
+    // Get TAI-UTC at 0h today and extra seconds in day (if any)
+    int extra;
+    const int leap = dat(modified_julian_day((int)utc._big), extra);
+
+    // Remove any scaling applied to spread leap into preceding day
+    utc._small *= (sec_per_day + extra) / sec_per_day;
+
+    // Assemble the TAI result, preserving the UTC split and order
+    return TwoPartDate(utc._big, utc._small + leap / sec_per_day).normalized();
+  }
+
+  TwoPartDate utc2tt() const noexcept {
+    const auto tai = this->utc2tai();
+    return tai.tai2tt();
+  }
+
+  TwoPartDate tai2utc() const noexcept {
+    // do it the SOFA way ...
+    auto utc1 (*this);
+    double small = utc1._small;
+    double big = utc1._big;
+    for (int i = 0; i < 3; i++) {
+      TwoPartDate guess = TwoPartDate(big,small).utc2tai();
+      small += utc1._big - guess._big;
+      small += utc1._small - guess._small;
+    }
+    return TwoPartDate(utc1._big, small).normalized();
+  }
+  
+  TwoPartDate tt2utc() const noexcept {
+    const auto tai = this->tt2tai();
+    return tai.tai2utc();
+  }
+
+  TwoPartDate tt2tai() const noexcept {
+    constexpr const double dtat = tt_minus_tai / sec_per_day;
+    return TwoPartDate(_big, _small-dtat).normalized();
+  }
   
   double mjd() const noexcept {
     return _small + _big;
