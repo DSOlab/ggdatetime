@@ -1066,6 +1066,28 @@ struct TwoPartDate {
   
   double _big;   ///< Mjd
   double _small; ///< fractional days
+  
+  /// A Julian Date can be partioned in any of the following ways:
+  /// -----------------------------------------------------------
+  ///            dj1            dj2
+  ///
+  ///        2450123.7           0.0       (JD method)
+  ///        2451545.0       -1421.3       (J2000 method)
+  ///        2400000.5       50123.2       (MJD method)
+  ///        2450123.5           0.2       (date & time method)
+  enum class JdSplitMethod {JD, J2000, MJD, DT};
+  template<JdSplitMethod S = JdSplitMethod::J2000>
+  TwoPartDate jd_split() const noexcept {
+    if constexpr (S == JdSplitMethod::JD)
+      return TwoPartDate(_big + dso::mjd0_jd + _small, 0e0);
+    else if constexpr (S == JdSplitMethod::J2000)
+      return TwoPartDate(j2000_jd, _big-j2000_mjd+_small);
+    else if constexpr (S == JdSplitMethod::MJD)
+      return TwoPartDate(mjd0_jd, _big+_small);
+    else
+      return TwoPartDate(_big+dso::mjd0_jd, _small);
+  }
+
 };
 
 TwoPartDate utc2tai(const TwoPartDate &d) noexcept;

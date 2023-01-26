@@ -127,7 +127,7 @@ int main([[maybe_unused]]int argc, char *argv[]) {
 
     // TAI to UTC
     dso::TwoPartDate tai(ud);
-    dso::TwoPartDate utc = dso::tai2utc(tai);
+    dso::TwoPartDate utc = tai.tai2utc(); // dso::tai2utc(tai);
 
     // resolve using SOFA
     double d1, d2;
@@ -143,8 +143,8 @@ int main([[maybe_unused]]int argc, char *argv[]) {
   }
 
   // by the way, results for 22 and 23 should be the same
-  dso::TwoPartDate utc22 = dso::tai2utc(dso::TwoPartDate(idates[22]));
-  dso::TwoPartDate utc23 = dso::tai2utc(dso::TwoPartDate(idates[23]));
+  dso::TwoPartDate utc22 = /*dso::tai2utc(*/dso::TwoPartDate(idates[22]).tai2utc();
+  dso::TwoPartDate utc23 = /*dso::tai2utc(*/dso::TwoPartDate(idates[23]).tai2utc();
   assert(utc22._big == utc23._big);
   assert(utc22._small == utc23._small);
 
