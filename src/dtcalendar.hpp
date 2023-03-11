@@ -1063,6 +1063,15 @@ struct TwoPartDate {
     d.normalize();
     return d;
   }
+
+  bool operator==(const TwoPartDate &d) const noexcept {
+    const auto d1(this->normalized());
+    const auto d2(d.normalized());
+    return (d1._big == d2._big) && (d1._small == d2._small);
+  }
+  bool operator!=(const TwoPartDate &d) const noexcept {
+    return !(this->operator==(d));
+  }
   
   double _big;   ///< Mjd
   double _small; ///< fractional days
