@@ -1042,6 +1042,11 @@ struct TwoPartDate {
 
   /// @brief Keep _small < 1e0 and _big integral only
   void normalize() noexcept {
+    // fractional part should NOT be negative
+    while (_small < 0e0) {
+      _small = 1 - _small;
+      _big -= 1e0;
+    }
     double fmore,extra;
     // check if _big part has a fractional part
     if ((fmore=std::modf(_big, &extra)) != 0e0) {
