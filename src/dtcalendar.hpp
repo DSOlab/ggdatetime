@@ -934,17 +934,18 @@ struct TwoPartDate {
       : _big((double)d.mjd().as_underlying_type()),
         _small(d.sec().fractional_days()){}
 
-  explicit TwoPartDate(double b=0, double s=0) noexcept : _big(b), _small(s) {};
+  explicit TwoPartDate(double b=0, double s=0) noexcept : _big(b), _small(s) 
+  {this->normalize();}
   
   // cast to double
   // explicit operator double() const noexcept { return _big + _small; }
   
   // difference
   TwoPartDate operator-(const TwoPartDate &d) const noexcept {
-    return TwoPartDate(_big-d._big, _small-d._small);
+    return TwoPartDate(_big-d._big, _small-d._small).normalized();
   }
   TwoPartDate operator+(const TwoPartDate &d) const noexcept {
-    return TwoPartDate(_big+d._big, _small+d._small);
+    return TwoPartDate(_big+d._big, _small+d._small).normalized();
   }
 
   template<DateTimeDifferenceType DT>
@@ -1010,10 +1011,12 @@ struct TwoPartDate {
   }
   
   double mjd() const noexcept {
+    assert(_small >= 0e0);
     return _small + _big;
   }
 
   double jcenturies_sinceJ2000() const noexcept {
+    assert(_small >= 0e0);
     return (_big - j2000_mjd) / days_in_julian_cent +
            _small / days_in_julian_cent;
   }
