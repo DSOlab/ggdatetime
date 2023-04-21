@@ -923,8 +923,12 @@ inline t_hmsf as_hmsf(T secday) noexcept {
   return t_hmsf(secday);
 }
 
-struct TwoPartDate {
+class TwoPartDate {
+private:
+  double _big;   ///< Mjd
+  double _small; ///< fractional days
 
+public:
 #if __cplusplus >= 202002L
   template <gconcepts::is_sec_dt T>
 #else
@@ -936,10 +940,13 @@ struct TwoPartDate {
 
   explicit TwoPartDate(double b=0, double s=0) noexcept : _big(b), _small(s) 
   {this->normalize();}
+
+  double big() const noexcept {return _big;}
+  double small() const noexcept {return _small;}
   
   // cast to double
   // explicit operator double() const noexcept { return _big + _small; }
-  
+
   // difference
   TwoPartDate operator-(const TwoPartDate &d) const noexcept {
     return TwoPartDate(_big-d._big, _small-d._small).normalized();
@@ -961,6 +968,8 @@ struct TwoPartDate {
   TwoPartDate jd_sofa() const noexcept {
     return TwoPartDate(_big+dso::mjd0_jd, _small);
   }
+
+  double jd() const noexcept { return (_small + _big) + dso::mjd0_jd; }
 
   TwoPartDate tai2tt() const noexcept {
     constexpr const double dtat = tt_minus_tai / sec_per_day;
@@ -1010,7 +1019,7 @@ struct TwoPartDate {
     return TwoPartDate(_big, _small-dtat).normalized();
   }
   
-  double mjd() const noexcept {
+  double as_mjd() const noexcept {
     assert(_small >= 0e0);
     return _small + _big;
   }
@@ -1080,9 +1089,6 @@ struct TwoPartDate {
   bool operator!=(const TwoPartDate &d) const noexcept {
     return !(this->operator==(d));
   }
-  
-  double _big;   ///< Mjd
-  double _small; ///< fractional days
   
   /// A Julian Date can be partioned in any of the following ways:
   /// -----------------------------------------------------------
