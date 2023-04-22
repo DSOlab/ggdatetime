@@ -943,7 +943,12 @@ public:
 
   double big() const noexcept {return _big;}
   double small() const noexcept {return _small;}
-  
+
+  void add_seconds(double sec) noexcept {
+    _small += sec / sec_per_day;
+    this->normalize();
+  }
+
   // cast to double
   // explicit operator double() const noexcept { return _big + _small; }
 
