@@ -936,7 +936,8 @@ public:
 #endif
   TwoPartDate(const datetime<T> &d) noexcept
       : _big((double)d.mjd().as_underlying_type()),
-        _small(d.sec().fractional_days()){}
+        _small(d.sec().fractional_days())
+  {this->normalize();}
 
   explicit TwoPartDate(double b=0, double s=0) noexcept : _big(b), _small(s) 
   {this->normalize();}
@@ -949,15 +950,12 @@ public:
     this->normalize();
   }
 
-  // cast to double
-  // explicit operator double() const noexcept { return _big + _small; }
-
   // difference
   TwoPartDate operator-(const TwoPartDate &d) const noexcept {
-    return TwoPartDate(_big-d._big, _small-d._small).normalized();
+    return TwoPartDate(_big-d._big, _small-d._small);
   }
   TwoPartDate operator+(const TwoPartDate &d) const noexcept {
-    return TwoPartDate(_big+d._big, _small+d._small).normalized();
+    return TwoPartDate(_big+d._big, _small+d._small);
   }
 
   template<DateTimeDifferenceType DT>
@@ -970,7 +968,9 @@ public:
   }
   
   // As Julian date, implementing the SOFA Date & Time idiom
-  TwoPartDate jd_sofa() const noexcept {
+  // TODO no, this is plit as integral part and fractional par, only the
+  // integral part is JD (not MJD)
+  TwoPartDate jd_sofa1() const noexcept {
     return TwoPartDate(_big+dso::mjd0_jd, _small);
   }
 
@@ -978,12 +978,12 @@ public:
 
   TwoPartDate tai2tt() const noexcept {
     constexpr const double dtat = tt_minus_tai / sec_per_day;
-    return TwoPartDate(_big, _small+dtat).normalized();
+    return TwoPartDate(_big, _small+dtat);
   }
 
   TwoPartDate utc2tai() const noexcept {
     // normalize so that the big part is MJD & small is fraction of day
-    auto utc = this->normalized();
+    auto utc = *this;
 
     // Get TAI-UTC at 0h today and extra seconds in day (if any)
     int extra;
@@ -993,7 +993,7 @@ public:
     utc._small *= (sec_per_day + extra) / sec_per_day;
 
     // Assemble the TAI result, preserving the UTC split and order
-    return TwoPartDate(utc._big, utc._small + leap / sec_per_day).normalized();
+    return TwoPartDate(utc._big, utc._small + leap / sec_per_day);
   }
 
   TwoPartDate utc2tt() const noexcept {
@@ -1011,7 +1011,7 @@ public:
       small += utc1._big - guess._big;
       small += utc1._small - guess._small;
     }
-    return TwoPartDate(utc1._big, small).normalized();
+    return TwoPartDate(utc1._big, small);
   }
   
   TwoPartDate tt2utc() const noexcept {
@@ -1021,16 +1021,14 @@ public:
 
   TwoPartDate tt2tai() const noexcept {
     constexpr const double dtat = tt_minus_tai / sec_per_day;
-    return TwoPartDate(_big, _small-dtat).normalized();
+    return TwoPartDate(_big, _small-dtat);
   }
   
   double as_mjd() const noexcept {
-    assert(_small >= 0e0);
     return _small + _big;
   }
 
   double jcenturies_sinceJ2000() const noexcept {
-    assert(_small >= 0e0);
     return (_big - j2000_mjd) / days_in_julian_cent +
            _small / days_in_julian_cent;
   }
