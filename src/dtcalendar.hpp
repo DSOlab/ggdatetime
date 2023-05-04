@@ -1023,6 +1023,20 @@ public:
     constexpr const double dtat = tt_minus_tai / sec_per_day;
     return TwoPartDate(_big, _small-dtat);
   }
+
+  /* @brief TT to UT1 MJD
+   * Note that because the Earth’s rotation is slowing due to tidal friction, 
+   * and the rotation rate decreases approximately linearly with time, ∆T 
+   * increases quadratically.
+   * @param[in] dut1 ΔUT1 in [sec]. Thi value should be looked up using e.g.
+   *                 IERS products
+   * @return The corresponding UT1 MJD, computed using:
+   *         ∆T = TT − UT1 = 32.184[sec] + ∆AT − ∆UT1
+   */
+  TwoPartDate tt2ut1(double dut1) const noexcept {
+    /* note that ΔUT1 = UT1 − UTC hence UT1 = ΔUT1 + UTC */
+    return tt2utc() + TwoPartDate(0e0, dut1/sec_per_day);
+  }
   
   double as_mjd() const noexcept {
     return _small + _big;
