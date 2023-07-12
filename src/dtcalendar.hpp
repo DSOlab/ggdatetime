@@ -939,8 +939,10 @@ public:
         _small(d.sec().fractional_days())
   {this->normalize();}
 
-  explicit TwoPartDate(double b=0, double s=0) noexcept : _big(b), _small(s) 
-  {this->normalize();}
+  explicit constexpr TwoPartDate(double b = 0, double s = 0) noexcept
+      : _big(b), _small(s) {
+    this->normalize();
+  }
 
   double big() const noexcept {return _big;}
   double small() const noexcept {return _small;}
@@ -1070,13 +1072,13 @@ public:
   }
 
   /// @brief Keep _small < 1e0 and _big integral only
-  void normalize() noexcept {
+  constexpr void normalize() noexcept {
     // fractional part should NOT be negative
     while (_small < 0e0) {
       _small = 1 - _small;
       _big -= 1e0;
     }
-    double fmore,extra;
+    double fmore(0e0),extra(0e0);
     // check if _big part has a fractional part
     if ((fmore=std::modf(_big, &extra)) != 0e0) {
       // assign fractional part to _small and keep integral part to _big
