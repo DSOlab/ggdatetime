@@ -1,7 +1,7 @@
 /** @file
- * @brief A fundamental, template datetime class.
- * This file contains the definition (and implementation) of a datetime class
- * to be used for Space Geodesy applications.
+ * A fundamental, template datetime class. This file contains the definition 
+ * (and implementation) of a datetime class to be used for Space Geodesy 
+ * applications.
  */
 
 #ifndef __DTCALENDAR_NGPT__HPP__
@@ -13,40 +13,86 @@
 
 namespace dso {
 
-/// @brief A generic, templatized class to hold a datetime period/interval.
-///
-/// A datetime_interval represents a time (datetime) interval or period, i.e.
-/// 5 days, 12 hours and 49 seconds. We assume a continuous time scale (no leap
-/// seconds are taken into consideration --this is only an interval not an
-/// actual datetime instance--).
-/// A datetime_interval instance can only have positive (or zero) values (for
-/// both its members).
-///
-/// A datetime_interval instance has two fundamental parts (members):
-/// - a day part (i.e. holding the days), and
-/// - a time part (i.e. holding any type S i.e. any second type)
-///
-/// The purpose of this class is to work together with the datetime class.
-///
-/// @tparam S Any class of 'second type', i.e. any class S that has a (static)
-///           member variable S::is_of_sec_type set to true. This can be
-///           dso::seconds, dso::milliseconds, dso::microseconds.
-///
-///
-/// @note  - Any instance of the class has two members, m_days an integer
-///          representing the (MJ) days and m_secs, an instance of type S,
-///          representing the fractional day part. However, the parts may be
-///          mixed (!), that is if e.g. S is dso::seconds, the m_secs part may
-///          actualy have any value, including ones larger than 86400. That is
-///          to say that an instance can be constructed as:
-///        \code{.cpp}
-///          datetime_interval<seconds> d {modified_julian_day(1),
-///          seconds(90000)};
-///        \endcode
-///          Should the user want the "normalization" of the instance (that is
-///          remove whole days from the m_secs part and add them to the m_days
-///          part), call the function datetime_interval::normalize().
-///
+namespace core {
+  /** A utility struct to hold possibly negative datetime intervals
+   *
+   * This struct is meant to act as an intermediate/buffer state between 
+   * a datetime difference and a datetime interval. A difference could be 
+   * negative, but an interval can only be positive. Hence, this class only 
+   * has the purpose of acting as an intermediate state, so that it can 
+   * 'normalize' the behaviour between a difference and an interval.
+   */
+#if __cplusplus >= 202002L
+template <gconcepts::is_sec_dt S>
+#else
+template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
+#endif
+struct RawDatetimeDifference {
+  typedef typename S::underlying_type SecIntType;
+  typedef modified_julian_day::underlying_type DaysIntType;
+
+  /** seconds of day (in interval), always positive */
+  SecIntType msecs;
+  /** days (in interval),can be negative */
+  DaysIntType mdays;
+
+  explicit RawDatetimeDifference(DaysIntType days, SecIntType sec) noexcept
+      : mdays(days), msecs(sec) {
+    normalize();
+  }
+
+  void normalize() noexcept {
+    /* number of whole days in seconds (always positive) */
+    DaysIntType more = std::copysign(1, msecs) / S::max_in_day();
+    /* add to current days, with the right sign */
+    mdays += std::copysign(msecs, more);
+    /* leftover seconds (positive) */
+    SecIntType s = std::copysign(1, msecs) - more * S::max_in_day();
+    /* if initial seconds were negative, adjust */
+    mdays -= 1 * (msecs < 0);
+    msecs = (S::max_in_day() - s) * (msecs < 0) + s * (msecs >= 0);
+#ifdef DEBUG
+    assert(mdays >= 0 && msecs >= 0);
+#endif
+  }
+}; /* RawDatetimeInterval */
+
+}/* namespace core*/
+
+/** @brief A generic, templatized class to hold a datetime period/interval.
+ *
+ * A datetime_interval represents a time (datetime) interval or period, i.e.
+ * 5 days, 12 hours and 49 seconds. We assume a continuous time scale, no leap
+ * seconds are taken into consideration --this is only an interval not an
+ * actual datetime instance--).
+ * A datetime_interval instance can only have positive (or zero) values (for
+ * both its members).
+ *
+ * A datetime_interval instance has two fundamental parts (members):
+ * - a day part (i.e. holding the days), and
+ * - a time part (i.e. holding any type S i.e. any second type)
+ *
+ * The purpose of this class is to work together with the datetime class.
+ *
+ * @tparam S Any class of 'second type', i.e. any class S that has a (static)
+ *           member variable S::is_of_sec_type set to true. This can be
+ *           dso::seconds, dso::milliseconds, dso::microseconds.
+ *
+ *
+ * @note  - Any instance of the class has two members, m_days an integer
+ *          representing the (MJ) days and m_secs, an instance of type S,
+ *          representing the fractional day part. However, the parts may be
+ *          mixed (!), that is if e.g. S is dso::seconds, the m_secs part may
+ *          actualy have any value, including ones larger than 86400. That is
+ *          to say that an instance can be constructed as:
+ *        \code{.cpp}
+ *          datetime_interval<seconds> d {modified_julian_day(1),
+ *          seconds(90000)};
+ *        \endcode
+ *          Should the user want the "normalization" of the instance (that is
+ *          remove whole days from the m_secs part and add them to the m_days
+ *          part), call the function datetime_interval::normalize().
+ */
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S>
 #else
@@ -54,25 +100,31 @@ template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
 class datetime_interval {
 public:
-  /// Null constructor (everything set to 0).
+  /** Default constructor (everything set to 0). */
   explicit constexpr datetime_interval() noexcept : m_days{0}, m_secs{0} {};
 
-  /// Constructor given a Modified Julian Day and *seconds (type S).
-  ///
-  /// param[in] d  Number of days; a dso::modified_julian_day instance.
-  /// param[in] s  Number of *seconds; an instance of type S
-  ///
-  /// @note  A datetime_interval can only have positive values for its member
-  ///        variables. However, it can happen that the constructor gets a
-  ///        negative value for the seconds part, if the resulting time_interval
-  ///        is positive after normalization. E.g. datetime_interval(2, -123)
-  ///        is a valid time_interval; the constructor will first call the
-  ///        normalize function, which will transform the negative seconds to
-  ///        positive and remove whole days.
-  explicit constexpr datetime_interval(modified_julian_day d, S s) noexcept
-      : m_days{d}, m_secs{s} {
-    this->normalize();
-#ifdef USE_DATETIME_CHECKS
+  /** Constructor given a Modified Julian Day and *seconds (type S).
+   * 
+   * A datetime interval can only be positive, it makes no sense to hold a
+   * "negative" time period (what could that mean)? Hence, 
+   *
+   * param[in] d  Number of days; a dso::modified_julian_day instance.
+   * param[in] s  Number of *seconds; an instance of type S
+   */
+  explicit constexpr datetime_interval(modified_julian_day d, S s) noexcept {
+    const core::RawDatetimeDifference<S> diff(d, s);
+    m_days(std::copysign(1, diff.mdays));
+    m_secs(diff.msecs);
+#ifdef DEBUG
+    assert(m_days.as_underlying_type() >= 0 &&
+           m_secs.as_underlying_type() >= 0);
+#endif
+  };
+
+  explicit constexpr datetime_interval(
+      const core::RawDatetimeDifference<S> &diff) noexcept
+      : m_days(std::copysign(1, diff.mdays)), m_secs(diff.msecs) {
+#ifdef DEBUG
     assert(m_days.as_underlying_type() >= 0 &&
            m_secs.as_underlying_type() >= 0);
 #endif
