@@ -6,13 +6,14 @@ typedef dso::nanoseconds::underlying_type SecIntType;
 constexpr const SecIntType MAXSDAY = dso::nanoseconds::max_in_day;
 constexpr const SecIntType FACTOR =
     dso::nanoseconds::template sec_factor<SecIntType>();
-}// unnamed namespace
+} // unnamed namespace
 
 dso::TwoPartDate dso::dtf2d(dso::year yr, dso::month mt, dso::day_of_month dm,
-                  dso::hours hr, dso::minutes mn, dso::nanoseconds _sec,
-                  dso::nanoseconds &leap) noexcept {
+                            dso::hours hr, dso::minutes mn,
+                            dso::nanoseconds _sec,
+                            dso::nanoseconds &leap) noexcept {
   dso::modified_julian_day big;
-  const double fday = dso::dtf2d(yr,mt,dm,hr,mn,_sec,big,leap);
+  const double fday = dso::dtf2d(yr, mt, dm, hr, mn, _sec, big, leap);
   return dso::TwoPartDate{(double)big.as_underlying_type(), fday}.normalized();
 }
 

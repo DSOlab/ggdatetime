@@ -7,14 +7,14 @@
 #ifndef __DSO_DATETIME_DTFUND_HPP__
 #define __DSO_DATETIME_DTFUND_HPP__
 
+#include "cdatetime.hpp"
+#include "dtconcepts.hpp"
 #include <cassert>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <limits>
 #include <stdexcept>
-#include "cdatetime.hpp"
-#include "dtconcepts.hpp"
 
 #ifdef DEBUG
 #include <cstdio>
@@ -101,9 +101,9 @@ inline constexpr bool is_leap(int iy) noexcept {
 }
 
 /** @brief Convert a pair of Year, Day of year to MJDay.
- * 
- * Convert a pair of year, day_of_year to a modified_julian_day. The input 
- * date is checked to see if it is valid (i.e. Day of year is a positive 
+ *
+ * Convert a pair of year, day_of_year to a modified_julian_day. The input
+ * date is checked to see if it is valid (i.e. Day of year is a positive
  * integer within the range [1, 365] or [1,366] if year is leap.
  *
  * @param[in] iyr Year
@@ -122,9 +122,9 @@ inline constexpr long ydoy2mjd(long iyr, long idoy) {
 
 /* @brief Julian Date to Julian Epoch
  *
- * Julian epoch uses the Julian year of exactly 365.25 days, and the TT time 
- * scale; Julian epoch 2000.0 is defined to be 2000 January 1.5, which is 
- * JD 2451545.0 or MJD 51544.5. The epoch is denoted by a prefix ‘J’, hence 
+ * Julian epoch uses the Julian year of exactly 365.25 days, and the TT time
+ * scale; Julian epoch 2000.0 is defined to be 2000 January 1.5, which is
+ * JD 2451545.0 or MJD 51544.5. The epoch is denoted by a prefix ‘J’, hence
  * “J2000.0”.
  *
  * Convert a Julian date to a Julian Epoch. The date is passed in a two-part
@@ -160,7 +160,7 @@ inline constexpr double mjd2epj(double mjd) noexcept {
  *
  * @param[in] epj The Julian Epoch to convert
  * @return The corresponding (fractional) Modified Julian Date
- * 
+ *
  * @see IAU SOFA epj2jd
  */
 inline constexpr double epj2mjd(double epj) noexcept {
@@ -169,12 +169,12 @@ inline constexpr double epj2mjd(double epj) noexcept {
 } /* namespace core */
 
 /** @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
- * 
+ *
  * The day of month is actually not needed, since all leap second insertions
  * happen at the begining, i.e. the first day of a month.
- * If the specified date is for a day which ends with a leap second, the 
- * UTC-TAI value returned is for the period leading up to the leap second. If 
- * the date is for a day which begins as a leap second ends, the UTC-TAI 
+ * If the specified date is for a day which ends with a leap second, the
+ * UTC-TAI value returned is for the period leading up to the leap second. If
+ * the date is for a day which begins as a leap second ends, the UTC-TAI
  * returned is for the period following the leap second.
  * This version works for post 01.01.1972 dates.
  * @note In case using MJD (and not calendar date) is more convinient, use the
@@ -188,16 +188,16 @@ inline constexpr double epj2mjd(double epj) noexcept {
  *
  * @param[in] iy The year
  * @param[in] im The month
- * @return TAI-UTC up to the datetime (\p iy, \p im, 23:59:59) 
+ * @return TAI-UTC up to the datetime (\p iy, \p im, 23:59:59)
  */
 int dat(year iy, month im) noexcept;
 
 /** @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
  *
- * Overload of dso::dat(dso::year, dso::month) for MJD. 
- * If the specified date is for a day which ends with a leap second, the 
- * UTC-TAI value returned is for the period leading up to the leap second. If 
- * the date is for a day which begins as a leap second ends, the UTC-TAI 
+ * Overload of dso::dat(dso::year, dso::month) for MJD.
+ * If the specified date is for a day which ends with a leap second, the
+ * UTC-TAI value returned is for the period leading up to the leap second. If
+ * the date is for a day which begins as a leap second ends, the UTC-TAI
  * returned is for the period following the leap second.
  * This version works for post 01.01.1972 dates.
  * @warning
@@ -214,10 +214,10 @@ int dat(modified_julian_day mjd) noexcept;
 
 /** @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
  *
- * Overload of dso::dat(dso::year, dso::month) for MJD. 
- * If the specified date is for a day which ends with a leap second, the 
- * UTC-TAI value returned is for the period leading up to the leap second. If 
- * the date is for a day which begins as a leap second ends, the UTC-TAI 
+ * Overload of dso::dat(dso::year, dso::month) for MJD.
+ * If the specified date is for a day which ends with a leap second, the
+ * UTC-TAI value returned is for the period leading up to the leap second. If
+ * the date is for a day which begins as a leap second ends, the UTC-TAI
  * returned is for the period following the leap second.
  * This version works for post 01.01.1972 dates.
  * @warning
@@ -228,9 +228,9 @@ int dat(modified_julian_day mjd) noexcept;
  * @see dso::dat
  *
  * @param[in] mjd The date as MJD
- * @param[out] If this date is a day which ends with a leap second, the number 
- *            of extra seconds to be added in the total amount of seconds in 
- *            day. For non-leap second days, this will be 0. If \mjd is indeed 
+ * @param[out] If this date is a day which ends with a leap second, the number
+ *            of extra seconds to be added in the total amount of seconds in
+ *            day. For non-leap second days, this will be 0. If \mjd is indeed
  *            a day which ends with a leap second, then it will be 1.
  * @return TAI-UTC up to the datetime (\p mjd, 23:59:59)
  */
@@ -265,19 +265,19 @@ public:
   typedef int underlying_type;
 
   /** Is fundamental datetime type */
-  static constexpr bool is_dt_fundamental_type=true;
+  static constexpr bool is_dt_fundamental_type = true;
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
-   * 
-   * @return reference to the instance's member variable (as 
+   *
+   * @return reference to the instance's member variable (as
    * year::underlying_type)
    */
   constexpr underlying_type __member_const_ref__() const noexcept {
     return m_year;
   }
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function.
    *
    * @return const reference to the instance's member variable (as
@@ -289,27 +289,27 @@ public:
    * Note that the constrcutor is NOT explicit to allow construction from
    * int (aka to allow lines of codes of type: year y = 1901;)
    */
-   constexpr year(underlying_type i = 1900) noexcept : m_year(i) {}
+  constexpr year(underlying_type i = 1900) noexcept : m_year(i) {}
 
   /** Overload operator '=' where the the right-hand-side is any integral type.
    *
-   * @tparam  I any integral type, aka any type with std::is_integral_v<I> is 
+   * @tparam  I any integral type, aka any type with std::is_integral_v<I> is
    *          true
    * @param  _intv Any integral value; set the instance's value equal to this
    */
 #if __cplusplus >= 202002L
-   template <typename I>
-     requires std::integral<I>
+  template <typename I>
+    requires std::integral<I>
 #else
-   template <typename I, typename = std::enable_if_t<std::is_integral_v<I>>>
+  template <typename I, typename = std::enable_if_t<std::is_integral_v<I>>>
 #endif
-   constexpr year &operator=(I _intv) noexcept {
+  constexpr year &operator=(I _intv) noexcept {
     __member_ref__() = static_cast<underlying_type>(_intv);
     return *this;
-   }
+  }
 
-   /** Get the year as year::underlying_type. */
-   constexpr underlying_type as_underlying_type() const noexcept {
+  /** Get the year as year::underlying_type. */
+  constexpr underlying_type as_underlying_type() const noexcept {
     return m_year;
   }
 
@@ -354,24 +354,24 @@ public:
   /** Is fundamental datetime type */
   static constexpr bool is_dt_fundamental_type{true};
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type __member_const_ref__() const noexcept {
     return m_month;
   }
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type &__member_ref__() noexcept { return m_month; }
 
   /** Constructor; default month is 1.
-   * 
+   *
    * This is an explicit constructor, we do not want users to be able to do
    * month m = 1;
    * @warning No check is performed by default for the input value \p i , so
-   *   you can practically assign month=123. If you want a validity check, use 
+   *   you can practically assign month=123. If you want a validity check, use
    *   the month::is_valid function (after construction).
    */
   explicit constexpr month(underlying_type i = 1) noexcept : m_month(i){};
@@ -383,20 +383,20 @@ public:
    * If a 3-char length string is passed in, we are going to compare using the
    * month::short_names array; else if the length of the input string is more
    * than 3-chars, the month::long_names array is used.
-   * The function is case-insensitive, i.e. "January", "JANUARY" and "JanUAry" 
+   * The function is case-insensitive, i.e. "January", "JANUARY" and "JanUAry"
    * are all considered the same.
    * If the input string cannot be matced to any of the strings in short_names
    * and long_names, then an exception is thrown of type: std::invalid_argument
    * Note that the month will be returned in the "normal" range [1,12],
    * **not** [0-11].
-   * 
+   *
    * @param[in] str The month's name; The string should match a month in the
    *    month::short_names or month::long_names array. The string should be
-   *    null-trerminated. 
+   *    null-trerminated.
    * @throw An std::invalid_argument exception is thrown if a) no
    *    match is found, or b) the input string is too short.
    */
-   explicit month(const char *str);
+  explicit month(const char *str);
 
   /** Get the month as month::underlying_type */
   constexpr underlying_type as_underlying_type() const noexcept {
@@ -404,21 +404,21 @@ public:
   }
 
   /** Return the corresponding short name (i.e. 3-char name) e.g. "Jan".
-   * 
-   * The function will first perform a validity check on the instance (i.e. 
-   * make sure the month is within [1,12]; if the instance is invalid, it will 
+   *
+   * The function will first perform a validity check on the instance (i.e.
+   * make sure the month is within [1,12]; if the instance is invalid, it will
    * throw.
    *
    * @return Returns a pointer to the class's (static member) short_names
    *         string array.
    */
-   const char *short_name() const;
+  const char *short_name() const;
 
   /** Return the corresponding long name (i.e. normal month name) e.g.
    * "January".
    *
-   * The function will first perform a validity check on the instance (i.e. 
-   * make sure the month is within [1,12]; if the instance is invalid, it will 
+   * The function will first perform a validity check on the instance (i.e.
+   * make sure the month is within [1,12]; if the instance is invalid, it will
    * throw.
    * @return Returns a pointer to the class's (static member) month::long_names
    *         string array.
@@ -473,14 +473,14 @@ public:
   /** Is fundamental datetime type */
   static constexpr bool is_dt_fundamental_type{true};
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type __member_const_ref__() const noexcept {
     return m_week;
   }
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type &__member_ref__() noexcept { return m_week; }
@@ -492,13 +492,13 @@ public:
   explicit constexpr gps_week(underlying_type i = 1) noexcept : m_week(i){};
 
 /** Overload operator '=' where the the right-hand-side is any integral type.
- * @tparam I any integral type, aka any type for which std::is_integral_v<I> 
+ * @tparam I any integral type, aka any type for which std::is_integral_v<I>
  *         is true
  * @param  _intv Any integral value; set the instance's value equal to this
  */
 #if __cplusplus >= 202002L
   template <typename I>
-  requires std::integral<I>
+    requires std::integral<I>
 #else
   template <typename I, typename = std::enable_if_t<std::is_integral_v<I>>>
 #endif
@@ -543,23 +543,23 @@ public:
   /** Is fundamental datetime type */
   static constexpr bool is_dt_fundamental_type{true};
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type __member_const_ref__() const noexcept {
     return m_dom;
   }
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type &__member_ref__() noexcept { return m_dom; }
 
-  /** Constructor; default day of month is 1. 
-   * Note that no validation is performed when constructing an instance on the 
-   * input parameter \p i. I.e. it could be a negative integer. To perform an 
-   * actual validation test, the month and year are needed. Given this 
-   * information, one can use the is_valid method to test if the day of month 
+  /** Constructor; default day of month is 1.
+   * Note that no validation is performed when constructing an instance on the
+   * input parameter \p i. I.e. it could be a negative integer. To perform an
+   * actual validation test, the month and year are needed. Given this
+   * information, one can use the is_valid method to test if the day of month
    * is valid.
    */
   explicit constexpr day_of_month(underlying_type i = 1) noexcept : m_dom(i){};
@@ -586,9 +586,9 @@ public:
   }
 
   /** @brief Check if a given instance is valid.
-   * 
-   * Validate a given day_of_month. To do this, we obviously need the month 
-   * the instance refers to (to see how many days the month actualy has) and 
+   *
+   * Validate a given day_of_month. To do this, we obviously need the month
+   * the instance refers to (to see how many days the month actualy has) and
    * the year, to check if it is leap or not.
    *
    * @param[in] y  The year the dom referes to (will check for leap)
@@ -625,20 +625,20 @@ public:
   /** Is fundamental datetime type */
   static constexpr bool is_dt_fundamental_type{true};
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type __member_const_ref__() const noexcept {
     return m_doy;
   }
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type &__member_ref__() noexcept { return m_doy; }
 
-  /** Constructor; default day of year is 0. 
-   * No validation test is performed on the input parameter. If you want to 
+  /** Constructor; default day of year is 0.
+   * No validation test is performed on the input parameter. If you want to
    * check for an invalid day of year, then use the is_valid method (after
    * instance construction).
    * */
@@ -651,7 +651,7 @@ public:
  */
 #if __cplusplus >= 202002L
   template <typename Int>
-  requires std::integral<Int>
+    requires std::integral<Int>
 #else
   template <typename Int, typename = std::enable_if_t<std::is_integral_v<Int>>>
 #endif
@@ -702,8 +702,8 @@ struct ymd_date {
     return __dom.is_valid(__year, __month);
   }
 
-  /** @brief Transform to year and day-of-year 
-   * Note that no validation checks are performed on the instance. If needed, 
+  /** @brief Transform to year and day-of-year
+   * Note that no validation checks are performed on the instance. If needed,
    * (e.g. before the conversion), use the is_valid method on the instance.
    */
   constexpr ydoy_date to_ydoy() const noexcept;
@@ -711,12 +711,12 @@ struct ymd_date {
   year __year;        /** the year */
   month __month;      /** the month */
   day_of_month __dom; /** day of month */
-}; /* ymd_date */
+};                    /* ymd_date */
 
 namespace core {
-/** @brief Modified Julian Day to calendar date 
- * 
- * Note that the \p mjd parameter, should represent an integral day, i.e. no 
+/** @brief Modified Julian Day to calendar date
+ *
+ * Note that the \p mjd parameter, should represent an integral day, i.e. no
  * fractional part (of day) is considered.
  *
  * @param[in] mjd The MJDay
@@ -770,16 +770,16 @@ public:
   typedef long underlying_type;
 
   /** Is fundamental datetime type */
-  static constexpr bool is_dt_fundamental_type=true;
+  static constexpr bool is_dt_fundamental_type = true;
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type __member_const_ref__() const noexcept {
     return m_mjd;
   }
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type &__member_ref__() noexcept { return m_mjd; }
@@ -802,12 +802,12 @@ public:
 
   /** @brief Constructor from Year and DayOfYear.
    *
-   * The passed in date (year and doy) are tested to see if they represent a 
+   * The passed in date (year and doy) are tested to see if they represent a
    * valid date. If not, the constructor will throw!
-   * 
+   *
    * @param[in] iy The year.
    * @param[in] id The day of year.
-   * 
+   *
    * @see "Remondi Date/Time Algorithms",
    * http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
    */
@@ -816,9 +816,9 @@ public:
             core::ydoy2mjd(iy.as_underlying_type(), id.as_underlying_type())){};
 
   /** @brief Constructor from  calendar date
-   * The passed in date is tested to see if they represent a valid date. If 
+   * The passed in date is tested to see if they represent a valid date. If
    * not, the constructor will throw!
-   * 
+   *
    * @param[in] y The year.
    * @param[in] m The month.
    * @param[in] d The day of month
@@ -831,7 +831,7 @@ public:
                             d.as_underlying_type())){};
 
   /** Overload operator '=' where the the right-hand-side is any integral type.
-   * @tparam I any integral type, aka any type for which std::is_integral_v<I> 
+   * @tparam I any integral type, aka any type for which std::is_integral_v<I>
    *         is true
    * @param  _intv Any integral value; set the instance's value equal to this
    */
@@ -861,25 +861,25 @@ public:
   }
 
   /** @brief Convert a Modified Julian Day to Year and Day of year.
-   * 
+   *
    * @return A ydoy_date instance
-   * 
+   *
    * @warning No check if performed to see if the resulting day of year is
    *          valid! If you want to be sure, check the returned value(s).
-   * 
-   * @see "Remondi Date/Time Algorithms", 
+   *
+   * @see "Remondi Date/Time Algorithms",
    * http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
    */
-   ydoy_date to_ydoy() const noexcept;
+  ydoy_date to_ydoy() const noexcept;
 
   /** @brief Convert a Modified Julian Day to Calendar Date.
-   * 
+   *
    * @return A ymd_date instance
-   * 
+   *
    * @warning No check if performed to see if the resulting month and day of
    *          month is valid! If you want to be sure, check the returned
    *          value(s).
-   * 
+   *
    * @see "Remondi Date/Time Algorithms",
    *      http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
    */
@@ -917,7 +917,7 @@ struct ydoy_date {
 
   year __year;       /** the year */
   day_of_year __doy; /** day of year */
-}; /* ydoy_date */
+};                   /* ydoy_date */
 
 /** @brief A wrapper class for hours.
  *
@@ -944,16 +944,16 @@ public:
   typedef int underlying_type;
 
   /** Is fundamental datetime typea */
-  static constexpr bool is_dt_fundamental_type=true;
+  static constexpr bool is_dt_fundamental_type = true;
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type __member_const_ref__() const noexcept {
     return m_hours;
   }
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type &__member_ref__() noexcept { return m_hours; }
@@ -968,7 +968,7 @@ public:
  */
 #if __cplusplus >= 202002L
   template <typename Int>
-  requires std::integral<Int>
+    requires std::integral<Int>
 #else
   template <typename Int, typename = std::enable_if_t<std::is_integral_v<Int>>>
 #endif
@@ -1016,14 +1016,14 @@ public:
   /** Is fundamental datetime type */
   static constexpr bool is_dt_fundamental_type{true};
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type __member_const_ref__() const noexcept {
     return m_min;
   }
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type &__member_ref__() noexcept { return m_min; }
@@ -1038,7 +1038,7 @@ public:
  */
 #if __cplusplus >= 202002L
   template <typename Int>
-  requires std::integral<Int>
+    requires std::integral<Int>
 #else
   template <typename Int, typename = std::enable_if_t<std::is_integral_v<Int>>>
 #endif
@@ -1091,28 +1091,28 @@ public:
   typedef int_fast64_t underlying_type;
 
   /** Is fundamental datetime type */
-  static constexpr bool is_dt_fundamental_type=true;
+  static constexpr bool is_dt_fundamental_type = true;
 
   /** literal (string) description */
   static const char *unit_literal() noexcept { return "sec"; }
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type __member_const_ref__() const noexcept {
     return m_sec;
   }
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type &__member_ref__() noexcept { return m_sec; }
 
   /** Seconds is a subdivision of seconds. */
-  static constexpr bool is_of_sec_type=true;
+  static constexpr bool is_of_sec_type = true;
 
   /** Seconds in day. */
-  static constexpr underlying_type max_in_day=86400;
+  static constexpr underlying_type max_in_day = 86400;
 
   /** The scale factor to transform from seconds to seconds. */
   template <typename T> static constexpr T sec_factor() noexcept {
@@ -1135,7 +1135,7 @@ public:
  */
 #if __cplusplus >= 202002L
   template <typename Int>
-  requires std::integral<Int>
+    requires std::integral<Int>
 #else
   template <typename Int, typename = std::enable_if_t<std::is_integral_v<Int>>>
 #endif
@@ -1149,58 +1149,60 @@ public:
     return m_sec;
   }
 
-/*
-  /// @brief Normalize seconds and return the integeral days.
-  ///
-  /// If the seconds sum up to more (or equal to) one day, remove the integer
-  /// days and return them as integer; reset the seconds to seconds of the
-  /// new day.
-  ///
-  /// @return The integer number of days (if the seconds are more than a day).
-  /// @throw  Does not throw.
-  ///
-  constexpr int remove_days() noexcept {
-    underlying_type days = m_sec / max_in_day;
-    m_sec = m_sec % max_in_day;
-    return static_cast<int>(days);
-  }
+  /*
+    /// @brief Normalize seconds and return the integeral days.
+    ///
+    /// If the seconds sum up to more (or equal to) one day, remove the integer
+    /// days and return them as integer; reset the seconds to seconds of the
+    /// new day.
+    ///
+    /// @return The integer number of days (if the seconds are more than a day).
+    /// @throw  Does not throw.
+    ///
+    constexpr int remove_days() noexcept {
+      underlying_type days = m_sec / max_in_day;
+      m_sec = m_sec % max_in_day;
+      return static_cast<int>(days);
+    }
 
-  /// @brief Cast to days.
-  ///
-  /// If the seconds sum up to more (or equal to) one day, return the
-  /// (integral) number of days.
-  ///
-  /// @return The integer number of days (if the seconds are more than a day).
-  /// @throw  Does not throw.
-  ///
-  /// @warning Negative seconds are not handled.
-  ///
-  constexpr int to_days() const noexcept {
-    return static_cast<int>(m_sec / max_in_day);
-  }
+    /// @brief Cast to days.
+    ///
+    /// If the seconds sum up to more (or equal to) one day, return the
+    /// (integral) number of days.
+    ///
+    /// @return The integer number of days (if the seconds are more than a day).
+    /// @throw  Does not throw.
+    ///
+    /// @warning Negative seconds are not handled.
+    ///
+    constexpr int to_days() const noexcept {
+      return static_cast<int>(m_sec / max_in_day);
+    }
 
-  /// @brief Seconds as fractional days.
-  /// Interpret (cast) the seconds as fractional days; returns a double.
-  constexpr double fractional_days() const noexcept {
-    return static_cast<double>(m_sec) / static_cast<double>(max_in_day);
-  }
-*/
+    /// @brief Seconds as fractional days.
+    /// Interpret (cast) the seconds as fractional days; returns a double.
+    constexpr double fractional_days() const noexcept {
+      return static_cast<double>(m_sec) / static_cast<double>(max_in_day);
+    }
+  */
 
   /** Cast to double (i.e. fractional seconds). */
   constexpr double to_fractional_seconds() const noexcept {
     return this->cast_to<double>();
   }
-  
+
 private:
 /** Cast to any arithmetic type. */
 #if __cplusplus >= 202002L
   template <typename T>
-  requires gconcepts::arithmetic<T>
+    requires gconcepts::arithmetic<T>
 #else
   template <typename T,
             typename = std::enable_if_t<std::is_arithmetic<T>::value>>
 #endif
-  constexpr T cast_to() const noexcept { return static_cast<T>(m_sec); }
+  constexpr T cast_to() const noexcept {
+    return static_cast<T>(m_sec);
+  }
 
   /** The seconds as underlying type. */
   underlying_type m_sec;
@@ -1238,33 +1240,33 @@ public:
   typedef int_fast64_t underlying_type;
 
   /** Is fundamental datetime type */
-  static constexpr bool is_dt_fundamental_type=true;
+  static constexpr bool is_dt_fundamental_type = true;
 
   /** string literal */
   static const char *unit_literal() noexcept { return "millisec"; }
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type __member_const_ref__() const noexcept {
     return m_sec;
   }
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type &__member_ref__() noexcept { return m_sec; }
 
   /** MilliSeconds are a subdivision of seconds. */
-  static constexpr bool is_of_sec_type=true;
+  static constexpr bool is_of_sec_type = true;
 
   /** The scale factor to transform from seconds to milliseconds. */
   template <typename T> static constexpr T sec_factor() noexcept {
     return static_cast<T>(1000);
   }
-  
+
   /** Max milliseconds in one day. */
-  static constexpr underlying_type max_in_day=86400L * 1000L;
+  static constexpr underlying_type max_in_day = 86400L * 1000L;
   static_assert(max_in_day < std::numeric_limits<underlying_type>::max());
 
   /** Constructor; default milliseconds is 0. */
@@ -1275,7 +1277,7 @@ public:
       : m_sec(c.as_underlying_type() +
               (static_cast<underlying_type>(m.as_underlying_type()) +
                static_cast<underlying_type>(h.as_underlying_type()) * 60L) *
-                  sec_factor<underlying_type>() * 60L) {};
+                  sec_factor<underlying_type>() * 60L){};
 
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
@@ -1284,7 +1286,7 @@ public:
  */
 #if __cplusplus >= 202002L
   template <typename Int>
-  requires std::integral<Int>
+    requires std::integral<Int>
 #else
   template <typename Int, typename = std::enable_if_t<std::is_integral_v<Int>>>
 #endif
@@ -1307,7 +1309,7 @@ public:
   constexpr double to_fractional_seconds() const noexcept {
     return static_cast<double>(m_sec) / sec_factor<double>();
   }
-  
+
   /** Cast to fractional hours */
   constexpr double to_fractional_hours() const noexcept {
     constexpr const underlying_type secinh =
@@ -1319,12 +1321,14 @@ private:
 /** Cast to any arithmetic type. */
 #if __cplusplus >= 202002L
   template <typename T>
-  requires gconcepts::arithmetic<T>
+    requires gconcepts::arithmetic<T>
 #else
   template <typename T,
             typename = std::enable_if_t<std::is_arithmetic<T>::value>>
 #endif
-  constexpr T cast_to() const noexcept { return static_cast<T>(m_sec); }
+  constexpr T cast_to() const noexcept {
+    return static_cast<T>(m_sec);
+  }
 
   /** Milliseconds as underlying type. */
   underlying_type m_sec;
@@ -1366,25 +1370,25 @@ public:
   typedef int_fast64_t underlying_type;
 
   /** Is fundamental datetime type */
-  static constexpr bool is_dt_fundamental_type=true;
+  static constexpr bool is_dt_fundamental_type = true;
 
   /** string literal */
   static const char *unit_literal() noexcept { return "microsec"; }
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type __member_const_ref__() const noexcept {
     return m_sec;
   }
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type &__member_ref__() noexcept { return m_sec; }
 
   /** Microseconds is a subdivision of seconds. */
-  static constexpr bool is_of_sec_type=true;
+  static constexpr bool is_of_sec_type = true;
 
   /** Max microseconds in day. */
   static constexpr underlying_type max_in_day{86'400L * 1'000'000L};
@@ -1403,7 +1407,7 @@ public:
       : m_sec(c.as_underlying_type() +
               (static_cast<underlying_type>(m.as_underlying_type()) +
                static_cast<underlying_type>(h.as_underlying_type()) * 60L) *
-                  sec_factor<underlying_type>() * 60L) {};
+                  sec_factor<underlying_type>() * 60L){};
 
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
@@ -1412,7 +1416,7 @@ public:
  */
 #if __cplusplus >= 202002L
   template <typename Int>
-  requires std::integral<Int>
+    requires std::integral<Int>
 #else
   template <typename Int, typename = std::enable_if_t<std::is_integral_v<Int>>>
 #endif
@@ -1430,18 +1434,19 @@ public:
   constexpr double to_fractional_seconds() const noexcept {
     return static_cast<double>(m_sec) / sec_factor<double>();
   }
-  
 
 private:
 /** Cast to any arithmetic type. */
 #if __cplusplus >= 202002L
   template <typename T>
-  requires gconcepts::arithmetic<T>
+    requires gconcepts::arithmetic<T>
 #else
   template <typename T,
             typename = std::enable_if_t<std::is_arithmetic<T>::value>>
 #endif
-  constexpr T cast_to() const noexcept { return static_cast<T>(m_sec); }
+  constexpr T cast_to() const noexcept {
+    return static_cast<T>(m_sec);
+  }
 
   /** Microseconds as long ints. */
   underlying_type m_sec;
@@ -1484,25 +1489,25 @@ public:
   typedef int_fast64_t underlying_type;
 
   /** Is fundamental datetime type */
-  static constexpr bool is_dt_fundamental_type=true;
+  static constexpr bool is_dt_fundamental_type = true;
 
   /** string literal */
   static const char *unit_literal() noexcept { return "nanosec"; }
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type __member_const_ref__() const noexcept {
     return m_sec;
   }
 
-  /** If fundamental type, the class should have an 
+  /** If fundamental type, the class should have an
    * "expose the only member var" function
    */
   constexpr underlying_type &__member_ref__() noexcept { return m_sec; }
 
   /** Microseconds is a subdivision of seconds. */
-  static constexpr bool is_of_sec_type=true;
+  static constexpr bool is_of_sec_type = true;
 
   /** Max nanoseconds in day. */
   static constexpr underlying_type max_in_day{86'400L * 1'000'000'000L};
@@ -1521,7 +1526,7 @@ public:
       : m_sec(c.as_underlying_type() +
               (static_cast<underlying_type>(m.as_underlying_type()) +
                static_cast<underlying_type>(h.as_underlying_type()) * 60L) *
-                  sec_factor<underlying_type>() * 60L) {};
+                  sec_factor<underlying_type>() * 60L){};
 
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
@@ -1530,7 +1535,7 @@ public:
  */
 #if __cplusplus >= 202002L
   template <typename Int>
-  requires std::integral<Int>
+    requires std::integral<Int>
 #else
   template <typename Int, typename = std::enable_if_t<std::is_integral_v<Int>>>
 #endif
@@ -1560,12 +1565,14 @@ private:
 /** Cast to any arithmetic type. */
 #if __cplusplus >= 202002L
   template <typename T>
-  requires gconcepts::arithmetic<T>
+    requires gconcepts::arithmetic<T>
 #else
   template <typename T,
             typename = std::enable_if_t<std::is_arithmetic<T>::value>>
 #endif
-  constexpr T cast_to() const noexcept { return static_cast<T>(m_sec); }
+  constexpr T cast_to() const noexcept {
+    return static_cast<T>(m_sec);
+  }
 
   /** Nanoseconds as long ints. */
   underlying_type m_sec;
@@ -1710,7 +1717,7 @@ constexpr bool operator<=(DType a, DType b) noexcept {
  * 2. has a member function named DType::__member_const_ref__()
  * 3. right operand is any Integral type
  * This function will allow e.g.
- * modified_julian_day mjd_sum = 
+ * modified_julian_day mjd_sum =
  *  modified_julian_day(123) + modified_julian_day(1);
  * Now sum's MJD will be 124
  */

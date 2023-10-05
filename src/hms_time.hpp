@@ -4,7 +4,7 @@
 #include "dtfund.hpp"
 
 namespace dso {
-/** A struct to hold time as hours (of day), minutes (of hour) and *seconds of 
+/** A struct to hold time as hours (of day), minutes (of hour) and *seconds of
  * minute.
  */
 #if __cplusplus >= 202002L
@@ -34,7 +34,7 @@ struct hms_time {
     _hours = hr;
     SecIntType remaining = isecs - _hours * secInHour;
 #ifdef DEBUG
-    assert(remaining<secInHour);
+    assert(remaining < secInHour);
 #endif
     /* seconds in minute */
     const SecIntType secInMin = 60L * S::template sec_factor<SecIntType>();
@@ -43,7 +43,7 @@ struct hms_time {
     _minutes = mn;
     remaining = remaining - _minutes * secInMin;
 #ifdef DEBUG
-    assert(remaining<secInMin);
+    assert(remaining < secInMin);
 #endif
     /* remaining S seconds */
     _sec = remaining;
@@ -55,6 +55,6 @@ struct hms_time {
   }
 }; /* hms_time */
 
-}/* namespace dso */
+} /* namespace dso */
 
 #endif

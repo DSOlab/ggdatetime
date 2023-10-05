@@ -7,8 +7,8 @@ namespace dso {
 
 /** A simple wrapper class to hold time as hours, minutes, seconds
  *  and fractional seconds.
- *  
- *  The actual seconds (omitting whole minutes and hours) is: 
+ *
+ *  The actual seconds (omitting whole minutes and hours) is:
  *  (double)_seconds + _fraction
  */
 struct t_hmsf {
@@ -60,6 +60,6 @@ struct t_hmsf {
   }
 }; /* t_hmsf */
 
-}/* dso */
+} // namespace dso
 
 #endif

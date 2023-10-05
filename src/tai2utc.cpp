@@ -6,7 +6,7 @@ typedef dso::nanoseconds::underlying_type SecIntType;
 constexpr const SecIntType MAXSDAY = dso::nanoseconds::max_in_day;
 constexpr const SecIntType FACTOR =
     dso::nanoseconds::template sec_factor<SecIntType>();
-}// unnamed namespace
+} // unnamed namespace
 /*
 dso::TwoPartDate dso::tai2utc(const dso::TwoPartDate &dtai) noexcept {
   // do it the SOFA way ...

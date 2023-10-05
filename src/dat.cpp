@@ -1,14 +1,14 @@
 #include "dtfund.hpp"
-#include <cassert>
-#include <array>
 #include <algorithm>
+#include <array>
+#include <cassert>
 
 namespace calendar_dat {
 /** Dates and Delta(AT)s */
 struct change {
   int iyear, month, delat;
   /** Combine year and month to form a date-ordered integer */
-  int ordered_int() const noexcept {return 12 * iyear + month;}
+  int ordered_int() const noexcept { return 12 * iyear + month; }
 };
 constexpr const std::array<change, 28> changes = {
     {{1972, 1, 10}, {1972, 7, 11}, {1973, 1, 12}, {1974, 1, 13}, {1975, 1, 14},
@@ -38,7 +38,7 @@ int dso::dat(dso::year iy, dso::month im) noexcept {
 
   /* Combine year and month to form a date-ordered integer... */
   int m = 12 * iy.as_underlying_type() + im.as_underlying_type();
-  
+
   /* ...and use it to find the preceding table entry. */
   auto it = std::find_if(
       calendar_dat::changes.rbegin(), calendar_dat::changes.rend(),
@@ -59,9 +59,8 @@ int dso::dat(dso::modified_julian_day mjd) noexcept {
                          });
 
   /* Get the Delta(AT). */
-  return it == (mjd_dat::changes.rend())
-             ? (mjd_dat::changes.begin()->delat)
-             : (it->delat);
+  return it == (mjd_dat::changes.rend()) ? (mjd_dat::changes.begin()->delat)
+                                         : (it->delat);
 }
 
 int dso::dat(dso::modified_julian_day mjd, int &extra_sec_in_day) noexcept {
@@ -75,7 +74,7 @@ int dso::dat(dso::modified_julian_day mjd, int &extra_sec_in_day) noexcept {
 
   /* check to see if given MJD is a leap-second day (i.e. has more seconds */
   if (it != mjd_dat::changes.rend()) {
-    if (mjd == dso::modified_julian_day((it)->mjd-1)) {
+    if (mjd == dso::modified_julian_day((it)->mjd - 1)) {
       int prev_leaps =
           ((it + 1) == mjd_dat::changes.rend()) ? (0) : ((it + 1)->delat);
       extra_sec_in_day = it->delat - prev_leaps;
@@ -83,7 +82,6 @@ int dso::dat(dso::modified_julian_day mjd, int &extra_sec_in_day) noexcept {
   }
 
   /* Get the Delta(AT). */
-  return it == (mjd_dat::changes.rend())
-             ? (mjd_dat::changes.begin()->delat)
-             : (it->delat);
+  return it == (mjd_dat::changes.rend()) ? (mjd_dat::changes.begin()->delat)
+                                         : (it->delat);
 }

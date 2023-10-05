@@ -37,6 +37,6 @@ constexpr const double MJD0_JD = 2400000.5e0;
 /** TT minus TAI in seconds. */
 constexpr const double TT_MINUS_TAI = 32.184e0;
 
-}/* namespace dso */
+} /* namespace dso */
 
 #endif

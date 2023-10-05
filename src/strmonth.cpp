@@ -9,7 +9,7 @@
 
 dso::month::month(const char *str) : m_month(0) {
   if (std::strlen(str) == 3) {
-    for (int i=0; i<12; i++) {
+    for (int i = 0; i < 12; i++) {
       if (!strcasecmp(str, short_names[i])) {
         m_month = i + 1;
         break;

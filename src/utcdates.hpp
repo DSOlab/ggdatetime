@@ -9,9 +9,9 @@ namespace dso {
 double dtf2d(dso::year yr, dso::month mt, dso::day_of_month dm, dso::hours hr,
              dso::minutes mn, dso::nanoseconds _sec,
              dso::modified_julian_day &mjd, dso::nanoseconds &leap) noexcept;
-TwoPartDate dtf2d(dso::year yr, dso::month mt, dso::day_of_month dm, dso::hours hr,
-             dso::minutes mn, dso::nanoseconds _sec,
-             dso::nanoseconds &leap) noexcept;
+TwoPartDate dtf2d(dso::year yr, dso::month mt, dso::day_of_month dm,
+                  dso::hours hr, dso::minutes mn, dso::nanoseconds _sec,
+                  dso::nanoseconds &leap) noexcept;
 
 /// Resolve a UTC date to an MJD and a `fractional day` part, so that the
 /// date is mjd + returned value
@@ -22,7 +22,7 @@ TwoPartDate dtf2d(dso::year yr, dso::month mt, dso::day_of_month dm, dso::hours 
 /// @param[in] mn The input minute of hour (UTC)
 /// @param[in] _sec Seconds in day, added to hr and mn (UTC); that is, time
 ///            can be represented by giving hours, minutes of hour and seconds
-///            of minute, or just seconds of day (with hr = mn = 0) or any 
+///            of minute, or just seconds of day (with hr = mn = 0) or any
 ///            combination of the two.
 /// @param[out] mjd  The MJD corresponding to the input UTC (calendar) date
 /// @param[out] leap The current (aka at input date) leap seconds
@@ -36,18 +36,18 @@ double dtf2d(dso::year yr, dso::month mt, dso::day_of_month dm, dso::hours hr,
              dso::minutes mn, S _sec, dso::modified_julian_day &mjd,
              S &leap) noexcept {
   // Cast S-type to nanoseconds
-  dso::nanoseconds n_sec = cast_to<S,dso::nanoseconds>(_sec);
+  dso::nanoseconds n_sec = cast_to<S, dso::nanoseconds>(_sec);
   dso::nanoseconds nleap;
   // call the function (with S=nanoseconds)
   const double fday = dtf2d(yr, mt, dm, hr, mn, n_sec, mjd, nleap);
   // Cast leap seconds from nanoseconds to type S
-  leap = cast_to<dso::nanoseconds,S>(nleap);
+  leap = cast_to<dso::nanoseconds, S>(nleap);
   // return fractional days
   return fday;
 }
 
 double tai2utc(const dso::datetime<dso::nanoseconds> &tai,
-                    dso::modified_julian_day &mjd) noexcept;
+               dso::modified_julian_day &mjd) noexcept;
 // TwoPartDate tai2utc(const TwoPartDate &tai) noexcept;
 
 /// Transform a datetime given in TAI time-scale to a corresponding UTC date.
@@ -71,11 +71,9 @@ double tai2utc(const dso::datetime<S> &tai,
 double utc2tai(const dso::modified_julian_day utc_mjd, double utc_fday,
                dso::modified_julian_day &tai_mjd) noexcept;
 
-double utc_strptime_ymd_hms(const char *str,
-                                 dso::modified_julian_day &utc_mjd,
-                                 const char **stop = nullptr);
-TwoPartDate utc_strptime_ymd_hms(const char *str,
-                                 const char **stop = nullptr);
+double utc_strptime_ymd_hms(const char *str, dso::modified_julian_day &utc_mjd,
+                            const char **stop = nullptr);
+TwoPartDate utc_strptime_ymd_hms(const char *str, const char **stop = nullptr);
 
 } // namespace dso
 #endif

@@ -1,8 +1,8 @@
 #include "dtcalendar.hpp"
 #include "dtfund.hpp"
 #include "utcdates.hpp"
-#include <cstring>
 #include <charconv>
+#include <cstring>
 
 namespace {
 
@@ -15,11 +15,12 @@ constexpr const SecIntType FACTOR =
 // ' ', '/', '-', ':', 'T'
 inline const char *skipni(const char *line) noexcept {
   const char *c = line;
-  while (*c && (*c == ' ' || *c=='/' || *c=='-' || *c==':' || *c=='T')) ++c;
+  while (*c && (*c == ' ' || *c == '/' || *c == '-' || *c == ':' || *c == 'T'))
+    ++c;
   return c;
 }
 
-}// unnamed namespace
+} // unnamed namespace
 
 double dso::utc_strptime_ymd_hms(const char *str,
                                  dso::modified_julian_day &utc_mjd,
@@ -31,13 +32,15 @@ double dso::utc_strptime_ymd_hms(const char *str,
   int error = 0;
 
   for (int i = 0; (i < 5) && (!error); ++i) {
-    auto cerr = std::from_chars(skipni(start), str+sz, ints[i]);
-    if (cerr.ec != std::errc{}) ++error;
+    auto cerr = std::from_chars(skipni(start), str + sz, ints[i]);
+    if (cerr.ec != std::errc{})
+      ++error;
     start = cerr.ptr;
   }
 
-  auto cerr = std::from_chars(skipni(start), str+sz, secs);
-  if (cerr.ec != std::errc{}) ++error;
+  auto cerr = std::from_chars(skipni(start), str + sz, secs);
+  if (cerr.ec != std::errc{})
+    ++error;
 
   if (stop)
     *stop = cerr.ptr;

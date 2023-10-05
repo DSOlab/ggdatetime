@@ -9,10 +9,10 @@
 #include "dtcalendar.hpp"
 #include "dtfund.hpp"
 #include <cctype> // for std::isalpha
+#include <charconv>
 #include <cstdlib>
 #include <cstring>
 #include <stdexcept>
-#include <charconv>
 #ifdef DEBUG
 #include <iostream>
 #endif
@@ -20,14 +20,13 @@
 namespace dso {
 
 namespace utils {
-  inline const char *skipws(const char *line) noexcept {
-    const char *c = line;
-    while (*c &&
-           (*c == ' ' || *c == '/' || *c == '-' || *c == 'T' || *c == ':'))
-      ++c;
-    return c;
-  }
+inline const char *skipws(const char *line) noexcept {
+  const char *c = line;
+  while (*c && (*c == ' ' || *c == '/' || *c == '-' || *c == 'T' || *c == ':'))
+    ++c;
+  return c;
 }
+} // namespace utils
 
 /// @brief Read from YYYY-MM-DD
 ///
@@ -111,14 +110,15 @@ datetime<T> strptime_ymd_hms(const char *str, const char **stop = nullptr) {
   int sz = std::strlen(str);
 
   for (int i = 0; i < 5; ++i) {
-    auto tres = std::from_chars(utils::skipws(start), str+sz, ints[i]);
+    auto tres = std::from_chars(utils::skipws(start), str + sz, ints[i]);
     if (tres.ec != std::errc{}) {
       throw std::invalid_argument("Invalid date format: \"" + std::string(str) +
-      "\" (argument #" + std::to_string(i + 1) + ").");
-    } 
+                                  "\" (argument #" + std::to_string(i + 1) +
+                                  ").");
+    }
     start = tres.ptr;
   }
-  auto tres = std::from_chars(utils::skipws(start), str+sz, secs);
+  auto tres = std::from_chars(utils::skipws(start), str + sz, secs);
   if (tres.ec != std::errc{}) {
     throw std::invalid_argument("Invalid date format: \"" + std::string(str) +
                                 "\" (argument #6)");

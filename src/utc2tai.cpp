@@ -12,7 +12,7 @@ constexpr const SecIntType MAXSDAY = dso::nanoseconds::max_in_day;
 ///< nanoseconds to seconds (int type)
 constexpr const SecIntType FACTOR =
     dso::nanoseconds::template sec_factor<SecIntType>();
-}// unnamed namespace
+} // unnamed namespace
 
 double dso::utc2tai(const dso::modified_julian_day utc_mjd, double utc_fday,
                     dso::modified_julian_day &tai_mjd) noexcept {
@@ -37,9 +37,9 @@ double dso::utc2tai(const dso::modified_julian_day utc_mjd, double utc_fday,
   double fday_more =
       static_cast<double>(leap_m0) / static_cast<double>(MAXSDAY);
 
-  tai_fday = std::modf(tai_fday+fday_more, &ipart);  
+  tai_fday = std::modf(tai_fday + fday_more, &ipart);
 
-  tai_mjd = modified_julian_day(itai_mjd+ipart);
+  tai_mjd = modified_julian_day(itai_mjd + ipart);
   return tai_fday;
 }
 
@@ -47,7 +47,7 @@ double dso::utc2tai(const dso::modified_julian_day utc_mjd, double utc_fday,
 dso::TwoPartDate dso::utc2tai(const dso::TwoPartDate &dutc) noexcept {
   // normalize so that the big part is MJD & small is fraction of day
   auto utc = dutc.normalized();
-  
+
   // Get TAI-UTC at 0h today and extra seconds in day (if any)
   int extra;
   const int leap =
