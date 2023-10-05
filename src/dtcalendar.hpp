@@ -1,31 +1,17 @@
-/// @file  dtcalendar.hpp
-/// @brief A fundamental, template datetime class.
-/// This file contains the definition (and implementation) of a datetime class
-/// to be used for GNSS applications.
+/** @file
+ * @brief A fundamental, template datetime class.
+ * This file contains the definition (and implementation) of a datetime class
+ * to be used for Space Geodesy applications.
+ */
 
 #ifndef __DTCALENDAR_NGPT__HPP__
 #define __DTCALENDAR_NGPT__HPP__
 
 #include "dtfund.hpp"
 #include <cassert>
-// TODO these are used for std::string/iostream manipulation; remove
-#include <iomanip> // std::setprecision
-#include <iostream>
-#include <sstream> // std::ostringstream
 #include <stdexcept>
 
 namespace dso {
-
-constexpr modified_julian_day cal2mjd(year y, month m, day_of_month d) {
-  long mjd = cal2mjd(y.as_underlying_type(), m.as_underlying_type(),
-                     d.as_underlying_type());
-  return modified_julian_day{mjd};
-}
-
-constexpr modified_julian_day ydoy2mjd(year y, day_of_year d) {
-  auto mjd = ydoy2mjd(y.as_underlying_type(), d.as_underlying_type());
-  return modified_julian_day{mjd};
-}
 
 /// @brief A generic, templatized class to hold a datetime period/interval.
 ///
@@ -260,11 +246,11 @@ public:
   }
 
   /// Default (zero) constructor.
-  explicit constexpr datetime() noexcept : m_mjd(dso::j2000_mjd), m_sec(0){};
+  explicit constexpr datetime() noexcept : m_mjd(dso::J2000_MJD), m_sec(0){};
 
   /// Constructor from year, month, day of month and sec type.
   constexpr datetime(year y, month m, day_of_month d, S s)
-      : m_mjd{cal2mjd(y, m, d)}, m_sec{s} {
+      : m_mjd(y, m, d), m_sec(s) {
     this->normalize();
   };
 
@@ -274,7 +260,7 @@ public:
             typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
   constexpr datetime(year y, month m, day_of_month d, T t)
-      : m_mjd{cal2mjd(y, m, d)}, m_sec{S(t)} {
+      : m_mjd(y, m, d), m_sec(S(t)) {
     this->normalize();
   }
 
@@ -284,7 +270,7 @@ public:
             typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
   constexpr datetime(year y, day_of_year d, T t)
-      : m_mjd{ydoy2mjd(y, d)}, m_sec{S(t)} {
+      : m_mjd(y, d), m_sec(S(t)) {
     this->normalize();
   }
 
@@ -295,7 +281,7 @@ public:
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
   constexpr datetime(year y, month m, day_of_month d, hours hr, minutes mn,
                      T sec)
-      : m_mjd{cal2mjd(y, m, d)}, m_sec{hr, mn, S(sec)} {
+      : m_mjd(y, m, d), m_sec(hr, mn, S(sec)) {
     this->normalize();
   }
 
@@ -305,20 +291,20 @@ public:
             typename = std::enable_if_t<
                 std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
   constexpr datetime(year y, day_of_year d, hours hr, minutes mn, T sec)
-      : m_mjd{ydoy2mjd(y, d)}, m_sec{hr, mn, S(sec)} {
+      : m_mjd(y, d), m_sec(hr, mn, S(sec)) {
     this->normalize();
   }
 
   /// Constructor from year, month, day of month and fractional seconds.
   constexpr datetime(year y, month m, day_of_month d, hours hr, minutes mn,
                      double fsecs)
-      : m_mjd{cal2mjd(y, m, d)}, m_sec{hr, mn, fsecs} {
+      : m_mjd(y, m, d), m_sec(hr, mn, fsecs) {
     this->normalize();
   }
 
   /// Constructor from year, day of year and fractional seconds.
   constexpr datetime(year y, day_of_year d, hours hr, minutes mn, double fsecs)
-      : m_mjd{ydoy2mjd(y, d)}, m_sec{hr, mn, fsecs} {
+      : m_mjd(y, d), m_sec(hr, mn, fsecs) {
     this->normalize();
   }
 
@@ -326,7 +312,7 @@ public:
   /// second type S.
   constexpr datetime(year y, month m, day_of_month d, hours hr = hours(),
                      minutes mn = minutes(), S sec = S())
-      : m_mjd{cal2mjd(y, m, d)}, m_sec{hr, mn, sec} {
+      : m_mjd(y, m, d), m_sec(hr, mn, sec) {
     this->normalize();
   }
 
@@ -334,7 +320,7 @@ public:
   /// second type S.
   constexpr datetime(year y, day_of_year d, hours hr = hours(),
                      minutes mn = minutes(), S sec = S())
-      : m_mjd{ydoy2mjd(y, d)}, m_sec{hr, mn, sec} {
+      : m_mjd(y, d), m_sec(hr, mn, sec) {
     this->normalize();
   }
 
@@ -342,21 +328,21 @@ public:
   /// second type S.
   constexpr datetime(modified_julian_day mjd, hours hr = hours(),
                      minutes mn = minutes(), S sec = S()) noexcept
-      : m_mjd{mjd}, m_sec{hr, mn, sec} {
+      : m_mjd(mjd), m_sec(hr, mn, sec) {
     this->normalize();
   }
 
   /// Constructor from modified julian day, and second type S.
   constexpr datetime(modified_julian_day mjd, S sec = S()) noexcept
-      : m_mjd{mjd}, m_sec{sec} {
+      : m_mjd(mjd), m_sec(sec) {
     this->normalize();
   }
 
   /// Constructor from GPS Week and Seconds of Week
   constexpr datetime(gps_week w, S sow) noexcept
-      : m_mjd{w.as_underlying_type() * 7 +
-              sow.as_underlying_type() / S::max_in_day + jan61980},
-        m_sec{sow} {
+      : m_mjd(w.as_underlying_type() * 7 +
+              sow.as_underlying_type() / S::max_in_day + JAN61980),
+        m_sec(sow) {
     m_sec.remove_days();
   }
 
