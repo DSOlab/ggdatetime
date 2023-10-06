@@ -801,7 +801,6 @@ public:
   constexpr modified_julian_day(underlying_type i = 1) noexcept : m_mjd(i){};
 
   /** @brief Constructor from Year and DayOfYear.
-   *
    * The passed in date (year and doy) are tested to see if they represent a
    * valid date. If not, the constructor will throw!
    *
