@@ -2,6 +2,7 @@
 #define __DSO_UTC_DATETIME_HPP__
 
 #include "dtcalendar.hpp"
+#include "tpdate.hpp"
 #include <cassert>
 
 namespace dso {

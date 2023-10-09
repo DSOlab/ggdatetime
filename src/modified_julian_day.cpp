@@ -8,7 +8,7 @@ dso::ydoy_date dso::modified_julian_day::to_ydoy() const noexcept {
   const long delta_yrs = days_left / 365 - days_left / 1460;
 
   return dso::ydoy_date(
-      static_cast<year::underlying_type>(years_so_far + delta_yrs),
-      static_cast<day_of_year::underlying_type>(days_left - 365 * delta_yrs +
+      dso::year(years_so_far + delta_yrs),
+      dso::day_of_year(days_left - 365 * delta_yrs +
                                                 1));
 }

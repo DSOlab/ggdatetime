@@ -49,8 +49,14 @@ constexpr const long month_day[2][13] = {
     {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365},
     {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}};
 
-/* Month lengths in days */
+/** Month lengths in days */
 constexpr const int mtab[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+/** How many days are there in a year? 'Julian' means that there are 365.25 
+ * days (in a year), while 'ConsiderLeap' uses 365 for all but leap years, 
+ * where the count is 366.
+*/
+enum class YearCount {Julian, ConsiderLeap};
 
 /** @brief Calendar date to Modified Julian Day.
  *
@@ -596,7 +602,16 @@ public:
    * @return       If the dom is valid (considering the year and month) true
    *               is returned; else, the function will return false.
    */
-  constexpr bool is_valid(dso::year y, dso::month m) const noexcept;
+  constexpr bool is_valid(dso::year y, dso::month m) const noexcept {
+    if (m_dom < 1 || m_dom >= 32 || (!m.is_valid()))
+      return false;
+
+  /* If February in a leap year, 1, otherwise 0 */
+  int ly = ((m.as_underlying_type() == 2) && y.is_leap());
+
+  /* Validate day, taking into account leap years */
+  return (m_dom <= dso::core::mtab[m.as_underlying_type() - 1] + ly);
+  }
 
 private:
   /** The day of month as underlying_type. */
@@ -913,6 +928,17 @@ struct ydoy_date {
 
   /** @brief Transform to year, month, day-of-month */
   constexpr ymd_date to_ymd() const noexcept;
+
+  /** @brief Convert to fractional years */
+  template<core::YearCount C>
+  constexpr double fractional_years() const noexcept {
+    if constexpr (C == core::YearCount::Julian) {
+      return static_cast<double>(__year.as_underlying_type()) + static_cast<double>(__doy.as_underlying_type())/(double)DAYS_IN_JULIAN_YEAR;
+    } else {
+      constexpr const int days_in_year = 365 + __year.is_leap();
+      return static_cast<double>(__year.as_underlying_type()) + static_cast<double>(__doy.as_underlying_type())/(double)days_in_year;
+    }
+  }
 
   year __year;       /** the year */
   day_of_year __doy; /** day of year */

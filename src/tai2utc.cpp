@@ -25,7 +25,7 @@ dso::TwoPartDate dso::tai2utc(const dso::TwoPartDate &dtai) noexcept {
 double dso::tai2utc(const dso::datetime<dso::nanoseconds> &tai,
                     dso::modified_julian_day &mjd) noexcept {
   // calendar date to MJD
-  mjd = tai.mjd();
+  mjd = tai.imjd();
 
   // get DAT for this mjd and extra seconds in day
   int eid_m0;

@@ -136,52 +136,6 @@ public:
 #endif
   }
 
-  /*
-  /// Operator >
-  constexpr bool operator>(const datetime_interval &d) const noexcept {
-    return m_days > d.m_days || (m_days == d.m_days && m_secs > d.m_secs);
-  }
-
-  /// Operator >=
-  constexpr bool operator>=(const datetime_interval &d) const noexcept {
-    return m_days > d.m_days || (m_days == d.m_days && m_secs >= d.m_secs);
-  }
-
-  /// Operator <
-  constexpr bool operator<(const datetime_interval &d) const noexcept {
-    return m_days < d.m_days || (m_days == d.m_days && m_secs < d.m_secs);
-  }
-
-  /// Operator <=
-  constexpr bool operator<=(const datetime_interval &d) const noexcept {
-    return m_days < d.m_days || (m_days == d.m_days && m_secs <= d.m_secs);
-  }
-
-  /// Operator ==
-  constexpr bool operator==(const datetime_interval &d) const noexcept {
-    return (m_days == d.m_days) && (m_secs == d.m_secs);
-  }
-
-  /// Operator !=
-  constexpr bool operator!=(const datetime_interval &d) const noexcept {
-    return !(this->operator==(d));
-  }
-
-  /// @todo wtf is this?? it needs checking
-  datetime_interval operator/(int div) const noexcept {
-    double d = static_cast<double>(m_days.as_underlying_type());
-    double i, f;
-    f = std::modf(d / div, &i);
-    auto new_mjd = static_cast<modified_julian_day::underlying_type>(i);
-
-    d = static_cast<double>(m_secs.as_underlying_type());
-    d = d / div + f * S::max_in_day;
-    auto new_sec = static_cast<typename S::underlying_type>(d);
-
-    return datetime_interval{modified_julian_day{new_mjd}, S{new_sec}};
-  }
-  */
-
   /** return number of days in interval, always positive */
   DaysIntType days() const noexcept {return m_days;}
 
@@ -571,14 +525,18 @@ public:
   }
 
   /** @brief Convert to fractional years. 
-   * The function will assuming a year of of 365.25 days, i.e. a Julian year
+   * TODO fix documentation The function will assuming a year of of 365.25 days, i.e. a Julian year
    */
-  constexpr double fractional_jyears() const noexcept {
+  template<core::YearCount C>
+  constexpr double fractional_years() const noexcept {
     const ydoy_date ydoy(as_ydoy());
-    const double year = ydoy.__year.as_underlying_type();
-    const double doy = ydoy.__doy.as_underlying_type();
-    const double fday = sec().fractional_days();
-    return year + (doy / DAYS_IN_JULIAN_YEAR + fday / DAYS_IN_JULIAN_YEAR);
+    double fyear = ydoy.fractional_years<C>();
+    if constexpr (C == core::YearCount::Julian) {
+      return fyear + sec().fractional_days() / DAYS_IN_JULIAN_YEAR;
+    } else {
+      constexpr const int days_in_year = 365 + ydoy.__year.is_leap();
+      return fyear + sec().fractional_days() / days_in_year;
+    }
   }
   
   /** @brief Convert to fractional years. 
@@ -790,54 +748,29 @@ inline RetSecType delta_sec(const datetime<S1> &d1,
   }
 }
 
-/// Because we have a function of type:
-/// delta_sec(datetime<S1> d1, datetime<S2> d2) for any S1, S2 of sec type, we
-/// should also include an implementation for when S1=S2. In that case, the
-/// implementation is just d1.delta_sec(d2) but here we are declaring a
-/// non-member function for ease of use.
-///
-/// @tparam S   any second type that has a static member S1::is_of_sec_type set
-///             to True and has an Integral static variable S1::max_in_day
-/// @param  d1  datetime<S> instance (deifference is d1-d2)
-/// @param  d2  datetime<S> instance (deifference is d1-d2)
-/// @return     Difference d1-d2 in S
-//#if __cplusplus >= 202002L
-//template <gconcepts::is_sec_dt S>
-//#else
-//template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
-//#endif
-//inline S delta_sec(const datetime<S> &d1, const datetime<S> &d2) noexcept {
-//  return d1.delta_sec(d2);
-//}
-
 enum class DateTimeDifferenceType { FractionalDays, FractionalSeconds };
 
-/// @brief Return the difference d1 - d2 in the Date/Time units specified by
-///        the template parameter D
+/** @brief Return the difference d1 - d2 in the Date/Time units specified by
+ *         the template parameter D
+ * @warning Cannot handle tthe case where leap seconds are not the same at 
+ *         d1 and d2.
+ */
 template <DateTimeDifferenceType D, typename S,
           typename = std::enable_if_t<S::is_of_sec_type>>
 inline double date_diff(const datetime<S> &d1, const datetime<S> &d2) noexcept {
   if constexpr (D == DateTimeDifferenceType::FractionalSeconds) {
+    /* difference in fractional seconds */
     const auto sdiff = delta_sec(d1, d2);
-    return sdiff.to_fractional_seconds();
+    return static_cast<double>(sdiff.signed_total_sec());
   } else {
-    const auto ddiff = d1.delta_date(d2);
-    // TODO how to handle many days without overflow ?
-    // First effort ... (same as first)
-    // return ddiff.as_mjd();
-    // Second effort ... (same as first)
-    // const double fsec_part2 = ddiff.sec().fractional_days();
-    // const double fsec_part1 =
-    //    static_cast<double>(ddiff.days().as_underlying_type());
-    // return fsec_part2 + fsec_part1;
-    // Third effort ... (best approach, but cannot handle many days days due
-    // to possible overflow)
-    S __s = ddiff.template to_sec_type<S>();
-    return __s.fractional_days();
+    /* difference in fractional days */
+    const datetime_interval<S> diff = d1.delta_date(d2);
+    return static_cast<double>(diff.days()) +
+           static_cast<double>(diff.sec() / S::max_in_day);
   }
 }
 
-/// Sec-Millisec-MicroSec of Week to Day of week
+/* Sec-Millisec-MicroSec of Week to Day of week
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt T>
 #else
@@ -847,28 +780,27 @@ constexpr int day_of_week(T sow) noexcept {
   int day_of_week = sow.as_underlying_type() / T::max_in_day;
   return day_of_week;
 }
+*/
 
-/// @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
-///
-/// The day of month is actually not needed, since all leap second insertions
-/// happen at the begining, i.e. the first day of a month.
-///
-/// @warning
-///         - This version only works for post-1972 dates! For a more complete
-///           version, see the iauDat.c routine from IAU's SOFA.
-///         - No checks are performed for the validity of the input date.
-///
-/// @see IAU SOFA (iau-dat.c)
-/// @see dso::dat
+/** @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
+ *
+ * TODO add documentation
+ *
+ * The day of month is actually not needed, since all leap second insertions
+ * happen at the begining, i.e. the first day of a month.
+ *
+ * @see dso::dat
+ */
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt T>
 #else
 template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
 inline int dat(const datetime<T> &t) noexcept {
-  return dso::dat(t.mjd());
+  return dso::dat(t.imjd());
 }
 
+/*
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt T>
 #else
@@ -877,229 +809,11 @@ template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 inline t_hmsf as_hmsf(T secday) noexcept {
   return t_hmsf(secday);
 }
-
-class TwoPartDate {
-private:
-  double _big;   ///< Mjd
-  double _small; ///< fractional days
-
-public:
-#if __cplusplus >= 202002L
-  template <gconcepts::is_sec_dt T>
-#else
-  template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
-#endif
-  TwoPartDate(const datetime<T> &d) noexcept
-      : _big((double)d.mjd().as_underlying_type()),
-        _small(d.sec().fractional_days()) {
-    this->normalize();
-  }
-
-  explicit constexpr TwoPartDate(double b = 0, double s = 0) noexcept
-      : _big(b), _small(s) {
-    this->normalize();
-  }
-
-  double big() const noexcept { return _big; }
-  double small() const noexcept { return _small; }
-
-  void add_seconds(double sec) noexcept {
-    _small += sec / sec_per_day;
-    this->normalize();
-  }
-
-  // difference
-  TwoPartDate operator-(const TwoPartDate &d) const noexcept {
-    return TwoPartDate(_big - d._big, _small - d._small);
-  }
-  TwoPartDate operator+(const TwoPartDate &d) const noexcept {
-    return TwoPartDate(_big + d._big, _small + d._small);
-  }
-
-  template <DateTimeDifferenceType DT>
-  double diff(const TwoPartDate &d) const noexcept {
-    if constexpr (DT == DateTimeDifferenceType::FractionalDays) {
-      return (_big - d._big) + (_small - d._small);
-    } else {
-      return (_big - d._big) * sec_per_day + (_small - d._small) * sec_per_day;
-    }
-  }
-
-  // As Julian date, implementing the SOFA Date & Time idiom
-  // TODO no, this is plit as integral part and fractional par, only the
-  // integral part is JD (not MJD)
-  TwoPartDate jd_sofa1() const noexcept {
-    return TwoPartDate(_big + dso::mjd0_jd, _small);
-  }
-
-  double jd() const noexcept { return (_small + _big) + dso::mjd0_jd; }
-
-  TwoPartDate tai2tt() const noexcept {
-    constexpr const double dtat = tt_minus_tai / sec_per_day;
-    return TwoPartDate(_big, _small + dtat);
-  }
-
-  TwoPartDate utc2tai() const noexcept {
-    // normalize so that the big part is MJD & small is fraction of day
-    auto utc = *this;
-
-    // Get TAI-UTC at 0h today and extra seconds in day (if any)
-    int extra;
-    const int leap = dat(modified_julian_day((int)utc._big), extra);
-
-    // Remove any scaling applied to spread leap into preceding day
-    utc._small *= (sec_per_day + extra) / sec_per_day;
-
-    // Assemble the TAI result, preserving the UTC split and order
-    return TwoPartDate(utc._big, utc._small + leap / sec_per_day);
-  }
-
-  TwoPartDate utc2tt() const noexcept {
-    const auto tai = this->utc2tai();
-    return tai.tai2tt();
-  }
-
-  TwoPartDate tai2utc() const noexcept {
-    // do it the SOFA way ...
-    auto utc1(*this);
-    double small = utc1._small;
-    double big = utc1._big;
-    for (int i = 0; i < 3; i++) {
-      TwoPartDate guess = TwoPartDate(big, small).utc2tai();
-      small += utc1._big - guess._big;
-      small += utc1._small - guess._small;
-    }
-    return TwoPartDate(utc1._big, small);
-  }
-
-  TwoPartDate tt2utc() const noexcept {
-    const auto tai = this->tt2tai();
-    return tai.tai2utc();
-  }
-
-  TwoPartDate tt2tai() const noexcept {
-    constexpr const double dtat = tt_minus_tai / sec_per_day;
-    return TwoPartDate(_big, _small - dtat);
-  }
-
-  /* @brief TT to UT1 MJD
-   * Note that because the Earth’s rotation is slowing due to tidal friction,
-   * and the rotation rate decreases approximately linearly with time, ∆T
-   * increases quadratically.
-   * @param[in] dut1 ΔUT1 in [sec]. Thi value should be looked up using e.g.
-   *                 IERS products
-   * @return The corresponding UT1 MJD, computed using:
-   *         ∆T = TT − UT1 = 32.184[sec] + ∆AT − ∆UT1
-   */
-  TwoPartDate tt2ut1(double dut1) const noexcept {
-    /* note that ΔUT1 = UT1 − UTC hence UT1 = ΔUT1 + UTC */
-    return tt2utc() + TwoPartDate(0e0, dut1 / sec_per_day);
-  }
-
-  double as_mjd() const noexcept { return _small + _big; }
-
-  double jcenturies_sinceJ2000() const noexcept {
-    return (_big - j2000_mjd) / days_in_julian_cent +
-           _small / days_in_julian_cent;
-  }
-
-  double as_fractional_years() const noexcept {
-    auto cp(*this);
-    cp.normalize();
-    const datetime<dso::seconds> d(modified_julian_day((long)_big),
-                                   dso::seconds(0));
-    const ydoy_date ydoy(d.as_ydoy());
-    const double daysinyear = days_in_julian_year + ydoy.__year.is_leap();
-    return _small / daysinyear + d.as_fractional_years();
-  }
-
-  bool operator>(const TwoPartDate &d) const noexcept {
-    return (_big > d._big) || ((_big == d._big) && (_small > d._small));
-  }
-  bool operator>=(const TwoPartDate &d) const noexcept {
-    return (_big > d._big) || ((_big == d._big) && (_small >= d._small));
-  }
-  bool operator<(const TwoPartDate &d) const noexcept {
-    return (_big < d._big) || ((_big == d._big) && (_small < d._small));
-  }
-  bool operator<=(const TwoPartDate &d) const noexcept {
-    return (_big < d._big) || ((_big == d._big) && (_small <= d._small));
-  }
-
-  /// @brief Keep _small < 1e0 and _big integral only
-  constexpr void normalize() noexcept {
-    // fractional part should NOT be negative
-    while (_small < 0e0) {
-      _small = 1 - _small;
-      _big -= 1e0;
-    }
-    double fmore(0e0), extra(0e0);
-    // check if _big part has a fractional part
-    if ((fmore = std::modf(_big, &extra)) != 0e0) {
-      // assign fractional part to _small and keep integral part to _big
-      _small += fmore;
-      _big = extra;
-    }
-    // check if fractional part is >= 1e0
-    if (_small >= 1e0) {
-      _small = std::modf(_small, &extra);
-      _big += extra;
-    }
-    // all done
-    return;
-  }
-
-  TwoPartDate normalized() const noexcept {
-    TwoPartDate d(*this);
-    d.normalize();
-    return d;
-  }
-
-  bool operator==(const TwoPartDate &d) const noexcept {
-    const auto d1(this->normalized());
-    const auto d2(d.normalized());
-    return (d1._big == d2._big) && (d1._small == d2._small);
-  }
-  bool operator!=(const TwoPartDate &d) const noexcept {
-    return !(this->operator==(d));
-  }
-
-  /// A Julian Date can be partioned in any of the following ways:
-  /// -----------------------------------------------------------
-  ///            dj1            dj2
-  ///
-  ///        2450123.7           0.0       (JD method)
-  ///        2451545.0       -1421.3       (J2000 method)
-  ///        2400000.5       50123.2       (MJD method)
-  ///        2450123.5           0.2       (date & time method)
-  enum class JdSplitMethod { JD, J2000, MJD, DT };
-  template <JdSplitMethod S = JdSplitMethod::J2000>
-  TwoPartDate jd_split() const noexcept {
-    if constexpr (S == JdSplitMethod::JD)
-      return TwoPartDate(_big + dso::mjd0_jd + _small, 0e0);
-    else if constexpr (S == JdSplitMethod::J2000)
-      return TwoPartDate(j2000_jd, _big - j2000_mjd + _small);
-    else if constexpr (S == JdSplitMethod::MJD)
-      return TwoPartDate(mjd0_jd, _big + _small);
-    else
-      return TwoPartDate(_big + dso::mjd0_jd, _small);
-  }
-};
-
-TwoPartDate utc2tai(const TwoPartDate &d) noexcept;
-
-#if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt T>
-#else
-template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
-#endif
-inline TwoPartDate as_two_part_date(const datetime<T> &date) noexcept {
-  return TwoPartDate(date);
-}
+*/
 
 namespace datetime_ranges {
 enum class OverlapComparissonType { Strict, AllowEdgesOverlap };
-} // namespace datetime_ranges
+} /* namespace datetime_ranges */
 
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt T, datetime_ranges::OverlapComparissonType O>
