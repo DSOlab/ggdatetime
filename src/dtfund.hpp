@@ -16,15 +16,6 @@
 #include <limits>
 #include <stdexcept>
 
-#ifdef DEBUG
-#include <cstdio>
-#include <cstring>
-#include <iomanip>
-#include <iostream>
-#include <ostream>
-#include <string>
-#endif
-
 namespace dso {
 
 /* Forward declerations */
@@ -325,7 +316,6 @@ public:
 private:
   /** The year as underlying type. */
   underlying_type m_year;
-
 }; /* year */
 
 /** @brief A wrapper class for months.
@@ -449,7 +439,6 @@ private:
 
   /** The month as underlying_type. */
   underlying_type m_month;
-
 }; /* month */
 
 /** @brief A wrapper class for GPS Week.
@@ -477,7 +466,7 @@ public:
   typedef long underlying_type;
 
   /** Is fundamental datetime type */
-  static constexpr bool is_dt_fundamental_type{true};
+  static constexpr bool is_dt_fundamental_type=true;
 
   /** If fundamental type, the class should have an
    * "expose the only member var" function
@@ -524,7 +513,6 @@ public:
 private:
   /** The month as underlying_type. */
   underlying_type m_week;
-
 }; /* gps_week */
 
 /** @brief A wrapper class for day of month.
@@ -547,7 +535,7 @@ public:
   typedef int underlying_type;
 
   /** Is fundamental datetime type */
-  static constexpr bool is_dt_fundamental_type{true};
+  static constexpr bool is_dt_fundamental_type=true;
 
   /** If fundamental type, the class should have an
    * "expose the only member var" function
@@ -606,17 +594,16 @@ public:
     if (m_dom < 1 || m_dom >= 32 || (!m.is_valid()))
       return false;
 
-  /* If February in a leap year, 1, otherwise 0 */
-  int ly = ((m.as_underlying_type() == 2) && y.is_leap());
+    /* If February in a leap year, 1, otherwise 0 */
+    int ly = ((m.as_underlying_type() == 2) && y.is_leap());
 
-  /* Validate day, taking into account leap years */
-  return (m_dom <= dso::core::mtab[m.as_underlying_type() - 1] + ly);
+    /* Validate day, taking into account leap years */
+    return (m_dom <= dso::core::mtab[m.as_underlying_type() - 1] + ly);
   }
 
 private:
   /** The day of month as underlying_type. */
   underlying_type m_dom;
-
 }; /* day_of_month */
 
 /** @brief A wrapper class for day of year.
@@ -721,12 +708,55 @@ struct ymd_date {
    * Note that no validation checks are performed on the instance. If needed,
    * (e.g. before the conversion), use the is_valid method on the instance.
    */
-  constexpr ydoy_date to_ydoy() const noexcept;
+  ydoy_date to_ydoy() const noexcept;
 
   year __year;        /** the year */
   month __month;      /** the month */
   day_of_month __dom; /** day of month */
 };                    /* ymd_date */
+
+/** @brief This struct represent a date in Year-Day of Year format.
+ *
+ * This struct is only designed to ease the input/output parameters to various
+ * functions. Users can actually construct any date, even non-valid ones
+ * (e.g. set year to 0). The constructor will not check the input parameters.
+ * If users want to check the instance for validity, then they should use the
+ * ymd_date::is_valid function.
+ */
+struct ydoy_date {
+  /** @brief ymd_date constructor
+   * No check for validity will be performed. If you want to check the
+   * validity of the created instance, use ymd_date::is_valid
+   */
+  constexpr ydoy_date(year y = year{}, day_of_year d = day_of_year{}) noexcept
+      : __year(y), __doy(d) {}
+
+  /** @brief Check if the date is a valid calendar date
+   * @return True if the date is valid, false otherwise.
+   */
+  constexpr bool is_valid() const noexcept { return __doy.is_valid(__year); }
+
+  /** @brief Transform to year, month, day-of-month */
+  constexpr ymd_date to_ymd() const noexcept;
+
+  /** @brief Convert to fractional years */
+  template <core::YearCount C>
+  constexpr double fractional_years() const noexcept {
+    if constexpr (C == core::YearCount::Julian) {
+      return static_cast<double>(__year.as_underlying_type()) +
+             static_cast<double>(__doy.as_underlying_type()) /
+                 (double)DAYS_IN_JULIAN_YEAR;
+    } else {
+      constexpr const int days_in_year = 365 + __year.is_leap();
+      return static_cast<double>(__year.as_underlying_type()) +
+             static_cast<double>(__doy.as_underlying_type()) /
+                 (double)days_in_year;
+    }
+  }
+
+  year __year;       /** the year */
+  day_of_year __doy; /** day of year */
+};                   /* ydoy_date */
 
 namespace core {
 /** @brief Modified Julian Day to calendar date
@@ -904,45 +934,6 @@ private:
   underlying_type m_mjd;
 
 }; /* modified_julian_day */
-
-/** @brief This struct represent a date in Year-Day of Year format.
- *
- * This struct is only designed to ease the input/output parameters to various
- * functions. Users can actually construct any date, even non-valid ones
- * (e.g. set year to 0). The constructor will not check the input parameters.
- * If users want to check the instance for validity, then they should use the
- * ymd_date::is_valid function.
- */
-struct ydoy_date {
-  /** @brief ymd_date constructor
-   * No check for validity will be performed. If you want to check the
-   * validity of the created instance, use ymd_date::is_valid
-   */
-  constexpr ydoy_date(year y = year{}, day_of_year d = day_of_year{}) noexcept
-      : __year(y), __doy(d) {}
-
-  /** @brief Check if the date is a valid calendar date
-   * @return True if the date is valid, false otherwise.
-   */
-  constexpr bool is_valid() const noexcept { return __doy.is_valid(__year); }
-
-  /** @brief Transform to year, month, day-of-month */
-  constexpr ymd_date to_ymd() const noexcept;
-
-  /** @brief Convert to fractional years */
-  template<core::YearCount C>
-  constexpr double fractional_years() const noexcept {
-    if constexpr (C == core::YearCount::Julian) {
-      return static_cast<double>(__year.as_underlying_type()) + static_cast<double>(__doy.as_underlying_type())/(double)DAYS_IN_JULIAN_YEAR;
-    } else {
-      constexpr const int days_in_year = 365 + __year.is_leap();
-      return static_cast<double>(__year.as_underlying_type()) + static_cast<double>(__doy.as_underlying_type())/(double)days_in_year;
-    }
-  }
-
-  year __year;       /** the year */
-  day_of_year __doy; /** day of year */
-};                   /* ydoy_date */
 
 /** @brief A wrapper class for hours.
  *

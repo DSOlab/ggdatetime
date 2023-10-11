@@ -1,6 +1,11 @@
 from __future__ import print_function
 import os, sys, glob, platform
 
+def make_executable(path):
+    mode = os.stat(path).st_mode
+    mode |= (mode & 0o444) >> 2
+    os.chmod(path, mode)
+
 ## Prefix for install(ed) files
 if platform.system() != "Windows":
     prefix="/usr/local"
@@ -40,16 +45,6 @@ AddOption('--std',
           metavar='STD',
           help='C++ Standard [11/14/17/20]',
           default='17')
-AddOption('--make-check',
-          dest='check',
-          action='store_true',
-          help='Trigger building of test programs',
-          default=False)
-AddOption('--make-db',
-          dest='build_db',
-          action='store_true',
-          help='Trigger the creation of a compilation database JSON file',
-          default=False)
 
 ## Source files (for lib)
 lib_src_files = glob.glob(r"src/*.cpp")
@@ -57,21 +52,13 @@ lib_src_files = glob.glob(r"src/*.cpp")
 ## Headers (for lib)
 hdr_src_files = glob.glob(r"src/*.hpp")
 
-## Compilation flags, aka CXXFLAGS; same for gcc/clang, different for MS VS
-## TODO Bugs creep in when using the '-march=native' option. See e.g. test/test_jdepoch_sofa.cpp
-DebugCXXFLAGS_P = '-g -pg -Wall -Wextra -Werror -pedantic -W -Wshadow -Winline -Wdisabled-optimization -DDEBUG'
-ProductionCXXFLAGS_P = '-Wall -Wextra -Werror -pedantic -W -Wshadow -O2'
-## MSVC (Replace Wall with W4)
-DebugCXXFLAGS_W = '/std:c++17 /W4 /WX /Od /EHsc /GR /FI -DDEBUG'
-ProductionCXXFLAGS_W = '/std:c++17 /W4 /WX /O2 /EHsc /GR /FI'
-
 ## Environments ...
-denv = Environment(CXXFLAGS = DebugCXXFLAGS_P if platform.system() != "Windows" else DebugCXXFLAGS_W)
-## g++ complains about failing to inline functions if we use the '-Winline' here ...
-penv = Environment(CXXFLAGS = ProductionCXXFLAGS_P if platform.system() != "Windows" else ProductionCXXFLAGS_W)
+denv = Environment(CXXFLAGS='-std=c++17 -g -pg -Wall -Wextra -Werror -pedantic -W -Wshadow -Winline -Wdisabled-optimization -DDEBUG')
+penv = Environment(CXXFLAGS='-std=c++17 -Wall -Wextra -Werror -pedantic -W -Wshadow -Winline -O2 -march=native')
 
 ## Command line arguments ...
 debug = ARGUMENTS.get('debug', 0)
+test  = ARGUMENTS.get('test', 0)
 
 ## Construct the build enviroment
 env = denv.Clone() if int(debug) else penv.Clone()
@@ -81,13 +68,7 @@ if GetOption('cxx') is not None: env['CXX'] = GetOption('cxx')
 
 ## Set the C++ standard
 cxxstd = GetOption('std')
-env.Append(CXXFLAGS = ' --std=c++{}'.format(cxxstd) if platform.system() != "Windows" else ' /std:c++{}'.format(cxxstd))
-
-## Check if we need a compilation database
-if GetOption('build_db') is not None and GetOption('build_db'):
-  env.Tool('compilation_db')
-  cdb = env.CompilationDatabase()
-  Alias('cdb', cdb)
+env.Append(CXXFLAGS=' --std=c++{}'.format(cxxstd))
 
 ## (shared) library ...
 vlib = env.SharedLibrary(source=lib_src_files, target=lib_name, CPPPATH=['.'], SHLIBVERSION=lib_version)
@@ -96,22 +77,17 @@ vlib = env.SharedLibrary(source=lib_src_files, target=lib_name, CPPPATH=['.'], S
 env.Alias(target='install', source=env.Install(dir=os.path.join(prefix, 'include', inc_dir), source=hdr_src_files))
 env.Alias(target='install', source=env.InstallVersionedLib(dir=os.path.join(prefix, 'lib'), source=vlib))
  
-## Tests ... if any assertion fails, this build will fail
-if GetOption('check') is not None and GetOption('check'):
-    ## (Unit)  Testing
-    test_targets = []
+## Tests ... 
+if test:
+    if os.path.isfile('test_error_sources.sh'): os.remove('test_error_sources.sh')
     test_sources = glob.glob(r"test/unit_tests/*.cpp")
-    for tsource in test_sources:
-      ttarget = os.path.join(os.path.dirname(tsource), os.path.basename(tsource).replace('_', '-').replace('.cpp', '.out'))
-      test_targets.append(ttarget)
-      env.Program(target=ttarget, source=tsource, CXXFLAGS=env['CXXFLAGS']+' -Wl,-rpath,{}'.format(root_dir), LIBS=[lib_name,'sofa_c'], LIBPATH=root_dir, CPPPATH=os.path.join(root_dir,'src'), RPATH=root_dir)
-      Command(target=ttarget+'-run', source=ttarget, action=ttarget)
-
-  
-  #tests_sources = glob.glob(r"test/*.cpp")
-  #env.Append(RPATH=root_dir)
-  #for tsource in tests_sources:
-  #  ttarget = tsource.replace('_', '-').replace('.cpp', '.out')
-  #  env.Program(target=ttarget, source=tsource, CPPPATH='src/',
-  #              LIBS=vlib, LIBPATH='.')
-  #  #Command(target=ttarget+'-run', source=ttarget, action=ttarget)
+    env.Append(RPATH=root_dir)
+    with open('test_error_sources.sh', 'w') as fsh:
+        print('#! /usr/bin/bash', file=fsh)
+        for tsource in test_sources:
+            ttarget = os.path.join(os.path.dirname(tsource), os.path.basename(tsource).replace('_', '-').replace('.cpp', '.out'))
+            if 'mock' in os.path.basename(tsource):
+                print('if {:} -o {:} {:} -I{:} &>/dev/null; then echo "{:}: compiles when it shouldn\'t!"; else echo "{:}: ok"; fi'.format(env['CXX'], env['CXXFLAGS'], tsource, os.path.join(env['RPATH'], 'src'), os.path.basename(tsource), os.path.basename(tsource)), file=fsh)
+            else:
+                env.Program(target=ttarget, source=tsource, CPPPATH='src/', LIBS=vlib, LIBPATH='.')
+    make_executable('test_error_sources.sh')
