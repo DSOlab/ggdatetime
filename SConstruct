@@ -1,5 +1,6 @@
 from __future__ import print_function
 import os, sys, glob, platform
+import json
 
 def make_executable(path):
     mode = os.stat(path).st_mode
@@ -79,15 +80,21 @@ env.Alias(target='install', source=env.InstallVersionedLib(dir=os.path.join(pref
  
 ## Tests ... 
 if test:
-    if os.path.isfile('test_error_sources.sh'): os.remove('test_error_sources.sh')
+    cmp_error_fn = 'test/unit_tests/test_compilation_error.json'
+    cerror_dct = {}
+    if os.path.isfile(cmp_error_fn): os.remove(cmp_error_fn)
     test_sources = glob.glob(r"test/unit_tests/*.cpp")
     env.Append(RPATH=root_dir)
-    with open('test_error_sources.sh', 'w') as fsh:
-        print('#! /usr/bin/bash', file=fsh)
-        for tsource in test_sources:
-            ttarget = os.path.join(os.path.dirname(tsource), os.path.basename(tsource).replace('_', '-').replace('.cpp', '.out'))
-            if 'mock' in os.path.basename(tsource):
-                print('if {:} -o {:} {:} -I{:} &>/dev/null; then echo "{:}: compiles when it shouldn\'t!"; else echo "{:}: ok"; fi'.format(env['CXX'], env['CXXFLAGS'], tsource, os.path.join(env['RPATH'], 'src'), os.path.basename(tsource), os.path.basename(tsource)), file=fsh)
-            else:
-                env.Program(target=ttarget, source=tsource, CPPPATH='src/', LIBS=vlib, LIBPATH='.')
-    make_executable('test_error_sources.sh')
+    for tsource in test_sources:
+        ttarget = os.path.join(os.path.dirname(tsource), os.path.basename(tsource).replace('_', '-').replace('.cpp', '.out'))
+        if 'mock' in os.path.basename(tsource):
+            #print("{{'name': '{:}', 'flags': '{:}', 'exit': 1}}".format(os.path.abspath(tsource), ' '.join([env['CXX'], '-o', env['CXXFLAGS'], '-I'+os.path.abspath(os.path.join(env['RPATH'], 'src'))])))
+            cerror_dct[os.path.basename(tsource)] = {
+                'name': '{:}'.format(os.path.abspath(tsource)),
+                'cxx': '{:}'.format(env['CXX']),
+                'incp' : '{:}'.format(os.path.abspath(os.path.join(env['RPATH'], 'src'))),
+                'flags': '{:}'.format(' '.join(['-o', env['CXXFLAGS']])), 
+                'exit': 1}
+        else:
+            env.Program(target=ttarget, source=tsource, CPPPATH='src/', LIBS=vlib, LIBPATH='.')
+    with open(cmp_error_fn, 'w') as fjson: print(json.dumps(cerror_dct, indent = 4), file=fjson)
