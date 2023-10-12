@@ -688,7 +688,8 @@ private:
  * If users want to check the instance for validity, then they should use the
  * ymd_date::is_valid function.
  */
-struct ymd_date {
+class ymd_date {
+public:
   /** @brief ymd_date constructor
    * No check for validity will be performed. If you want to check the
    * validity of the created instance, use ymd_date::is_valid
@@ -705,11 +706,27 @@ struct ymd_date {
   }
 
   /** @brief Transform to year and day-of-year
-   * Note that no validation checks are performed on the instance. If needed,
-   * (e.g. before the conversion), use the is_valid method on the instance.
+   * The function will first check that the instance is a valid date, before 
+   * performing the transformation (to year and day of year). This is done 
+   * because an invalid ymd_date can result in a seamingly valid ydoy_date 
+   * (e.g. constructing a 29/2 date on a non-leap year).
    */
-  ydoy_date to_ydoy() const noexcept;
+  ydoy_date to_ydoy() const;
 
+  /** get/set year */
+  constexpr year &yr() noexcept {return __year;}
+  /** get/set month */
+  constexpr month &mn() noexcept {return __month;}
+  /** get/set day of month */
+  constexpr day_of_month &dm() noexcept {return __dom;}
+  /** get year */
+  constexpr year yr() const noexcept {return __year;}
+  /** get month */
+  constexpr month mn() const noexcept {return __month;}
+  /** get day of month */
+  constexpr day_of_month dm() const noexcept {return __dom;}
+
+private:
   year __year;        /** the year */
   month __month;      /** the month */
   day_of_month __dom; /** day of month */
@@ -723,13 +740,21 @@ struct ymd_date {
  * If users want to check the instance for validity, then they should use the
  * ymd_date::is_valid function.
  */
-struct ydoy_date {
+class ydoy_date {
+public:
   /** @brief ymd_date constructor
    * No check for validity will be performed. If you want to check the
    * validity of the created instance, use ymd_date::is_valid
    */
   constexpr ydoy_date(year y = year{}, day_of_year d = day_of_year{}) noexcept
       : __year(y), __doy(d) {}
+
+  /** @brief Constructor from a Year/Month/DayOfMonth instance 
+   * In case the input argument \p ymd is not a valid date, the constructor 
+   * will throw.
+   */
+  ydoy_date(const ymd_date &ymd)
+      : __year(ymd.yr()), __doy(ymd.to_ydoy().dy()) {}
 
   /** @brief Check if the date is a valid calendar date
    * @return True if the date is valid, false otherwise.
@@ -753,7 +778,17 @@ struct ydoy_date {
                  (double)days_in_year;
     }
   }
+  
+  /** get/set year */
+  year &yr() noexcept {return __year;}
+  /** get/set day of year */
+  day_of_year &dy() noexcept {return __doy;}
+  /** get year */
+  constexpr year yr() const noexcept {return __year;}
+  /** get day of year */
+  constexpr day_of_year dy() const noexcept {return __doy;}
 
+private:
   year __year;       /** the year */
   day_of_year __doy; /** day of year */
 };                   /* ydoy_date */

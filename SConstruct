@@ -80,6 +80,8 @@ env.Alias(target='install', source=env.InstallVersionedLib(dir=os.path.join(pref
  
 ## Tests ... 
 if test:
+    env.Append(CXXFLAGS=' -Wno-error=inline')
+    if '-Winline' in env['CXXFLAGS']: env['CXXFLAGS'].replace('-Winline','')
     cmp_error_fn = 'test/unit_tests/test_compilation_error.json'
     cerror_dct = {}
     if os.path.isfile(cmp_error_fn): os.remove(cmp_error_fn)
