@@ -54,8 +54,8 @@ lib_src_files = glob.glob(r"src/*.cpp")
 hdr_src_files = glob.glob(r"src/*.hpp")
 
 ## Environments ...
-denv = Environment(CXXFLAGS='-std=c++17 -g -pg -Wall -Wextra -Werror -pedantic -W -Wshadow -Winline -Wdisabled-optimization -DDEBUG')
-penv = Environment(CXXFLAGS='-std=c++17 -Wall -Wextra -Werror -pedantic -W -Wshadow -Winline -O2 -march=native')
+denv = Environment(CXXFLAGS='-g -pg -Wall -Wextra -Werror -pedantic -W -Wshadow -Winline -Wdisabled-optimization -DDEBUG')
+penv = Environment(CXXFLAGS='-Wall -Wextra -Werror -pedantic -W -Wshadow -Winline -O2 -march=native')
 
 ## Command line arguments ...
 debug = ARGUMENTS.get('debug', 0)

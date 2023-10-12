@@ -2,6 +2,9 @@
 #define __DSO_DATETIME_CONCEPTS20_HPP__
 
 #if __cplusplus >= 202002L /* concepts only available in C++20 */
+
+#include <type_traits>
+
 namespace dso {
 namespace gconcepts {
 
