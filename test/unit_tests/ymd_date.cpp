@@ -1,11 +1,11 @@
 #include "dtfund.hpp"
+#include <algorithm>
 #include <cassert>
 #include <vector>
-#include <algorithm>
 
-using dso::year;
-using dso::month;
 using dso::day_of_month;
+using dso::month;
+using dso::year;
 using dso::ymd_date;
 
 int main() {

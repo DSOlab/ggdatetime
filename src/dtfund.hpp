@@ -43,11 +43,11 @@ constexpr const long month_day[2][13] = {
 /** Month lengths in days */
 constexpr const int mtab[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-/** How many days are there in a year? 'Julian' means that there are 365.25 
- * days (in a year), while 'ConsiderLeap' uses 365 for all but leap years, 
+/** How many days are there in a year? 'Julian' means that there are 365.25
+ * days (in a year), while 'ConsiderLeap' uses 365 for all but leap years,
  * where the count is 366.
-*/
-enum class YearCount {Julian, ConsiderLeap};
+ */
+enum class YearCount { Julian, ConsiderLeap };
 
 /** @brief Calendar date to Modified Julian Day.
  *
@@ -466,7 +466,7 @@ public:
   typedef long underlying_type;
 
   /** Is fundamental datetime type */
-  static constexpr bool is_dt_fundamental_type=true;
+  static constexpr bool is_dt_fundamental_type = true;
 
   /** If fundamental type, the class should have an
    * "expose the only member var" function
@@ -535,7 +535,7 @@ public:
   typedef int underlying_type;
 
   /** Is fundamental datetime type */
-  static constexpr bool is_dt_fundamental_type=true;
+  static constexpr bool is_dt_fundamental_type = true;
 
   /** If fundamental type, the class should have an
    * "expose the only member var" function

@@ -1,7 +1,7 @@
 #include "dtfund.hpp"
+#include <algorithm>
 #include <cassert>
 #include <vector>
-#include <algorithm>
 
 using dso::day_of_year;
 
@@ -11,7 +11,7 @@ int main() {
 
   y1 = 2024;
   assert(y1.as_underlying_type() == 2024);
-  
+
   /* not allowed */
   // y1 == 2024;
   /* not allowed */

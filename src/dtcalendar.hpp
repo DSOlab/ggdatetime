@@ -1,6 +1,6 @@
 /** @file
- * A fundamental, template datetime class. This file contains the definition 
- * (and implementation) of a datetime class to be used for Space Geodesy 
+ * A fundamental, template datetime class. This file contains the definition
+ * (and implementation) of a datetime class to be used for Space Geodesy
  * applications.
  */
 
@@ -25,14 +25,14 @@ int sgn(T val) noexcept {
   return (T(0) <= val) - (val < T(0));
 }
 
-  /** A utility struct to hold possibly negative datetime intervals
-   *
-   * This struct is meant to act as an intermediate/buffer state between 
-   * a datetime difference and a datetime interval. A difference could be 
-   * negative, but an interval can only be positive. Hence, this class only 
-   * has the purpose of acting as an intermediate state, so that it can 
-   * 'normalize' the behaviour between a difference and an interval.
-   */
+/** A utility struct to hold possibly negative datetime intervals
+ *
+ * This struct is meant to act as an intermediate/buffer state between
+ * a datetime difference and a datetime interval. A difference could be
+ * negative, but an interval can only be positive. Hence, this class only
+ * has the purpose of acting as an intermediate state, so that it can
+ * 'normalize' the behaviour between a difference and an interval.
+ */
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S>
 #else
@@ -68,7 +68,7 @@ struct RawDatetimeDifference {
   }
 }; /* RawDatetimeInterval */
 
-}/* namespace core*/
+} /* namespace core*/
 
 /** @brief A generic, templatized class to hold a datetime period/interval.
  *
@@ -132,19 +132,19 @@ public:
     m_sign = core::sgn(mdays);
     m_days = std::copysign(mdays, 1);
 #ifdef DEBUG
-    assert(mdays >= 0 && msecs >= 0);
+    assert(m_days >= 0 && (m_secs >= 0 && m_secs < S::max_in_day()));
 #endif
   }
 
   /** return number of days in interval, always positive */
-  DaysIntType days() const noexcept {return m_days;}
+  DaysIntType days() const noexcept { return m_days; }
 
   /** return number of *secs in interval, always positive */
-  SecIntType sec() const noexcept {return m_secs;}
+  SecIntType sec() const noexcept { return m_secs; }
 
   /** return the sign of the interval */
-  int sign() const noexcept {return m_sign;}
-  
+  int sign() const noexcept { return m_sign; }
+
   SecIntType unsigned_total_sec() const noexcept {
     return m_secs + S::max_in_day() * m_days;
   }
@@ -156,10 +156,10 @@ public:
 private:
   /** number of whole days in interval */
   DaysIntType m_days;
-  /** number of *sec in interval */ 
-  SecIntType m_secs; 
+  /** number of *sec in interval */
+  SecIntType m_secs;
   /** sign of interval (only care for the sign of m_sign) */
-  int m_sign; 
+  int m_sign;
 }; /* end class datetime_interval */
 
 /// @brief A generic, templatized Date/Time class.
@@ -231,8 +231,8 @@ public:
   }
 
   /** Minimum possible date (seconds are 0, modified_julian_day is min
-    * possible.
-    */
+   * possible.
+   */
   constexpr static datetime min() noexcept {
     return datetime(modified_julian_day::min(), S(0));
   }
@@ -248,7 +248,7 @@ public:
     this->normalize();
   };
 
-  /** Constructor from year, month, day of month and any sec type T 
+  /** Constructor from year, month, day of month and any sec type T
    *  If an invalid date is passed-in, the constructor will throw.
    *
   template <class T, typename = std::enable_if_t<T::is_of_sec_type>,
@@ -301,7 +301,7 @@ public:
     this->normalize();
   }
 
-  /** Constructor from year, month, day of month, hours, minutes and second 
+  /** Constructor from year, month, day of month, hours, minutes and second
    * type S.
    *
    *  If an invalid date is passed-in, the constructor will throw.
@@ -348,55 +348,58 @@ public:
   constexpr modified_julian_day imjd() const noexcept { return m_mjd; }
 
   /** Get the number of *seconds (as type S) of the instance.
-    * @return The number of *seconds (as type S) of the instance.
-    */
+   * @return The number of *seconds (as type S) of the instance.
+   */
   constexpr S sec() const noexcept { return m_sec; }
 
-/*
-  /// @brief Add any second type T to an instance of type S
-  ///
-  /// This function will add to the instance a number of seconds (of type T).
-  /// This works with tag-dispatch, thus this function is actually only a shell.
-  ///
-  /// @tparam    T   Any seconds type
-  /// @param[in] sec Seconds of T-type
-  /// @return nothing
-  ///
-  /// @warning If the input seconds type is of higher resolution than the
-  ///          instance, then loss of accuracy may happen.
-#if __cplusplus >= 202002L
-  template <gconcepts::is_sec_dt T>
-#else
-  template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
-#endif
-  constexpr void add_seconds(T sec) noexcept {
-    typedef std::integral_constant<bool, (S::max_in_day > T::max_in_day)> cmp__;
-    cmp__ btype{};
-    __add_seconds_impl(sec, btype);
-  }
+  /*
+    /// @brief Add any second type T to an instance of type S
+    ///
+    /// This function will add to the instance a number of seconds (of type T).
+    /// This works with tag-dispatch, thus this function is actually only a
+  shell.
+    ///
+    /// @tparam    T   Any seconds type
+    /// @param[in] sec Seconds of T-type
+    /// @return nothing
+    ///
+    /// @warning If the input seconds type is of higher resolution than the
+    ///          instance, then loss of accuracy may happen.
+  #if __cplusplus >= 202002L
+    template <gconcepts::is_sec_dt T>
+  #else
+    template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
+  #endif
+    constexpr void add_seconds(T sec) noexcept {
+      typedef std::integral_constant<bool, (S::max_in_day > T::max_in_day)>
+  cmp__; cmp__ btype{};
+      __add_seconds_impl(sec, btype);
+    }
 
-  /// @brief Subtract any second type T to an instance of type S
-  ///
-  /// This function will remove to the instance a number of seconds (of type T).
-  /// This works with tag-dispatch, thus this function is actually only a shell.
-  ///
-  /// @tparam    T   Any seconds type
-  /// @param[in] sec Seconds of T-type
-  /// @return nothing
-  ///
-  /// @warning If the input seconds type is of higher resolution than the
-  ///          instance, then loss of accuracy may happen.
-#if __cplusplus >= 202002L
-  template <gconcepts::is_sec_dt T>
-#else
-  template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
-#endif
-  constexpr void remove_seconds(T sec) noexcept {
-    typedef std::integral_constant<bool, (S::max_in_day > T::max_in_day)> cmp__;
-    cmp__ btype{};
-    __remove_seconds_impl(sec, btype);
-  }
-*/
+    /// @brief Subtract any second type T to an instance of type S
+    ///
+    /// This function will remove to the instance a number of seconds (of type
+  T).
+    /// This works with tag-dispatch, thus this function is actually only a
+  shell.
+    ///
+    /// @tparam    T   Any seconds type
+    /// @param[in] sec Seconds of T-type
+    /// @return nothing
+    ///
+    /// @warning If the input seconds type is of higher resolution than the
+    ///          instance, then loss of accuracy may happen.
+  #if __cplusplus >= 202002L
+    template <gconcepts::is_sec_dt T>
+  #else
+    template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
+  #endif
+    constexpr void remove_seconds(T sec) noexcept {
+      typedef std::integral_constant<bool, (S::max_in_day > T::max_in_day)>
+  cmp__; cmp__ btype{};
+      __remove_seconds_impl(sec, btype);
+    }
+  */
 
   /** Operator '+' where the right-hand-side is an interval */
   constexpr datetime<S>
@@ -406,14 +409,14 @@ public:
     const auto sec = m_sec + dt.sec();
     return datetime<S>(mjd, sec);
   }
-  
+
   /** Add a time interval to a datetime instance. */
   constexpr void operator+=(const datetime_interval<S> &dt) noexcept {
     m_mjd += modified_julian_day(std::copysign(dt.days(), dt.sign()));
     m_sec += dt.sec();
     this->normalize();
   }
-  
+
   /** Operator '-' between two instances, produces a (signed) interval */
   constexpr datetime_interval<S>
   operator-(const datetime<S> &dt) const noexcept {
@@ -421,7 +424,7 @@ public:
   }
 
   /** Cast to any datetime<T> instance, regardless of what T is
-   * 
+   *
    * @tparam T    A 'second type'
    * @return The calling object as an instance of type datetime<T>
    */
@@ -465,7 +468,7 @@ public:
   }
 
   /** @brief Normalize a datetime instance.
-   * 
+   *
    * Split the date and time parts such that the time part is always less
    * than one day (i.e. make it time-of-day) and positive (i.e.>=0).
    * Remove whole days of from the time part and add them to the date part.
@@ -483,7 +486,7 @@ public:
     m_mjd = days - 1 * (m_sec < 0);
     m_sec = (S::max_in_day() - s) * (m_sec < 0) + s * (m_sec >= 0);
 #ifdef DEBUG
-    assert(m_sec >= S(0) && m_sec <);
+    assert(m_sec >= S(0) && m_sec < S::max_in_day());
 #endif
   }
 
@@ -502,7 +505,7 @@ public:
   /** @brief Cast to double (i.e. fractional) Julian Date. */
   constexpr double as_jd() const noexcept {
     const double jd = m_mjd.to_julian_day();
-    return m_sec.fractional_days()+jd;
+    return m_sec.fractional_days() + jd;
   }
 
   /** @brief compute Julian centuries since J2000 */
@@ -524,10 +527,11 @@ public:
     return epj(this->fmjd());
   }
 
-  /** @brief Convert to fractional years. 
-   * TODO fix documentation The function will assuming a year of of 365.25 days, i.e. a Julian year
+  /** @brief Convert to fractional years.
+   * TODO fix documentation The function will assuming a year of of 365.25 days,
+   * i.e. a Julian year
    */
-  template<core::YearCount C>
+  template <core::YearCount C>
   constexpr double fractional_years() const noexcept {
     const ydoy_date ydoy(as_ydoy());
     double fyear = ydoy.fractional_years<C>();
@@ -538,9 +542,9 @@ public:
       return fyear + sec().fractional_days() / days_in_year;
     }
   }
-  
-  /** @brief Convert to fractional years. 
-   * The function will assuming a year of of 365 or 366 days, depending on the 
+
+  /** @brief Convert to fractional years.
+   * The function will assuming a year of of 365 or 366 days, depending on the
    * year (i.e. if it is leap or not).
    */
   constexpr double fractional_cyears() const noexcept {
@@ -684,16 +688,17 @@ constexpr datetime_interval<T> delta_date(const datetime<T> &dt1,
  * @param  d2  datetime<S2> instance (difference is d1-d2)
  * @return     Difference d1-d2 in S1
  */
-//template <typename S1, typename S2,
-//          typename = std::enable_if_t<S1::is_of_sec_type>,
-//          typename = std::enable_if_t<S2::is_of_sec_type>,
-//          typename = std::enable_if_t<(S1::max_in_day > S2::max_in_day)>>
-//inline S1 delta_sec(const datetime<S1> &d1, const datetime<S2> &d2) noexcept {
-//  /* cast d2 from datetime<S2> to datetime<S1> */
-//  const datetime<S1> d2s1 = d2. template cast_to<S1>(d2);
-//  /* return the interval in (signed) *seconds S1 */
-//  return (d1-d2s1).signed_total_sec();
-//}
+// template <typename S1, typename S2,
+//           typename = std::enable_if_t<S1::is_of_sec_type>,
+//           typename = std::enable_if_t<S2::is_of_sec_type>,
+//           typename = std::enable_if_t<(S1::max_in_day > S2::max_in_day)>>
+// inline S1 delta_sec(const datetime<S1> &d1, const datetime<S2> &d2) noexcept
+// {
+//   /* cast d2 from datetime<S2> to datetime<S1> */
+//   const datetime<S1> d2s1 = d2. template cast_to<S1>(d2);
+//   /* return the interval in (signed) *seconds S1 */
+//   return (d1-d2s1).signed_total_sec();
+// }
 
 /** @brief (Signed) interval between two datetimes in *seconds.
  *
@@ -715,16 +720,17 @@ constexpr datetime_interval<T> delta_date(const datetime<T> &dt1,
  * @param  d2  datetime<S2> instance (difference is d1-d2)
  * @return     Difference d1-d2 in S2
  */
-//template <typename S1, typename S2,
-//          typename = std::enable_if_t<S1::is_of_sec_type>,
-//          typename = std::enable_if_t<S2::is_of_sec_type>,
-//          typename = std::enable_if_t<(S2::max_in_day > S1::max_in_day)>>
-//inline S2 delta_sec(const datetime<S1> &d1, const datetime<S2> &d2) noexcept {
-//  /* cast d1 from datetime<S1> to datetime<S2> */
-//  const datetime<S2> d1s2 = d1. template cast_to<S2>(d1);
-//  /* return the interval in (signed) *seconds S2 */
-//  return (d1s2-d2).signed_total_sec();
-//}
+// template <typename S1, typename S2,
+//           typename = std::enable_if_t<S1::is_of_sec_type>,
+//           typename = std::enable_if_t<S2::is_of_sec_type>,
+//           typename = std::enable_if_t<(S2::max_in_day > S1::max_in_day)>>
+// inline S2 delta_sec(const datetime<S1> &d1, const datetime<S2> &d2) noexcept
+// {
+//   /* cast d1 from datetime<S1> to datetime<S2> */
+//   const datetime<S2> d1s2 = d1. template cast_to<S2>(d1);
+//   /* return the interval in (signed) *seconds S2 */
+//   return (d1s2-d2).signed_total_sec();
+// }
 
 template <typename S1, typename S2,
           typename = std::enable_if_t<S1::is_of_sec_type>,
@@ -752,7 +758,7 @@ enum class DateTimeDifferenceType { FractionalDays, FractionalSeconds };
 
 /** @brief Return the difference d1 - d2 in the Date/Time units specified by
  *         the template parameter D
- * @warning Cannot handle tthe case where leap seconds are not the same at 
+ * @warning Cannot handle tthe case where leap seconds are not the same at
  *         d1 and d2.
  */
 template <DateTimeDifferenceType D, typename S,

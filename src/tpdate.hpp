@@ -7,11 +7,10 @@ namespace dso {
 
 class TwoPartDate {
 private:
-  double _mjd;   /** Mjd */
+  double _mjd;  /** Mjd */
   double _fday; /** fractional days */
 
 public:
-
   /** Constructor from datetime<T> */
 #if __cplusplus >= 202002L
   template <gconcepts::is_sec_dt T>
@@ -44,13 +43,13 @@ public:
     this->normalize();
   }
 
-  /** Difference between two dates as integral number of days and seconds of 
+  /** Difference between two dates as integral number of days and seconds of
    * day
    *
-   * This is not an 'actual date' but rather a datetime interval, but can be 
-   * represented a TwoPartDate instance. If the calling instance is prior to 
-   * the operand (i.e. d1-d2 with d2>d1) the interval is signed as 'negative'. 
-   * This means that the number of days can be negative, but the fractional 
+   * This is not an 'actual date' but rather a datetime interval, but can be
+   * represented a TwoPartDate instance. If the calling instance is prior to
+   * the operand (i.e. d1-d2 with d2>d1) the interval is signed as 'negative'.
+   * This means that the number of days can be negative, but the fractional
    * day will always be positive
    */
   TwoPartDate operator-(const TwoPartDate &d) const noexcept {
@@ -59,8 +58,8 @@ public:
 
   /** Add two instances.
    *
-   * In this case, the second instance can be though of a datetime interval 
-   * (rather than an actual datetime instance). The right operand can be a 
+   * In this case, the second instance can be though of a datetime interval
+   * (rather than an actual datetime instance). The right operand can be a
    * negative interval, which means that we are going backwards in time.
    */
   TwoPartDate operator+(const TwoPartDate &d) const noexcept {
@@ -71,7 +70,7 @@ public:
    *
    * The difference can be obtained as a fractional days or fractional seconds,
    * depending on the template parameter \p DT.
-   * If called as diff(d1,d2), the computation is d1-d2; the difference can be 
+   * If called as diff(d1,d2), the computation is d1-d2; the difference can be
    * negative if d2>d1.
    *
    * @warning Does not take into account leap seconds.
@@ -101,7 +100,7 @@ public:
   }
 
   /** Transform an instance to TAI, assuming it is in UTC
-   * 
+   *
    * The two time scales are connected by the formula:
    * \f$ UTC = TAI + ΔAT \$ where ΔAT are the leap seconds.
    */
@@ -170,8 +169,7 @@ public:
            _fday / DAYS_IN_JULIAN_CENT;
   }
 
-  template<core::YearCount C>
-  double fractional_years() const noexcept {
+  template <core::YearCount C> double fractional_years() const noexcept {
     /* date ommiting fraction of day */
     const datetime<dso::seconds> d(modified_julian_day((long)_mjd),
                                    dso::seconds(0));
@@ -260,6 +258,6 @@ public:
 
 TwoPartDate utc2tai(const TwoPartDate &d) noexcept;
 
-}/* namespace dso */
+} /* namespace dso */
 
 #endif

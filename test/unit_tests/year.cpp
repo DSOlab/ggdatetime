@@ -1,7 +1,7 @@
 #include "dtfund.hpp"
+#include <algorithm>
 #include <cassert>
 #include <vector>
-#include <algorithm>
 
 using dso::year;
 
@@ -11,7 +11,7 @@ int main() {
 
   y1 = 2024;
   assert(y1.as_underlying_type() == 2024);
-  
+
   /* not allowed */
   // y1 == 2024;
   /* not allowed */
@@ -49,8 +49,9 @@ int main() {
       2396, 2400};
 
   std::vector<int> l;
-  for (int y=1804; y<=2400; y++) {
-    if (year(y).is_leap()) l.push_back(y);
+  for (int y = 1804; y <= 2400; y++) {
+    if (year(y).is_leap())
+      l.push_back(y);
   }
   assert(std::equal(leap.begin(), leap.end(), l.begin()));
 

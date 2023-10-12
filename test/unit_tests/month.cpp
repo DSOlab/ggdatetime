@@ -1,7 +1,7 @@
 #include "dtfund.hpp"
+#include <algorithm>
 #include <cassert>
 #include <vector>
-#include <algorithm>
 
 using dso::month;
 
@@ -11,7 +11,7 @@ int main() {
 
   m1 = month(2024);
   assert(m1.as_underlying_type() == 2024);
-  
+
   /* not allowed */
   // m1 == 2024;
   /* not allowed */
@@ -32,8 +32,8 @@ int main() {
   assert((m1--) == month(2026));
   assert((--m1) == month(2024));
 
-  for (int i=-100; i<100; i++)
-    assert(month(i).is_valid() || (i<1 || i >12));
+  for (int i = -100; i < 100; i++)
+    assert(month(i).is_valid() || (i < 1 || i > 12));
 
   assert(month("jan") == month(1));
   assert(month("feb") == month(2));
@@ -47,7 +47,7 @@ int main() {
   assert(month("oct") == month(10));
   assert(month("nov") == month(11));
   assert(month("dec") == month(12));
-  
+
   assert(month("january") == month(1));
   assert(month("februarY") == month(2));
   assert(month("March") == month(3));
@@ -60,7 +60,7 @@ int main() {
   try {
     /* spelled wrong! should throw! */
     assert(month("octocber") == month(10));
-    assert(1==0);
+    assert(1 == 0);
   } catch (std::exception &) {
     ;
   }
