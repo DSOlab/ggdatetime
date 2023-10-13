@@ -8,7 +8,7 @@
 #define __DSO_DATETIME_DTFUND_HPP__
 
 #include "cdatetime.hpp"
-#include "dtconcepts.hpp"
+#include "datetime_tops.hpp"
 #include <cassert>
 #include <cmath>
 #include <cstdint>
@@ -698,11 +698,23 @@ public:
                      day_of_month d = day_of_month{}) noexcept
       : __year(y), __month(m), __dom(d) {}
 
+  ymd_date(const ydoy_date &ydoy);
+
   /** @brief Check if the date is a valid calendar date
    * @return True if the date is valid, false otherwise.
    */
   constexpr bool is_valid() const noexcept {
     return __dom.is_valid(__year, __month);
+  }
+  
+  /** operator '==' for ymd_date instances */
+  bool operator==(const ymd_date &d) const noexcept {
+    return ((__year == d.yr()) && (__dom == d.dm()) && (__month==d.mn()));
+  }
+  
+  /** operator '!=' for ymd_date instances */
+  bool operator!=(const ymd_date &d) const noexcept {
+    return !(this->operator==(d));
   }
 
   /** @brief Transform to year and day-of-year
@@ -762,7 +774,7 @@ public:
   constexpr bool is_valid() const noexcept { return __doy.is_valid(__year); }
 
   /** @brief Transform to year, month, day-of-month */
-  constexpr ymd_date to_ymd() const noexcept;
+  ymd_date to_ymd() const noexcept;
 
   /** @brief Convert to fractional years */
   template <core::YearCount C>
@@ -777,6 +789,16 @@ public:
              static_cast<double>(__doy.as_underlying_type()) /
                  (double)days_in_year;
     }
+  }
+
+  /** operator '==' for ydoy_date instances */
+  bool operator==(const ydoy_date &d) const noexcept {
+    return (__year == d.yr()) && (__doy == d.dy());
+  }
+  
+  /** operator '!=' for ydoy_date instances */
+  bool operator!=(const ydoy_date &d) const noexcept {
+    return !(this->operator==(d));
   }
   
   /** get/set year */
@@ -967,7 +989,6 @@ public:
 private:
   /** The modified julian day as underlying type. */
   underlying_type m_mjd;
-
 }; /* modified_julian_day */
 
 /** @brief A wrapper class for hours.
@@ -1036,7 +1057,6 @@ public:
 private:
   /** The hours as hours::underlying_type */
   underlying_type m_hours;
-
 }; /* hours */
 
 /** @brief A wrapper class for minutes.
@@ -1106,7 +1126,6 @@ public:
 private:
   /** The minutes as underlying type. */
   underlying_type m_min;
-
 }; /* minutes */
 
 /** @brief A wrapper class for seconds.
@@ -1257,7 +1276,6 @@ private:
 
   /** The seconds as underlying type. */
   underlying_type m_sec;
-
 }; /* seconds */
 
 /** @brief A wrapper class for milliseconds (i.e. 10**-3 sec).
@@ -1383,7 +1401,6 @@ private:
 
   /** Milliseconds as underlying type. */
   underlying_type m_sec;
-
 }; /* class milliseconds */
 
 /** @brief A wrapper class for microseconds (i.e 10**-6 sec.).
@@ -1501,7 +1518,6 @@ private:
 
   /** Microseconds as long ints. */
   underlying_type m_sec;
-
 }; /* microseconds */
 
 /** @brief A wrapper class for nanoseconds (i.e 10**-9 sec.).
@@ -1627,412 +1643,7 @@ private:
 
   /** Nanoseconds as long ints. */
   underlying_type m_sec;
-
 }; /* class nanoseconds */
-
-/** Overload bool operator '==' for datetime fundamental types.
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_const_ref__()
- * @note that this function only allows comparisson when both right/left sides
- *       of the expression satisfly (1) and (2)
- */
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_const_ref DType>
-#else
-template <typename DType,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_const_ref__)>::value>>
-#endif
-constexpr bool operator==(DType a, DType b) noexcept {
-  return a.__member_const_ref__() == b.__member_const_ref__();
-}
-
-/** @todo do we want to allow this?
- *
- * Overload bool operator '==' for comparing datetime fundamental types with
- * integers, aka
- * month m(3);
- * assert(m == 3)
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_const_ref__()
- */
-/*
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_const_ref DType, std::integral DInt>
-#else
-template <typename DType,
-          typename DInt,
-          typename = std::enable_if_t<std::is_integral_v<DInt>>,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_const_ref__)>::value>>
-#endif
-          constexpr bool operator==(DType a, DInt b) noexcept {
-  return a.__member_const_ref__() == static_cast<typename
-DType::underlying_type>(b);
-}
-*/
-
-/** Overload bool operator '!=' for datetime fundamental types.
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_const_ref__()
- * 3. the operator '==' is defined
- */
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_const_ref DType>
-#else
-template <typename DType,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_const_ref__)>::value>>
-#endif
-constexpr bool operator!=(DType a, DType b) noexcept {
-  return !(a == b);
-}
-
-/** Overload bool operator '>' for datetime fundamental types.
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_const_ref__()
- */
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_const_ref DType>
-#else
-template <typename DType,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_const_ref__)>::value>>
-#endif
-constexpr bool operator>(DType a, DType b) noexcept {
-  return a.__member_const_ref__() > b.__member_const_ref__();
-}
-
-/** Overload bool operator '>=' for datetime fundamental types.
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_const_ref__()
- */
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_const_ref DType>
-#else
-template <typename DType,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_const_ref__)>::value>>
-#endif
-constexpr bool operator>=(DType a, DType b) noexcept {
-  return a.__member_const_ref__() >= b.__member_const_ref__();
-}
-
-/** Overload bool operator '<' for datetime fundamental types.
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_const_ref__()
- */
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_const_ref DType>
-#else
-template <typename DType,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_const_ref__)>::value>>
-#endif
-constexpr bool operator<(DType a, DType b) noexcept {
-  return a.__member_const_ref__() < b.__member_const_ref__();
-}
-
-/** Overload bool operator '<=' for datetime fundamental types.
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_const_ref__()
- */
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_const_ref DType>
-#else
-template <typename DType,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_const_ref__)>::value>>
-#endif
-constexpr bool operator<=(DType a, DType b) noexcept {
-  return a.__member_const_ref__() <= b.__member_const_ref__();
-}
-
-/** Overload bool operator '+' for datetime fundamental types
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_const_ref__()
- * 3. right operand is any Integral type
- * This function will allow e.g.
- * modified_julian_day mjd_sum =
- *  modified_julian_day(123) + modified_julian_day(1);
- * Now sum's MJD will be 124
- */
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_const_ref DType>
-#else
-template <typename DType,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_const_ref__)>::value>>
-#endif
-constexpr DType operator+(DType _a, DType _b) noexcept {
-  return DType(_a.__member_const_ref__() + _b.__member_const_ref__());
-}
-
-/** Overload bool operator '+=' for datetime fundamental types when the right
- * operand is any integral type.
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_ref__()
- * 3. right operand is any Integral type
- * This function will allow e.g.
- * modified_julian_day mjd (123);
- * mjd += 1;
- * Now mjd's internal member, will have a value of 124.
- */
-template <typename DType, typename I,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_ref__)>::value>,
-          typename = std::enable_if_t<std::is_integral_v<I>>>
-constexpr DType &operator+=(DType &_a, I _intv) noexcept {
-  _a.__member_ref__() += _intv;
-  return _a;
-}
-
-/** Overload bool operator '+=' for datetime fundamental types when the right
- * operand is the same type as the calling instance.
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_ref__()
- * 3. right and left operands are of the same type
- * This function will allow e.g.
- * modified_julian_day mjd1 (123), mjd2 (132);
- * mjd1 += mjd2;
- * Now mjd's internal member, will have a value of 255.
- */
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_ref DType>
-#else
-template <typename DType,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_ref__)>::value>>
-#endif
-constexpr DType &operator+=(DType &_a, DType _b) noexcept {
-  _a.__member_ref__() += _b.__member_const_ref__();
-  return _a;
-}
-
-/** Overload bool operator '-=' for datetime fundamental types when the right
- * operand is any integral type.
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_ref__()
- * 3. right operand is any Integral type
- * This function will allow e.g.
- * modified_julian_day mjd (123);
- * mjd -= 1;
- * Now mjd's internal member, will have a value of 122.
- */
-template <typename DType, typename I,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_ref__)>::value>,
-          typename = std::enable_if_t<std::is_integral_v<I>>>
-constexpr DType &operator-=(DType &_a, I _intv) noexcept {
-  _a.__member_ref__() -= _intv;
-  return _a;
-}
-
-/** Overload bool operator '-=' for datetime fundamental types when the right
- * operand is of the same type as the calling instance.
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_ref__()
- * 3. right and left hand sides are of the same type
- * This function will allow e.g.
- * modified_julian_day mjd1 (123), mjd2 (100);
- * mjd1 -= mjd2;
- * Now mjd's internal member, will have a value of 23.
- */
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_ref DType>
-#else
-template <typename DType,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_ref__)>::value>>
-#endif
-constexpr DType &operator-=(DType &_a, DType _b) noexcept {
-  _a.__member_ref__() -= _b.__member_const_ref__();
-  return _a;
-}
-
-/** Overload prefix increment operator '++' for datetime fundamental types
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_ref__()
- * This function will allow e.g.
- * modified_julian_day mjd (123);
- * ++mjd;
- * Now mjd's internal member, will have a value of 124.
- */
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_ref DType>
-#else
-template <typename DType,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_ref__)>::value>>
-#endif
-constexpr DType &operator++(DType &_a) noexcept {
-  ++(_a.__member_ref__());
-  return _a;
-}
-
-/** Overload postfix increment operator '++' for datetime fundamental types
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_ref__()
- * This function will allow e.g.
- * modified_julian_day mjd (123);
- * mjd++;
- * Now mjd's internal member, will have a value of 124.
- */
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_ref DType>
-#else
-template <typename DType,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_ref__)>::value>>
-#endif
-constexpr DType operator++(DType &_a, int) noexcept {
-  auto tmp{_a};
-  ++_a;
-  return tmp;
-}
-
-/** Overload prefix decrement operator '--' for datetime fundamental types
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_ref__()
- * This function will allow e.g.
- * modified_julian_day mjd (123);
- * --mjd;
- * Now mjd's internal member, will have a value of 122.
- */
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_ref DType>
-#else
-template <typename DType,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_ref__)>::value>>
-#endif
-constexpr DType &operator--(DType &_a) noexcept {
-  --(_a.__member_ref__());
-  return _a;
-}
-
-/** Overload postfix decrement operator '--' for datetime fundamental types
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_ref__()
- * This function will allow e.g.
- * modified_julian_day mjd (123);
- * mjd--;
- * Now mjd's internal member, will have a value of 122.
- */
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_ref DType>
-#else
-template <typename DType,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_ref__)>::value>>
-#endif
-constexpr DType operator--(DType &_a, int) noexcept {
-  auto tmp{_a};
-  --_a;
-  return tmp;
-}
-
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_const_ref DType>
-#else
-template <typename DType,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_const_ref__)>::value>>
-#endif
-constexpr DType operator-(DType _a, DType _b) noexcept {
-  return DType(_a.__member_const_ref__() - _b.__member_const_ref__());
-}
-
-/** @brief Number of expressible days for any second type.
- *
- * This (template) function will return the number of whole days that can be
- * expressed using any instance of a second type (i.e. dso::seconds,
- * dso::milliseconds, etc). For any of these types, trying to hold more days
- * than this limit may result in overflow.
- *
- * @tparam S Any class of second type, i.e. any class S that has a (static)
- *         member variable S::is_of_sec_type set to true.
- */
-#if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt S>
-#else
-template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
-#endif
-constexpr typename S::underlying_type max_days_allowed() {
-  return std::numeric_limits<typename S::underlying_type>::max() /
-         S::max_in_day;
-}
-
-/** Explicit cast of any second type to another second type.
- *
- * Cast an instance of any second type (aka any instance for which
- * is_of_sec_type is defined and is true) to any other second type. E.g.,
- * cast seconds to milliseconds or cast microseconds to seconds. Be warned,
- * that casting to less precission (e.g. microseconds to seconds) will cause
- * loss of precission (1 microsecond is not 1e-6 seconds, it is just 0
- * seconds, remember?).
- *
- * @tparam Ssrc Any class of second type, i.e. any class S that has a (static)
- *         member variable S::is_of_sec_type set to true.
- * @tparam Strg Any class of second type, i.e. any class S that has a (static)
- *         member variable S::is_of_sec_type set to true.
- * @param[in] s An instance of type Ssrc to be cast to an instance of Strg
- * @return      The input s instance, as an instance of type Strg
- *
- * @warning this may cause loss of precission when e.g. casting milliseconds to
- *     seconds. E.g.
- *     cast_to<seconds, milliseconds>(seconds {1}) // result is 1000
- *     cast_to<milliseconds, seconds>(milliseconds {1}) // result is 0
- */
-#if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt Ssrc, gconcepts::is_sec_dt Strg>
-#else
-template <typename Ssrc, typename Strg,
-          typename = std::enable_if_t<Ssrc::is_of_sec_type>,
-          typename = std::enable_if_t<Strg::is_of_sec_type>>
-#endif
-constexpr Strg cast_to(Ssrc s) noexcept {
-  // this is tricky! We must first compute the numerator and then the fraction.
-  // why? check this out
-  // seconds _s1 = cast_to<milliseconds, seconds>(milliseconds{2000L});
-  // this is: (1/1000)*2000 which is 0 because 1/1000 is 0, but
-  // (2000*1)/1000 = 2 which is correct
-  const auto numerator = s.__member_ref__() * Strg::template sec_factor<long>();
-  return Strg(numerator / Ssrc::template sec_factor<long>());
-}
 
 /// For user-defined literals, i am going to replace long with
 /// unsigned long long int.
