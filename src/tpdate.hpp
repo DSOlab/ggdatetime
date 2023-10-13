@@ -178,7 +178,7 @@ public:
     if constexpr (C == core::YearCount::Julian) {
       return _fday / DAYS_IN_JULIAN_YEAR + d.fractional_years<C>();
     } else {
-      constexpr const int days_in_year = 365 + ydoy.__year.is_leap();
+      const int days_in_year = 365 + ydoy.yr().is_leap();
       return _fday / days_in_year + d.fractional_years<C>();
     }
   }

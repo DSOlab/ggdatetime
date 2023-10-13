@@ -26,6 +26,12 @@ int main() {
       const ydoy_date ydoy (ymd);
       assert((ydoy.yr() == year(y)) && (ydoy.dy() == day_of_year(31 + 29)));
       assert(ydoy.is_valid());
+      /* extra checks */
+      ymd = ymd_date(year(y), month(1), day_of_month(1));
+      assert(ydoy_date(ymd).dy() == day_of_year(1));
+      ymd = ymd_date(year(y), month(12), day_of_month(31));
+      assert(ymd.is_valid());
+      assert(ydoy_date(ymd).dy() == day_of_year(366));
     } else {
       /* non-leap year, should not have a valid date for YYYY/02/29 */
       ymd_date iymd(year(y), month(2), day_of_month(29));

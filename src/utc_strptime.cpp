@@ -7,9 +7,9 @@
 namespace {
 
 typedef dso::nanoseconds::underlying_type SecIntType;
-constexpr const SecIntType MAXSDAY = dso::nanoseconds::max_in_day;
+/*constexpr const SecIntType MAXSDAY = dso::nanoseconds::max_in_day;
 constexpr const SecIntType FACTOR =
-    dso::nanoseconds::template sec_factor<SecIntType>();
+    dso::nanoseconds::template sec_factor<SecIntType>();*/
 
 // skip any of the following characters:
 // ' ', '/', '-', ':', 'T'

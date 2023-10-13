@@ -80,23 +80,22 @@ env.Alias(target='install', source=env.InstallVersionedLib(dir=os.path.join(pref
  
 ## Tests ... 
 if test:
-    env.Append(CXXFLAGS=' -Wno-error=inline')
-    if '-Winline' in env['CXXFLAGS']: env['CXXFLAGS'].replace('-Winline','')
+    tenv = env.Clone()
+    tenv['CXXFLAGS'] = ' '.join([ x for x in env['CXXFLAGS'].split() if 'inline' not in x])
     cmp_error_fn = 'test/unit_tests/test_compilation_error.json'
     cerror_dct = {}
     if os.path.isfile(cmp_error_fn): os.remove(cmp_error_fn)
     test_sources = glob.glob(r"test/unit_tests/*.cpp")
-    env.Append(RPATH=root_dir)
+    tenv.Append(RPATH=root_dir)
     for tsource in test_sources:
         ttarget = os.path.join(os.path.dirname(tsource), os.path.basename(tsource).replace('_', '-').replace('.cpp', '.out'))
         if 'mock' in os.path.basename(tsource):
-            #print("{{'name': '{:}', 'flags': '{:}', 'exit': 1}}".format(os.path.abspath(tsource), ' '.join([env['CXX'], '-o', env['CXXFLAGS'], '-I'+os.path.abspath(os.path.join(env['RPATH'], 'src'))])))
             cerror_dct[os.path.basename(tsource)] = {
                 'name': '{:}'.format(os.path.abspath(tsource)),
-                'cxx': '{:}'.format(env['CXX']),
-                'incp' : '{:}'.format(os.path.abspath(os.path.join(env['RPATH'], 'src'))),
-                'flags': '{:}'.format(' '.join(['-o', env['CXXFLAGS']])), 
+                'cxx': '{:}'.format(tenv['CXX']),
+                'incp' : '{:}'.format(os.path.abspath(os.path.join(tenv['RPATH'], 'src'))),
+                'flags': '{:}'.format(' '.join(['-o', tenv['CXXFLAGS']])), 
                 'exit': 1}
         else:
-            env.Program(target=ttarget, source=tsource, CPPPATH='src/', LIBS=vlib, LIBPATH='.')
+            tenv.Program(target=ttarget, source=tsource, CPPPATH='src/', LIBS=vlib, LIBPATH='.')
     with open(cmp_error_fn, 'w') as fjson: print(json.dumps(cerror_dct, indent = 4), file=fjson)

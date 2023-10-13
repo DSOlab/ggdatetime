@@ -25,8 +25,8 @@ class gps_week;
 class day_of_month;
 class day_of_year;
 class modified_julian_day;
-struct ymd_date;
-struct ydoy_date;
+class ymd_date;
+class ydoy_date;
 class hours;
 class minutes;
 class seconds;
@@ -766,13 +766,13 @@ public:
 
   /** @brief Convert to fractional years */
   template <core::YearCount C>
-  constexpr double fractional_years() const noexcept {
+  double fractional_years() const noexcept {
     if constexpr (C == core::YearCount::Julian) {
       return static_cast<double>(__year.as_underlying_type()) +
              static_cast<double>(__doy.as_underlying_type()) /
                  (double)DAYS_IN_JULIAN_YEAR;
     } else {
-      constexpr const int days_in_year = 365 + __year.is_leap();
+      const int days_in_year = 365 + __year.is_leap();
       return static_cast<double>(__year.as_underlying_type()) +
              static_cast<double>(__doy.as_underlying_type()) /
                  (double)days_in_year;

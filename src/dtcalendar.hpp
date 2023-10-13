@@ -8,9 +8,11 @@
 #define __DTCALENDAR_NGPT__HPP__
 
 #include "dtfund.hpp"
+#include "dtconcepts.hpp"
 #include <cassert>
 #include <stdexcept>
 #include <type_traits>
+#include <cmath>
 
 namespace dso {
 
@@ -23,6 +25,19 @@ namespace core {
 template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value>>
 int sgn(T val) noexcept {
   return (T(0) <= val) - (val < T(0));
+}
+
+/** Specialization of core::sgn for fundamental datetime types */
+#if __cplusplus >= 202002L
+template <gconcepts::is_fundamental_and_has_ref DType>
+#else
+template <typename DType,
+          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
+          typename = std::enable_if_t<std::is_member_function_pointer<
+              decltype(&DType::__member_ref__)>::value>>
+#endif
+int sgn(DType val) noexcept {
+  return (DType(0) <= val) - (val < DType(0));
 }
 
 /** A utility struct to hold possibly negative datetime intervals
@@ -219,7 +234,7 @@ template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
 class datetime {
 public:
   /** Expose the underlying sec type S */
-  using SecIntType = S;
+  using SecIntType = typename S::underlying_type;
   /** Expose the underlying modified_julian_day int */
   typedef modified_julian_day::underlying_type DaysIntType;
 
@@ -475,18 +490,19 @@ public:
    */
   constexpr void normalize() noexcept {
     /* number of whole days in seconds (always positive) */
-    const DaysIntType more = std::copysign(m_sec, 1) / S::max_in_day();
+    const DaysIntType more =
+        std::copysign(m_sec.as_underlying_type(), 1) / S::max_in_day;
     /* add to current days, with the right sign */
     const DaysIntType days =
-        m_mjd.as_underlying_type() + std::copysign(more, sgn(m_sec));
+        m_mjd.as_underlying_type() + std::copysign(more, core::sgn(m_sec));
     /* leftover seconds (positive) */
     const SecIntType s =
-        std::copysign(m_sec.as_underlying_type(), 1) - more * S::max_in_day();
+        std::copysign(m_sec.as_underlying_type(), 1) - more * S::max_in_day;
     /* if initial seconds were negative, adjust */
-    m_mjd = days - 1 * (m_sec < 0);
-    m_sec = (S::max_in_day() - s) * (m_sec < 0) + s * (m_sec >= 0);
+    m_mjd = modified_julian_day(days - 1 * (m_sec < S(0)));
+    m_sec = S((S::max_in_day - s) * (m_sec < S(0)) + s * (m_sec >= S(0)));
 #ifdef DEBUG
-    assert(m_sec >= S(0) && m_sec < S::max_in_day());
+    assert(m_sec >= S(0) && m_sec < S::max_in_day);
 #endif
   }
 
@@ -538,7 +554,7 @@ public:
     if constexpr (C == core::YearCount::Julian) {
       return fyear + sec().fractional_days() / DAYS_IN_JULIAN_YEAR;
     } else {
-      constexpr const int days_in_year = 365 + ydoy.__year.is_leap();
+      const int days_in_year = 365 + ydoy.yr().is_leap();
       return fyear + sec().fractional_days() / days_in_year;
     }
   }
@@ -549,10 +565,10 @@ public:
    */
   constexpr double fractional_cyears() const noexcept {
     const ydoy_date ydoy(as_ydoy());
-    const double year = ydoy.__year.as_underlying_type();
-    const double doy = ydoy.__doy.as_underlying_type();
+    const double year = ydoy.yr().as_underlying_type();
+    const double doy = ydoy.dy().as_underlying_type();
     const double fday = sec().fractional_days();
-    const double days_in_year = 365e0 + (double)ydoy.__year.is_leap();
+    const double days_in_year = 365e0 + (double)ydoy.yr().is_leap();
     return year + (doy / days_in_year + fday / days_in_year);
   }
 
@@ -654,7 +670,6 @@ private:
 
   modified_julian_day m_mjd; /** Modified Julian Day */
   S m_sec;                   /** Time of day in S precision. */
-
 }; /* datetime<S> */
 
 /// Difference between two dates in MJdays and T.
