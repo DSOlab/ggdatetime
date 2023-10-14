@@ -1,7 +1,8 @@
 /** @file
  * Fundamental (core) datetime constants, algorithms and types.
  * This file contains fundamental constants, algorithms and data structures,
- * for manipulating date and time, targeting GNSS applications.
+ * for manipulating date and time, targeting Space Geodesy applications.
+ * Time scales and calendars are not considered here.
  */
 
 #ifndef __DSO_DATETIME_DTFUND_HPP__
@@ -42,12 +43,6 @@ constexpr const long month_day[2][13] = {
 
 /** Month lengths in days */
 constexpr const int mtab[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-/** How many days are there in a year? 'Julian' means that there are 365.25
- * days (in a year), while 'ConsiderLeap' uses 365 for all but leap years,
- * where the count is 366.
- */
-enum class YearCount { Julian, ConsiderLeap };
 
 /** @brief Calendar date to Modified Julian Day.
  *
@@ -188,6 +183,7 @@ inline constexpr double epj2mjd(double epj) noexcept {
  * @return TAI-UTC up to the datetime (\p iy, \p im, 23:59:59)
  */
 int dat(year iy, month im) noexcept;
+int dat(const ymd_date &ymd) noexcept;
 
 /** @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
  *
@@ -775,21 +771,6 @@ public:
 
   /** @brief Transform to year, month, day-of-month */
   ymd_date to_ymd() const noexcept;
-
-  /** @brief Convert to fractional years */
-  template <core::YearCount C>
-  double fractional_years() const noexcept {
-    if constexpr (C == core::YearCount::Julian) {
-      return static_cast<double>(__year.as_underlying_type()) +
-             static_cast<double>(__doy.as_underlying_type()) /
-                 (double)DAYS_IN_JULIAN_YEAR;
-    } else {
-      const int days_in_year = 365 + __year.is_leap();
-      return static_cast<double>(__year.as_underlying_type()) +
-             static_cast<double>(__doy.as_underlying_type()) /
-                 (double)days_in_year;
-    }
-  }
 
   /** operator '==' for ydoy_date instances */
   bool operator==(const ydoy_date &d) const noexcept {

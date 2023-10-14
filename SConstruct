@@ -60,6 +60,7 @@ penv = Environment(CXXFLAGS='-Wall -Wextra -Werror -pedantic -W -Wshadow -Winlin
 ## Command line arguments ...
 debug = ARGUMENTS.get('debug', 0)
 test  = ARGUMENTS.get('test', 0)
+sofa  = ARGUMENTS.get('test-vs-sofa', 0)
 
 ## Construct the build enviroment
 env = denv.Clone() if int(debug) else penv.Clone()
@@ -78,8 +79,9 @@ vlib = env.SharedLibrary(source=lib_src_files, target=lib_name, CPPPATH=['.'], S
 env.Alias(target='install', source=env.Install(dir=os.path.join(prefix, 'include', inc_dir), source=hdr_src_files))
 env.Alias(target='install', source=env.InstallVersionedLib(dir=os.path.join(prefix, 'lib'), source=vlib))
  
-## Tests ... 
+## Unit Tests ... 
 if test:
+    print('Compiling unit tests ')
     tenv = env.Clone()
     tenv['CXXFLAGS'] = ' '.join([ x for x in env['CXXFLAGS'].split() if 'inline' not in x])
     cmp_error_fn = 'test/unit_tests/test_compilation_error.json'
@@ -99,3 +101,14 @@ if test:
         else:
             tenv.Program(target=ttarget, source=tsource, CPPPATH='src/', LIBS=vlib, LIBPATH='.')
     with open(cmp_error_fn, 'w') as fjson: print(json.dumps(cerror_dct, indent = 4), file=fjson)
+
+## SOFA Tests ... 
+if sofa:
+    print('Compiling tests against SOFA')
+    tenv = env.Clone()
+    tenv['CXXFLAGS'] = ' '.join([ x for x in env['CXXFLAGS'].split() if 'inline' not in x])
+    test_sources = glob.glob(r"test/sofa/*.cpp")
+    tenv.Append(RPATH=root_dir)
+    for tsource in test_sources:
+        ttarget = os.path.join(os.path.dirname(tsource), os.path.basename(tsource).replace('_', '-').replace('.cpp', '.out'))
+        tenv.Program(target=ttarget, source=tsource, CPPPATH='src/', LIBS=vlib+['sofa_c'], LIBPATH='.')

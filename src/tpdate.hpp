@@ -169,20 +169,6 @@ public:
            _fday / DAYS_IN_JULIAN_CENT;
   }
 
-  template <core::YearCount C> double fractional_years() const noexcept {
-    /* date ommiting fraction of day */
-    const datetime<dso::seconds> d(modified_julian_day((long)_mjd),
-                                   dso::seconds(0));
-    const ydoy_date ydoy(d.as_ydoy());
-    /* add fraction of day */
-    if constexpr (C == core::YearCount::Julian) {
-      return _fday / DAYS_IN_JULIAN_YEAR + d.fractional_years<C>();
-    } else {
-      const int days_in_year = 365 + ydoy.yr().is_leap();
-      return _fday / days_in_year + d.fractional_years<C>();
-    }
-  }
-
   bool operator>(const TwoPartDate &d) const noexcept {
     return (_mjd > d._mjd) || ((_mjd == d._mjd) && (_fday > d._fday));
   }

@@ -543,35 +543,6 @@ public:
     return epj(this->fmjd());
   }
 
-  /** @brief Convert to fractional years.
-   * TODO fix documentation The function will assuming a year of of 365.25 days,
-   * i.e. a Julian year
-   */
-  template <core::YearCount C>
-  constexpr double fractional_years() const noexcept {
-    const ydoy_date ydoy(as_ydoy());
-    double fyear = ydoy.fractional_years<C>();
-    if constexpr (C == core::YearCount::Julian) {
-      return fyear + sec().fractional_days() / DAYS_IN_JULIAN_YEAR;
-    } else {
-      const int days_in_year = 365 + ydoy.yr().is_leap();
-      return fyear + sec().fractional_days() / days_in_year;
-    }
-  }
-
-  /** @brief Convert to fractional years.
-   * The function will assuming a year of of 365 or 366 days, depending on the
-   * year (i.e. if it is leap or not).
-   */
-  constexpr double fractional_cyears() const noexcept {
-    const ydoy_date ydoy(as_ydoy());
-    const double year = ydoy.yr().as_underlying_type();
-    const double doy = ydoy.dy().as_underlying_type();
-    const double fday = sec().fractional_days();
-    const double days_in_year = 365e0 + (double)ydoy.yr().is_leap();
-    return year + (doy / days_in_year + fday / days_in_year);
-  }
-
   /** @brief Cast to gps_week and S-Of-Week */
   constexpr gps_week gps_wsow(S &sow) const noexcept {
     const DaysIntType mjd = m_mjd.as_underlying_type();

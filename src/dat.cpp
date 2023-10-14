@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <cstdio>
 
 namespace calendar_dat {
 /** Dates and Delta(AT)s */
@@ -32,6 +33,10 @@ constexpr const std::array<change, 28> changes = {
      {50083L, 30}, {50630L, 31}, {51179L, 32}, {53736L, 33}, {54832L, 34},
      {56109L, 35}, {57204L, 36}, {57754L, 37}}};
 } /* namespace mjd_dat */
+
+int dso::dat(const dso::ymd_date &ymd) noexcept {
+  return dso::dat(ymd.yr(), ymd.mn());
+}
 
 int dso::dat(dso::year iy, dso::month im) noexcept {
   assert(iy >= dso::year(1972));
@@ -72,12 +77,16 @@ int dso::dat(dso::modified_julian_day mjd, int &extra_sec_in_day) noexcept {
                            return mjd >= dso::modified_julian_day(c.mjd);
                          });
 
-  /* check to see if given MJD is a leap-second day (i.e. has more seconds */
+  /* check to see if given MJD is a leap-second day (i.e. has more seconds) */
   if (it != mjd_dat::changes.rend()) {
-    if (mjd == dso::modified_julian_day((it)->mjd - 1)) {
-      int prev_leaps =
+    /* given MJD is on a leap-insertion date */
+    if (mjd == dso::modified_julian_day((it)->mjd-1)) {
+      int current_leap = it->delat; printf("\tcurrent leaps: %d\n", current_leap);
+      /* leap seconds one day before */
+      int prev_leap =
           ((it + 1) == mjd_dat::changes.rend()) ? (0) : ((it + 1)->delat);
-      extra_sec_in_day = it->delat - prev_leaps;
+        printf("\tprev leaps: %d\n", prev_leap);
+      extra_sec_in_day = current_leap - prev_leap;
     }
   }
 
