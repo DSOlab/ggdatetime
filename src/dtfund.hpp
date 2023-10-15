@@ -901,6 +901,9 @@ public:
   constexpr modified_julian_day(year iy, day_of_year id)
       : m_mjd(
             core::ydoy2mjd(iy.as_underlying_type(), id.as_underlying_type())){};
+  modified_julian_day(const ydoy_date &ydoy)
+      : m_mjd(core::ydoy2mjd(ydoy.yr().as_underlying_type(),
+                             ydoy.dy().as_underlying_type())){};
 
   /** @brief Constructor from  calendar date
    * The passed in date is tested to see if they represent a valid date. If
@@ -916,6 +919,10 @@ public:
   constexpr modified_julian_day(year y, month m, day_of_month d)
       : m_mjd(core::cal2mjd(y.as_underlying_type(), m.as_underlying_type(),
                             d.as_underlying_type())){};
+  modified_julian_day(const ymd_date &ymd)
+      : m_mjd(core::cal2mjd(ymd.yr().as_underlying_type(),
+                            ymd.mn().as_underlying_type(),
+                            ymd.dm().as_underlying_type())){};
 
   /** Overload operator '=' where the the right-hand-side is any integral type.
    * @tparam I any integral type, aka any type for which std::is_integral_v<I>
