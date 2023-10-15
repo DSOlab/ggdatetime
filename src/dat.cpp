@@ -69,6 +69,7 @@ int dso::dat(dso::modified_julian_day mjd) noexcept {
 }
 
 int dso::dat(dso::modified_julian_day mjd, int &extra_sec_in_day) noexcept {
+  assert(mjd >= modified_julian_day(41317));
   extra_sec_in_day = 0;
 
   /* find the preceding table entry. */
@@ -76,21 +77,20 @@ int dso::dat(dso::modified_julian_day mjd, int &extra_sec_in_day) noexcept {
                          [&](const mjd_dat::change &c) {
                            return mjd >= dso::modified_julian_day(c.mjd);
                          });
+  
+  /* extra seconds in day */
+  extra_sec_in_day = 0;
 
   /* check to see if given MJD is a leap-second day (i.e. has more seconds) */
-  if (it != mjd_dat::changes.rend()) {
-    /* given MJD is on a leap-insertion date */
-    if (mjd == dso::modified_julian_day((it)->mjd-1)) {
-      int current_leap = it->delat; printf("\tcurrent leaps: %d\n", current_leap);
-      /* leap seconds one day before */
-      int prev_leap =
-          ((it + 1) == mjd_dat::changes.rend()) ? (0) : ((it + 1)->delat);
-        printf("\tprev leaps: %d\n", prev_leap);
-      extra_sec_in_day = current_leap - prev_leap;
+  if (it != mjd_dat::changes.rend() && it != mjd_dat::changes.rbegin()) {
+    /* given MJD is on a leap-insertion date (i.e. day prior to next leap) */
+    if (mjd == dso::modified_julian_day((it-1)->mjd-1)) {
+      /* DAT at next period */
+      int next_leap = (it-1)->delat;
+      extra_sec_in_day = next_leap - it->delat;
     }
   }
 
   /* Get the Delta(AT). */
-  return it == (mjd_dat::changes.rend()) ? (mjd_dat::changes.begin()->delat)
-                                         : (it->delat);
+  return it->delat;
 }

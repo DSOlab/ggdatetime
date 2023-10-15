@@ -56,3 +56,25 @@ scons test=1
 ## run tests
 ./run_test_suite.py --progs-dir=test
 ```
+
+## The Library
+
+### Nomenclature
+
+* *Julian year* 365.25 days
+* *Julian century* 36525 days
+
+*Julian date* (JD) is a continuous count of days (JD zero is located about 7000 years ago).
+Because of the unwieldy size of Julian Dates and the awkwardness of the half-day 
+offset, it is accepted practice to remove the leading ‘24’ and the trailing ‘.5’, 
+producing what is called the *Modified Julian Date*, i.e.
+$ MJD = JD − 2,400,000.5 $
+
+In the library, this constant is named `ds::MJD0_JD = 2400000.5e0`, i.e. the
+*Julian Date of Modified Julian Date zero*.
+
+*Julian epoch* is a convinient way of representing an epoch as fractional years. 
+It uses the *Julian year* of exactly 365.25 days, and the *TT* time scale; 
+Julian epoch 2000.0 is defined to be 2000 January 1.5 (i.e. 2000 January 1d 12h), 
+which is JD 2,451,545.0 (i.e. `dso::J2000_JD`) or MJD 51,544.5 (i.e. `dso::J2000_MJD`). 
+Julian epoch is usually denoted as *“J2000.0”*.

@@ -5,6 +5,40 @@
 
 namespace dso {
 
+namespace core {
+/** Method to split a Julian Da[y|te] , preserving digits.
+ *
+ * A Julian Date can be partioned in any of the following ways:
+ * -----------------------------------------------------------
+ *            dj1            dj2
+ *
+ *        2450123.7           0.0       (JD method)
+ *        2451545.0       -1421.3       (J2000 method)
+ *        2400000.5       50123.2       (MJD method)
+ *        2450123.5           0.2       (date & time method)
+ */
+enum class JdSplitMethod { JD, J2000, MJD, DT };
+struct TwoPartJulianDate {
+  double d0, d1;
+};
+
+/** Given an MJD, turn it to a JD and return it split in a convinient way 
+ * The way the (returned) JD is split is determined by the template parameter 
+ * \p S. 
+ */
+template <JdSplitMethod S = JdSplitMethod::J2000>
+TwoPartJulianDate jd_split(double mjd, double fday) noexcept {
+  if constexpr (S == JdSplitMethod::JD)
+    return TwoPartJulianDate(mjd + dso::MJD0_JD + fday, 0e0);
+  else if constexpr (S == JdSplitMethod::J2000)
+    return TwoPartJulianDate(J2000_JD, mjd - J2000_MJD + fday);
+  else if constexpr (S == JdSplitMethod::MJD)
+    return TwoPartJulianDate(MJD0_JD, mjd + fday);
+  else
+    return TwoPartJulianDate(mjd + dso::MJD0_JD, fday);
+}
+} /* namespace core */
+
 class TwoPartDate {
 private:
   double _mjd;  /** Mjd */
@@ -220,26 +254,6 @@ public:
     return !(this->operator==(d));
   }
 
-  /// A Julian Date can be partioned in any of the following ways:
-  /// -----------------------------------------------------------
-  ///            dj1            dj2
-  ///
-  ///        2450123.7           0.0       (JD method)
-  ///        2451545.0       -1421.3       (J2000 method)
-  ///        2400000.5       50123.2       (MJD method)
-  ///        2450123.5           0.2       (date & time method)
-  enum class JdSplitMethod { JD, J2000, MJD, DT };
-  template <JdSplitMethod S = JdSplitMethod::J2000>
-  TwoPartDate jd_split() const noexcept {
-    if constexpr (S == JdSplitMethod::JD)
-      return TwoPartDate(_mjd + dso::MJD0_JD + _fday, 0e0);
-    else if constexpr (S == JdSplitMethod::J2000)
-      return TwoPartDate(J2000_JD, _mjd - J2000_MJD + _fday);
-    else if constexpr (S == JdSplitMethod::MJD)
-      return TwoPartDate(MJD0_JD, _mjd + _fday);
-    else
-      return TwoPartDate(_mjd + dso::MJD0_JD, _fday);
-  }
 }; /* class TwoPartDate */
 
 TwoPartDate utc2tai(const TwoPartDate &d) noexcept;

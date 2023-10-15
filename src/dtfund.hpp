@@ -137,15 +137,20 @@ inline constexpr double jd2epj(double dj1, double dj2) noexcept {
 
 /** @brief Modified Julian Date to Julian Epoch
  *
- * Convert a Modified Julian date to a Julian Epoch.
+ * Convert a Modified Julian date to a Julian Epoch. The MJD can be given as a 
+ * single value (i.e. in parameter \p mjd0) or can be split into two parts, 
+ * (e.g. the first being the intergal part of MJD and the second be fractional 
+ * day).
  *
  * @see jd2epj
  *
- * @param[in] mjd The Modified Julian Date
+ * @param[in] mjd0 The Modified Julian Date (first part or whole number)
+ * @param[in] mjd1 Second part of MJD (if any), such that MJD = mjd0 + mjd1
  * @return The input date as Julian Epoch.
  */
-inline constexpr double mjd2epj(double mjd) noexcept {
-  return 2000e0 + (mjd - J2000_MJD) / DAYS_IN_JULIAN_YEAR;
+inline constexpr double mjd2epj(double mjd0, double mjd1=0e0) noexcept {
+  return 2000e0 + ((mjd0 - J2000_MJD) / DAYS_IN_JULIAN_YEAR +
+                   mjd1 / DAYS_IN_JULIAN_YEAR);
 }
 
 /** @brief Julian Epoch to Modified Julian Date
@@ -159,7 +164,7 @@ inline constexpr double epj2mjd(double epj) noexcept {
   return J2000_MJD + (epj - 2000e0) * DAYS_IN_JULIAN_YEAR;
 }
 } /* namespace core */
-
+  
 /** @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
  *
  * The day of month is actually not needed, since all leap second insertions
@@ -172,9 +177,9 @@ inline constexpr double epj2mjd(double epj) noexcept {
  * @note In case using MJD (and not calendar date) is more convinient, use the
  *       overloaded function dso::dat
  * @warning
- *    - This version only works for post-1972 dates! For a more complete
+ *  - This version only works for post-1972 dates! For a more complete
  *      version, see the iauDat.c routine from IAU's SOFA.
- *    - No checks are performed for the validity of the input date.
+ *  - No checks are performed for the validity of the input date.
  * @see IAU SOFA (iau-dat.c)
  * @see dso::dat
  *
@@ -207,7 +212,7 @@ int dat(modified_julian_day mjd) noexcept;
 
 /** @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
  *
- * Overload of dso::dat(dso::year, dso::month) for MJD.
+ * Overload of dso::core::dat) for MJD.
  * If the specified date is for a day which ends with a leap second, the
  * UTC-TAI value returned is for the period leading up to the leap second. If
  * the date is for a day which begins as a leap second ends, the UTC-TAI
