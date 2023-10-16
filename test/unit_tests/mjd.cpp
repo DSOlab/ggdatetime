@@ -1,5 +1,4 @@
 #include "dtfund.hpp"
-#include "sofa.h"
 #include <cassert>
 #include <random>
 #include <cmath>
