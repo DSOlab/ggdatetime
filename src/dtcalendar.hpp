@@ -555,7 +555,7 @@ public:
     m_mjd = modified_julian_day(days - 1 * (m_sec < S(0)));
     m_sec = S((S::max_in_day - s) * (m_sec < S(0)) + s * (m_sec >= S(0)));
 #ifdef DEBUG
-    assert(m_sec >= S(0) && m_sec < S::max_in_day);
+    assert(m_sec >= S(0) && m_sec < S(S::max_in_day));
 #endif
   }
 
