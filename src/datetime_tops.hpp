@@ -5,8 +5,8 @@
 #define __DSO_DATETIME_GENERIC_TEMPLATE_OPERATIONS_HPP__
 
 #include "dtconcepts.hpp"
-#include <type_traits>
 #include <limits>
+#include <type_traits>
 
 namespace dso {
 
@@ -55,7 +55,6 @@ template <typename DType,
 constexpr bool operator==(DType a, DType b) noexcept {
   return a.__member_const_ref__() == b.__member_const_ref__();
 }
-
 
 /** Overload bool operator '!=' for datetime fundamental types.
  * This function will be resolved for any type DType, which
@@ -415,6 +414,6 @@ constexpr Strg cast_to(Ssrc s) noexcept {
   return Strg(numerator / Ssrc::template sec_factor<long>());
 }
 
-}/* namespace dso */
+} /* namespace dso */
 
 #endif

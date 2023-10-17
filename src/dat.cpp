@@ -77,16 +77,16 @@ int dso::dat(dso::modified_julian_day mjd, int &extra_sec_in_day) noexcept {
                          [&](const mjd_dat::change &c) {
                            return mjd >= dso::modified_julian_day(c.mjd);
                          });
-  
+
   /* extra seconds in day */
   extra_sec_in_day = 0;
 
   /* check to see if given MJD is a leap-second day (i.e. has more seconds) */
   if (it != mjd_dat::changes.rend() && it != mjd_dat::changes.rbegin()) {
     /* given MJD is on a leap-insertion date (i.e. day prior to next leap) */
-    if (mjd == dso::modified_julian_day((it-1)->mjd-1)) {
+    if (mjd == dso::modified_julian_day((it - 1)->mjd - 1)) {
       /* DAT at next period */
-      int next_leap = (it-1)->delat;
+      int next_leap = (it - 1)->delat;
       extra_sec_in_day = next_leap - it->delat;
     }
   }

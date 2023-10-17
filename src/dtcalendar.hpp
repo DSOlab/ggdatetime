@@ -7,12 +7,12 @@
 #ifndef __DTCALENDAR_NGPT__HPP__
 #define __DTCALENDAR_NGPT__HPP__
 
-#include "dtfund.hpp"
 #include "dtconcepts.hpp"
+#include "dtfund.hpp"
 #include <cassert>
+#include <cmath>
 #include <stdexcept>
 #include <type_traits>
-#include <cmath>
 
 namespace dso {
 
@@ -90,34 +90,23 @@ struct RawDatetimeDifference {
  * A datetime_interval represents a time (datetime) interval or period, i.e.
  * 5 days, 12 hours and 49 seconds. We assume a continuous time scale, no leap
  * seconds are taken into consideration --this is only an interval not an
- * actual datetime instance--).
+ * actual datetime instance--.
  * A datetime_interval instance can only have positive (or zero) values (for
- * both its members).
+ * both of its members). However, seperate field is stored (i.e. \p m_sign) to
+ * hold 'sign' information, so that a datetime_interval instance can be easily
+ * used with a datetime instance. That means that e.g. 'adding' a negative
+ * interval, will extend the datetime in the past.
  *
  * A datetime_interval instance has two fundamental parts (members):
  * - a day part (i.e. holding the days), and
  * - a time part (i.e. holding any type S i.e. any second type)
+ * - a sign (i.e. an integer)
  *
  * The purpose of this class is to work together with the datetime class.
  *
  * @tparam S Any class of 'second type', i.e. any class S that has a (static)
  *           member variable S::is_of_sec_type set to true. This can be
  *           dso::seconds, dso::milliseconds, dso::microseconds.
- *
- *
- * @note  - Any instance of the class has two members, m_days an integer
- *          representing the (MJ) days and m_secs, an instance of type S,
- *          representing the fractional day part. However, the parts may be
- *          mixed (!), that is if e.g. S is dso::seconds, the m_secs part may
- *          actualy have any value, including ones larger than 86400. That is
- *          to say that an instance can be constructed as:
- *        \code{.cpp}
- *          datetime_interval<seconds> d {modified_julian_day(1),
- *          seconds(90000)};
- *        \endcode
- *          Should the user want the "normalization" of the instance (that is
- *          remove whole days from the m_secs part and add them to the m_days
- *          part), call the function datetime_interval::normalize().
  */
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S>
@@ -130,15 +119,28 @@ class datetime_interval {
 
 public:
   /** Default constructor (everything set to 0). */
-  explicit constexpr datetime_interval() noexcept
-      : m_days(0), m_secs(0){};
+  explicit constexpr datetime_interval() noexcept : m_days(0), m_secs(0){};
 
-  /** Constructor from number of days and number of *seconds. The sign of the
-   * interval is taken from \p days. The number of days and number of *seconds 
-   * of the interval, are considered positive (i.e. absolute values of input 
-   * parameters).
+  /** Constructor from number of days and number of *seconds.
    *
-   * @warning It is not possible to differentiate between -0 and +1. Hence, 
+   * The sign of the interval is extracted from \p days. The number of days
+   * and number of *seconds of the interval, are considered positive (i.e.
+   * absolute values of input parameters).
+   * For example to construct an interval of 2days + 2sec, use:
+   * datetime_interval<sec> interval(2, seconds(2));
+   * If you want to mark this interval as 'negative' (normally for algebraic
+   * operations with a datetime isntance), use:
+   * datetime_interval<sec> interval(-2, seconds(2));
+   * If you want to mark a 'negative' interval but the number of days is zero,
+   * then you should use:
+   * datetime_interval<sec> interval(0, seconds(-2));
+   * or
+   * datetime_interval<sec> interval(seconds(-2));
+   * and **NOT**
+   * datetime_interval<sec> interval(-0, seconds(2));
+   * since there is no 'signed 0' value.
+   *
+   * @warning It is not possible to differentiate between -0 and +0. Hence,
    *          to construct an interval of 0 days and 1 secs (S), use:
    *          datetime_interval(S(-1)) and **NOT**
    *          datetime_interval(-0, S(1))
@@ -149,8 +151,8 @@ public:
     normalize();
   };
 
-  /** Constructor from number of *seconds. The sign of the interval is taken 
-   * from \p secs. The number of *seconds of the interval is considered 
+  /** Constructor from number of *seconds. The sign of the interval is taken
+   * from \p secs. The number of *seconds of the interval is considered
    * positive (i.e. absolute values of input parameter).
    */
   constexpr datetime_interval(S secs) noexcept
@@ -180,21 +182,23 @@ public:
   DaysIntType days() const noexcept { return m_days; }
 
   /** return number of *secs in interval, always positive */
-  S/*ecIntType*/ sec() const noexcept { return S(m_secs); }
+  S sec() const noexcept { return S(m_secs); }
 
   /** return number of *secs in interval, signed (not including whole days) */
-  S /*ecIntType*/ signed_sec() const noexcept {
-    return S(std::copysign(m_secs, m_sign));
-  }
+  S signed_sec() const noexcept { return S(std::copysign(m_secs, m_sign)); }
 
   /** return the sign of the interval */
   int sign() const noexcept { return m_sign; }
 
-  S/*ecIntType*/ unsigned_total_sec() const noexcept {
+  /** Return the interval (days+*seconds) in seconds type S, ignoring sign */
+  S unsigned_total_sec() const noexcept {
     return S(m_secs + S::max_in_day * m_days);
   }
 
-  S/*ecIntType*/ signed_total_sec() const noexcept {
+  /** Return the interval (days+*seconds) in seconds type S, using a negative
+   * value if the instance is marked as 'negative'
+   */
+  S signed_total_sec() const noexcept {
     return S(std::copysign(unsigned_total_sec().as_underlying_type(), m_sign));
   }
 
@@ -213,11 +217,11 @@ private:
  * - a date part (i.e. holding the year/month/day), and
  * - a time part (i.e. holding hours/minutes/ *seconds)
  *
- * A datetime holds both a date and a time (i.e. of day). The date is stored 
+ * A datetime holds both a date and a time (i.e. of day). The date is stored
  * as a Modified Julian Day (i.e. dso::modified_julian_day). The time of day
  * can be stored via any class of 'second type', i.e. dso::seconds,
- * dso::milliseconds, or dso::microseconds). Every method in the class will 
- * (including constructors) will take provisions such that the *seconds are 
+ * dso::milliseconds, or dso::microseconds). Every method in the class will
+ * (including constructors) will take provisions such that the *seconds are
  * in fact *seconds of day (i.e. do not surpass one day).
  * Never use negative times; they actually have no physical meaning. Besides
  * that, they can cause UB.
@@ -431,7 +435,7 @@ public:
   */
 
   /** Operator '+' where the right-hand-side is an interval.
-   * Note that the addition here is algebraic, i.e. the interval is added to 
+   * Note that the addition here is algebraic, i.e. the interval is added to
    * or subtracted from the instance, depending on its sign.
    * Hence, an interval of e.g. (- 2 days, 30 sec) will actually be subtracted
    * from the instance, not added to it.
@@ -445,7 +449,7 @@ public:
   }
 
   /** Add a time interval to a datetime instance.
-   * Note that the addition here is algebraic, i.e. the interval is added to 
+   * Note that the addition here is algebraic, i.e. the interval is added to
    * or subtracted from the instance, depending on its sign.
    * Hence, an interval of e.g. (- 2 days, 30 sec) will actually be subtracted
    * from the instance, not added to it.
@@ -462,21 +466,29 @@ public:
     /* big date at d1, small at d2 */
     auto d1 = *this;
     auto d2 = dt;
-    int sgn=1;
-    if (m_mjd < dt.m_mjd) {
+    int sgn = 1;
+    if (*this < dt) {
       d1 = d2;
       d2 = *this;
       sgn = -1;
     }
+    /* seconds, could be negative */
     SecIntType secs =
         d1.sec().as_underlying_type() - d2.sec().as_underlying_type();
-    if (secs < 0) {
-      d1.m_mjd -= 1;
-      secs = S::max_in_day + secs;
-    }
+    /* so handle negative seconds */
+    // if (secs < 0) {
+    //   d1.m_mjd -= 1;
+    //   secs = S::max_in_day + secs;
+    // }
+    /* branchless TODO which is faster ? */
+    d1.m_mjd = d1.m_mjd - modified_julian_day(1 * (secs < 0));
+    secs = secs + S::max_in_day * (secs < 0);
     DaysIntType days =
         d1.imjd().as_underlying_type() - d2.imjd().as_underlying_type();
-    return datetime_interval<S>(days*sgn, S(secs));
+    /* note that id days are 0 and the sign is negative, it must be applied to
+     * the seconds part */
+    return datetime_interval<S>(days * sgn,
+                                S(std::copysign(secs, (days == 0) * sgn)));
   }
 
   /** Cast to any datetime<T> instance, regardless of what T is
@@ -682,7 +694,7 @@ private:
 
   modified_julian_day m_mjd; /** Modified Julian Day */
   S m_sec;                   /** Time of day in S precision. */
-}; /* datetime<S> */
+};                           /* datetime<S> */
 
 /// Difference between two dates in MJdays and T.
 /// Diff is dt1 - dt2

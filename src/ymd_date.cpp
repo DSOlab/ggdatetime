@@ -14,7 +14,6 @@ dso::ymd_date::ymd_date(const dso::ydoy_date &ydoy) {
   __dom = ymd.dm();
 }
 
-
 dso::ydoy_date dso::ymd_date::to_ydoy() const {
   if (!is_valid()) {
     throw std::invalid_argument(

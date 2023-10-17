@@ -33,44 +33,46 @@ int main() {
       /* copy date to play with */
       auto dt = d;
       /* check addition */
-      dt += datetime_interval<nsec>(0,nsec(1));
+      dt += datetime_interval<nsec>(0, nsec(1));
       assert(dt > d);
       dt += datetime_interval<nsec>(nsec(-1));
       assert(dt == d);
       dt += datetime_interval<nsec>(nsec(-1));
-      assert(dt.imjd() == d.imjd()-modified_julian_day(1));
-      for (int j=0; j<86400; j++) {
-        dt += datetime_interval<nsec>(0,nsec(1*TOSEC));
+      assert(dt.imjd() == d.imjd() - modified_julian_day(1));
+      for (int j = 0; j < 86400; j++) {
+        dt += datetime_interval<nsec>(0, nsec(1 * TOSEC));
         /* reached one nsec before end of day */
       }
       assert(dt.imjd() == d.imjd());
       /* add onw more nsec; we are now on next day */
-      dt += datetime_interval<nsec>(0,nsec(1));
-      assert(dt.imjd() == d.imjd()+modified_julian_day(1));
+      dt += datetime_interval<nsec>(0, nsec(1));
+      assert(dt.imjd() == d.imjd() + modified_julian_day(1));
       /* and nsec of day should be 0 */
       assert(dt.sec() == nsec(0));
 
       /* add two whole days and 11 nsec */
       dt = d;
-      dt += datetime_interval<nsec>(0,nsec(11 + 2*86400*TOSEC));
-      assert(dt.imjd() == d.imjd()+modified_julian_day(2));
+      dt += datetime_interval<nsec>(0, nsec(11 + 2 * 86400 * TOSEC));
+      assert(dt.imjd() == d.imjd() + modified_julian_day(2));
       assert(dt.sec() == nsec(11));
       /* or do it this way ... */
       auto dt2 = d;
-      dt2 += datetime_interval<nsec>(2,nsec(11));
-      assert( dt == dt2 );
+      dt2 += datetime_interval<nsec>(2, nsec(11));
+      assert(dt == dt2);
 
       /* remove two whole days and 11 nsec */
       dt = d;
-      dt += datetime_interval<nsec>(0,nsec(-(11 + 2*86400*TOSEC)));
-      assert(dt.imjd() == d.imjd()-modified_julian_day(3));
+      dt += datetime_interval<nsec>(0, nsec(-(11 + 2 * 86400 * TOSEC)));
+      assert(dt.imjd() == d.imjd() - modified_julian_day(3));
       assert(dt.sec() == nsec(nsec::max_in_day - 11));
       /* or do it this way ... */
       dt2 = d;
-      dt2 += datetime_interval<nsec>(-2,nsec(11));
-      assert( dt == dt2 );
+      dt2 += datetime_interval<nsec>(-2, nsec(11));
+      assert(dt == dt2);
 
       ++testnr;
+      if (testnr % 10)
+        printf("%d/%ld\r", testnr, num_tests);
     }
   }
 

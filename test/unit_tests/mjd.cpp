@@ -1,7 +1,7 @@
 #include "dtfund.hpp"
 #include <cassert>
-#include <random>
 #include <cmath>
+#include <random>
 
 using namespace dso;
 
@@ -16,7 +16,7 @@ int main() {
   std::uniform_int_distribution<> mdstr(1, 12);      /* range for months */
   std::uniform_int_distribution<> ddstr(1, 31); /* range for day of month */
 
-  for (long i=0; i<num_tests; i++) {
+  for (long i = 0; i < num_tests; i++) {
     const int iy = ydstr(gen);
     const int im = mdstr(gen);
     const int id = ddstr(gen);
@@ -28,9 +28,10 @@ int main() {
       /* ydoy_date to MJD */
       const modified_julian_day d2(ydoy);
       /* assert results */
-      assert( d1 == d2 );
+      assert(d1 == d2);
     }
-    if (i%10) printf("%ld/%ld\r", i, num_tests);
+    if (i % 10)
+      printf("%ld/%ld\r", i, num_tests);
   }
 
   printf("All tests ok!\n");

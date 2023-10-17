@@ -1,5 +1,5 @@
 /** @file
- * A class to represent hours/minutes/seconds, i.e. a time instance. 
+ * A class to represent hours/minutes/seconds, i.e. a time instance.
  */
 #ifndef __DSO_DATETIME_HMSTIME_HPP__
 #define __DSO_DATETIME_HMSTIME_HPP__

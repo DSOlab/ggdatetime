@@ -22,9 +22,9 @@ struct TwoPartJulianDate {
   double d0, d1;
 };
 
-/** Given an MJD, turn it to a JD and return it split in a convinient way 
- * The way the (returned) JD is split is determined by the template parameter 
- * \p S. 
+/** Given an MJD, turn it to a JD and return it split in a convinient way
+ * The way the (returned) JD is split is determined by the template parameter
+ * \p S.
  */
 template <JdSplitMethod S = JdSplitMethod::J2000>
 TwoPartJulianDate jd_split(double mjd, double fday) noexcept {

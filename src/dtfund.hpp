@@ -137,9 +137,9 @@ inline constexpr double jd2epj(double dj1, double dj2) noexcept {
 
 /** @brief Modified Julian Date to Julian Epoch
  *
- * Convert a Modified Julian date to a Julian Epoch. The MJD can be given as a 
- * single value (i.e. in parameter \p mjd0) or can be split into two parts, 
- * (e.g. the first being the intergal part of MJD and the second be fractional 
+ * Convert a Modified Julian date to a Julian Epoch. The MJD can be given as a
+ * single value (i.e. in parameter \p mjd0) or can be split into two parts,
+ * (e.g. the first being the intergal part of MJD and the second be fractional
  * day).
  *
  * @see jd2epj
@@ -148,7 +148,7 @@ inline constexpr double jd2epj(double dj1, double dj2) noexcept {
  * @param[in] mjd1 Second part of MJD (if any), such that MJD = mjd0 + mjd1
  * @return The input date as Julian Epoch.
  */
-inline constexpr double mjd2epj(double mjd0, double mjd1=0e0) noexcept {
+inline constexpr double mjd2epj(double mjd0, double mjd1 = 0e0) noexcept {
   return 2000e0 + ((mjd0 - J2000_MJD) / DAYS_IN_JULIAN_YEAR +
                    mjd1 / DAYS_IN_JULIAN_YEAR);
 }
@@ -164,7 +164,7 @@ inline constexpr double epj2mjd(double epj) noexcept {
   return J2000_MJD + (epj - 2000e0) * DAYS_IN_JULIAN_YEAR;
 }
 } /* namespace core */
-  
+
 /** @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
  *
  * The day of month is actually not needed, since all leap second insertions
@@ -707,37 +707,37 @@ public:
   constexpr bool is_valid() const noexcept {
     return __dom.is_valid(__year, __month);
   }
-  
+
   /** operator '==' for ymd_date instances */
   bool operator==(const ymd_date &d) const noexcept {
-    return ((__year == d.yr()) && (__dom == d.dm()) && (__month==d.mn()));
+    return ((__year == d.yr()) && (__dom == d.dm()) && (__month == d.mn()));
   }
-  
+
   /** operator '!=' for ymd_date instances */
   bool operator!=(const ymd_date &d) const noexcept {
     return !(this->operator==(d));
   }
 
   /** @brief Transform to year and day-of-year
-   * The function will first check that the instance is a valid date, before 
-   * performing the transformation (to year and day of year). This is done 
-   * because an invalid ymd_date can result in a seamingly valid ydoy_date 
+   * The function will first check that the instance is a valid date, before
+   * performing the transformation (to year and day of year). This is done
+   * because an invalid ymd_date can result in a seamingly valid ydoy_date
    * (e.g. constructing a 29/2 date on a non-leap year).
    */
   ydoy_date to_ydoy() const;
 
   /** get/set year */
-  constexpr year &yr() noexcept {return __year;}
+  constexpr year &yr() noexcept { return __year; }
   /** get/set month */
-  constexpr month &mn() noexcept {return __month;}
+  constexpr month &mn() noexcept { return __month; }
   /** get/set day of month */
-  constexpr day_of_month &dm() noexcept {return __dom;}
+  constexpr day_of_month &dm() noexcept { return __dom; }
   /** get year */
-  constexpr year yr() const noexcept {return __year;}
+  constexpr year yr() const noexcept { return __year; }
   /** get month */
-  constexpr month mn() const noexcept {return __month;}
+  constexpr month mn() const noexcept { return __month; }
   /** get day of month */
-  constexpr day_of_month dm() const noexcept {return __dom;}
+  constexpr day_of_month dm() const noexcept { return __dom; }
 
 private:
   year __year;        /** the year */
@@ -762,8 +762,8 @@ public:
   constexpr ydoy_date(year y = year{}, day_of_year d = day_of_year{}) noexcept
       : __year(y), __doy(d) {}
 
-  /** @brief Constructor from a Year/Month/DayOfMonth instance 
-   * In case the input argument \p ymd is not a valid date, the constructor 
+  /** @brief Constructor from a Year/Month/DayOfMonth instance
+   * In case the input argument \p ymd is not a valid date, the constructor
    * will throw.
    */
   ydoy_date(const ymd_date &ymd)
@@ -781,20 +781,20 @@ public:
   bool operator==(const ydoy_date &d) const noexcept {
     return (__year == d.yr()) && (__doy == d.dy());
   }
-  
+
   /** operator '!=' for ydoy_date instances */
   bool operator!=(const ydoy_date &d) const noexcept {
     return !(this->operator==(d));
   }
-  
+
   /** get/set year */
-  year &yr() noexcept {return __year;}
+  year &yr() noexcept { return __year; }
   /** get/set day of year */
-  day_of_year &dy() noexcept {return __doy;}
+  day_of_year &dy() noexcept { return __doy; }
   /** get year */
-  constexpr year yr() const noexcept {return __year;}
+  constexpr year yr() const noexcept { return __year; }
   /** get day of year */
-  constexpr day_of_year dy() const noexcept {return __doy;}
+  constexpr day_of_year dy() const noexcept { return __doy; }
 
 private:
   year __year;       /** the year */

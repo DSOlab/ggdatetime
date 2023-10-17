@@ -4,11 +4,11 @@
 #include <vector>
 
 using dso::day_of_month;
+using dso::day_of_year;
 using dso::month;
+using dso::ydoy_date;
 using dso::year;
 using dso::ymd_date;
-using dso::ydoy_date;
-using dso::day_of_year;
 
 int main() {
 
@@ -23,7 +23,7 @@ int main() {
       ymd_date ymd(year(y), month(2), day_of_month(29));
       assert(ymd.is_valid());
       /* transform to Year - Day of Year */
-      const ydoy_date ydoy (ymd);
+      const ydoy_date ydoy(ymd);
       assert((ydoy.yr() == year(y)) && (ydoy.dy() == day_of_year(31 + 29)));
       assert(ydoy.is_valid());
       /* extra checks */
@@ -36,8 +36,8 @@ int main() {
       /* non-leap year, should not have a valid date for YYYY/02/29 */
       ymd_date iymd(year(y), month(2), day_of_month(29));
       assert(!(iymd.is_valid()));
-      /* transform to Year - Day of Year; since this is an invalid date, the 
-       * construction should throw! 
+      /* transform to Year - Day of Year; since this is an invalid date, the
+       * construction should throw!
        */
       try {
         const ydoy_date iydoy(iymd);
@@ -50,7 +50,7 @@ int main() {
       ymd_date vymd(year(y), month(2), day_of_month(28));
       assert(vymd.is_valid());
       /* transform to Year - Day of Year */
-      const ydoy_date vydoy (vymd);
+      const ydoy_date vydoy(vymd);
       assert((vydoy.yr() == year(y)) && (vydoy.dy() == day_of_year(31 + 28)));
       assert(vydoy.is_valid());
     }
