@@ -1,3 +1,10 @@
+/** @file
+ * A utility class to hold datetime instances, in a continuous time-scale 
+ * (e.g. TT, TAI, etc). In construst to datetime<S>, this is not a template 
+ * class and uses a storage method of two floating point numbers (one for
+ * MJD and one for time of day) to represent datetime epochs.
+ */
+
 #ifndef __DSO_DATETIME_TWOPARTDATES_HPP__
 #define __DSO_DATETIME_TWOPARTDATES_HPP__
 
@@ -27,6 +34,13 @@ struct TwoPartJulianDate {
 /** Given an MJD, turn it to a JD and return it split in a convinient way
  * The way the (returned) JD is split is determined by the template parameter
  * \p S.
+ *
+ * @param[in] mjd  The Modified Julian Day (integral part)
+ * @param[in] fday The time of day as fractional days
+ * @return An TwoPartJulianDate instance; the two parts of the instance if 
+ *         added, give the JD corresponding to the passed in MJD (i.e. \p mjd).
+ *         The method in which the JD is plit, is driven by the template 
+ *         parameter S.
  */
 template <JdSplitMethod S = JdSplitMethod::J2000>
 TwoPartJulianDate jd_split(double mjd, double fday) noexcept {
@@ -41,6 +55,15 @@ TwoPartJulianDate jd_split(double mjd, double fday) noexcept {
 }
 } /* namespace core */
 
+/** A datetime class to represent epochs in any continuous system.
+ *
+ * A TwoPartDate instance conviniently splits a datetime into two numeric 
+ * values:
+ * - the Modified Julian Day (i.e. anumeric value which only has an integral 
+ *   part), and 
+ * - the time of day, which is stored in fractional days
+ *
+ */
 class TwoPartDate {
 private:
   double _mjd;  /** Mjd */
@@ -55,7 +78,8 @@ public:
 #endif
   TwoPartDate(const datetime<T> &d) noexcept
       : _mjd((double)d.imjd().as_underlying_type()),
-        _fday(d.sec().fractional_days()) {
+        //_fday(d.sec().fractional_days()) {
+        _fday(fractional_days<T>(d.sec())) {
     this->normalize();
   }
 
@@ -83,7 +107,7 @@ public:
    * day
    *
    * This is not an 'actual date' but rather a datetime interval, but can be
-   * represented a TwoPartDate instance. If the calling instance is prior to
+   * represented by a TwoPartDate instance. If the calling instance is prior to
    * the operand (i.e. d1-d2 with d2>d1) the interval is signed as 'negative'.
    * This means that the number of days can be negative, but the fractional
    * day will always be positive
@@ -237,6 +261,9 @@ public:
       _fday = std::modf(_fday, &extra);
       _mjd += extra;
     }
+#ifdef DEBUG
+    assert(_fday >= 0e0 && _fday < 1e0);
+#endif
     // all done
     return;
   }

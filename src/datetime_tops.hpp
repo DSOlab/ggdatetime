@@ -376,6 +376,22 @@ constexpr typename S::underlying_type max_days_allowed() {
          S::max_in_day;
 }
 
+/** Transform any second type S to fractional days 
+ *
+ * @warning This function assumes that a day is made up of exactly 86400 sec 
+ * and is thus not able to represent a fractional day when the day at hand is 
+ * on a leap second insertion.
+ */
+#if __cplusplus >= 202002L
+template <gconcepts::is_sec_dt S>
+#else
+template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
+#endif
+double fractional_days(S nsec) noexcept {
+  const double sec = static_cast<double>(nsec.__member_ref__());
+  return sec / static_cast<double>(S::max_in_day);
+}
+
 /** Explicit cast of any second type to another second type.
  *
  * Cast an instance of any second type (aka any instance for which
