@@ -20,6 +20,8 @@ namespace core {
 enum class JdSplitMethod { JD, J2000, MJD, DT };
 struct TwoPartJulianDate {
   double d0, d1;
+  explicit TwoPartJulianDate(double mjd0, double mjd1) noexcept
+      : d0(mjd0), d1(mjd1){};
 };
 
 /** Given an MJD, turn it to a JD and return it split in a convinient way
