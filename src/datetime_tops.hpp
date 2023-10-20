@@ -387,9 +387,18 @@ template <gconcepts::is_sec_dt S>
 #else
 template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
-double fractional_days(S nsec) noexcept {
+double to_fractional_days(S nsec) noexcept {
   const double sec = static_cast<double>(nsec.__member_ref__());
   return sec / static_cast<double>(S::max_in_day);
+}
+
+#if __cplusplus >= 202002L
+template <gconcepts::is_sec_dt S>
+#else
+template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
+#endif
+double to_fractional_seconds(S nsec) noexcept {
+  return nsec. S::template cast_to<double>() * S::sec_inv_factor();
 }
 
 /** Explicit cast of any second type to another second type.

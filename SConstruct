@@ -81,13 +81,14 @@ env.Alias(target='install', source=env.InstallVersionedLib(dir=os.path.join(pref
  
 ## Unit Tests ... 
 if test:
-    print('Compiling unit tests ')
+    print('Compiling unit test ...')
     tenv = env.Clone()
     tenv['CXXFLAGS'] = ' '.join([ x for x in env['CXXFLAGS'].split() if 'inline' not in x])
     cmp_error_fn = 'test/unit_tests/test_compilation_error.json'
     cerror_dct = {}
     if os.path.isfile(cmp_error_fn): os.remove(cmp_error_fn)
     test_sources = glob.glob(r"test/unit_tests/*.cpp")
+    test_sources += glob.glob(r"test/precision/*.cpp")
     tenv.Append(RPATH=root_dir)
     for tsource in test_sources:
         ttarget = os.path.join(os.path.dirname(tsource), os.path.basename(tsource).replace('_', '-').replace('.cpp', '.out'))
@@ -99,6 +100,7 @@ if test:
                 'flags': '{:}'.format(' '.join(['-o', tenv['CXXFLAGS']])), 
                 'exit': 1}
         else:
+            # print('adding target {:}'.format(ttarget))
             tenv.Program(target=ttarget, source=tsource, CPPPATH='src/', LIBS=vlib, LIBPATH='.')
     with open(cmp_error_fn, 'w') as fjson: print(json.dumps(cerror_dct, indent = 4), file=fjson)
 

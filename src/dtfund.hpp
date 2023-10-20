@@ -1182,6 +1182,9 @@ public:
     return static_cast<T>(1e0);
   }
 
+  /** The scale factor to transform from seconds to seconds. */
+  static constexpr double sec_inv_factor() noexcept { return 1e0; }
+
   /** Constructor; default seconds is 0, but any integral will do */
   explicit constexpr seconds(underlying_type i = 0) noexcept : m_sec(i){};
 
@@ -1248,11 +1251,6 @@ public:
       return static_cast<double>(m_sec) / static_cast<double>(max_in_day);
     }
   */
-
-  /** Cast to double (i.e. fractional seconds). */
-  constexpr double to_fractional_seconds() const noexcept {
-    return this->cast_to<double>();
-  }
 
 private:
 /** Cast to any arithmetic type. */
@@ -1322,9 +1320,18 @@ public:
   /** MilliSeconds are a subdivision of seconds. */
   static constexpr bool is_of_sec_type = true;
 
-  /** The scale factor to transform from seconds to milliseconds. */
+  /** The scale factor to transform from seconds to milliseconds. i.e. 
+   * milliseconds = seconds * sec_factor()
+   */
   template <typename T> static constexpr T sec_factor() noexcept {
     return static_cast<T>(1000);
+  }
+  
+  /** The scale factor to transform from milliseconds to seconds, i.e. 
+   * seconds = milliseconds * sec_inv_factor()
+   */
+  static constexpr double sec_inv_factor() noexcept {
+    return 1e-3;
   }
 
   /** Max milliseconds in one day. */
@@ -1367,11 +1374,6 @@ public:
     return static_cast<double>(m_sec) / static_cast<double>(max_in_day);
   }
 
-  /** Cast to fractional dso::seconds */
-  constexpr double to_fractional_seconds() const noexcept {
-    return static_cast<double>(m_sec) / sec_factor<double>();
-  }
-
   /** Cast to fractional hours */
   constexpr double to_fractional_hours() const noexcept {
     constexpr const underlying_type secinh =
@@ -1379,7 +1381,6 @@ public:
     return static_cast<double>(m_sec) / static_cast<double>(secinh);
   }
 
-private:
 /** Cast to any arithmetic type. */
 #if __cplusplus >= 202002L
   template <typename T>
@@ -1392,6 +1393,7 @@ private:
     return static_cast<T>(m_sec);
   }
 
+private:
   /** Milliseconds as underlying type. */
   underlying_type m_sec;
 }; /* class milliseconds */
@@ -1455,9 +1457,18 @@ public:
   static constexpr underlying_type max_in_day{86'400L * 1'000'000L};
   static_assert(max_in_day < std::numeric_limits<underlying_type>::max());
 
-  /** The scale factor to transform from seconds to microseconds. */
+  /** The scale factor to transform from seconds to microseconds. i.e. 
+   * microseconds = seconds * sec_factor()
+   */
   template <typename T> static constexpr T sec_factor() noexcept {
     return static_cast<T>(1'000'000);
+  }
+  
+  /** The scale factor to transform from microseconds to seconds, i.e. 
+   * seconds = microseconds * sec_inv_factor()
+   */
+  static constexpr double sec_inv_factor() noexcept {
+    return 1e-6;
   }
 
   /** Constructor; default microseconds is 0; any integral number will do */
@@ -1491,12 +1502,6 @@ public:
     return m_sec;
   }
 
-  /** Cast to fractional seconds */
-  constexpr double to_fractional_seconds() const noexcept {
-    return static_cast<double>(m_sec) / sec_factor<double>();
-  }
-
-private:
 /** Cast to any arithmetic type. */
 #if __cplusplus >= 202002L
   template <typename T>
@@ -1509,6 +1514,7 @@ private:
     return static_cast<T>(m_sec);
   }
 
+private:
   /** Microseconds as long ints. */
   underlying_type m_sec;
 }; /* microseconds */
@@ -1573,9 +1579,18 @@ public:
   static constexpr underlying_type max_in_day{86'400L * 1'000'000'000L};
   static_assert(max_in_day < std::numeric_limits<underlying_type>::max());
 
-  /** The scale factor to transform from seconds to nanoseconds. */
+  /** The scale factor to transform from seconds to nanoseconds. i.e. 
+   * nanoseconds = seconds * sec_factor()
+   */
   template <typename T> static constexpr T sec_factor() noexcept {
     return static_cast<T>(1'000'000'000);
+  }
+  
+  /** The scale factor to transform from nanoseconds to seconds, i.e. 
+   * seconds = nanoseconds * sec_inv_factor()
+   */
+  static constexpr double sec_inv_factor() noexcept {
+    return 1e-9;
   }
 
   /** Constructor; default nanoseconds is 0. **/
@@ -1616,12 +1631,6 @@ public:
     return static_cast<double>(m_sec) / static_cast<double>(secinh);
   }
 
-  /** Cast to fractional seconds */
-  constexpr double to_fractional_seconds() const noexcept {
-    return static_cast<double>(m_sec) / sec_factor<double>();
-  }
-
-private:
 /** Cast to any arithmetic type. */
 #if __cplusplus >= 202002L
   template <typename T>
@@ -1634,6 +1643,7 @@ private:
     return static_cast<T>(m_sec);
   }
 
+private:
   /** Nanoseconds as long ints. */
   underlying_type m_sec;
 }; /* class nanoseconds */

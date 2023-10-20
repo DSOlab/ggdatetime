@@ -78,8 +78,7 @@ public:
 #endif
   TwoPartDate(const datetime<T> &d) noexcept
       : _mjd((double)d.imjd().as_underlying_type()),
-        //_fday(d.sec().fractional_days()) {
-        _fday(fractional_days<T>(d.sec())) {
+        _fday(to_fractional_days<T>(d.sec())) {
     this->normalize();
   }
 
@@ -94,6 +93,15 @@ public:
 
   /** Get the fractional part of the MJD*/
   double fday() const noexcept { return _fday; }
+
+#if __cplusplus >= 202002L
+  template <gconcepts::is_sec_dt T>
+#else
+  template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
+#endif
+  double sec_of_day() const noexcept {
+    return fday() * static_cast<double>(T::max_in_day);
+  }
 
   /** Add seconds to instance.
    * @warning Does not take into account leap seconds.
