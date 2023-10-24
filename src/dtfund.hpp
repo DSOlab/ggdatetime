@@ -1215,43 +1215,6 @@ public:
     return m_sec;
   }
 
-  /*
-    /// @brief Normalize seconds and return the integeral days.
-    ///
-    /// If the seconds sum up to more (or equal to) one day, remove the integer
-    /// days and return them as integer; reset the seconds to seconds of the
-    /// new day.
-    ///
-    /// @return The integer number of days (if the seconds are more than a day).
-    /// @throw  Does not throw.
-    ///
-    constexpr int remove_days() noexcept {
-      underlying_type days = m_sec / max_in_day;
-      m_sec = m_sec % max_in_day;
-      return static_cast<int>(days);
-    }
-
-    /// @brief Cast to days.
-    ///
-    /// If the seconds sum up to more (or equal to) one day, return the
-    /// (integral) number of days.
-    ///
-    /// @return The integer number of days (if the seconds are more than a day).
-    /// @throw  Does not throw.
-    ///
-    /// @warning Negative seconds are not handled.
-    ///
-    constexpr int to_days() const noexcept {
-      return static_cast<int>(m_sec / max_in_day);
-    }
-
-    /// @brief Seconds as fractional days.
-    /// Interpret (cast) the seconds as fractional days; returns a double.
-    constexpr double fractional_days() const noexcept {
-      return static_cast<double>(m_sec) / static_cast<double>(max_in_day);
-    }
-  */
-
 private:
 /** Cast to any arithmetic type. */
 #if __cplusplus >= 202002L
@@ -1367,11 +1330,6 @@ public:
   /** Get the milliseconds as milliseconds::underlying_type. */
   constexpr underlying_type as_underlying_type() const noexcept {
     return m_sec;
-  }
-
-  /** Cast to fractional days. */
-  constexpr double fractional_days() const noexcept {
-    return static_cast<double>(m_sec) / static_cast<double>(max_in_day);
   }
 
   /** Cast to fractional hours */

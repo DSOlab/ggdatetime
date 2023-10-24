@@ -15,7 +15,7 @@ template <gconcepts::is_sec_dt S>
 #else
 template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
-struct hms_time {
+class hms_time {
   /** int type of seconds */
   using SecIntType = typename S::underlying_type;
   /** hours */
@@ -24,6 +24,11 @@ struct hms_time {
   minutes _minutes;
   /** seconds */
   S _sec;
+
+public:
+  hours hr() const noexcept {return _hours;}
+  minutes mn() const noexcept {return _minutes;}
+  S nsec() const noexcept {return _sec;}
 
   /** Constructor from any second type */
   explicit hms_time(S seconds) noexcept {
@@ -35,7 +40,7 @@ struct hms_time {
     /* compute/remove hours */
     const SecIntType hr = isecs / secInHour;
     _hours = hr;
-    SecIntType remaining = isecs - _hours * secInHour;
+    SecIntType remaining = isecs - _hours.as_underlying_type() * secInHour;
 #ifdef DEBUG
     assert(remaining < secInHour);
 #endif
@@ -44,7 +49,7 @@ struct hms_time {
     /* compute/remove minutes */
     const SecIntType mn = remaining / secInMin;
     _minutes = mn;
-    remaining = remaining - _minutes * secInMin;
+    remaining = remaining - _minutes.as_underlying_type() * secInMin;
 #ifdef DEBUG
     assert(remaining < secInMin);
 #endif
