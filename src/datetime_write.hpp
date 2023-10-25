@@ -8,6 +8,7 @@
 #include "dtcalendar.hpp"
 #include "dtfund.hpp"
 #include "hms_time.hpp"
+#include "tpdate.hpp"
 #include <stdexcept>
 #include <cstdio>
 
@@ -54,7 +55,7 @@ public:
 template<YMDFormat F>
 const char *to_char(const ymd_date &ymd, char *buffer) {
   if (SpitDate<F>::spit(ymd, buffer) != SpitDate<F>::numChars) {
-    throw std::runtime_error("[ERROR] Failed to fromat date to string\n");
+    throw std::runtime_error("[ERROR] Failed to format date to string\n");
   }
   return buffer;
 }
@@ -120,7 +121,63 @@ public:
 template<HMSFormat F, typename S>
 const char *to_char(const hms_time<S> &hms, char *buffer) {
   if (SpitTime<S,F>::spit(hms, buffer) != SpitTime<S,F>::numChars) {
-    throw std::runtime_error("[ERROR] Failed to fromat time to string\n");
+    throw std::runtime_error("[ERROR] Failed to format time to string\n");
+  }
+  return buffer;
+}
+
+
+/** Format a datetime<S> instace to a string and write it to buffer.
+ *
+ * The way the instance is formated, is dictated by the teplate parameters 
+ * \p FT and \p FD. The buffer must be of size able to store all characters 
+ * specified by the format (date, time plus an extra whitespace character to 
+ * be placed between date and time).
+ *
+ * @param[in] d The datetime<S> instance to format
+ * @param[out] buffer The non-null terminated C-string holding the datetime<S> 
+ *             instance in the specified format. Its size is dicated by \p FD 
+ *             and \p FT and (at input) must be long enough to hold all 
+ *             characters needed to represent the datetime
+ * @return On success, a pointer to \p buffer
+ */
+template<YMDFormat FD, HMSFormat FT, typename S>
+const char *to_char(const datetime<S> &d, char *buffer) {
+  /* write date to buffer */
+  ymd_date ymd(d.as_ymd());
+  if (SpitDate<FD>::spit(ymd, buffer) != SpitDate<FD>::numChars) {
+    throw std::runtime_error("[ERROR] Failed to format date to string\n");
+  }
+  /* move pointer to write time */
+  char *ptr = buffer + SpitDate<FD>::numChars;
+  *ptr = ' ';
+  ++ptr;
+  /* write time of day to buffer */
+  hms_time<S> hms(d.sec());
+  if (SpitTime<S,FT>::spit(hms, ptr) != SpitTime<S,FT>::numChars) {
+    throw std::runtime_error("[ERROR] Failed to format time to string\n");
+  }
+  return buffer;
+}
+
+template <YMDFormat FD, HMSFormat FT>
+const char *to_char(const TwoPartDate &d, char *buffer) {
+  /* write date to buffer */
+  ymd_date ymd(d.to_ymd());
+  if (SpitDate<FD>::spit(ymd, buffer) != SpitDate<FD>::numChars) {
+    throw std::runtime_error("[ERROR] Failed to format date to string\n");
+  }
+  /* move pointer to write time */
+  char *ptr = buffer + SpitDate<FD>::numChars;
+  *ptr = ' ';
+  ++ptr;
+  /* write time of day to buffer */
+  const nanoseconds ns(
+      static_cast<nanoseconds::underlying_type>(d.sec_of_day<nanoseconds>()));
+  hms_time<nanoseconds> hms(ns);
+  if (SpitTime<nanoseconds, FT>::spit(hms, ptr) !=
+      SpitTime<nanoseconds, FT>::numChars) {
+    throw std::runtime_error("[ERROR] Failed to format time to string\n");
   }
   return buffer;
 }

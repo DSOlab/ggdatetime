@@ -385,55 +385,6 @@ public:
    */
   constexpr S sec() const noexcept { return m_sec; }
 
-  /*
-    /// @brief Add any second type T to an instance of type S
-    ///
-    /// This function will add to the instance a number of seconds (of type T).
-    /// This works with tag-dispatch, thus this function is actually only a
-  shell.
-    ///
-    /// @tparam    T   Any seconds type
-    /// @param[in] sec Seconds of T-type
-    /// @return nothing
-    ///
-    /// @warning If the input seconds type is of higher resolution than the
-    ///          instance, then loss of accuracy may happen.
-  #if __cplusplus >= 202002L
-    template <gconcepts::is_sec_dt T>
-  #else
-    template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
-  #endif
-    constexpr void add_seconds(T sec) noexcept {
-      typedef std::integral_constant<bool, (S::max_in_day > T::max_in_day)>
-  cmp__; cmp__ btype{};
-      __add_seconds_impl(sec, btype);
-    }
-
-    /// @brief Subtract any second type T to an instance of type S
-    ///
-    /// This function will remove to the instance a number of seconds (of type
-  T).
-    /// This works with tag-dispatch, thus this function is actually only a
-  shell.
-    ///
-    /// @tparam    T   Any seconds type
-    /// @param[in] sec Seconds of T-type
-    /// @return nothing
-    ///
-    /// @warning If the input seconds type is of higher resolution than the
-    ///          instance, then loss of accuracy may happen.
-  #if __cplusplus >= 202002L
-    template <gconcepts::is_sec_dt T>
-  #else
-    template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
-  #endif
-    constexpr void remove_seconds(T sec) noexcept {
-      typedef std::integral_constant<bool, (S::max_in_day > T::max_in_day)>
-  cmp__; cmp__ btype{};
-      __remove_seconds_impl(sec, btype);
-    }
-  */
-
   /** Operator '+' where the right-hand-side is an interval.
    * Note that the addition here is algebraic, i.e. the interval is added to
    * or subtracted from the instance, depending on its sign.
@@ -606,6 +557,7 @@ public:
   }
 
 private:
+  /** TODO Do i need this ?? */
   /// @brief Add any second type T where S is of higher resolution than T
   ///
   /// This is the implementation for adding any type of seconds (T), where T is

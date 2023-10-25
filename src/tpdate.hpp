@@ -103,6 +103,9 @@ public:
     return fday() * static_cast<double>(T::max_in_day);
   }
 
+  /** @brief Transform the (integral part of the) date to Year Month Day */
+  ymd_date to_ymd() const noexcept { return core::mjd2ymd((long)_mjd); }
+
   /** Add seconds to instance.
    * @warning Does not take into account leap seconds.
    */
