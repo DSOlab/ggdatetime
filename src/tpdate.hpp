@@ -66,6 +66,7 @@ TwoPartJulianDate jd_split(double mjd, double fday) noexcept {
  */
 class TwoPartDate {
 private:
+  using FDOUBLE = long double;
   double _mjd;  /** Mjd */
   double _fday; /** fractional days */
 
@@ -110,8 +111,21 @@ public:
    * @warning Does not take into account leap seconds.
    */
   void add_seconds(double sec) noexcept {
-    _fday += sec / SEC_PER_DAY;
+    // first approach
+    // _fday += sec / SEC_PER_DAY;
+    // this->normalize();
+    //
+    // second approach
+    double dsec = _fday * SEC_PER_DAY;
+    dsec += sec;
+    _fday = dsec / SEC_PER_DAY;
     this->normalize();
+    //constexpr const long double SPD = 86400e0;
+    //long double dsec = _fday * SPD;
+    //dsec += sec;
+    //long double fday = dsec / SPD;
+    //_fday = fday;
+    //this->normalize();
   }
 
   /** Difference between two dates as integral number of days and seconds of
