@@ -56,7 +56,6 @@ public:
 #endif
     /* remaining S seconds */
     _sec = remaining;
-    printf("FUNCTION2 %15ld\n", _sec.as_underlying_type());
 #ifdef DEBUG
     assert(_sec.as_underlying_type() + secInMin * _minutes.as_underlying_type() +
                secInHour * _hours.as_underlying_type() ==

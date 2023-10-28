@@ -36,13 +36,13 @@ int main() {
   sz = dso::SpitDate<YMDFormat::YYYYMMDD>::numChars +
        dso::SpitTime<nanoseconds, HMSFormat::HHMMSSF>::numChars + 1;
   assert(!std::strncmp(buffer, "2023/10/24 00:00:00.000000059", sz));
-  printf("--------------------------------------------------\n");
+  //printf("--------------------------------------------------\n");
   td1 = TwoPartDate(d1);
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(td1, buffer);
-  printf("Expected: 2023/10/24 00:00:00.000000059\n");
-  printf("Got:      %.29s\n", buffer);
-  printf("Fr. Day:  %.15Lf\n", td1.sec_of_day<nanoseconds>());
-  printf("Fr. Day:  %.15Lf\n", td1.sec_of_day<dso::seconds>());
+  //printf("Expected: 2023/10/24 00:00:00.000000059\n");
+  //printf("Got:      %.29s\n", buffer);
+  //printf("Fr. Day:  %.15Lf\n", td1.sec_of_day<nanoseconds>());
+  //printf("Fr. Day:  %.15Lf\n", td1.sec_of_day<dso::seconds>());
   assert(!std::strncmp(buffer, "2023/10/24 00:00:00.000000059", sz));
 
   d1 = datetime<nanoseconds>(year(2023), month(10), day_of_month(24),
@@ -229,8 +229,6 @@ int main() {
   for (long i = 0; i < 86400L-1; i++)
     td1.add_seconds(1e0);
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(td1, buffer);
-  printf("Expected %s\n", "2023/10/24 23:59:59.000000000");
-  printf("Got (1)  %.29s\n", buffer);
   assert(!std::strncmp(buffer, "2023/10/24 23:59:59.000000000", sz));
   td1.add_seconds(.999999999e0);
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(td1, buffer);

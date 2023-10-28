@@ -95,6 +95,27 @@ public:
   /** Get the fractional part of the MJD */
   FDOUBLE fday() const noexcept { return _fday; }
   
+  /** @brief Get the fraction of day as some multiple of seconds.
+   *
+   * 'Some multiple of seconds' can be any type defined with a member 
+   * is_of_sec_type set to true. In practical terms, this means that you can
+   * use seconds, milliseconds, microseconds or nanoseconds.
+   * So, in essence this function will give you the seconds of day, or the 
+   * milliseconds of day, or ...
+   * The function will return the [whatever]seconds of day as a floating point 
+   * number. If you want to transformt this to an integral value, it would be 
+   * best to do it using the round() function, to avoid truncation errors.
+   * I.e., this:
+   * nanoseconds ns(static_cast<nanoseconds::underlying_type>(
+   *  std::round(d.sec_of_day<nanoseconds>())));
+   * is better than this:
+   * nanoseconds ns(static_cast<nanoseconds::underlying_type>(
+   *  d.sec_of_day<nanoseconds>()));
+   *
+   * @return Fractional day as fractional T-type second multiples. I.e. 
+   *         fractional seconds of day, or milliseconds of day, or 
+   *         microseconds of day, etc ...
+   */
 #if __cplusplus >= 202002L
   template <gconcepts::is_sec_dt T>
 #else

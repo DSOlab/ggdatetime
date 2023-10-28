@@ -98,7 +98,6 @@ public:
   static int spit(const hms_time<S> &hms, char *buffer) noexcept {
     /* seconds of minute (real) */
     double sec = to_fractional_seconds(hms.nsec());
-    printf("FUNCTION  %.15f\n", sec);
     return std::sprintf(
         buffer, "%02d:%02d:%012.9f", hms.hr().as_underlying_type(),
         hms.mn().as_underlying_type(), sec);
@@ -173,8 +172,8 @@ const char *to_char(const TwoPartDate &d, char *buffer) {
   *ptr = ' ';
   ++ptr;
   /* write time of day to buffer */
-  const nanoseconds ns(
-      static_cast<nanoseconds::underlying_type>(d.sec_of_day<nanoseconds>()));
+  const nanoseconds ns(static_cast<nanoseconds::underlying_type>(
+      std::round(d.sec_of_day<nanoseconds>())));
   hms_time<nanoseconds> hms(ns);
   if (SpitTime<nanoseconds, FT>::spit(hms, ptr) !=
       SpitTime<nanoseconds, FT>::numChars) {
