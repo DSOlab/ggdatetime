@@ -36,8 +36,13 @@ int main() {
   sz = dso::SpitDate<YMDFormat::YYYYMMDD>::numChars +
        dso::SpitTime<nanoseconds, HMSFormat::HHMMSSF>::numChars + 1;
   assert(!std::strncmp(buffer, "2023/10/24 00:00:00.000000059", sz));
+  printf("--------------------------------------------------\n");
   td1 = TwoPartDate(d1);
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(td1, buffer);
+  printf("Expected: 2023/10/24 00:00:00.000000059\n");
+  printf("Got:      %.29s\n", buffer);
+  printf("Fr. Day:  %.15Lf\n", td1.sec_of_day<nanoseconds>());
+  printf("Fr. Day:  %.15Lf\n", td1.sec_of_day<dso::seconds>());
   assert(!std::strncmp(buffer, "2023/10/24 00:00:00.000000059", sz));
 
   d1 = datetime<nanoseconds>(year(2023), month(10), day_of_month(24),

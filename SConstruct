@@ -89,6 +89,7 @@ if test:
     if os.path.isfile(cmp_error_fn): os.remove(cmp_error_fn)
     test_sources = glob.glob(r"test/unit_tests/*.cpp")
     test_sources += glob.glob(r"test/precision/*.cpp")
+    test_sources += glob.glob(r"test/timer/*.cpp")
     tenv.Append(RPATH=root_dir)
     for tsource in test_sources:
         ttarget = os.path.join(os.path.dirname(tsource), os.path.basename(tsource).replace('_', '-').replace('.cpp', '.out'))

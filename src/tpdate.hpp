@@ -68,7 +68,7 @@ class TwoPartDate {
 private:
   using FDOUBLE = long double;
   double _mjd;  /** Mjd */
-  double _fday; /** fractional days */
+  FDOUBLE _fday; /** fractional days */
 
 public:
   /** Constructor from datetime<T> */
@@ -79,12 +79,12 @@ public:
 #endif
   TwoPartDate(const datetime<T> &d) noexcept
       : _mjd((double)d.imjd().as_underlying_type()),
-        _fday(to_fractional_days<T>(d.sec())) {
+        _fday(to_fractional_days<T,FDOUBLE>(d.sec())) {
     this->normalize();
   }
 
   /** Constructor from a pair of doubles, such that MJD = a + b */
-  explicit constexpr TwoPartDate(double b = 0, double s = 0) noexcept
+  explicit TwoPartDate(double b = 0, FDOUBLE s = 0) noexcept
       : _mjd(b), _fday(s) {
     this->normalize();
   }
@@ -92,16 +92,16 @@ public:
   /** Get the MJD as an intgral number, i.e. no fractional part */
   double imjd() const noexcept { return _mjd; }
 
-  /** Get the fractional part of the MJD*/
-  double fday() const noexcept { return _fday; }
-
+  /** Get the fractional part of the MJD */
+  FDOUBLE fday() const noexcept { return _fday; }
+  
 #if __cplusplus >= 202002L
   template <gconcepts::is_sec_dt T>
 #else
   template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
-  double sec_of_day() const noexcept {
-    return fday() * static_cast<double>(T::max_in_day);
+  FDOUBLE sec_of_day() const noexcept {
+    return fday() * static_cast<FDOUBLE>(T::max_in_day);
   }
 
   /** @brief Transform the (integral part of the) date to Year Month Day */
@@ -110,13 +110,13 @@ public:
   /** Add seconds to instance.
    * @warning Does not take into account leap seconds.
    */
-  void add_seconds(double sec) noexcept {
+  void add_seconds(FDOUBLE sec) noexcept {
     // first approach
     // _fday += sec / SEC_PER_DAY;
     // this->normalize();
     //
     // second approach
-    double dsec = _fday * SEC_PER_DAY;
+    FDOUBLE dsec = _fday * SEC_PER_DAY;
     dsec += sec;
     _fday = dsec / SEC_PER_DAY;
     this->normalize();
@@ -161,7 +161,7 @@ public:
    * @warning Does not take into account leap seconds.
    */
   template <DateTimeDifferenceType DT>
-  double diff(const TwoPartDate &d) const noexcept {
+  FDOUBLE diff(const TwoPartDate &d) const noexcept {
     if constexpr (DT == DateTimeDifferenceType::FractionalDays) {
       /* difference as fractional days */
       return (_mjd - d._mjd) + (_fday - d._fday);
@@ -172,7 +172,7 @@ public:
   }
 
   /** Get the date as (fractional) Julian Date */
-  double julian_date() const noexcept { return _fday + (_mjd + dso::MJD0_JD); }
+  FDOUBLE julian_date() const noexcept { return _fday + (_mjd + dso::MJD0_JD); }
 
   /** Transform instance to TT, assuming it is in TAI
    *
@@ -180,7 +180,7 @@ public:
    * \f$ TT = TAI + ΔT \$ where \f$ ΔT = TT - TAI = 32.184 [sec] \f$
    */
   TwoPartDate tai2tt() const noexcept {
-    constexpr const double dtat = TT_MINUS_TAI / SEC_PER_DAY;
+    constexpr const FDOUBLE dtat = TT_MINUS_TAI / SEC_PER_DAY;
     return TwoPartDate(_mjd, _fday + dtat);
   }
 
@@ -190,14 +190,15 @@ public:
    * \f$ UTC = TAI + ΔAT \$ where ΔAT are the leap seconds.
    */
   TwoPartDate utc2tai() const noexcept {
+    constexpr const FDOUBLE SPD = SEC_PER_DAY;
     auto utc = *this;
     /* Get TAI-UTC at 0h today and extra seconds in day (if any) */
     int extra;
     const int leap = dat(modified_julian_day((int)utc._mjd), extra);
     /* Remove any scaling applied to spread leap into preceding day */
-    utc._fday *= (SEC_PER_DAY + extra) / SEC_PER_DAY;
+    utc._fday *= (SPD + extra) / SPD;
     /* Assemble the TAI result, preserving the UTC split and order */
-    return TwoPartDate(utc._mjd, utc._fday + leap / SEC_PER_DAY);
+    return TwoPartDate(utc._mjd, utc._fday + leap / SPD);
   }
 
   /** Transform an instance to TT assuming it is in UTC */
@@ -210,8 +211,8 @@ public:
   TwoPartDate tai2utc() const noexcept {
     // do it the SOFA way ...
     auto utc1(*this);
-    double small = utc1._fday;
-    double big = utc1._mjd;
+    FDOUBLE small = utc1._fday;
+    FDOUBLE big = utc1._mjd;
     for (int i = 0; i < 3; i++) {
       TwoPartDate guess = TwoPartDate(big, small).utc2tai();
       small += utc1._mjd - guess._mjd;
@@ -228,7 +229,8 @@ public:
 
   /**  Transform an instance to TAI assuming it is in TT */
   TwoPartDate tt2tai() const noexcept {
-    constexpr const double dtat = TT_MINUS_TAI / SEC_PER_DAY;
+    constexpr const FDOUBLE SPD = SEC_PER_DAY;
+    constexpr const FDOUBLE dtat = TT_MINUS_TAI / SPD;
     return TwoPartDate(_mjd, _fday - dtat);
   }
 
@@ -242,14 +244,14 @@ public:
    * @return The corresponding UT1 MJD, computed using:
    *         ∆T = TT − UT1 = 32.184[sec] + ∆AT − ∆UT1
    */
-  TwoPartDate tt2ut1(double dut1) const noexcept {
+  TwoPartDate tt2ut1(FDOUBLE dut1) const noexcept {
     /* note that ΔUT1 = UT1 − UTC hence UT1 = ΔUT1 + UTC */
     return tt2utc() + TwoPartDate(0e0, dut1 / SEC_PER_DAY);
   }
 
-  double as_mjd() const noexcept { return _fday + _mjd; }
+  FDOUBLE as_mjd() const noexcept { return _fday + _mjd; }
 
-  double jcenturies_sinceJ2000() const noexcept {
+  FDOUBLE jcenturies_sinceJ2000() const noexcept {
     return (_mjd - J2000_MJD) / DAYS_IN_JULIAN_CENT +
            _fday / DAYS_IN_JULIAN_CENT;
   }
@@ -267,21 +269,25 @@ public:
     return (_mjd < d._mjd) || ((_mjd == d._mjd) && (_fday <= d._fday));
   }
 
-  /// @brief Keep _fday < 1e0 and _mjd integral only
-  constexpr void normalize() noexcept {
-    // fractional part should NOT be negative
+  /** @brief Normalize an instance. 
+   *
+   * Normalize here is meant in the sense that the fractional part of day is 
+   * stored in the _fday part, while _mjd holds the integral part of date
+   */
+  void normalize() noexcept {
+    /* fractional part should NOT be negative */
     while (_fday < 0e0) {
       _fday = 1 - _fday;
       _mjd -= 1e0;
     }
-    double fmore(0e0), extra(0e0);
-    // check if _mjd part has a fractional part
-    if ((fmore = std::modf(_mjd, &extra)) != 0e0) {
-      // assign fractional part to _fday and keep integral part to _mjd
+    FDOUBLE fmore(0e0), extra(0e0);
+    /* check if _mjd part has a fractional part */
+    if ((fmore = std::modf((FDOUBLE)_mjd, &extra)) != 0e0) {
+      /* assign fractional part to _fday and keep integral part to _mjd */
       _fday += fmore;
       _mjd = extra;
     }
-    // check if fractional part is >= 1e0
+    /* check if fractional part is >= 1e0 */
     if (_fday >= 1e0) {
       _fday = std::modf(_fday, &extra);
       _mjd += extra;
@@ -289,7 +295,7 @@ public:
 #ifdef DEBUG
     assert(_fday >= 0e0 && _fday < 1e0);
 #endif
-    // all done
+    /* all done */
     return;
   }
 

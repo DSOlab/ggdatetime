@@ -45,7 +45,8 @@ public:
     assert(remaining < secInHour);
 #endif
     /* seconds in minute */
-    const SecIntType secInMin = 60L * S::template sec_factor<SecIntType>();
+    constexpr const SecIntType secInMin =
+        60L * S::template sec_factor<SecIntType>();
     /* compute/remove minutes */
     const SecIntType mn = remaining / secInMin;
     _minutes = mn;
@@ -55,9 +56,10 @@ public:
 #endif
     /* remaining S seconds */
     _sec = remaining;
+    printf("FUNCTION2 %15ld\n", _sec.as_underlying_type());
 #ifdef DEBUG
-    assert(_sec.as_underlying_type() + secInMin * minutes +
-               secInHour * _hours ==
+    assert(_sec.as_underlying_type() + secInMin * _minutes.as_underlying_type() +
+               secInHour * _hours.as_underlying_type() ==
            seconds.as_underlying_type());
 #endif
   }

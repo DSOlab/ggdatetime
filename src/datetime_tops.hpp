@@ -7,6 +7,7 @@
 #include "dtconcepts.hpp"
 #include <limits>
 #include <type_traits>
+#include <cstdio> // only for debugging
 
 namespace dso {
 
@@ -385,20 +386,26 @@ constexpr typename S::underlying_type max_days_allowed() {
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S>
 #else
-template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
+template <typename S, typename T = double,
+          typename = std::enable_if_t<S::is_of_sec_type>,
+          typename = std::enable_if_t<std::is_floating_point<T>::value>>
 #endif
-double to_fractional_days(S nsec) noexcept {
-  const double sec = static_cast<double>(nsec.__member_ref__());
-  return sec / static_cast<double>(S::max_in_day);
+T to_fractional_days(S nsec) noexcept {
+  printf("\tto_fractional_days got %ld\n", nsec.as_underlying_type());
+  const T sec = static_cast<T>(nsec.__member_ref__());
+  //return sec / static_cast<T>(S::max_in_day);
+  return sec / S::max_in_day;
 }
 
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S>
 #else
-template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
+template <typename S, typename T = double,
+          typename = std::enable_if_t<S::is_of_sec_type>,
+          typename = std::enable_if_t<std::is_floating_point<T>::value>>
 #endif
-double to_fractional_seconds(S nsec) noexcept {
-  return nsec. S::template cast_to<double>() * S::sec_inv_factor();
+T to_fractional_seconds(S nsec) noexcept {
+  return nsec.S::template cast_to<T>() * S::sec_inv_factor();
 }
 
 /** Explicit cast of any second type to another second type.
