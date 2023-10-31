@@ -391,7 +391,6 @@ template <typename S, typename T = double,
           typename = std::enable_if_t<std::is_floating_point<T>::value>>
 #endif
 T to_fractional_days(S nsec) noexcept {
-  //printf("\tto_fractional_days got %ld\n", nsec.as_underlying_type());
   const T sec = static_cast<T>(nsec.__member_ref__());
   //return sec / static_cast<T>(S::max_in_day);
   return sec / S::max_in_day;

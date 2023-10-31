@@ -225,10 +225,13 @@ int main() {
   
   d1 = datetime<nanoseconds>(year(2023), month(10), day_of_month(24),
                              nanoseconds(0));
+  [[maybe_unused]]double secerr = 0e0;
   td1 = TwoPartDate(d1);
   for (long i = 0; i < 86400L-1; i++)
-    td1.add_seconds(1e0);
+    td1.add_seconds(1e0,secerr);
+  printf("Seconds reached: %.15e", td1.sec_of_day<seconds>());
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(td1, buffer);
+  printf(", i.e. %.29s\n", buffer);
   assert(!std::strncmp(buffer, "2023/10/24 23:59:59.000000000", sz));
   td1.add_seconds(.999999999e0);
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(td1, buffer);

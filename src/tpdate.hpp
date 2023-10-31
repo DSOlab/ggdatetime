@@ -66,7 +66,7 @@ TwoPartJulianDate jd_split(double mjd, double fday) noexcept {
  */
 class TwoPartDate {
 private:
-  using FDOUBLE = long double;
+  using FDOUBLE = /*long*/ double;
   double _mjd;  /** Mjd */
   FDOUBLE _fday; /** fractional days */
 
@@ -132,21 +132,24 @@ public:
    * @warning Does not take into account leap seconds.
    */
   void add_seconds(FDOUBLE sec) noexcept {
-    // first approach
-    // _fday += sec / SEC_PER_DAY;
-    // this->normalize();
-    //
-    // second approach
     FDOUBLE dsec = _fday * SEC_PER_DAY;
     dsec += sec;
     _fday = dsec / SEC_PER_DAY;
     this->normalize();
-    //constexpr const long double SPD = 86400e0;
-    //long double dsec = _fday * SPD;
-    //dsec += sec;
-    //long double fday = dsec / SPD;
-    //_fday = fday;
-    //this->normalize();
+  }
+  
+  /** Add seconds to instance.
+   * @warning Does not take into account leap seconds.
+   */
+  void add_seconds(FDOUBLE fsec, FDOUBLE &err) noexcept {
+    /* result: 23:59:59.000'000'008 */
+    const FDOUBLE sec = fsec + err;
+    const FDOUBLE dsec = _fday * SEC_PER_DAY;
+    const FDOUBLE s = sec + dsec;
+    const FDOUBLE z = s - dsec;
+    err = sec - z;
+    _fday = s / SEC_PER_DAY;
+    this->normalize();
   }
 
   /** Difference between two dates as integral number of days and seconds of
@@ -296,22 +299,18 @@ public:
    * stored in the _fday part, while _mjd holds the integral part of date
    */
   void normalize() noexcept {
-    /* fractional part should NOT be negative */
-    while (_fday < 0e0) {
-      _fday = 1 - _fday;
+    /* split _mjd to fractional and integral part */
+    FDOUBLE intpart;
+    FDOUBLE fraction = std::modf(_mjd, &intpart);
+    _mjd = intpart;
+    /* split _fday to fractional and integral part */
+    fraction += std::modf(_fday, &intpart);
+    _mjd += intpart;
+    _fday = fraction;
+    /* fraction cannot be negative */
+    if (_fday < 0e0) {
+      _fday += 1e0;
       _mjd -= 1e0;
-    }
-    FDOUBLE fmore(0e0), extra(0e0);
-    /* check if _mjd part has a fractional part */
-    if ((fmore = std::modf((FDOUBLE)_mjd, &extra)) != 0e0) {
-      /* assign fractional part to _fday and keep integral part to _mjd */
-      _fday += fmore;
-      _mjd = extra;
-    }
-    /* check if fractional part is >= 1e0 */
-    if (_fday >= 1e0) {
-      _fday = std::modf(_fday, &extra);
-      _mjd += extra;
     }
 #ifdef DEBUG
     assert(_fday >= 0e0 && _fday < 1e0);
