@@ -1,6 +1,6 @@
 #include "dtcalendar.hpp"
 #include "utcdates.hpp"
-
+/*
 namespace {
 typedef dso::nanoseconds::underlying_type SecIntType;
 constexpr const SecIntType MAXSDAY = dso::nanoseconds::max_in_day;
@@ -14,7 +14,7 @@ dso::TwoPartDate dso::dtf2d(dso::year yr, dso::month mt, dso::day_of_month dm,
                             dso::nanoseconds &leap) noexcept {
   dso::modified_julian_day big;
   const double fday = dso::dtf2d(yr, mt, dm, hr, mn, _sec, big, leap);
-  return dso::TwoPartDate{(double)big.as_underlying_type(), fday}.normalized();
+  return dso::TwoPartDate{big.as_underlying_type(), fday}.normalized();
 }
 
 double dso::dtf2d(dso::year yr, dso::month mt, dso::day_of_month dm,
@@ -60,3 +60,4 @@ double dso::dtf2d(dso::year yr, dso::month mt, dso::day_of_month dm,
   const double msec = static_cast<double>(maxsday.as_underlying_type());
   return dsec / msec;
 }
+*/

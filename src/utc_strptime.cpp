@@ -4,12 +4,13 @@
 #include <charconv>
 #include <cstring>
 
+/*
 namespace {
 
 typedef dso::nanoseconds::underlying_type SecIntType;
-/*constexpr const SecIntType MAXSDAY = dso::nanoseconds::max_in_day;
-constexpr const SecIntType FACTOR =
-    dso::nanoseconds::template sec_factor<SecIntType>();*/
+//constexpr const SecIntType MAXSDAY = dso::nanoseconds::max_in_day;
+//constexpr const SecIntType FACTOR =
+//    dso::nanoseconds::template sec_factor<SecIntType>();
 
 // skip any of the following characters:
 // ' ', '/', '-', ':', 'T'
@@ -64,3 +65,5 @@ dso::TwoPartDate dso::utc_strptime_ymd_hms(const char *str, const char **stop) {
   const double fd = utc_strptime_ymd_hms(str, mjd, stop);
   return dso::TwoPartDate((double)mjd.as_underlying_type(), fd);
 }
+
+*/

@@ -2,7 +2,7 @@
 #include "dtfund.hpp"
 #include "utcdates.hpp"
 #include <cmath>
-
+/*
 namespace {
 typedef dso::nanoseconds::underlying_type SecIntType;
 
@@ -42,6 +42,7 @@ double dso::utc2tai(const dso::modified_julian_day utc_mjd, double utc_fday,
   tai_mjd = modified_julian_day(itai_mjd + ipart);
   return tai_fday;
 }
+*/
 
 /*
 dso::TwoPartDate dso::utc2tai(const dso::TwoPartDate &dutc) noexcept {

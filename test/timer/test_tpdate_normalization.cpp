@@ -66,7 +66,7 @@ int main() {
   auto duration = duration_cast<microseconds>(stop - start);
 
   std::cout << "Time spent on fucntion: " << duration.count() << "microsec\n";
-  printf("Here is smthng irrelevant, dummy=%d, mjd=%.1f\n", donotoptimize,
+  printf("Here is smthng irrelevant, dummy=%d, mjd=%d\n", donotoptimize,
          tpd.imjd());
   }
 

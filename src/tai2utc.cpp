@@ -22,6 +22,7 @@ dso::TwoPartDate dso::tai2utc(const dso::TwoPartDate &dtai) noexcept {
 }
 */
 
+/*
 double dso::tai2utc(const dso::datetime<dso::nanoseconds> &tai,
                     dso::modified_julian_day &mjd) noexcept {
   // calendar date to MJD
@@ -66,3 +67,4 @@ double dso::tai2utc(const dso::datetime<dso::nanoseconds> &tai,
 #endif
   return static_cast<double>(sec_in_day) / static_cast<double>(max_sec_in_day);
 }
+*/

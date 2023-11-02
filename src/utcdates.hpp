@@ -4,6 +4,7 @@
 #include "dtcalendar.hpp"
 #include "tpdate.hpp"
 #include <cassert>
+/*
 
 namespace dso {
 
@@ -77,4 +78,6 @@ double utc_strptime_ymd_hms(const char *str, dso::modified_julian_day &utc_mjd,
 TwoPartDate utc_strptime_ymd_hms(const char *str, const char **stop = nullptr);
 
 } // namespace dso
+
+*/
 #endif

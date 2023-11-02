@@ -43,16 +43,16 @@ int main() {
       TwoPartDate tpd1(d1);
       assert(tpd1.imjd() == d1.imjd().as_underlying_type());
       /* fraction of day to nanoseconds */
-      const double ns1 = tpd1.fday() * nsec::max_in_day;
+      const double ns1 = tpd1.sec_of_day<nanoseconds>();
       /* difference from original nanoseconds */
       const double fd1 = ns1 - (double)d1.sec().as_underlying_type();
       TwoPartDate tpd2(d2);
       assert(tpd2.imjd() == d2.imjd().as_underlying_type());
-      const double ns2 = tpd2.fday() * nsec::max_in_day;
+      const double ns2 = tpd2.sec_of_day<nanoseconds>();
       const double fd2 = ns2 - (double)d2.sec().as_underlying_type();
       TwoPartDate tpd3(d3);
       assert(tpd3.imjd() == d3.imjd().as_underlying_type());
-      const double ns3 = tpd3.fday() * nsec::max_in_day;
+      const double ns3 = tpd3.sec_of_day<nanoseconds>();
       const double fd3 = ns3 - (double)d3.sec().as_underlying_type();
 
       /* maximum difference */

@@ -5,15 +5,15 @@
 
 /*
  * Check the precision of a TwoPartDate when constructed from a 
- * datetime<T> instance, with T being nanoseconds
+ * datetime<T> instance, with T being microseconds
  */
 
 using namespace dso;
 
 constexpr const long num_tests = 1'000'000;
-using nsec = dso::nanoseconds;
+using nsec = dso::microseconds;
 typedef nsec::underlying_type SecIntType;
-constexpr const double PRECISION_NSEC = 2e-2;
+constexpr const double PRECISION_NSEC = 2e-5;
 
 int main() {
   /* Generators for random numbers ... */

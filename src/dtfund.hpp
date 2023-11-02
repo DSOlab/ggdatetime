@@ -1215,7 +1215,6 @@ public:
     return m_sec;
   }
 
-private:
 /** Cast to any arithmetic type. */
 #if __cplusplus >= 202002L
   template <typename T>
@@ -1228,6 +1227,7 @@ private:
     return static_cast<T>(m_sec);
   }
 
+private:
   /** The seconds as underlying type. */
   underlying_type m_sec;
 }; /* seconds */

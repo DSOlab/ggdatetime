@@ -78,3 +78,23 @@ It uses the *Julian year* of exactly 365.25 days, and the *TT* time scale;
 Julian epoch 2000.0 is defined to be 2000 January 1.5 (i.e. 2000 January 1d 12h), 
 which is JD 2,451,545.0 (i.e. `dso::J2000_JD`) or MJD 51,544.5 (i.e. `dso::J2000_MJD`). 
 Julian epoch is usually denoted as *“J2000.0”*.
+
+### Precision
+
+**Transforming from `datetime<T>` to `TwoPartDate`s**
+
+Transforming from a `datetime<nanoseconds>` instance to an instance of type 
+`TwoPartDate` preserves a precision better than 2e-2 nanoseconds. This is verified 
+by running the test program (unit_tests/tpdates1.cpp)[unit_tests/tpdates1.cpp]
+
+Transforming from a `datetime<microseconds>` instance to an instance of type 
+`TwoPartDate` preserves a precision better than 2e-5 microseconds. This is verified 
+by running the test program (unit_tests/tpdates2.cpp)[unit_tests/tpdates2.cpp]
+
+Transforming from a `datetime<milliseconds>` instance to an instance of type 
+`TwoPartDate` preserves a precision better than 2e-8 milliseconds. This is verified 
+by running the test program (unit_tests/tpdates3.cpp)[unit_tests/tpdates3.cpp]
+
+Transforming from a `datetime<seconds>` instance to an instance of type 
+`TwoPartDate` preserves a precision better than 2e-12 seconds. This is verified 
+by running the test program (unit_tests/tpdates4.cpp)[unit_tests/tpdates4.cpp]

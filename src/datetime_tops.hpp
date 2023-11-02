@@ -392,7 +392,6 @@ template <typename S, typename T = double,
 #endif
 T to_fractional_days(S nsec) noexcept {
   const T sec = static_cast<T>(nsec.__member_ref__());
-  //return sec / static_cast<T>(S::max_in_day);
   return sec / S::max_in_day;
 }
 
