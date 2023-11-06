@@ -12,6 +12,7 @@
 #include "tpdate.hpp"
 #include <charconv>
 #include <stdexcept>
+#include <cctype>
 
 namespace dso {
 
@@ -21,6 +22,21 @@ inline const char *skipws(const char *line) noexcept {
   while (*c && (*c == ' ' || *c == '/' || *c == '-' || *c == 'T' || *c == ':'))
     ++c;
   return c;
+}
+
+inline int count_decimal_digits(const char *fltstr) noexcept {
+  /* go to decimal part */
+  while (fltstr && *fltstr != '.') ++fltstr;
+  if (fltstr && *fltstr == '.') {
+    /* count digits */
+    ++fltstr;
+    const char *dgtc = fltstr;
+    while (std::isdigit(*dgtc)) ++dgtc;
+    return (dgtc - fltstr);
+  } else {
+    /* no decimal digits */
+    return 0;
+  }
 }
 
 int get_two_ints(const char *str, int *ints, int max_chars,
