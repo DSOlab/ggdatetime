@@ -1,6 +1,6 @@
 #include "datetime_write.hpp"
-#include <cstring>
 #include <cassert>
+#include <cstring>
 
 using namespace dso;
 
@@ -14,7 +14,7 @@ int main() {
   to_char<YMDFormat::YYYYMMDD>(d1, buffer);
   sz = dso::SpitDate<YMDFormat::YYYYMMDD>::numChars;
   assert(!std::strncmp(buffer, "2023/10/24", sz));
-  
+
   d1 = ymd_date(year(2023), month(1), day_of_month(4));
   to_char<YMDFormat::YYYYMMDD>(d1, buffer);
   sz = dso::SpitDate<YMDFormat::YYYYMMDD>::numChars;
@@ -23,37 +23,37 @@ int main() {
   /* check time */
   hms_time<seconds> t1(seconds(1));
   to_char<HMSFormat::HHMMSS>(t1, buffer);
-  sz = dso::SpitTime<seconds,HMSFormat::HHMMSS>::numChars;
+  sz = dso::SpitTime<seconds, HMSFormat::HHMMSS>::numChars;
   assert(!std::strncmp(buffer, "00:00:01", sz));
-  
+
   t1 = hms_time<seconds>(seconds(59));
   to_char<HMSFormat::HHMMSS>(t1, buffer);
-  sz = dso::SpitTime<seconds,HMSFormat::HHMMSS>::numChars;
+  sz = dso::SpitTime<seconds, HMSFormat::HHMMSS>::numChars;
   assert(!std::strncmp(buffer, "00:00:59", sz));
-  
+
   t1 = hms_time<seconds>(seconds(60));
   to_char<HMSFormat::HHMMSS>(t1, buffer);
-  sz = dso::SpitTime<seconds,HMSFormat::HHMMSS>::numChars;
+  sz = dso::SpitTime<seconds, HMSFormat::HHMMSS>::numChars;
   assert(!std::strncmp(buffer, "00:01:00", sz));
-  
-  t1 = hms_time<seconds>(seconds(59*60));
+
+  t1 = hms_time<seconds>(seconds(59 * 60));
   to_char<HMSFormat::HHMMSS>(t1, buffer);
-  sz = dso::SpitTime<seconds,HMSFormat::HHMMSS>::numChars;
+  sz = dso::SpitTime<seconds, HMSFormat::HHMMSS>::numChars;
   assert(!std::strncmp(buffer, "00:59:00", sz));
-  
-  t1 = hms_time<seconds>(seconds(60*60));
+
+  t1 = hms_time<seconds>(seconds(60 * 60));
   to_char<HMSFormat::HHMMSS>(t1, buffer);
-  sz = dso::SpitTime<seconds,HMSFormat::HHMMSS>::numChars;
+  sz = dso::SpitTime<seconds, HMSFormat::HHMMSS>::numChars;
   assert(!std::strncmp(buffer, "01:00:00", sz));
-  
-  t1 = hms_time<seconds>(seconds(60*60+1));
+
+  t1 = hms_time<seconds>(seconds(60 * 60 + 1));
   to_char<HMSFormat::HHMMSS>(t1, buffer);
-  sz = dso::SpitTime<seconds,HMSFormat::HHMMSS>::numChars;
+  sz = dso::SpitTime<seconds, HMSFormat::HHMMSS>::numChars;
   assert(!std::strncmp(buffer, "01:00:01", sz));
-  
-  t1 = hms_time<seconds>(seconds(86400-1));
+
+  t1 = hms_time<seconds>(seconds(86400 - 1));
   to_char<HMSFormat::HHMMSS>(t1, buffer);
-  sz = dso::SpitTime<seconds,HMSFormat::HHMMSS>::numChars;
+  sz = dso::SpitTime<seconds, HMSFormat::HHMMSS>::numChars;
   assert(!std::strncmp(buffer, "23:59:59", sz));
 
   return 0;

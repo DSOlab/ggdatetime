@@ -1283,19 +1283,17 @@ public:
   /** MilliSeconds are a subdivision of seconds. */
   static constexpr bool is_of_sec_type = true;
 
-  /** The scale factor to transform from seconds to milliseconds. i.e. 
+  /** The scale factor to transform from seconds to milliseconds. i.e.
    * milliseconds = seconds * sec_factor()
    */
   template <typename T> static constexpr T sec_factor() noexcept {
     return static_cast<T>(1000);
   }
-  
-  /** The scale factor to transform from milliseconds to seconds, i.e. 
+
+  /** The scale factor to transform from milliseconds to seconds, i.e.
    * seconds = milliseconds * sec_inv_factor()
    */
-  static constexpr double sec_inv_factor() noexcept {
-    return 1e-3;
-  }
+  static constexpr double sec_inv_factor() noexcept { return 1e-3; }
 
   /** Max milliseconds in one day. */
   static constexpr underlying_type max_in_day = 86400L * 1000L;
@@ -1415,19 +1413,17 @@ public:
   static constexpr underlying_type max_in_day{86'400L * 1'000'000L};
   static_assert(max_in_day < std::numeric_limits<underlying_type>::max());
 
-  /** The scale factor to transform from seconds to microseconds. i.e. 
+  /** The scale factor to transform from seconds to microseconds. i.e.
    * microseconds = seconds * sec_factor()
    */
   template <typename T> static constexpr T sec_factor() noexcept {
     return static_cast<T>(1'000'000);
   }
-  
-  /** The scale factor to transform from microseconds to seconds, i.e. 
+
+  /** The scale factor to transform from microseconds to seconds, i.e.
    * seconds = microseconds * sec_inv_factor()
    */
-  static constexpr double sec_inv_factor() noexcept {
-    return 1e-6;
-  }
+  static constexpr double sec_inv_factor() noexcept { return 1e-6; }
 
   /** Constructor; default microseconds is 0; any integral number will do */
   explicit constexpr microseconds(underlying_type i = 0L) noexcept : m_sec(i){};
@@ -1537,19 +1533,17 @@ public:
   static constexpr underlying_type max_in_day{86'400L * 1'000'000'000L};
   static_assert(max_in_day < std::numeric_limits<underlying_type>::max());
 
-  /** The scale factor to transform from seconds to nanoseconds. i.e. 
+  /** The scale factor to transform from seconds to nanoseconds. i.e.
    * nanoseconds = seconds * sec_factor()
    */
   template <typename T> static constexpr T sec_factor() noexcept {
     return static_cast<T>(1'000'000'000);
   }
-  
-  /** The scale factor to transform from nanoseconds to seconds, i.e. 
+
+  /** The scale factor to transform from nanoseconds to seconds, i.e.
    * seconds = nanoseconds * sec_inv_factor()
    */
-  static constexpr double sec_inv_factor() noexcept {
-    return 1e-9;
-  }
+  static constexpr double sec_inv_factor() noexcept { return 1e-9; }
 
   /** Constructor; default nanoseconds is 0. **/
   explicit constexpr nanoseconds(underlying_type i = 0L) noexcept : m_sec(i){};

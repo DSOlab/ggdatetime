@@ -1,7 +1,7 @@
 /** @file
- * A utility class to hold datetime instances, in a continuous time-scale 
- * (e.g. TT, TAI, etc). In construst to datetime<S>, this is not a template 
- * class and uses a storage method of two numeric values (one for MJD and one 
+ * A utility class to hold datetime instances, in a continuous time-scale
+ * (e.g. TT, TAI, etc). In construst to datetime<S>, this is not a template
+ * class and uses a storage method of two numeric values (one for MJD and one
  * for seconds of day) to represent datetime epochs.
  */
 
@@ -11,20 +11,48 @@
 #include "dtcalendar.hpp"
 
 namespace dso {
+
+/** forward decleration */
+class TwoPartDate;
+
 class TwoPartDateUTC {
 private:
   using FDOUBLE = /*long*/ double;
-  int _mjd;  /** Mjd */
+  int _mjd;      /** Mjd */
   FDOUBLE _fsec; /** fractional seconds of day */
-  int _secInDay; /** number of seconds in day, i.e. 86400 or 86401 */
 
-  /** Check the integral (MJD) part of the date; if we are on a leap 
+  /** Check the integral (MJD) part of the date; if we are on a leap
    * insertation day, return 1, otherwise return 0
    */
   int extra_seconds_in_day() const noexcept {
     int extra;
     dat(_mjd, extra);
     return extra;
+  }
+
+  /** @brief Transform a UTC date to a TAI date.
+   *
+   * The TAI date is returned in two parts:
+   * 1. The MJD part (integral), and
+   * 2. The seconds of day part (fractional)
+   * Note that the fractional seconds part may be over 86400.
+   */
+  int utc2tai(FDOUBLE &taisec) const noexcept {
+    taisec = _fsec + dat(modified_julian_day(_mjd));
+    return _mjd;
+  }
+
+  /** @brief Transform a UTC date to a TT date.
+   *
+   * The TT date is returned in two parts:
+   * 1. The MJD part (integral), and
+   * 2. The seconds of day part (fractional)
+   * Note that the fractional seconds part may be over 86400.
+   */
+  int utc2tt(FDOUBLE &taisec) const noexcept {
+    constexpr const FDOUBLE dtat = TT_MINUS_TAI;
+    taisec = _fsec + (dat(modified_julian_day(_mjd)) + dtat);
+    return _mjd;
   }
 
 public:
@@ -36,17 +64,14 @@ public:
 #endif
   TwoPartDateUTC(const datetime<T> &d) noexcept
       : _mjd(d.imjd().as_underlying_type()),
-        _fsec(to_fractional_seconds<T,FDOUBLE>(d.sec()))
-  {
+        _fsec(to_fractional_seconds<T, FDOUBLE>(d.sec())) {
     this->normalize();
-    _secInDay = 86400 + this->extra_seconds_in_day();
   }
 
   /** Constructor from a pair of doubles, such that MJD = a + b */
   explicit TwoPartDateUTC(int b = 0, FDOUBLE s = 0) noexcept
       : _mjd(b), _fsec(s) {
     this->normalize();
-    _secInDay = 86400 + this->extra_seconds_in_day();
   }
 
   /** Get the MJD as an intgral number, i.e. no fractional part */
@@ -54,19 +79,19 @@ public:
 
   /** Get the fractional seconds of the MJD */
   FDOUBLE seconds() const noexcept { return _fsec; }
-  
+
   /** @brief Get the fractional seconds of day as some multiple of seconds.
    *
-   * 'Some multiple of seconds' can be any type defined with a member 
+   * 'Some multiple of seconds' can be any type defined with a member
    * is_of_sec_type set to true. In practical terms, this means that you can
    * use seconds, milliseconds, microseconds or nanoseconds.
-   * So, in essence this function will give you the seconds of day, or the 
+   * So, in essence this function will give you the seconds of day, or the
    * milliseconds of day, or ...
-   * The function will return the [whatever]seconds of day as a floating point 
-   * number. 
+   * The function will return the [whatever]seconds of day as a floating point
+   * number.
    *
-   * @return Fractional day as fractional T-type second multiples. I.e. 
-   *         fractional seconds of day, or milliseconds of day, or 
+   * @return Fractional day as fractional T-type second multiples. I.e.
+   *         fractional seconds of day, or milliseconds of day, or
    *         microseconds of day, etc ...
    */
 #if __cplusplus >= 202002L
@@ -75,7 +100,7 @@ public:
   template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
   FDOUBLE sec_of_day() const noexcept {
-    return seconds() * T:: template sec_factor<FDOUBLE>();
+    return seconds() * T::template sec_factor<FDOUBLE>();
   }
 
   /** @brief Transform the (integral part of the) date to Year Month Day */
@@ -86,8 +111,25 @@ public:
   void add_seconds(FDOUBLE sec) noexcept {
     _fsec += sec;
     this->normalize();
-    _secInDay = 86400 + this->extra_seconds_in_day();
   }
+
+  /** @brief Differencce betweeen two UTC dates
+   * 
+   * The difference is returned in two parts, 
+   * 1. An integral part, holding whole days of 86400[sec], and
+   * 2. remaining seconds
+   * This function will take into consideration the leap seconds between the 
+   * two days.
+   * Note that the whole days returned are days of 86400[sec] aka **NOT** 
+   * always UTC days
+   * Example:
+   * a leap insertion date
+   * d1 = TwoPartDateUTC(ymd_date{year(2016), month(12), day_of_month(31))
+   * d2 = TwoPartDateUTC(ymd_date{year(2017), month(1), day_of_month(1))
+   * auto diff = d1 - d2
+   * now: diff.imjd() == 1 and diff.seconds() == 1
+   */
+  TwoPartDate operator-(const TwoPartDateUTC &d) const noexcept;
 
   bool operator>(const TwoPartDateUTC &d) const noexcept {
     return (_mjd > d._mjd) || ((_mjd == d._mjd) && (_fsec > d._fsec));
@@ -112,78 +154,62 @@ public:
     return !(this->operator==(d));
   }
 
-  /** @brief Normalize an instance. 
+  /** @brief Normalize an instance.
    *
-   * Normalize here is meant in the sense that the fractional seconds of day 
-   * (\p _fsec) are always in the range [0,86400), while the integral part 
+   * Normalize here is meant in the sense that the fractional seconds of day
+   * (\p _fsec) are always in the range [0,86400), while the integral part
    * (\p _mjd) is always a valid integer.
-   * The only case where negative seconds are allowed, is when the MJD part is 
-   * zero. In this case, the seconds of day are allowed to be negative, so 
+   * The only case where negative seconds are allowed, is when the MJD part is
+   * zero. In this case, the seconds of day are allowed to be negative, so
    * that they can hold the sign.
    */
   void normalize() noexcept {
     assert(_fsec >= 0e0);
     int extra_sec_in_day;
     dat(_mjd, extra_sec_in_day);
-    /* for each MJD, remove integral days. Each MJD may have a different 
-     * number of seconds, since we are in UTC time scale. Hence, iteratively 
+    /* for each MJD, remove integral days. Each MJD may have a different
+     * number of seconds, since we are in UTC time scale. Hence, iteratively
      * remove whole days using the number of seconds for each day
      */
-    while (_fsec >= 86400e0+extra_sec_in_day) {
-      _fsec -= (86400e0+extra_sec_in_day);
+    while (_fsec >= 86400e0 + extra_sec_in_day) {
+      _fsec -= (86400e0 + extra_sec_in_day);
       ++_mjd;
       dat(_mjd, extra_sec_in_day);
     }
 #ifdef DEBUG
-    if (_mjd) assert(_fsec >= 0e0 && _fsec < 86400e0);
-    else assert(_fsec < 0e0 && _fsec > -86400e0);
+    if (_mjd)
+      assert(_fsec >= 0e0 && _fsec < 86400e0+extra_sec_in_day);
+    else
+      assert(_fsec < 0e0 && _fsec > -86400e0);
 #endif
     /* all done */
     return;
   }
 
-  /** @brief Transform a UTC date to a TAI date.
-   *
-   * The TAI date is returned in two parts:
-   * 1. The MJD part (integral), and
-   * 2. The seconds of day part (fractional)
-   * Note that the fractional seconds part may be over 86400.
-   */
-  int utc2tai(FDOUBLE &taisec) const noexcept {
-    taisec = _fsec + dat(modified_julian_day(_mjd));
-    return _mjd;
-  }
+  /** @brief Transform a UTC date to a TAI date */
+  TwoPartDate utc2tai() const noexcept;
 
-  /** @brief Transform a UTC date to a TT date.
-   *
-   * The TT date is returned in two parts:
-   * 1. The MJD part (integral), and
-   * 2. The seconds of day part (fractional)
-   * Note that the fractional seconds part may be over 86400.
-   */
-  int utc2tt(FDOUBLE &taisec) const noexcept {
-    constexpr const FDOUBLE dtat = TT_MINUS_TAI;
-    taisec = _fsec + (dat(modified_julian_day(_mjd))+dtat);
-    return _mjd;
-  }
+  /** @brief Transform a UTC date to a TT date */
+  TwoPartDate utc2tt() const noexcept;
+
 }; /* class TwoPartDateUTC */
 
 /** A datetime class to represent epochs in any continuous system.
  *
- * A TwoPartDate instance conviniently splits a datetime into two numeric 
+ * A TwoPartDate instance conviniently splits a datetime into two numeric
  * values:
- * - the Modified Julian Day (i.e. an integral value), and 
+ * - the Modified Julian Day (i.e. an integral value), and
  * - the time of day, which is stored in fractional seconds of day
  *
- * The methods of the class, invluding constructors, take special care to 
- * always keep the seconds as seconds of day, i.e. in the range [0,86400) and 
+ * The methods of the class, invluding constructors, take special care to
+ * always keep the seconds as seconds of day, i.e. in the range [0,86400) and
  * correspondingly increase/decrease the day count.
  *
  */
 class TwoPartDate {
 private:
   using FDOUBLE = /*long*/ double;
-  int _mjd;  /** Mjd */
+  int _mjd;      /** Mjd */
   FDOUBLE _fsec; /** fractional seconds of day */
 
 public:
@@ -195,14 +221,12 @@ public:
 #endif
   TwoPartDate(const datetime<T> &d) noexcept
       : _mjd(d.imjd().as_underlying_type()),
-        _fsec(to_fractional_seconds<T,FDOUBLE>(d.sec())) 
-  {
+        _fsec(to_fractional_seconds<T, FDOUBLE>(d.sec())) {
     this->normalize();
   }
 
   /** Constructor from a pair of doubles, such that MJD = a + b */
-  explicit TwoPartDate(int b = 0, FDOUBLE s = 0) noexcept
-      : _mjd(b), _fsec(s) {
+  explicit TwoPartDate(int b = 0, FDOUBLE s = 0) noexcept : _mjd(b), _fsec(s) {
     this->normalize();
   }
 
@@ -211,19 +235,19 @@ public:
 
   /** Get the fractional seconds of the MJD */
   FDOUBLE seconds() const noexcept { return _fsec; }
-  
+
   /** @brief Get the fractional seconds of day as some multiple of seconds.
    *
-   * 'Some multiple of seconds' can be any type defined with a member 
+   * 'Some multiple of seconds' can be any type defined with a member
    * is_of_sec_type set to true. In practical terms, this means that you can
    * use seconds, milliseconds, microseconds or nanoseconds.
-   * So, in essence this function will give you the seconds of day, or the 
+   * So, in essence this function will give you the seconds of day, or the
    * milliseconds of day, or ...
-   * The function will return the [whatever]seconds of day as a floating point 
-   * number. 
+   * The function will return the [whatever]seconds of day as a floating point
+   * number.
    *
-   * @return Fractional day as fractional T-type second multiples. I.e. 
-   *         fractional seconds of day, or milliseconds of day, or 
+   * @return Fractional day as fractional T-type second multiples. I.e.
+   *         fractional seconds of day, or milliseconds of day, or
    *         microseconds of day, etc ...
    */
 #if __cplusplus >= 202002L
@@ -232,7 +256,7 @@ public:
   template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
   FDOUBLE sec_of_day() const noexcept {
-    return seconds() * T:: template sec_factor<FDOUBLE>();
+    return seconds() * T::template sec_factor<FDOUBLE>();
   }
 
   /** @brief Transform the (integral part of the) date to Year Month Day */
@@ -245,7 +269,7 @@ public:
     _fsec += sec;
     this->normalize();
   }
-  
+
   /** Difference between two dates as integral number of days and seconds of
    * day
    *
@@ -303,8 +327,8 @@ public:
     constexpr const FDOUBLE dtat = TT_MINUS_TAI;
     return TwoPartDate(_mjd, _fsec + dtat);
   }
-  
-  /** @brief Transform an instance to TAI assuming it is in TT 
+
+  /** @brief Transform an instance to TAI assuming it is in TT
    *
    * The two time scales are connected by the formula:
    * \f$ TT = TAI + ΔT \$ where \f$ ΔT = TT - TAI = 32.184 [sec] \f$
@@ -314,48 +338,28 @@ public:
     return TwoPartDate(_mjd, _fsec - dtat);
   }
 
-  /** Transform an instance to TAI, assuming it is in UTC
-   *
-   * The two time scales are connected by the formula:
-   * \f$ UTC = TAI + ΔAT \$ where ΔAT are the leap seconds.
-   */
-  //TwoPartDate utc2tai() const noexcept {
-  //  constexpr const FDOUBLE SPD = SEC_PER_DAY;
-  //  auto utc = *this;
-  //  /* Get TAI-UTC at 0h today and extra seconds in day (if any) */
-  //  int extra;
-  //  const int leap = dat(modified_julian_day((int)utc._mjd), extra);
-  //  /* Remove any scaling applied to spread leap into preceding day */
-  //  utc._fday *= (SPD + extra) / SPD;
-  //  /* Assemble the TAI result, preserving the UTC split and order */
-  //  return TwoPartDate(utc._mjd, utc._fday + leap / SPD);
-  //}
+  /**  Transform an instance to UTC assuming it is in TAI */
+  /* taisec = _fsec + dat(modified_julian_day(_mjd)); */
+  TwoPartDateUTC tai2utc() const noexcept {
+    FDOUBLE utcsec = _fsec - dat(modified_julian_day(_mjd));
+    int utcmjd = _mjd;
+    /* in case we are actually on the previous day, check for leap insertion
+     * day and 'normalize' integral and fractional parts
+     */
+    if (utcsec < 0e0) {
+      --utcmjd;
+      int extrasec;
+      FDOUBLE secinday = SEC_PER_DAY + dat(utcmjd, extrasec);
+      utcsec = secinday + utcsec;
+    }
+    return TwoPartDateUTC(utcmjd, utcsec);
+  }
 
-  /** Transform an instance to TT assuming it is in UTC */
-  //TwoPartDate utc2tt() const noexcept {
-  //  const auto tai = this->utc2tai();
-  //  return tai.tai2tt();
-  //}
-
-  ///**  Transform an instance to UTC assuming it is in TAI */
-  //TwoPartDate tai2utc() const noexcept {
-  //  // do it the SOFA way ...
-  //  auto utc1(*this);
-  //  FDOUBLE small = utc1._fday;
-  //  FDOUBLE big = utc1._mjd;
-  //  for (int i = 0; i < 3; i++) {
-  //    TwoPartDate guess = TwoPartDate(big, small).utc2tai();
-  //    small += utc1._mjd - guess._mjd;
-  //    small += utc1._fday - guess._fday;
-  //  }
-  //  return TwoPartDate(utc1._mjd, small);
-  //}
-
-  ///**  Transform an instance to UTC assuming it is in TT */
-  //TwoPartDate tt2utc() const noexcept {
-  //  const auto tai = this->tt2tai();
-  //  return tai.tai2utc();
-  //}
+  /**  Transform an instance to UTC assuming it is in TT */
+  TwoPartDateUTC tt2utc() const noexcept {
+    const auto tai = this->tai2tt();
+    return tai.tai2utc();
+  }
 
   /* @brief TT to UT1 MJD
    *
@@ -367,16 +371,32 @@ public:
    * @return The corresponding UT1 MJD, computed using:
    *         ∆T = TT − UT1 = 32.184[sec] + ∆AT − ∆UT1
    */
-  //TwoPartDate tt2ut1(FDOUBLE dut1) const noexcept {
-  //  /* note that ΔUT1 = UT1 − UTC hence UT1 = ΔUT1 + UTC */
-  //  return tt2utc() + TwoPartDate(0e0, dut1 / SEC_PER_DAY);
-  //}
+  TwoPartDate tt2ut1(FDOUBLE dut1) const noexcept {
+    /* note that ΔUT1 = UT1 − UTC hence UT1 = ΔUT1 + UTC
+     * UT1 = TT - 32.184[sec] - ΔAT + ΔUT1
+     *     = TAI - ΔAT + ΔUT1
+     */
+    const auto utc = this->tt2utc();
+    TwoPartDate ut1(utc.imjd(), utc.seconds());
+    ut1.add_seconds(dut1);
+    return ut1;
+  }
 
-  FDOUBLE as_mjd() const noexcept { return _fsec/SEC_PER_DAY + _mjd; }
+  TwoPartDate tai2ut1(FDOUBLE dut1) const noexcept {
+    /* UT1 = TAI + ΔUT1 - ΔAT
+     *     = UTC + ΔUT1
+     */
+    const auto utc = this->tai2utc();
+    TwoPartDate ut1(utc.imjd(), utc.seconds());
+    ut1.add_seconds(dut1);
+    return ut1;
+  }
+
+  FDOUBLE as_mjd() const noexcept { return _fsec / SEC_PER_DAY + _mjd; }
 
   FDOUBLE jcenturies_sinceJ2000() const noexcept {
     return (_mjd - J2000_MJD) / DAYS_IN_JULIAN_CENT +
-           _fsec/ SEC_PER_DAY / DAYS_IN_JULIAN_CENT;
+           _fsec / SEC_PER_DAY / DAYS_IN_JULIAN_CENT;
   }
 
   bool operator>(const TwoPartDate &d) const noexcept {
@@ -392,13 +412,13 @@ public:
     return (_mjd < d._mjd) || ((_mjd == d._mjd) && (_fsec <= d._fsec));
   }
 
-  /** @brief Normalize an instance. 
+  /** @brief Normalize an instance.
    *
-   * Normalize here is meant in the sense that the fractional seconds of day 
-   * (\p _fsec) are always in the range [0,86400), while the integral part 
+   * Normalize here is meant in the sense that the fractional seconds of day
+   * (\p _fsec) are always in the range [0,86400), while the integral part
    * (\p _mjd) is always a valid integer.
-   * The only case where negative seconds are allowed, is when the MJD part is 
-   * zero. In this case, the seconds of day are allowed to be negative, so 
+   * The only case where negative seconds are allowed, is when the MJD part is
+   * zero. In this case, the seconds of day are allowed to be negative, so
    * that they can hold the sign.
    */
   void normalize() noexcept {
@@ -413,8 +433,15 @@ public:
     _fsec = srem;
     _mjd += extradays;
 #ifdef DEBUG
-    if (_mjd) assert(_fsec >= 0e0 && _fday < 86400e0);
-    else assert(_fsec < 0e0 && _fday > -86400e0);
+    if (_mjd) {
+      assert(_fsec >= 0e0 && _fsec < 86400e0);
+    }
+    if (_fsec<0e0) {
+      assert(_mjd == 0);
+      assert(_fsec > -86400e0);
+    } else {
+      assert(_fsec >= 0e0 && _fsec < 86400e0);
+    }
 #endif
     /* all done */
     return;
@@ -438,7 +465,7 @@ public:
 
 }; /* class TwoPartDate */
 
-//TwoPartDate utc2tai(const TwoPartDate &d) noexcept;
+// TwoPartDate utc2tai(const TwoPartDate &d) noexcept;
 
 } /* namespace dso */
 

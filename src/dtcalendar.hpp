@@ -9,6 +9,7 @@
 
 #include "dtconcepts.hpp"
 #include "dtfund.hpp"
+#include "hms_time.hpp"
 #include <cassert>
 #include <cmath>
 #include <stdexcept>
@@ -281,42 +282,6 @@ public:
     this->normalize();
   };
 
-  /** Constructor from year, month, day of month and any sec type T
-   *  If an invalid date is passed-in, the constructor will throw.
-   *
-  template <class T, typename = std::enable_if_t<T::is_of_sec_type>,
-            typename = std::enable_if_t<
-                std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
-  constexpr datetime(year y, month m, day_of_month d, T t)
-      : m_mjd(y, m, d), m_sec(S(t)) {
-    this->normalize();
-  }
-  */
-
-  /** Constructor from year, day of year and any sec type T.
-   *  If an invalid date is passed-in, the constructor will throw.
-   *
-  template <class T, typename = std::enable_if_t<T::is_of_sec_type>,
-            typename = std::enable_if_t<
-                std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
-  constexpr datetime(year y, day_of_year d, T t) : m_mjd(y, d), m_sec(S(t)) {
-    this->normalize();
-  }
-  */
-
-  /** Constructor from year, month, day of month, hours, minutes and
-   *  any second type T convertible to S (i.e. T can be cast to S).
-   *  If an invalid date is passed-in, the constructor will throw.
-  template <class T, typename = std::enable_if_t<T::is_of_sec_type>,
-            typename = std::enable_if_t<
-                std::is_same<S, decltype(static_cast<S>(T{}))>::value, bool>>
-  constexpr datetime(year y, month m, day_of_month d, hours hr, minutes mn,
-                     T sec)
-      : m_mjd(y, m, d), m_sec(hr, mn, S(sec)) {
-    this->normalize();
-  }
-  */
-
   /** Constructor from year, month, day of month and fractional seconds.
    *  If an invalid date is passed-in, the constructor will throw.
    */
@@ -342,6 +307,13 @@ public:
   constexpr datetime(year y, month m, day_of_month d, hours hr = hours(0),
                      minutes mn = minutes(0), S sec = S(0))
       : m_mjd(y, m, d), m_sec(hr, mn, sec) {
+    this->normalize();
+  }
+
+  /** Constructor from ymd_date and hms_time<S>. No validation performed. */
+  datetime(const ymd_date &ymd, const hms_time<S> &hms) noexcept
+      : m_mjd(ymd.yr(), ymd.mn(), ymd.dm()),
+        m_sec(hms.hr(), hms.mn(), hms.nsec()) {
     this->normalize();
   }
 

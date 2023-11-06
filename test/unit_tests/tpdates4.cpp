@@ -4,7 +4,7 @@
 #include <random>
 
 /*
- * Check the precision of a TwoPartDate when constructed from a 
+ * Check the precision of a TwoPartDate when constructed from a
  * datetime<T> instance, with T being seconds
  */
 
@@ -44,23 +44,20 @@ int main() {
       /* construct a TwoPartDate from a datetime */
       TwoPartDate tpd1(d1);
       /* the difference between the two dates, in nsec should be below
-       * PRECISION_NSEC 
+       * PRECISION_NSEC
        */
       assert(tpd1.imjd() == d1.imjd().as_underlying_type());
-      assert(std::abs(tpd1.sec_of_day<nsec>() -
-                      d1.sec().as_underlying_type()) <
+      assert(std::abs(tpd1.sec_of_day<nsec>() - d1.sec().as_underlying_type()) <
              PRECISION_NSEC);
-      
+
       TwoPartDate tpd2(d2);
       assert(tpd2.imjd() == d2.imjd().as_underlying_type());
-      assert(std::abs(tpd2.sec_of_day<nsec>() -
-                      d2.sec().as_underlying_type()) <
+      assert(std::abs(tpd2.sec_of_day<nsec>() - d2.sec().as_underlying_type()) <
              PRECISION_NSEC);
-      
+
       TwoPartDate tpd3(d3);
       assert(tpd3.imjd() == d3.imjd().as_underlying_type());
-      assert(std::abs(tpd3.sec_of_day<nsec>() -
-                      d3.sec().as_underlying_type()) <
+      assert(std::abs(tpd3.sec_of_day<nsec>() - d3.sec().as_underlying_type()) <
              PRECISION_NSEC);
 
       ++testnr;

@@ -7,7 +7,6 @@
 
 using namespace dso;
 using nsec = dso::nanoseconds;
-constexpr const long SEC = nsec::sec_factor<long>();
 typedef nsec::underlying_type SecIntType;
 
 constexpr const long num_tests = 10'000;

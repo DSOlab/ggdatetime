@@ -79,9 +79,9 @@ int main() {
   td1 = TwoPartDate(d1);
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSS>(td1, buffer);
   assert(!std::strncmp(buffer, "2023/10/24 00:00:01", sz));
-  
+
   d1 = datetime<microseconds>(year(2023), month(10), day_of_month(24),
-                              microseconds(2*SEC - 1));
+                              microseconds(2 * SEC - 1));
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSS>(d1, buffer);
   sz = dso::SpitDate<YMDFormat::YYYYMMDD>::numChars +
        dso::SpitTime<microseconds, HMSFormat::HHMMSS>::numChars + 1;
@@ -89,9 +89,9 @@ int main() {
   td1 = TwoPartDate(d1);
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSS>(td1, buffer);
   assert(!std::strncmp(buffer, "2023/10/24 00:00:01", sz));
-  
+
   d1 = datetime<microseconds>(year(2023), month(10), day_of_month(24),
-                              microseconds(5*SEC - 1));
+                              microseconds(5 * SEC - 1));
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSS>(d1, buffer);
   sz = dso::SpitDate<YMDFormat::YYYYMMDD>::numChars +
        dso::SpitTime<microseconds, HMSFormat::HHMMSS>::numChars + 1;
@@ -99,9 +99,9 @@ int main() {
   td1 = TwoPartDate(d1);
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSS>(td1, buffer);
   assert(!std::strncmp(buffer, "2023/10/24 00:00:04", sz));
-  
+
   d1 = datetime<microseconds>(year(2023), month(10), day_of_month(24),
-                              microseconds(59*SEC - 1));
+                              microseconds(59 * SEC - 1));
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSS>(d1, buffer);
   sz = dso::SpitDate<YMDFormat::YYYYMMDD>::numChars +
        dso::SpitTime<microseconds, HMSFormat::HHMMSS>::numChars + 1;
@@ -109,9 +109,9 @@ int main() {
   td1 = TwoPartDate(d1);
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSS>(td1, buffer);
   assert(!std::strncmp(buffer, "2023/10/24 00:00:58", sz));
-  
+
   d1 = datetime<microseconds>(year(2023), month(10), day_of_month(24),
-                              microseconds(59*SEC + SEC - 1));
+                              microseconds(59 * SEC + SEC - 1));
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSS>(d1, buffer);
   sz = dso::SpitDate<YMDFormat::YYYYMMDD>::numChars +
        dso::SpitTime<microseconds, HMSFormat::HHMMSS>::numChars + 1;
@@ -119,9 +119,9 @@ int main() {
   td1 = TwoPartDate(d1);
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSS>(td1, buffer);
   assert(!std::strncmp(buffer, "2023/10/24 00:00:59", sz));
-  
+
   d1 = datetime<microseconds>(year(2023), month(10), day_of_month(24),
-                              microseconds(59*SEC + SEC + 1));
+                              microseconds(59 * SEC + SEC + 1));
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSS>(d1, buffer);
   sz = dso::SpitDate<YMDFormat::YYYYMMDD>::numChars +
        dso::SpitTime<microseconds, HMSFormat::HHMMSS>::numChars + 1;

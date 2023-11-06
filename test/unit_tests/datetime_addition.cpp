@@ -7,7 +7,6 @@ using namespace dso;
 constexpr const long num_tests = 1'000'000;
 using nsec = dso::nanoseconds;
 typedef nsec::underlying_type SecIntType;
-constexpr const SecIntType TOSEC = nsec::sec_factor<SecIntType>();
 
 int main() {
   /* Generators for random numbers ... */

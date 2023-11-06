@@ -5,9 +5,9 @@
 #define __DSO_DATETIME_GENERIC_TEMPLATE_OPERATIONS_HPP__
 
 #include "dtconcepts.hpp"
+#include <cstdio> // only for debugging
 #include <limits>
 #include <type_traits>
-#include <cstdio> // only for debugging
 
 namespace dso {
 
@@ -377,10 +377,10 @@ constexpr typename S::underlying_type max_days_allowed() {
          S::max_in_day;
 }
 
-/** Transform any second type S to fractional days 
+/** Transform any second type S to fractional days
  *
- * @warning This function assumes that a day is made up of exactly 86400 sec 
- * and is thus not able to represent a fractional day when the day at hand is 
+ * @warning This function assumes that a day is made up of exactly 86400 sec
+ * and is thus not able to represent a fractional day when the day at hand is
  * on a leap second insertion.
  */
 #if __cplusplus >= 202002L
