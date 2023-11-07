@@ -2,8 +2,8 @@
  * Functions to pretty print datetime instances
  */
 
-#ifndef __NGPT_DT_WRITERS__
-#define __NGPT_DT_WRITERS__
+#ifndef __DSO_DATETIME_IO_WRITE_HPP__
+#define __DSO_DATETIME_IO_WRITE_HPP__
 
 #include "datetime_io_core.hpp"
 #include "dtcalendar.hpp"

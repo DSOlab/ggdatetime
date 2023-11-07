@@ -3,146 +3,53 @@
  * from various input formats.
  */
 
-#ifndef __NGPT_DT_READERS__
-#define __NGPT_DT_READERS__
+#ifndef __DSO_DATETIME_IO_READ_HPP__
+#define __DSO_DATETIME_IO_READ_HPP__
 
 #include "datetime_io_core.hpp"
 #include "dtcalendar.hpp"
 #include "hms_time.hpp"
 #include "tpdate.hpp"
-#include <charconv>
 #include <stdexcept>
-#include <cctype>
 
 namespace dso {
 
-namespace {
-inline const char *skipws(const char *line) noexcept {
-  const char *c = line;
-  while (*c && (*c == ' ' || *c == '/' || *c == '-' || *c == 'T' || *c == ':'))
-    ++c;
-  return c;
-}
-
-inline int count_decimal_digits(const char *fltstr) noexcept {
-  /* go to decimal part */
-  while (fltstr && *fltstr != '.') ++fltstr;
-  if (fltstr && *fltstr == '.') {
-    /* count digits */
-    ++fltstr;
-    const char *dgtc = fltstr;
-    while (std::isdigit(*dgtc)) ++dgtc;
-    return (dgtc - fltstr);
-  } else {
-    /* no decimal digits */
-    return 0;
-  }
-}
-
-int get_two_ints(const char *str, int *ints, int max_chars,
-                   const char **end) {
-  if (*end)
-    *end = str;
-  const char *c = str;
-
-  /* resolve the three ints */
-  for (int i = 0; i < 2; ++i) {
-    auto tres = std::from_chars(skipws(c), str + max_chars, ints[i]);
-    if (tres.ec != std::errc{}) {
-      return i + 1;
-    }
-    c = tres.ptr;
-  }
-
-  /* assign pointer to first non-parsed character */
-  if (end)
-    *end = c;
-
-  return 0;
-}
-
-int get_three_ints(const char *str, int *ints, int max_chars,
-                   const char **end) {
-  if (*end)
-    *end = str;
-  const char *c = str;
-
-  /* resolve the three ints */
-  for (int i = 0; i < 3; ++i) {
-    auto tres = std::from_chars(skipws(c), str + max_chars, ints[i]);
-    if (tres.ec != std::errc{}) {
-      return i + 1;
-    }
-    c = tres.ptr;
-  }
-
-  /* assign pointer to first non-parsed character */
-  if (end)
-    *end = c;
-
-  return 0;
-}
-
-int get_three_ints(const char *str, long *ints, int max_chars,
-                   const char **end) {
-  if (*end)
-    *end = str;
-  const char *c = str;
-
-  /* resolve the three long ints */
-  for (int i = 0; i < 3; ++i) {
-    auto tres = std::from_chars(skipws(c), str + max_chars, ints[i]);
-    if (tres.ec != std::errc{}) {
-      return i + 1;
-    }
-    c = tres.ptr;
-  }
-
-  /* assign pointer to first non-parsed character */
-  if (end)
-    *end = c;
-
-  return 0;
-}
-
-int get_two_ints_double(const char *str, int *ints, double &flt, int max_chars,
-                        const char **end) {
-  if (*end)
-    *end = str;
-  const char *c = str;
-
-  /* resolve the two ints */
-  for (int i = 0; i < 2; ++i) {
-    auto tres = std::from_chars(skipws(c), str + max_chars, ints[i]);
-    if (tres.ec != std::errc{}) {
-      return i + 1;
-    }
-    c = tres.ptr;
-  }
-
-  /* resolve one double */
-  auto tres = std::from_chars(skipws(c), str + max_chars, flt);
-  if (tres.ec != std::errc{}) {
-    return 3;
-  }
-
-  /* assign pointer to first non-parsed character */
-  if (end)
-    *end = tres.ptr;
-
-  return 0;
-}
-} /* anonymous namespace */
-
+/** A generic Date parser, based on the specified Date format \p YMDFormat */
 template <YMDFormat F> class ReadInDate {};
-template <> class ReadInDate<YMDFormat::YYYYMMDD> {
-private:
-  static constexpr const int SZ = 10;
 
+/** A Date parser expecting a Date-format of type YYYY:MM:DD 
+ * 
+ * The delimeter character (here denoted ':'), can actually be any character
+ * of: ' ', '/', '-', 'T' and ':', so that a date can be given as e.g.
+ * "2023:10:07", or
+ * "2023/10/07", or
+ * "2023 10 07", or
+ * "2023/10:07", or
+ * "2023 10:07", ...etc
+ * The instance expects that the string has a minimum size of \p SZ characters 
+ * (i.e. 10).
+ * The only usable member function is read, which will actually try to parse 
+ * the string and resolve it to a ymd_date instance.
+ */
+template <> class ReadInDate<YMDFormat::YYYYMMDD> {
+  static constexpr const int SZ = 10;
 public:
+  /** Read in and parse the date.
+   *
+   * No validation is performed at the resolved date (user can do that on
+   * return). The string can start with any number of whitespace characters.
+   * Once however the first digit is encountered, it is expected that the next 
+   * SZ characters are the date representation.
+   * The string does not have to be null-terminated; only SZ characters are 
+   * checked after the first valid character.
+   *
+   * @param[in] str A string representing a date of type: "YYYYMMDD"
+   * @param[out] end If not nullptr, end will point at the first character not 
+   *             resolved
+   */
   static ymd_date read(const char *str, const char **end) {
     int ints[3];
-    if (get_three_ints(str, ints, SZ + 1, end)) {
+    if (datetime_io_core::get_three_ints(str, ints, SZ + 1, end)) {
       fprintf(stderr,
               "[ERROR] Failed resolving YYYYMMDD from string %.10s "
               "(traceback: %s)\n",
@@ -152,16 +59,41 @@ public:
     return ymd_date(year(ints[0]), month(ints[1]),
                     day_of_month(ints[2]));
   }
-}; /**/
+}; /* ReadInDate<YMDFormat::YYYYMMDD> */
 
+/** A Date parser expecting a Date-format of type DD:MM:YYYY
+ * 
+ * The delimeter character (here denoted ':'), can actually be any character
+ * of: ' ', '/', '-', 'T' and ':', so that a date can be given as e.g.
+ * "07:10:2023" or
+ * "07/10/2023" or
+ * "07 10 2023" or
+ * "07:10/2023" or
+ * "07:10 2023" ..etc
+ * The instance expects that the string has a minimum size of \p SZ characters 
+ * (i.e. 10).
+ * The only usable member function is read, which will actually try to parse 
+ * the string and resolve it to a ymd_date instance.
+ */
 template <> class ReadInDate<YMDFormat::DDMMYYYY> {
-private:
   static constexpr const int SZ = 10;
-
 public:
+  /** Read in and parse the date.
+   *
+   * No validation is performed at the resolved date (user can do that on
+   * return). The string can start with any number of whitespace characters.
+   * Once however the first digit is encountered, it is expected that the next 
+   * SZ characters are the date representation.
+   * The string does not have to be null-terminated; only SZ characters are 
+   * checked after the first valid character.
+   *
+   * @param[in] str A string representing a date of type: "DDMMYYYY"
+   * @param[out] end If not nullptr, end will point at the first character not 
+   *             resolved
+   */
   static ymd_date read(const char *str, const char **end) {
     int ints[3];
-    if (get_three_ints(str, ints, SZ + 1, end)) {
+    if (datetime_io_core::get_three_ints(str, ints, SZ + 1, end)) {
       fprintf(stderr,
               "[ERROR] Failed resolving YYYYMMDD from string %.10s "
               "(traceback: %s)\n",
@@ -171,16 +103,42 @@ public:
     return ymd_date(year(ints[2]), month(ints[1]),
                     day_of_month(ints[0]));
   }
-}; /**/
+}; /* ReadInDate<YMDFormat::DDMMYYYY> */
 
+/** A Date parser expecting a Date-format of type YYYY:DDD where DDD is Day Of 
+ *  Year
+ * 
+ * The delimeter character (here denoted ':'), can actually be any character
+ * of: ' ', '/', '-', 'T' and ':', so that a date can be given as e.g.
+ * "2023:365" or
+ * "2023-365" or
+ * "2023/365" or
+ * "2023 365" or
+ * "2023T365" ..etc
+ * The instance expects that the string has a minimum size of \p SZ characters 
+ * (i.e. 8).
+ * The only usable member function is read, which will actually try to parse 
+ * the string and resolve it to a ymd_date instance.
+ */
 template <> class ReadInDate<YMDFormat::YYYYDDD> {
-private:
   static constexpr const int SZ = 8;
-
 public:
+  /** Read in and parse the date.
+   *
+   * No validation is performed at the resolved date (user can do that on
+   * return). The string can start with any number of whitespace characters.
+   * Once however the first digit is encountered, it is expected that the next 
+   * SZ characters are the date representation.
+   * The string does not have to be null-terminated; only SZ characters are 
+   * checked after the first valid character.
+   *
+   * @param[in] str A string representing a date of type: "YYYYDDD"
+   * @param[out] end If not nullptr, end will point at the first character not 
+   *             resolved
+   */
   static ymd_date read(const char *str, const char **end) {
     int ints[2];
-    if (get_two_ints(str, ints, SZ + 1, end)) {
+    if (datetime_io_core::get_two_ints(str, ints, SZ + 1, end)) {
       fprintf(stderr,
               "[ERROR] Failed resolving YYYYDDD from string %.8s "
               "(traceback: %s)\n",
@@ -190,8 +148,9 @@ public:
     ydoy_date ydoy{year(ints[0]), day_of_year(ints[1])};
     return ydoy.to_ymd();
   }
-}; /**/
+}; /* ReadInDate<YMDFormat::YYYYDDD> */
 
+/** A generic Time-Of-Day parser */
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S, HMSFormat F>
 #else
@@ -201,6 +160,20 @@ template <typename S, HMSFormat F,
 class ReadInTime {
 };
 
+/** A Time-Of-Day parser expecting a Time-format of type HHMMSS
+ * 
+ * The delimeter character (here denoted ':'), can actually be any character
+ * of: ' ', '/', '-', 'T' and ':', so that a date can be given as e.g.
+ * "23:59:59", or
+ * "23/59/59", or
+ * "23T59T59", or
+ * "23 59 59", or
+ * "23:59 59", ...etc
+ * The instance expects that the string has a minimum size of \p SZ characters 
+ * (i.e. 8).
+ * The only usable member function is read, which will actually try to parse 
+ * the string and resolve it to a hms_time<S> instance.
+ */
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S>
 #else
@@ -209,23 +182,53 @@ template <typename S>
 class ReadInTime<S, HMSFormat::HHMMSS> {
   typedef typename S::underlying_type SecIntType;
   static constexpr SecIntType scale = S::template sec_factor<SecIntType>();
-
 public:
   static const int numChars = 8;
+  /** Read in and parse the time-of-day.
+   *
+   * No validation is performed at the resolved time (user can do that on
+   * return). The string can start with any number of whitespace characters.
+   * Once however the first digit is encountered, it is expected that the next 
+   * SZ characters are the time representation.
+   * The string does not have to be null-terminated; only SZ characters are 
+   * checked after the first valid character.
+   *
+   * @param[in] str A string representing a time-of-day of type: "HHMMSS"
+   * @param[out] end If not nullptr, end will point at the first character not 
+   *             resolved
+   */
   static hms_time<S> read(const char *str, const char **end) {
     long ints[3];
-    if (get_three_ints(str, ints, numChars + 1, end)) {
+    if (datetime_io_core::get_three_ints(str, ints, numChars + 1, end)) {
       fprintf(stderr,
               "[ERROR] Failed resolving HHMMSS from string %.8s "
               "(traceback: %s)\n",
               str, __func__);
       throw std::runtime_error("[ERROR] Failed resolving time\n");
     }
-    return dso::hms_time<S>(dso::hours(ints[0]), dso::minutes(ints[1]),
+    return hms_time<S>(dso::hours(ints[0]), dso::minutes(ints[1]),
                             S(ints[2] * scale));
   }
-};
+}; /* ReadInTime<S, HMSFormat::HHMMSS> */
 
+/** A Time-Of-Day parser expecting a Time-format of type HHMMSS.SSSSSSS...
+ * 
+ * The delimeter character (here denoted ':'), can actually be any character
+ * of: ' ', '/', '-', 'T' and ':', so that a date can be given as e.g.
+ * "23:59:59.012345678912", or
+ * "23/59/59.012345678912", or
+ * "23T59T59.012345678912", or
+ * "23 59 59.012345678912", or
+ * "23:59 59.012345678912", ...etc
+ * The instance expects that the string has a minimum size of \p SZ characters 
+ * (i.e. 8+12).
+ * The only usable member function is read, which will actually try to parse 
+ * the string and resolve it to a hms_time<S> instance.
+ *
+ * @warning This class can only resolve seconds up to (and including) 
+ *          nanosecond precision. Anything after the 1e-12 part, will be 
+ *          ignored!
+ */
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S>
 #else
@@ -234,13 +237,26 @@ template <typename S>
 class ReadInTime<S, HMSFormat::HHMMSSF> {
   typedef typename S::underlying_type SecIntType;
   static constexpr long double scale = S::template sec_factor<long double>();
-
 public:
+  /** Read in and parse the time-of-day.
+   *
+   * No validation is performed at the resolved time (user can do that on
+   * return). The string can start with any number of whitespace characters.
+   * Once however the first digit is encountered, it is expected that the next 
+   * SZ characters are the time representation.
+   * The string does not have to be null-terminated; only SZ characters are 
+   * checked after the first valid character.
+   *
+   * @param[in] str A string representing a time-of-day of type: "HHMMSS.SS..."
+   *            Anything after the 1e-12 part, will be ignored!
+   * @param[out] end If not nullptr, end will point at the first character not 
+   *             resolved
+   */
   static const int numChars = 8 + 12;
   static hms_time<S> read(const char *str, const char **end) {
     int ints[2];
     double fsec;
-    if (get_two_ints_double(str, ints, fsec, numChars + 1, end)) {
+    if (datetime_io_core::get_two_ints_double(str, ints, fsec, numChars + 1, end)) {
       fprintf(stderr,
               "[ERROR] Failed resolving HHMMSSF from string %.17s "
               "(traceback: %s)\n",
@@ -250,8 +266,24 @@ public:
     return dso::hms_time<S>(dso::hours(ints[0]), dso::minutes(ints[1]),
                             S(static_cast<SecIntType>(fsec * scale)));
   }
-};
+}; /* ReadInTime<S, HMSFormat::HHMMSSF> */
 
+/** Read in a Date and Time of Day string and resolve it to a datetime<S> 
+ *  instance.
+ *
+ * The template parameters dictate how the date and time-of-day strings are 
+ * expected. The datetime instance will be validated before return (i.e. 
+ * only valid epochs are returned).
+ *
+ * @param[in] str A string respresenting a Date forlloed by a time-of-day part
+ *            i.e. "[ ]*2023/10/07[ ]*13:56:59.012345678912[ ]*"
+ *            or   "[ ]*2023/10/07[ ]*13:56:59[ ]*". For a 
+ *            detailed description of the allowed delimeters see ReadInTime<> 
+ *            and ReadInDate<> classes.
+ * @param[out] end If not nullptr, end will point at the first character not 
+ *            resolved
+ * @return The parsed string as a datetime<S> instance
+ */
 template <YMDFormat FD, HMSFormat FT, typename S>
 dso::datetime<S> from_char(const char *str, const char **end = nullptr) {
   const char *stop;
@@ -271,12 +303,32 @@ dso::datetime<S> from_char(const char *str, const char **end = nullptr) {
     throw std::runtime_error("[ERROR] Failed to resolved read-in time\n");
   }
   /* set output pointer */
-  if (*end)
+  if (end)
     *end = stop;
   /* compile datetime instance */
   return datetime<S>(ymd, hms);
 }
 
+/** Read in a Date and Time of Day string and resolve it to a TwoPartDate
+ *  instance.
+ *
+ * The template parameters dictate how the date and time-of-day strings are 
+ * expected. The TwoPartDate instance will be validated before return (i.e. 
+ * only valid epochs are returned).
+ *
+ * @warning If decimal seconds are included in the string, the parsing 
+ *  resolution is up to 1e-12 seconds, i.e. 1 picosecond. Any decimal part 
+ *  after this, will be ignored!
+ *
+ * @param[in] str A string respresenting a Date forlloed by a time-of-day part
+ *            i.e. "[ ]*2023/10/07[ ]*13:56:59.012345678912[ ]*"
+ *            or   "[ ]*2023/10/07[ ]*13:56:59[ ]*". For a 
+ *            detailed description of the allowed delimeters see ReadInTime<> 
+ *            and ReadInDate<> classes.
+ * @param[out] end If not nullptr, end will point at the first character not 
+ *            resolved
+ * @return The parsed string as a TwoPartDate instance
+ */
 template <YMDFormat FD, HMSFormat FT>
 dso::TwoPartDate from_char(const char *str, const char **end = nullptr) {
   const char *stop;
@@ -289,23 +341,43 @@ dso::TwoPartDate from_char(const char *str, const char **end = nullptr) {
   }
   /* resolve time */
   str = stop;
-  const hms_time<nanoseconds> hms(
-      ReadInTime<nanoseconds, FT>::read(str, &stop));
+  const hms_time<dtextra::picoseconds> hms(
+      ReadInTime<dtextra::picoseconds, FT>::read(str, &stop));
   if (!hms.is_valid()) {
     fprintf(stderr, "[ERROR] Failed to resolved read-in time (traceback: %s)\n",
             __func__);
     throw std::runtime_error("[ERROR] Failed to resolved read-in time\n");
   }
   /* set output pointer */
-  if (*end)
+  if (end)
     *end = stop;
   /* compile datetime instance */
   return TwoPartDate(modified_julian_day(ymd).as_underlying_type(),
                      hms.fractional_seconds<seconds>());
 }
 
+/** Read in a Date and Time of Day string and resolve it to a TwoPartDateUTC
+ *  instance.
+ *
+ * The template parameters dictate how the date and time-of-day strings are 
+ * expected. The TwoPartDateUTC instance will be validated before return (i.e. 
+ * only valid epochs are returned).
+ *
+ * @warning If decimal seconds are included in the string, the parsing 
+ *  resolution is up to 1e-12 seconds, i.e. 1 picosecond. Any decimal part 
+ *  after this, will be ignored!
+ *
+ * @param[in] str A string respresenting a Date forlloed by a time-of-day part
+ *            i.e. "[ ]*2023/10/07[ ]*13:56:59.012345678912[ ]*"
+ *            or   "[ ]*2023/10/07[ ]*13:56:59[ ]*". For a 
+ *            detailed description of the allowed delimeters see ReadInTime<> 
+ *            and ReadInDate<> classes.
+ * @param[out] end If not nullptr, end will point at the first character not 
+ *            resolved
+ * @return The parsed string as a TwoPartDateUTC instance
+ */
 template <YMDFormat FD, HMSFormat FT>
-dso::TwoPartDateUTC from_char(const char *str, const char **end = nullptr) {
+dso::TwoPartDateUTC from_utc_char(const char *str, const char **end = nullptr) {
   const char *stop;
   /* resolve date part */
   const ymd_date ymd(ReadInDate<FD>::read(str, &stop));
@@ -316,8 +388,8 @@ dso::TwoPartDateUTC from_char(const char *str, const char **end = nullptr) {
   }
   /* resolve time */
   str = stop;
-  const hms_time<nanoseconds> hms(
-      ReadInTime<nanoseconds, FT>::read(str, &stop));
+  const hms_time<dtextra::picoseconds> hms(
+      ReadInTime<dtextra::picoseconds, FT>::read(str, &stop));
   if (!hms.is_valid()) {
     /* not always an error, if seconds are 60, it could be ok on a leap 
      * insertion day 
@@ -332,7 +404,7 @@ dso::TwoPartDateUTC from_char(const char *str, const char **end = nullptr) {
     }
   }
   /* set output pointer */
-  if (*end)
+  if (end)
     *end = stop;
   /* compile datetime instance */
   return TwoPartDateUTC(modified_julian_day(ymd).as_underlying_type(),

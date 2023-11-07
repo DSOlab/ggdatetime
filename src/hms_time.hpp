@@ -30,12 +30,15 @@ public:
   minutes mn() const noexcept { return _minutes; }
   S nsec() const noexcept { return _sec; }
 
-  hms_time(hours hr, minutes mn, S sec) : _hours(hr), _minutes(mn), _sec(sec) {}
+  /** Constructor from hours, minutes and *seconds. No validation performed!!
+   */
+  hms_time(hours hr, minutes mn, S sec) noexcept
+      : _hours(hr), _minutes(mn), _sec(sec) {}
 
   /** @brief Check if instance is 'normally' split between hours, minutes and
    *         nsec of day.
    *
-   *  Note that this version does not account for leap seconds, i.e. the 
+   *  Note that this version does not account for leap seconds, i.e. the
    *  HHMMSS time: 23:59:60 is not valid!
    *  In this context, the instance is valid if:
    *  1. hours are in range [0, 24), and
@@ -52,8 +55,8 @@ public:
   /** @brief Check if instance is 'normally' split between hours, minutes and
    *         nsec of day, fit for UTC dates
    *
-   *  Note that this version does account for leap seconds, i.e. the HHMMSS 
-   *  time: 23:59:60 can be valid, if the parameter \p is_leap_insertion_day 
+   *  Note that this version does account for leap seconds, i.e. the HHMMSS
+   *  time: 23:59:60 can be valid, if the parameter \p is_leap_insertion_day
    *  is set to true.
    *  In this context, the instance is valid if:
    *  1. hours are in range [0, 24), and
@@ -69,15 +72,19 @@ public:
     else
       return (is_valid() ||
               ((hr() == hours(23)) && (mn() == minutes(59)) &&
-               (nsec() == S(60 * S::template sec_factor<SecIntType>))));
+               (nsec() == S(60L * S::template sec_factor<SecIntType>()))));
   }
 
+  /** Convert time-of-day to seconds-of-day for any second type (as double)
+   */
   template <typename Sto, typename = std::enable_if_t<Sto::is_of_sec_type>>
   double fractional_seconds() const noexcept {
     const double scale =
-        S::template sec_factor<double>() / Sto::template sec_factor<double>();
-    const SecIntType b = mn() * 60L + hr() * 60L * 60L;
-    return nsec() * scale + b * scale;
+        Sto::template sec_factor<double>() / S::template sec_factor<double>();
+    const SecIntType b =
+        mn().as_underlying_type() * 60L + hr().as_underlying_type() * 60L * 60L;
+    return (nsec().as_underlying_type() * scale) +
+           (b * Sto::template sec_factor<double>());
   }
 
   /** Constructor from any second type */

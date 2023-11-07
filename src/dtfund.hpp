@@ -1600,6 +1600,67 @@ private:
   underlying_type m_sec;
 }; /* class nanoseconds */
 
+namespace dtextra {
+
+ /** @brief A wrapper class for picoseconds (i.e 10**-12 sec.).
+  *
+  * Please revert from using this class if possible! It cannot hold negative 
+  * numbers hence, arithmetic operations are dangerous!
+  */
+class picoseconds {
+public:
+  /** Picoseconds are represented as long integers. */
+  typedef uint_fast64_t underlying_type;
+
+  /** Is fundamental datetime type */
+  static constexpr bool is_dt_fundamental_type = true;
+
+  /** If fundamental type, the class should have an
+   * "expose the only member var" function
+   */
+  constexpr underlying_type __member_const_ref__() const noexcept {
+    return m_sec;
+  }
+
+  /** If fundamental type, the class should have an
+   * "expose the only member var" function
+   */
+  constexpr underlying_type &__member_ref__() noexcept { return m_sec; }
+
+  /** Picoseconds is a subdivision of seconds. */
+  static constexpr bool is_of_sec_type = true;
+
+  /** Max picoseconds in day. */
+  static constexpr underlying_type max_in_day{86'400L * 1'000'000'000'000L};
+  static_assert(max_in_day < std::numeric_limits<underlying_type>::max());
+
+  /** The scale factor to transform from seconds to picoseconds. i.e.
+   * picoseconds = seconds * sec_factor()
+   */
+  template <typename T> static constexpr T sec_factor() noexcept {
+    return static_cast<T>(1'000'000'000'000);
+  }
+
+  /** The scale factor to transform from picoseconds to seconds, i.e.
+   * seconds = picoseconds * sec_inv_factor()
+   */
+  static constexpr double sec_inv_factor() noexcept { return 1e-12; }
+
+  /** Constructor; default picoseconds is 0. **/
+  explicit constexpr picoseconds(underlying_type i = 0L) noexcept : m_sec(i){};
+
+  /** Cast to picoseconds::underlying_type. */
+  constexpr underlying_type as_underlying_type() const noexcept {
+    return m_sec;
+  }
+
+private:
+  /** Picoseconds as long ints. */
+  underlying_type m_sec;
+}; /* class picoseconds */
+
+} /* namespace dtextra */
+
 /// For user-defined literals, i am going to replace long with
 /// unsigned long long int.
 namespace ddetail {
