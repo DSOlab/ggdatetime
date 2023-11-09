@@ -10,6 +10,22 @@
 
 #include "dtcalendar.hpp"
 
+extern "C" void csumasm(double&, double, double&);
+__asm__(
+    "csumasm:\n"
+    "movsd  (%rcx), %xmm0\n" //xmm0 = a
+    "subsd  (%r8), %xmm1\n"  //xmm1 - r8 (c) | y = b-c
+    "movapd %xmm0, %xmm2\n"
+    "addsd  %xmm1, %xmm2\n"  //xmm2 + xmm1 (y) | b = a+y
+    "movapd %xmm2, %xmm3\n"
+    "subsd  %xmm0, %xmm3\n"  //xmm3 - xmm0 (a) | b - a
+    "movapd %xmm3, %xmm0\n"
+    "subsd  %xmm1, %xmm0\n"  //xmm0 - xmm1 (y) | - y
+    "movsd  %xmm0, (%r8)\n"  //xmm0 to c
+    "movsd  %xmm2, (%rcx)\n" //b to a
+    "ret\n"
+);
+
 namespace dso {
 
 /** forward decleration */
@@ -114,13 +130,13 @@ public:
   }
 
   /** @brief Differencce betweeen two UTC dates
-   * 
-   * The difference is returned in two parts, 
+   *
+   * The difference is returned in two parts,
    * 1. An integral part, holding whole days of 86400[sec], and
    * 2. remaining seconds
-   * This function will take into consideration the leap seconds between the 
+   * This function will take into consideration the leap seconds between the
    * two days.
-   * Note that the whole days returned are days of 86400[sec] aka **NOT** 
+   * Note that the whole days returned are days of 86400[sec] aka **NOT**
    * always UTC days
    * Example:
    * a leap insertion date
@@ -178,7 +194,7 @@ public:
     }
 #ifdef DEBUG
     if (_mjd)
-      assert(_fsec >= 0e0 && _fsec < 86400e0+extra_sec_in_day);
+      assert(_fsec >= 0e0 && _fsec < 86400e0 + extra_sec_in_day);
     else
       assert(_fsec < 0e0 && _fsec > -86400e0);
 #endif
@@ -267,6 +283,21 @@ public:
    */
   void add_seconds(FDOUBLE sec) noexcept {
     _fsec += sec;
+    this->normalize();
+  }
+
+  void add_seconds(FDOUBLE sec, FDOUBLE &err) noexcept {
+    FDOUBLE a = _fsec;
+    FDOUBLE b = sec;
+    FDOUBLE y = b - err;
+    b = a + y;
+    err = (b-a)-y;
+    _fsec = b;
+    this->normalize();
+  }
+
+  void add_seconds_asm(FDOUBLE sec, FDOUBLE &err) noexcept {
+    csumasm(_fsec,sec,err);
     this->normalize();
   }
 
@@ -436,7 +467,7 @@ public:
     if (_mjd) {
       assert(_fsec >= 0e0 && _fsec < 86400e0);
     }
-    if (_fsec<0e0) {
+    if (_fsec < 0e0) {
       assert(_mjd == 0);
       assert(_fsec > -86400e0);
     } else {

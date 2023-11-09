@@ -28,6 +28,6 @@ int main() {
   to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(d1, buffer);
   printf("Given date: %s\n", buffer);
   printf("Rest of string was: [%s]\n", end);
-  
+
   return 0;
 }

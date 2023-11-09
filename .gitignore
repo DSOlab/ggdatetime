@@ -18,6 +18,7 @@ var/test_*_error*.cpp
 *.o
 *.obj
 *.so
+*.os
 
 # Precompiled Headers
 *.gch

@@ -1,8 +1,8 @@
-#include "tpdate.hpp"
 #include "datetime_write.hpp"
-#include <cstdio>
+#include "tpdate.hpp"
 #include <array>
 #include <cassert>
+#include <cstdio>
 
 using namespace dso;
 constexpr const double S = nanoseconds::sec_factor<double>();
@@ -39,15 +39,15 @@ const std::array<ymd_date, 27> leap_insertion_dates = {
 
 int main() {
 
-  char buf1[64],buf2[64];
+  char buf1[64], buf2[64];
 
   for (auto const &d : leap_insertion_dates) {
     TwoPartDate tai(modified_julian_day(d).as_underlying_type());
-    for (int i=0; i<86400-1; i++) {
+    for (int i = 0; i < 86400 - 1; i++) {
       tai.add_seconds(1e0);
     }
     TwoPartDateUTC utc(modified_julian_day(d).as_underlying_type());
-    for (int i=0; i<86400-1; i++) {
+    for (int i = 0; i < 86400 - 1; i++) {
       utc.add_seconds(1e0);
     }
 
@@ -56,23 +56,25 @@ int main() {
     assert(tai.sec_of_day<nanoseconds>() == utc.sec_of_day<nanoseconds>());
 
     /* store these dates */
-    const auto tai2359 (tai);
-    const auto utc2359 (utc);
+    const auto tai2359(tai);
+    const auto utc2359(utc);
 
     /* add one more seconds */
     tai.add_seconds(1e0);
     utc.add_seconds(1e0);
     assert(tai.imjd() == utc.imjd() + 1);
     /* TAI seconds should be 0 */
-    assert(tai.sec_of_day<nanoseconds>() == 0e0 && tai.sec_of_day<seconds>() == 0e0);
+    assert(tai.sec_of_day<nanoseconds>() == 0e0 &&
+           tai.sec_of_day<seconds>() == 0e0);
     /* UTC seconds should be 86400 */
     assert(utc.sec_of_day<nanoseconds>() == (double)nanoseconds::max_in_day);
     assert(utc.sec_of_day<seconds>() == (double)seconds::max_in_day);
-    
+
     to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(tai, buf1);
     to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(utc, buf2);
-    //printf("[1]TAI: %s (%.15e)\n[1]UTC: %s(%.15e)\n", buf1, tai.sec_of_day<nanoseconds>(), buf2, utc.sec_of_day<nanoseconds>());
-    
+    // printf("[1]TAI: %s (%.15e)\n[1]UTC: %s(%.15e)\n", buf1,
+    // tai.sec_of_day<nanoseconds>(), buf2, utc.sec_of_day<nanoseconds>());
+
     /* add one more seconds */
     tai.add_seconds(1e0);
     utc.add_seconds(1e0);
@@ -83,29 +85,29 @@ int main() {
 
     to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(tai, buf1);
     to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(utc, buf2);
-    //printf("[2]TAI: %s\n[2]UTC: %s\n", buf1, buf2);
-    
+    // printf("[2]TAI: %s\n[2]UTC: %s\n", buf1, buf2);
+
     /* Datetime differences */
     auto tpd1 = tai - tai2359;
-    assert(tpd1.imjd()==0);
+    assert(tpd1.imjd() == 0);
     assert(tpd1.seconds() == 2e0);
 
     tpd1 = utc - utc2359;
-    assert(tpd1.imjd()==0);
+    assert(tpd1.imjd() == 0);
     assert(tpd1.seconds() == 2e0);
-    
+
     /* One day after leap insertion */
     TwoPartDate tai00(modified_julian_day(d).as_underlying_type());
-    TwoPartDate tai24(modified_julian_day(d).as_underlying_type()+1);
+    TwoPartDate tai24(modified_julian_day(d).as_underlying_type() + 1);
     tpd1 = tai24 - tai00;
     assert(tpd1.imjd() == 1);
     assert(tpd1.seconds() == 0e0);
 
     TwoPartDateUTC utc00(modified_julian_day(d).as_underlying_type());
-    TwoPartDateUTC utc24(modified_julian_day(d).as_underlying_type()+1);
+    TwoPartDateUTC utc24(modified_julian_day(d).as_underlying_type() + 1);
     tpd1 = utc24 - utc00;
-    //assert(tpd1.imjd() == 1);
-    //assert(tpd1.seconds() == 1e0);
+    // assert(tpd1.imjd() == 1);
+    // assert(tpd1.seconds() == 1e0);
     printf("Diff: %d + %.15e\n", tpd1.imjd(), tpd1.seconds());
   }
 

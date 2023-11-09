@@ -1,9 +1,9 @@
-#include "tpdate.hpp"
-#include "datetime_write.hpp"
 #include "datetime_read.hpp"
-#include <cstdio>
+#include "datetime_write.hpp"
+#include "tpdate.hpp"
 #include <array>
 #include <cassert>
+#include <cstdio>
 
 using namespace dso;
 constexpr const double S = nanoseconds::sec_factor<double>();
@@ -40,13 +40,13 @@ const std::array<ymd_date, 27> leap_insertion_dates = {
 
 int main() {
 
-  char buf1[64],buf2[64];
+  char buf1[64], buf2[64];
 
   for (auto const &d : leap_insertion_dates) {
     TwoPartDate tai(modified_julian_day(d).as_underlying_type());
-    tai.add_seconds(86400-1);
+    tai.add_seconds(86400 - 1);
     TwoPartDateUTC utc(modified_julian_day(d).as_underlying_type());
-    utc.add_seconds(86400-1);
+    utc.add_seconds(86400 - 1);
 
     /* we are now at 23:59:59 */
     assert(tai.imjd() == utc.imjd());
@@ -56,20 +56,22 @@ int main() {
       to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(utc, buf2);
       TwoPartDate d1 = from_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
       assert(d1 == tai);
-      TwoPartDateUTC d2 = from_utc_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf2);
+      TwoPartDateUTC d2 =
+          from_utc_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf2);
       assert(d2 == utc);
     }
 
     /* store these dates */
-    const auto tai2359 (tai);
-    const auto utc2359 (utc);
+    const auto tai2359(tai);
+    const auto utc2359(utc);
 
     /* add one more second */
     tai.add_seconds(1e0);
     utc.add_seconds(1e0);
     assert(tai.imjd() == utc.imjd() + 1);
     /* TAI seconds should be 0 */
-    assert(tai.sec_of_day<nanoseconds>() == 0e0 && tai.sec_of_day<seconds>() == 0e0);
+    assert(tai.sec_of_day<nanoseconds>() == 0e0 &&
+           tai.sec_of_day<seconds>() == 0e0);
     /* UTC seconds should be 86400 */
     assert(utc.sec_of_day<nanoseconds>() == (double)nanoseconds::max_in_day);
     assert(utc.sec_of_day<seconds>() == (double)seconds::max_in_day);
@@ -78,10 +80,11 @@ int main() {
       to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(utc, buf2);
       TwoPartDate d1 = from_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
       assert(d1 == tai);
-      TwoPartDateUTC d2 = from_utc_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf2);
+      TwoPartDateUTC d2 =
+          from_utc_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf2);
       assert(d2 == utc);
     }
-    
+
     /* add one more seconds */
     tai.add_seconds(1e0);
     utc.add_seconds(1e0);
@@ -94,28 +97,29 @@ int main() {
       to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(utc, buf2);
       TwoPartDate d1 = from_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
       assert(d1 == tai);
-      TwoPartDateUTC d2 = from_utc_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf2);
+      TwoPartDateUTC d2 =
+          from_utc_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf2);
       assert(d2 == utc);
     }
 
     /* Datetime differences */
     auto tpd1 = tai - tai2359;
-    assert(tpd1.imjd()==0);
+    assert(tpd1.imjd() == 0);
     assert(tpd1.seconds() == 2e0);
 
     tpd1 = utc - utc2359;
-    assert(tpd1.imjd()==0);
+    assert(tpd1.imjd() == 0);
     assert(tpd1.seconds() == 2e0);
-    
+
     /* One day after leap insertion */
     TwoPartDate tai00(modified_julian_day(d).as_underlying_type());
-    TwoPartDate tai24(modified_julian_day(d).as_underlying_type()+1);
+    TwoPartDate tai24(modified_julian_day(d).as_underlying_type() + 1);
     tpd1 = tai24 - tai00;
     assert(tpd1.imjd() == 1);
     assert(tpd1.seconds() == 0e0);
 
     TwoPartDateUTC utc00(modified_julian_day(d).as_underlying_type());
-    TwoPartDateUTC utc24(modified_julian_day(d).as_underlying_type()+1);
+    TwoPartDateUTC utc24(modified_julian_day(d).as_underlying_type() + 1);
     tpd1 = utc24 - utc00;
     assert(tpd1.imjd() == 1);
     assert(tpd1.seconds() == 1e0);

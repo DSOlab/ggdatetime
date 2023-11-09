@@ -1602,11 +1602,11 @@ private:
 
 namespace dtextra {
 
- /** @brief A wrapper class for picoseconds (i.e 10**-12 sec.).
-  *
-  * Please revert from using this class if possible! It cannot hold negative 
-  * numbers hence, arithmetic operations are dangerous!
-  */
+/** @brief A wrapper class for picoseconds (i.e 10**-12 sec.).
+ *
+ * Please revert from using this class if possible! It cannot hold negative
+ * numbers hence, arithmetic operations are dangerous!
+ */
 class picoseconds {
 public:
   /** Picoseconds are represented as long integers. */

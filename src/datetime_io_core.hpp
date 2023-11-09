@@ -1,4 +1,4 @@
-/** @file 
+/** @file
  * Datetime input/output (i.e. read/write) core utilities and definitions.
  */
 
