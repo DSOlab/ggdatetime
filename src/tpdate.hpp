@@ -10,22 +10,6 @@
 
 #include "dtcalendar.hpp"
 
-extern "C" void csumasm(double&, double, double&);
-__asm__(
-    "csumasm:\n"
-    "movsd  (%rcx), %xmm0\n" //xmm0 = a
-    "subsd  (%r8), %xmm1\n"  //xmm1 - r8 (c) | y = b-c
-    "movapd %xmm0, %xmm2\n"
-    "addsd  %xmm1, %xmm2\n"  //xmm2 + xmm1 (y) | b = a+y
-    "movapd %xmm2, %xmm3\n"
-    "subsd  %xmm0, %xmm3\n"  //xmm3 - xmm0 (a) | b - a
-    "movapd %xmm3, %xmm0\n"
-    "subsd  %xmm1, %xmm0\n"  //xmm0 - xmm1 (y) | - y
-    "movsd  %xmm0, (%r8)\n"  //xmm0 to c
-    "movsd  %xmm2, (%rcx)\n" //b to a
-    "ret\n"
-);
-
 namespace dso {
 
 /** forward decleration */
@@ -286,6 +270,31 @@ public:
     this->normalize();
   }
 
+  /** Add seconds to instance and return the "Kahan summation" error.
+   *
+   * This function implements a "Kahan summation" scheme to iteratively add 
+   * seconds (to the instance). Especially in the case of adding multiple 
+   * times, small multiples of second (i.e. nanoseconds and/or microseconds), 
+   * it gives better precision than the simple add_seconds method.
+   * Example usage:
+   * d = TwoPartDate(...);
+   * double err = 0;
+   * for (long i = 0; i < 1'000'000'000; i++) {
+   *    d.add_seconds(1e-9,err);
+   * }
+   * This version will give better results that using 
+   * d = TwoPartDate(...);
+   * double err = 0;
+   * for (long i = 0; i < 1'000'000'000; i++) {
+   *    d.add_seconds(1e-9);
+   * }
+   * For accuracy/precision results, see test/precision/tpadd.cpp
+   *
+   * @param[in] sec  Floating-point seconds to add to instance
+   * @param[out] err Previous summation error at input; updated at output to
+   *                 be used at next iteration. If this is the first call, 
+   *                 set err to 0e0.
+   */
   void add_seconds(FDOUBLE sec, FDOUBLE &err) noexcept {
     FDOUBLE a = _fsec;
     FDOUBLE b = sec;
@@ -293,11 +302,6 @@ public:
     b = a + y;
     err = (b-a)-y;
     _fsec = b;
-    this->normalize();
-  }
-
-  void add_seconds_asm(FDOUBLE sec, FDOUBLE &err) noexcept {
-    csumasm(_fsec,sec,err);
     this->normalize();
   }
 
