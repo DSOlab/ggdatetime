@@ -138,6 +138,7 @@ int dso::datetime_io_core::get_two_ints_double(const char *str, int *ints,
   }
 
   /* resolve one double */
+  flt = 0e0;
   auto tres = std::from_chars(skipws(c), start + max_chars, flt);
   if (tres.ec != std::errc{}) {
     return 3;

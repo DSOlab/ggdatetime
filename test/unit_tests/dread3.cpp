@@ -1,0 +1,122 @@
+#include "datetime_read.hpp"
+#include "datetime_write.hpp"
+#include "tpdate.hpp"
+#include <array>
+#include <cassert>
+#include <cstdio>
+#include <cstring>
+
+using namespace dso;
+constexpr const double S = nanoseconds::sec_factor<double>();
+
+const std::array<ymd_date, 27> leap_insertion_dates = {
+    ymd_date{year(1972), month(6), day_of_month(30)},
+    ymd_date{year(1972), month(12), day_of_month(31)},
+    ymd_date{year(1973), month(12), day_of_month(31)},
+    ymd_date{year(1974), month(12), day_of_month(31)},
+    ymd_date{year(1975), month(12), day_of_month(31)},
+    ymd_date{year(1976), month(12), day_of_month(31)},
+    ymd_date{year(1977), month(12), day_of_month(31)},
+    ymd_date{year(1978), month(12), day_of_month(31)},
+    ymd_date{year(1979), month(12), day_of_month(31)},
+    ymd_date{year(1981), month(6), day_of_month(30)},
+    ymd_date{year(1982), month(6), day_of_month(30)},
+    ymd_date{year(1983), month(6), day_of_month(30)},
+    ymd_date{year(1985), month(6), day_of_month(30)},
+    ymd_date{year(1987), month(12), day_of_month(31)},
+    ymd_date{year(1989), month(12), day_of_month(31)},
+    ymd_date{year(1990), month(12), day_of_month(31)},
+    ymd_date{year(1992), month(6), day_of_month(30)},
+    ymd_date{year(1993), month(6), day_of_month(30)},
+    ymd_date{year(1994), month(6), day_of_month(30)},
+    ymd_date{year(1995), month(12), day_of_month(31)},
+    ymd_date{year(1997), month(6), day_of_month(30)},
+    ymd_date{year(1998), month(12), day_of_month(31)},
+    ymd_date{year(2005), month(12), day_of_month(31)},
+    ymd_date{year(2008), month(12), day_of_month(31)},
+    ymd_date{year(2012), month(6), day_of_month(30)},
+    ymd_date{year(2015), month(6), day_of_month(30)},
+    ymd_date{year(2016), month(12), day_of_month(31)},
+};
+
+const std::array<const char *, 27> leap_insertion_dates_str = {
+    "1972-06-30",
+    "1972-12-31",
+    "1973-12-31",
+    "1974-12-31",
+    "1975-12-31",
+    "1976-12-31",
+    "1977-12-31",
+    "1978-12-31",
+    "1979-12-31",
+    "1981-06-30",
+    "1982-06-30",
+    "1983-06-30",
+    "1985-06-30",
+    "1987-12-31",
+    "1989-12-31",
+    "1990-12-31",
+    "1992-06-30",
+    "1993-06-30",
+    "1994-06-30",
+    "1995-12-31",
+    "1997-06-30",
+    "1998-12-31",
+    "2005-12-31",
+    "2008-12-31",
+    "2012-06-30",
+    "2015-06-30",
+    "2016-12-31",
+};
+
+const char *s_235959 = " 23:59:59";
+const char *s_235959f = " 23:59:59.000000000";
+const char *s_2359599 = " 23:59:59.999999999";
+constexpr const int BUFSZ=64;
+inline char *reset_buffer(char *buf) {
+  std::memset(buf, '\0', BUFSZ);
+  return buf;
+}
+
+int main() {
+
+  char buf1[64];//, buf2[64];
+
+  int it=0;
+  TwoPartDate d1;
+  double err = 0e0;
+  for (auto const &d : leap_insertion_dates) {
+
+    /* one seconds before midnight */
+    TwoPartDate tai(modified_julian_day(d).as_underlying_type());
+    tai.add_seconds(86400 - 1);
+    {
+      std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);
+      std::strcat(buf1, s_235959);
+      d1 = from_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
+      assert(d1 == tai);
+      
+      std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);
+      std::strcat(buf1, s_235959f);
+      d1 = from_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
+      assert(d1 == tai);
+      
+      for (int i=0; i<(int)(1e9)-1; i++)
+        tai.add_seconds(1e-9, err);
+      std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);
+      std::strcat(buf1, s_2359599);
+      d1 = from_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
+      printf("%d %.15f\n", tai.imjd(), tai.seconds());
+      printf("%d %.15f\n", d1.imjd(), d1.seconds());
+      assert(d1 == tai);
+
+      //printf("%d %.15f\n", tai.imjd(), tai.seconds());
+      //printf("%d %.15f\n", d1.imjd(), d1.seconds());
+      /* augment string index */
+      ++it;
+    }
+    
+  }
+
+  return 0;
+}
