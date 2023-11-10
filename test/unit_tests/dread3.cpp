@@ -5,6 +5,9 @@
 #include <cassert>
 #include <cstdio>
 #include <cstring>
+#include <cmath>
+#include <limits>
+#include <type_traits>
 
 using namespace dso;
 constexpr const double S = nanoseconds::sec_factor<double>();
@@ -72,6 +75,30 @@ const std::array<const char *, 27> leap_insertion_dates_str = {
 const char *s_235959 = " 23:59:59";
 const char *s_235959f = " 23:59:59.000000000";
 const char *s_2359599 = " 23:59:59.999999999";
+
+constexpr const double EPSILON = 1e-12;
+/* see https://embeddeduse.com/2019/08/26/qt-compare-two-floats/ */
+inline bool fequal(const TwoPartDate &a, const TwoPartDate &b,
+                   double seceps=EPSILON) noexcept {
+  if (a.imjd() != b.imjd())
+    return false;
+  if (std::abs(a.seconds() - b.seconds()) <= seceps)
+    return true;
+  return std::abs(a.seconds() - b.seconds()) <=
+         (seceps * std::max(std::abs(a.seconds()), std::abs(b.seconds())));
+}
+/* see https://en.cppreference.com/w/cpp/types/numeric_limits/epsilon */
+template <class T>
+std::enable_if_t<not std::numeric_limits<T>::is_integer, bool>
+equal_within_ulps(T x, T y, std::size_t n) {
+  const T m = std::min(std::fabs(x), std::fabs(y));
+  const int exp = m < std::numeric_limits<T>::min()
+                      ? std::numeric_limits<T>::min_exponent - 1
+                      : std::ilogb(m);
+  return std::fabs(x - y) <=
+         n * std::ldexp(std::numeric_limits<T>::epsilon(), exp);
+}
+
 constexpr const int BUFSZ=64;
 inline char *reset_buffer(char *buf) {
   std::memset(buf, '\0', BUFSZ);
@@ -88,7 +115,7 @@ int main() {
   for (auto const &d : leap_insertion_dates) {
 
     /* one seconds before midnight */
-    TwoPartDate tai(modified_julian_day(d).as_underlying_type());
+    TwoPartDate tai(modified_julian_day(d).as_underlying_type(), 0e0);
     tai.add_seconds(86400 - 1);
     {
       std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);
@@ -101,21 +128,58 @@ int main() {
       d1 = from_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
       assert(d1 == tai);
       
+      /* reach 23:59:59.999 999 999 */
       for (int i=0; i<(int)(1e9)-1; i++)
         tai.add_seconds(1e-9, err);
       std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);
       std::strcat(buf1, s_2359599);
       d1 = from_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
-      printf("%d %.15f\n", tai.imjd(), tai.seconds());
-      printf("%d %.15f\n", d1.imjd(), d1.seconds());
-      assert(d1 == tai);
+      assert(fequal(d1,tai));
+      assert(equal_within_ulps(d1.seconds(), tai.seconds(), 1));
+
+      /* one more nanosec will take to the next day */
+      tai.add_seconds(1e-9, err);
+      assert(tai.imjd() == d1.imjd() + 1);
+      d1 = TwoPartDate(modified_julian_day(d).as_underlying_type()+1, 0e0);
+      assert(fequal(d1,tai));
+      assert(equal_within_ulps(d1.seconds(), tai.seconds(), 1));
 
       //printf("%d %.15f\n", tai.imjd(), tai.seconds());
       //printf("%d %.15f\n", d1.imjd(), d1.seconds());
-      /* augment string index */
-      ++it;
     }
     
+    TwoPartDateUTC utc(modified_julian_day(d).as_underlying_type(), 0e0);
+    utc.add_seconds(86400 - 1);
+    {
+      std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);
+      std::strcat(buf1, s_235959);
+      d1 = from_utc_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
+      assert(d1 == utc);
+      
+      std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);
+      std::strcat(buf1, s_235959f);
+      d1 = from_utc_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
+      assert(d1 == utc);
+      
+      /* reach 23:59:59.999 999 999 */
+      for (int i=0; i<(int)(1e9)-1; i++)
+        utc.add_seconds(1e-9, err);
+      std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);
+      std::strcat(buf1, s_2359599);
+      d1 = from_utc_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
+      assert(fequal(d1,utc));
+      assert(equal_within_ulps(d1.seconds(), tai.seconds(), 1));
+
+      /* one more nanosec will take to the next day */
+      utc.add_seconds(1e-9, err);
+      assert(utc.imjd() == d1.imjd() + 1);
+      d1 = TwoPartDateUTC(modified_julian_day(d).as_underlying_type()+1, 0e0);
+      assert(fequal(d1,utc));
+      assert(equal_within_ulps(d1.seconds(), utc.seconds(), 1));
+    }
+
+    /* augment string index */
+    ++it;
   }
 
   return 0;

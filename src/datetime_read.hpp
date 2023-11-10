@@ -267,8 +267,6 @@ public:
               str, __func__);
       throw std::runtime_error("[ERROR] Failed resolving time\n");
     }
-    printf("\tresolved seconds: %.15f from string %s\n", fsec, str);
-    printf("\tIn picoseconds, this is: %ld\n", static_cast<SecIntType>(fsec * scale));
     return dso::hms_time<S>(dso::hours(ints[0]), dso::minutes(ints[1]),
                             S(static_cast<SecIntType>(fsec * scale)));
   }
