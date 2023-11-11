@@ -106,9 +106,9 @@ int main() {
     TwoPartDateUTC utc00(modified_julian_day(d).as_underlying_type());
     TwoPartDateUTC utc24(modified_julian_day(d).as_underlying_type() + 1);
     tpd1 = utc24 - utc00;
-    // assert(tpd1.imjd() == 1);
-    // assert(tpd1.seconds() == 1e0);
-    printf("Diff: %d + %.15e\n", tpd1.imjd(), tpd1.seconds());
+    assert(tpd1.imjd() == 1);
+    assert(tpd1.seconds() == 1e0);
+    // printf("Diff: %d + %.15e\n", tpd1.imjd(), tpd1.seconds());
   }
 
   return 0;
