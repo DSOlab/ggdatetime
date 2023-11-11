@@ -10,7 +10,6 @@
 #include <type_traits>
 
 using namespace dso;
-constexpr const double S = nanoseconds::sec_factor<double>();
 
 const std::array<ymd_date, 3> leap_insertion_dates = {
     /*
