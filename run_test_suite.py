@@ -55,7 +55,7 @@ parser.add_argument(
     dest='verbose',
     help='Verbose mode on')
 
-test_subdirs = ['unit_tests']
+test_subdirs = ['unit_tests', 'sofa']
 
 if __name__ == '__main__':
     # parse cmd
