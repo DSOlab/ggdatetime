@@ -1,42 +1,22 @@
 /** @file
+ * Define/declare generic template functions to assist handling fundamental 
+ * date/time classes (normally defined in dtfund.hpp) and upgrade their user 
+ * interafaces.
+ * This file uses C++ concepts if compilation is performed vs the C++20 
+ * standard.
  */
 
 #ifndef __DSO_DATETIME_GENERIC_TEMPLATE_OPERATIONS_HPP__
 #define __DSO_DATETIME_GENERIC_TEMPLATE_OPERATIONS_HPP__
 
 #include "dtconcepts.hpp"
-#include <cstdio> // only for debugging
 #include <limits>
 #include <type_traits>
+#if __cplusplus >= 202002L
+#include <concepts>
+#endif
 
 namespace dso {
-
-/** @todo do we want to allow this?
- *
- * Overload bool operator '==' for comparing datetime fundamental types with
- * integers, aka
- * month m(3);
- * assert(m == 3)
- * This function will be resolved for any type DType, which
- * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
- * 2. has a member function named DType::__member_const_ref__()
- */
-/*
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_const_ref DType, std::integral DInt>
-#else
-template <typename DType,
-          typename DInt,
-          typename = std::enable_if_t<std::is_integral_v<DInt>>,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_const_ref__)>::value>>
-#endif
-          constexpr bool operator==(DType a, DInt b) noexcept {
-  return a.__member_const_ref__() == static_cast<typename
-DType::underlying_type>(b);
-}
-*/
 
 /** Overload bool operator '==' for datetime fundamental types.
  * This function will be resolved for any type DType, which
@@ -384,7 +364,7 @@ constexpr typename S::underlying_type max_days_allowed() {
  * on a leap second insertion.
  */
 #if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt S>
+template <gconcepts::is_sec_dt S, std::floating_point T = double>
 #else
 template <typename S, typename T = double,
           typename = std::enable_if_t<S::is_of_sec_type>,
@@ -396,7 +376,7 @@ T to_fractional_days(S nsec) noexcept {
 }
 
 #if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt S>
+template <gconcepts::is_sec_dt S, std::floating_point T = double>
 #else
 template <typename S, typename T = double,
           typename = std::enable_if_t<S::is_of_sec_type>,

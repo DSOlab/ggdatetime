@@ -1,5 +1,5 @@
 /** @file
- * A fundamental, template datetime class. This file contains the definition
+ * A fundamental, generic datetime class. This file contains the definition
  * (and implementation) of a datetime class to be used for Space Geodesy
  * applications.
  */
@@ -768,17 +768,6 @@ template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 inline int dat(const datetime<T> &t) noexcept {
   return dso::dat(t.imjd());
 }
-
-/*
-#if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt T>
-#else
-template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
-#endif
-inline t_hmsf as_hmsf(T secday) noexcept {
-  return t_hmsf(secday);
-}
-*/
 
 namespace datetime_ranges {
 enum class OverlapComparissonType { Strict, AllowEdgesOverlap };

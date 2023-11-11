@@ -536,8 +536,6 @@ public:
 
 }; /* class TwoPartDate */
 
-// TwoPartDate utc2tai(const TwoPartDate &d) noexcept;
-
 } /* namespace dso */
 
 #endif

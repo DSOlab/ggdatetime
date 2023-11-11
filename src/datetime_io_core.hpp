@@ -6,7 +6,11 @@
 #define __DSO_DATETIME_IO_CORE_HPP__
 
 namespace dso {
+
+/** Enum class for possible date io formats */
 enum class YMDFormat { YYYYMMDD, DDMMYYYY, YYYYDDD, YYMMDD, DDMMYY };
+
+/** Enum class for Time-Of-Day io format */
 enum class HMSFormat { HHMMSS, HHMMSSF };
 
 namespace datetime_io_core {

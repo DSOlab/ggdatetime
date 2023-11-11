@@ -1,5 +1,6 @@
 /** @file
- * Functions to pretty print datetime instances
+ * Functions to format datetime<S>, TwoPartDate ad TwoPartDateUTC instances 
+ * into C-strings.
  */
 
 #ifndef __DSO_DATETIME_IO_WRITE_HPP__
@@ -14,7 +15,10 @@
 
 namespace dso {
 
+/** Generic utility class to format a Date */
 template <YMDFormat F> class SpitDate {};
+
+/** Specialization of SpitDate to format a date in YYYYMMDD format */
 template <> class SpitDate<YMDFormat::YYYYMMDD> {
 public:
   static const int numChars = 10;
@@ -24,6 +28,8 @@ public:
                         ymd.dm().as_underlying_type());
   }
 };
+
+/** Specialization of SpitDate to format a date in DDMMYYYY format */
 template <> class SpitDate<YMDFormat::DDMMYYYY> {
 public:
   static const int numChars = 10;
@@ -57,6 +63,7 @@ template <YMDFormat F> const char *to_char(const ymd_date &ymd, char *buffer) {
   return buffer;
 }
 
+/** Generic class to format a Time-Of-Day into a C-string */
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S, HMSFormat F>
 #else
@@ -66,6 +73,7 @@ template <typename S, HMSFormat F,
 class SpitTime {
 };
 
+/** Specialization of SpitTime to format a Time-Of-Day of type HHMMSS */
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S>
 #else
@@ -73,7 +81,6 @@ template <typename S>
 #endif
 class SpitTime<S, HMSFormat::HHMMSS> {
   typedef typename S::underlying_type SecIntType;
-
 public:
   static const int numChars = 8;
   static int spit(const hms_time<S> &hms, char *buffer) noexcept {
@@ -85,6 +92,7 @@ public:
   }
 };
 
+/** Specialization of SpitTime to format a Time-Of-Day of type HHMMSSF */
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S>
 #else

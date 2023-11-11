@@ -1626,6 +1626,9 @@ public:
    * "expose the only member var" function
    */
   constexpr underlying_type &__member_ref__() noexcept { return m_sec; }
+  
+  /** string literal */
+  static const char *unit_literal() noexcept { return "picosec"; }
 
   /** Picoseconds is a subdivision of seconds. */
   static constexpr bool is_of_sec_type = true;
@@ -1660,52 +1663,6 @@ private:
 }; /* class picoseconds */
 
 } /* namespace dtextra */
-
-/// For user-defined literals, i am going to replace long with
-/// unsigned long long int.
-namespace ddetail {
-using ulli = unsigned long long int;
-}
-
-/// A year can be constructed via "_Y".
-constexpr year operator"" _Y(ddetail::ulli i) noexcept {
-  return year{static_cast<year::underlying_type>(i)};
-}
-
-/// A month can be constructed via "_M".
-constexpr month operator"" _M(ddetail::ulli i) noexcept {
-  return month{static_cast<month::underlying_type>(i)};
-}
-
-/// A day of month can be constructed via "_D".
-constexpr day_of_month operator"" _D(ddetail::ulli i) noexcept {
-  return day_of_month{static_cast<day_of_month::underlying_type>(i)};
-}
-
-/// An hour can be constructed via "_h".
-constexpr hours operator"" _h(ddetail::ulli i) noexcept {
-  return hours{static_cast<hours::underlying_type>(i)};
-}
-
-/// A minute can be constructed via "_m".
-constexpr minutes operator"" _m(ddetail::ulli i) noexcept {
-  return minutes{static_cast<minutes::underlying_type>(i)};
-}
-
-/// Seconds can be constructed via "_sec".
-constexpr seconds operator"" _sec(ddetail::ulli i) noexcept {
-  return seconds{static_cast<seconds::underlying_type>(i)};
-}
-
-/// MilliSeconds can be constructed via "_millisec".
-constexpr milliseconds operator"" _millisec(ddetail::ulli i) noexcept {
-  return milliseconds{static_cast<milliseconds::underlying_type>(i)};
-}
-
-/// MicroSeconds can be constructed via "_microsec".
-constexpr microseconds operator"" _microsec(ddetail::ulli i) noexcept {
-  return microseconds{static_cast<microseconds::underlying_type>(i)};
-}
 
 } /* namespace dso */
 
