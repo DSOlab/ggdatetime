@@ -71,7 +71,8 @@ public:
   /** Constructor from a pair of doubles, such that MJD = a + b */
   explicit TwoPartDateUTC(int b = 0, FDOUBLE s = 0) noexcept
       : _mjd(b), _fsec(s) {
-    this->normalize();
+    if (b != 0 && s != 0e0) /* do not normalize for default constructor! */
+      this->normalize();
   }
 
   /** Get the MJD as an intgral number, i.e. no fractional part */
@@ -110,6 +111,41 @@ public:
    */
   void add_seconds(FDOUBLE sec) noexcept {
     _fsec += sec;
+    this->normalize();
+  }
+
+  /** Add seconds to instance and return the "Kahan summation" error.
+   *
+   * This function implements a "Kahan summation" scheme to iteratively add
+   * seconds (to the instance). Especially in the case of adding multiple
+   * times, small multiples of second (i.e. nanoseconds and/or microseconds),
+   * it gives better precision than the simple add_seconds method.
+   * Example usage:
+   * d = TwoPartDateUTC(...);
+   * double err = 0;
+   * for (long i = 0; i < 1'000'000'000; i++) {
+   *    d.add_seconds(1e-9,err);
+   * }
+   * This version will give better results that using
+   * d = TwoPartDateUTC(...);
+   * double err = 0;
+   * for (long i = 0; i < 1'000'000'000; i++) {
+   *    d.add_seconds(1e-9);
+   * }
+   * For accuracy/precision results, see test/precision/tpadd.cpp
+   *
+   * @param[in] sec  Floating-point seconds to add to instance
+   * @param[out] err Previous summation error at input; updated at output to
+   *                 be used at next iteration. If this is the first call,
+   *                 set err to 0e0.
+   */
+  void add_seconds(FDOUBLE sec, FDOUBLE &err) noexcept {
+    FDOUBLE a = _fsec;
+    FDOUBLE b = sec;
+    FDOUBLE y = b - err;
+    b = a + y;
+    err = (b - a) - y;
+    _fsec = b;
     this->normalize();
   }
 
@@ -272,9 +308,9 @@ public:
 
   /** Add seconds to instance and return the "Kahan summation" error.
    *
-   * This function implements a "Kahan summation" scheme to iteratively add 
-   * seconds (to the instance). Especially in the case of adding multiple 
-   * times, small multiples of second (i.e. nanoseconds and/or microseconds), 
+   * This function implements a "Kahan summation" scheme to iteratively add
+   * seconds (to the instance). Especially in the case of adding multiple
+   * times, small multiples of second (i.e. nanoseconds and/or microseconds),
    * it gives better precision than the simple add_seconds method.
    * Example usage:
    * d = TwoPartDate(...);
@@ -282,7 +318,7 @@ public:
    * for (long i = 0; i < 1'000'000'000; i++) {
    *    d.add_seconds(1e-9,err);
    * }
-   * This version will give better results that using 
+   * This version will give better results that using
    * d = TwoPartDate(...);
    * double err = 0;
    * for (long i = 0; i < 1'000'000'000; i++) {
@@ -292,7 +328,7 @@ public:
    *
    * @param[in] sec  Floating-point seconds to add to instance
    * @param[out] err Previous summation error at input; updated at output to
-   *                 be used at next iteration. If this is the first call, 
+   *                 be used at next iteration. If this is the first call,
    *                 set err to 0e0.
    */
   void add_seconds(FDOUBLE sec, FDOUBLE &err) noexcept {
@@ -300,7 +336,7 @@ public:
     FDOUBLE b = sec;
     FDOUBLE y = b - err;
     b = a + y;
-    err = (b-a)-y;
+    err = (b - a) - y;
     _fsec = b;
     this->normalize();
   }
