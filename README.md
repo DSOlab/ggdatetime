@@ -5,6 +5,10 @@
 ggdatetime is a C++ library to assist date and time related computations in 
 Geodesy related fields.
 
+[![CI test](https://github.com/DSOlab/ggdatetime/actions/workflows/test-libdatetime.yml/badge.svg)](https://github.com/DSOlab/ggdatetime/actions/workflows/test-libdatetime.yml)
+[![clang-format Check](https://github.com/DSOlab/ggdatetime/actions/workflows/clang-format-check.yml/badge.svg)](https://github.com/DSOlab/ggdatetime/actions/workflows/clang-format-check.yml)
+[![Linux CI build](https://github.com/DSOlab/ggdatetime/actions/workflows/cpp-linux-build.yml/badge.svg)](https://github.com/DSOlab/ggdatetime/actions/workflows/cpp-linux-build.yml)
+
 ## Compilation / Installation
 
 Source code is ISO C++17. Compilation should be trivial using any C++ compiler

@@ -1,5 +1,5 @@
 /** @file
- * Functions to format datetime<S>, TwoPartDate ad TwoPartDateUTC instances 
+ * Functions to format datetime<S>, TwoPartDate ad TwoPartDateUTC instances
  * into C-strings.
  */
 
@@ -81,6 +81,7 @@ template <typename S>
 #endif
 class SpitTime<S, HMSFormat::HHMMSS> {
   typedef typename S::underlying_type SecIntType;
+
 public:
   static const int numChars = 8;
   static int spit(const hms_time<S> &hms, char *buffer) noexcept {

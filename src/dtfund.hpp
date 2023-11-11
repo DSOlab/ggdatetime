@@ -1626,7 +1626,7 @@ public:
    * "expose the only member var" function
    */
   constexpr underlying_type &__member_ref__() noexcept { return m_sec; }
-  
+
   /** string literal */
   static const char *unit_literal() noexcept { return "picosec"; }
 

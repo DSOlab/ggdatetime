@@ -1,8 +1,8 @@
 /** @file
- * Define/declare generic template functions to assist handling fundamental 
- * date/time classes (normally defined in dtfund.hpp) and upgrade their user 
+ * Define/declare generic template functions to assist handling fundamental
+ * date/time classes (normally defined in dtfund.hpp) and upgrade their user
  * interafaces.
- * This file uses C++ concepts if compilation is performed vs the C++20 
+ * This file uses C++ concepts if compilation is performed vs the C++20
  * standard.
  */
 
