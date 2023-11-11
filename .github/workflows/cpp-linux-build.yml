@@ -2,9 +2,9 @@ name: Linux CI build
 
 on:
   push:
-    branches: [ "main", "cleanup" ]
+    branches: [ "master", "cleanup" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   build:
