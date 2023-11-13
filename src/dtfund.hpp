@@ -148,9 +148,12 @@ inline constexpr double jd2epj(double dj1, double dj2) noexcept {
  * @param[in] mjd1 Second part of MJD (if any), such that MJD = mjd0 + mjd1
  * @return The input date as Julian Epoch.
  */
-inline constexpr double mjd2epj(double mjd0, double mjd1 = 0e0) noexcept {
+inline constexpr double mjd2epj1(double mjd0, double mjd1 = 0e0) noexcept {
   return 2000e0 + ((mjd0 - J2000_MJD) / DAYS_IN_JULIAN_YEAR +
                    mjd1 / DAYS_IN_JULIAN_YEAR);
+}
+inline constexpr double mjd2epj2(double mjd0, double mjd1 = 0e0) noexcept {
+  return 2000e0 + ((mjd0 - J2000_MJD) + mjd1) / DAYS_IN_JULIAN_YEAR;
 }
 
 /** @brief Julian Epoch to Modified Julian Date
@@ -162,6 +165,31 @@ inline constexpr double mjd2epj(double mjd0, double mjd1 = 0e0) noexcept {
  */
 inline constexpr double epj2mjd(double epj) noexcept {
   return J2000_MJD + (epj - 2000e0) * DAYS_IN_JULIAN_YEAR;
+}
+
+/** @brief Julian Epoch to two-part Modified Julian Date
+ *
+ * This function returns the correponding MJD the input Julian Epoch as a 
+ * two-part MJD, where the first, "big" part is always J2000_MJD and the 
+ * rest ("small" part) is returned in the parameter \p mjd1. So that the 
+ * actual MJD = BigPart (i.e. J200_MJD) + SmallPart (i.e. mjd1).
+ * This is meant to better preserve accuracy and convieniently place the 
+ * result in a TwoPartDate.
+ *
+ * @param[in] epj The Julian Epoch to convert
+ * @param[out] mjd1 Small part of MJD
+ * @return Big part of MJD, i.e. J2000_MJD such the the MJD corresponding to 
+ *         the input Julian Epoch is MJD = BigPart + SmallPart
+ *
+ * @see IAU SOFA epj2jd
+ */
+inline double epj2mjd(double epj, double &mjd1) noexcept {
+  /* lose the .5 part */
+  const double ipart = static_cast<int>(J2000_MJD);
+  mjd1 = (epj - 2000e0) * DAYS_IN_JULIAN_YEAR + .5e0;
+  double iextra;
+  mjd1 = std::modf(mjd1, &iextra);
+  return ipart+iextra;
 }
 } /* namespace core */
 
