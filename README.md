@@ -89,22 +89,22 @@ Julian epoch is usually denoted as *“J2000.0”*.
 
 Transforming from a `datetime<nanoseconds>` instance to an instance of type 
 `TwoPartDate` preserves a precision better than 2e-2 nanoseconds. This is verified 
-by running the test program (unit_tests/tpdates1.cpp)[unit_tests/tpdates1.cpp]
+by running the test program [unit_tests/tpdates1.cpp](test/unit_tests/tpdates1.cpp)
 
 Transforming from a `datetime<microseconds>` instance to an instance of type 
 `TwoPartDate` preserves a precision better than 2e-5 microseconds. This is verified 
-by running the test program (unit_tests/tpdates2.cpp)[unit_tests/tpdates2.cpp]
+by running the test program [unit_tests/tpdates2.cpp](test/unit_tests/tpdates2.cpp)
 
 Transforming from a `datetime<milliseconds>` instance to an instance of type 
 `TwoPartDate` preserves a precision better than 2e-8 milliseconds. This is verified 
-by running the test program (unit_tests/tpdates3.cpp)[unit_tests/tpdates3.cpp]
+by running the test program [unit_tests/tpdates3.cpp](test/unit_tests/tpdates3.cpp)
 
 Transforming from a `datetime<seconds>` instance to an instance of type 
 `TwoPartDate` preserves a precision better than 2e-12 seconds. This is verified 
-by running the test program (unit_tests/tpdates4.cpp)[unit_tests/tpdates4.cpp]
+by running the test program [unit_tests/tpdates4.cpp](test/unit_tests/tpdates4.cpp)
 
 **Transforming from/to Julian Epoch**
 
 Transforming from a `TwoPartDate` to a *Julian Epoch* and back, preserves an 
 accuracy of `~1e-5` seconds. This is verified by running the test program 
-(test/sofa/epj_date.cpp)[test/sofa/epj_date.cpp].
+[test/sofa/epj_date.cpp](test/sofa/epj_date.cpp).
