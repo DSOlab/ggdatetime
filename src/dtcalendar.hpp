@@ -325,6 +325,14 @@ public:
       : m_mjd(y, d), m_sec(hr, mn, sec) {
     this->normalize();
   }
+  
+  /** Constructor from year, day of year, and second type S.
+   *  If an invalid date is passed-in, the constructor will throw.
+   */
+  constexpr datetime(year y, day_of_year d, S sec = S(0))
+      : m_mjd(y, d), m_sec(sec) {
+    this->normalize();
+  }
 
   /** Constructor from modified julian day, hours, minutes and second type S.
    *  If an invalid date is passed-in, the constructor will throw.
@@ -619,81 +627,6 @@ private:
   modified_julian_day m_mjd; /** Modified Julian Day */
   S m_sec;                   /** Time of day in S precision. */
 };                           /* datetime<S> */
-
-/// Difference between two dates in MJdays and T.
-/// Diff is dt1 - dt2
-/*#if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt T>
-#else
-template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
-#endif
-constexpr datetime_interval<T> delta_date(const datetime<T> &dt1,
-                                          const datetime<T> &dt2) noexcept {
-  return dt1.delta_date(dt2);
-}*/
-
-/** @brief (Signed) interval between two datetimes in *seconds.
- * Difference of two datetime instances in seconds, when they are of different
- * second type (i.e. datetime<seconds> and datetime<milliseconds>). This
- * function will cast the most imprecise instance to the accuracy of the most
- * precise one and then perform the computation. E.g. if given:
- * a=datetime<seconds>{...} and b=datetime<milliseconds>{...}, then a will
- * be cast to a datetime<milliseconds> instance and then the Δseconds will be
- * computed. The return type, will be that of the most precise type (aka in
- * the case above the difference will be returned in milliseconds).
- * This implementation is used when S1 is more precise than S2.
- *
- * @tparam S1  any second type that has a static member S1::is_of_sec_type set
- *             to True and has an Integral static variable S1::max_in_day
- * @tparam S2  any second type that has a static member S2::is_of_sec_type set
- *             to True and has an Integral static variable S2::max_in_day
- * @param  d1  datetime<S1> instance (difference is d1-d2)
- * @param  d2  datetime<S2> instance (difference is d1-d2)
- * @return     Difference d1-d2 in S1
- */
-// template <typename S1, typename S2,
-//           typename = std::enable_if_t<S1::is_of_sec_type>,
-//           typename = std::enable_if_t<S2::is_of_sec_type>,
-//           typename = std::enable_if_t<(S1::max_in_day > S2::max_in_day)>>
-// inline S1 delta_sec(const datetime<S1> &d1, const datetime<S2> &d2) noexcept
-// {
-//   /* cast d2 from datetime<S2> to datetime<S1> */
-//   const datetime<S1> d2s1 = d2. template cast_to<S1>(d2);
-//   /* return the interval in (signed) *seconds S1 */
-//   return (d1-d2s1).signed_total_sec();
-// }
-
-/** @brief (Signed) interval between two datetimes in *seconds.
- *
- * Difference of two datetime instances in seconds, when they are of different
- * second type (aka datetime<seconds> and datetime<milliseconds>). This
- * function will cast the most imprecise instance to the accuracy of the most
- * precise one and then perform the computation. E.g. if given:
- * a=datetime<seconds>{...} and b=datetime<milliseconds>{...}, then a will
- * be cast to a datetime<milliseconds> instance and then the Δseconds will be
- * computed. The return type, will be that of the most precise type (aka in
- * the case above the difference will be returned in milliseconds).
- * This implementation is used when S2 is more precise than S1.
- *
- * @tparam S1  any second type that has a static member S1::is_of_sec_type set
- *             to True and has an Integral static variable S1::max_in_day
- * @tparam S2  any second type that has a static member S2::is_of_sec_type set
- *             to True and has an Integral static variable S2::max_in_day
- * @param  d1  datetime<S1> instance (difference is d1-d2)
- * @param  d2  datetime<S2> instance (difference is d1-d2)
- * @return     Difference d1-d2 in S2
- */
-// template <typename S1, typename S2,
-//           typename = std::enable_if_t<S1::is_of_sec_type>,
-//           typename = std::enable_if_t<S2::is_of_sec_type>,
-//           typename = std::enable_if_t<(S2::max_in_day > S1::max_in_day)>>
-// inline S2 delta_sec(const datetime<S1> &d1, const datetime<S2> &d2) noexcept
-// {
-//   /* cast d1 from datetime<S1> to datetime<S2> */
-//   const datetime<S2> d1s2 = d1. template cast_to<S2>(d1);
-//   /* return the interval in (signed) *seconds S2 */
-//   return (d1s2-d2).signed_total_sec();
-// }
 
 template <typename S1, typename S2,
           typename = std::enable_if_t<S1::is_of_sec_type>,
