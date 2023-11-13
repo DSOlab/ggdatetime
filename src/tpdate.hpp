@@ -471,16 +471,9 @@ public:
            _fsec / SEC_PER_DAY / DAYS_IN_JULIAN_CENT;
   }
 
-  FDOUBLE epj1() const noexcept {
-    // return core::mjd2epj((double)imjd(), seconds()/SEC_PER_DAY);
-    const auto d = this->operator-(TwoPartDate(51544, 86400e0/2));
-    return (d.imjd() + d.seconds()/SEC_PER_DAY)/DAYS_IN_JULIAN_YEAR + 2e3;
-  }
-  FDOUBLE epj2() const noexcept {
-    return core::mjd2epj1((double)imjd(), seconds()/SEC_PER_DAY);
-  }
-  FDOUBLE epj3() const noexcept {
-    return core::mjd2epj2((double)imjd(), seconds()/SEC_PER_DAY);
+  /** @brief Convert to Julian Epoch, assuming the TT time-scale. */
+  FDOUBLE epj() const noexcept {
+    return core::mjd2epj((double)imjd(), seconds()/SEC_PER_DAY);
   }
 
   bool operator>(const TwoPartDate &d) const noexcept {
@@ -549,28 +542,18 @@ public:
 
 }; /* class TwoPartDate */
 
-/** @brief Julian Epoch to two-part Modified Julian Date
+/** @brief Julian Epoch to two-part Modified Julian Date (TT).
+ *
+ * The function assume the TT time-scale.
  *
  * @param[in] epj The Julian Epoch to convert
  * @return The corresponding MJD as a TwoPartDate
  */
-inline TwoPartDate epjtp1(double epj) noexcept {
-  double smallpart;
-  const double bigpart = core::epj2mjd(epj, smallpart);
-  return TwoPartDate(bigpart, smallpart*SEC_PER_DAY);
+inline TwoPartDate epj2tpd(double epj) noexcept {
+  double fday;
+  const double mjd = core::epj2mjd(epj, fday);
+  return TwoPartDate(mjd, fday*SEC_PER_DAY);
 }
-inline TwoPartDate epjtp2(double epj) noexcept {
-  // return J2000_MJD + (epj - 2000e0) * DAYS_IN_JULIAN_YEAR;
-  double epjBig;
-  const double epjSmall = std::modf(epj, &epjBig) * DAYS_IN_JULIAN_YEAR;
-  epjBig = (epjBig - 2000e0) * DAYS_IN_JULIAN_YEAR + J2000_MJD;
-  /* Now MJD is BigPart + SmallPart */
-  double i1,i2,i3;
-  double d = std::modf(epjBig, &i1) + std::modf(epjSmall, &i2);
-  d = std::modf(d,&i3);
-  return TwoPartDate(i1+i2+i3, d*SEC_PER_DAY);
-}
-
 } /* namespace dso */
 
 #endif

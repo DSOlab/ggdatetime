@@ -114,6 +114,8 @@ inline constexpr long ydoy2mjd(long iyr, long idoy) {
 
 /* @brief Julian Date to Julian Epoch
  *
+ * The function assumes the TT time-scale (for input and output dates).
+ *
  * Julian epoch uses the Julian year of exactly 365.25 days, and the TT time
  * scale; Julian epoch 2000.0 is defined to be 2000 January 1.5, which is
  * JD 2451545.0 or MJD 51544.5. The epoch is denoted by a prefix ‘J’, hence
@@ -136,27 +138,23 @@ inline constexpr double jd2epj(double dj1, double dj2) noexcept {
 }
 
 /** @brief Modified Julian Date to Julian Epoch
+ * The function assumes the TT time-scale (for input and output dates).
  *
  * Convert a Modified Julian date to a Julian Epoch. The MJD can be given as a
  * single value (i.e. in parameter \p mjd0) or can be split into two parts,
  * (e.g. the first being the intergal part of MJD and the second be fractional
  * day).
  *
- * @see jd2epj
- *
  * @param[in] mjd0 The Modified Julian Date (first part or whole number)
  * @param[in] mjd1 Second part of MJD (if any), such that MJD = mjd0 + mjd1
  * @return The input date as Julian Epoch.
  */
-inline constexpr double mjd2epj1(double mjd0, double mjd1 = 0e0) noexcept {
-  return 2000e0 + ((mjd0 - J2000_MJD) / DAYS_IN_JULIAN_YEAR +
-                   mjd1 / DAYS_IN_JULIAN_YEAR);
-}
-inline constexpr double mjd2epj2(double mjd0, double mjd1 = 0e0) noexcept {
+inline constexpr double mjd2epj(double mjd0, double mjd1 = 0e0) noexcept {
   return 2000e0 + ((mjd0 - J2000_MJD) + mjd1) / DAYS_IN_JULIAN_YEAR;
 }
 
 /** @brief Julian Epoch to Modified Julian Date
+ * The function assumes the TT time-scale (for input and output dates).
  *
  * @param[in] epj The Julian Epoch to convert
  * @return The corresponding (fractional) Modified Julian Date
@@ -170,25 +168,26 @@ inline constexpr double epj2mjd(double epj) noexcept {
 /** @brief Julian Epoch to two-part Modified Julian Date
  *
  * This function returns the correponding MJD the input Julian Epoch as a 
- * two-part MJD, where the first, "big" part is always J2000_MJD and the 
- * rest ("small" part) is returned in the parameter \p mjd1. So that the 
- * actual MJD = BigPart (i.e. J200_MJD) + SmallPart (i.e. mjd1).
+ * two-part MJD, where the first, "big" part is the MJDay and the 
+ * rest ("small" part) is returned in the parameter \p fday, representing the 
+ * fractional part of the MJday.  
+ * So, the actual MJD = BigPart (i.e. Day) + SmallPart (i.e. fraction of day).
  * This is meant to better preserve accuracy and convieniently place the 
  * result in a TwoPartDate.
+ * The function assumes the TT time-scale (for input and output dates).
  *
  * @param[in] epj The Julian Epoch to convert
- * @param[out] mjd1 Small part of MJD
- * @return Big part of MJD, i.e. J2000_MJD such the the MJD corresponding to 
- *         the input Julian Epoch is MJD = BigPart + SmallPart
- *
- * @see IAU SOFA epj2jd
+ * @param[out] fday Fractional part of MJDay
+ * @return Integral part of MJD, i.e. the MJDay, such the the MJD 
+ *         corresponding to the input Julian Epoch is 
+ *         MJD = BigPart + SmallPart
  */
-inline double epj2mjd(double epj, double &mjd1) noexcept {
+inline double epj2mjd(double epj, double &fday) noexcept {
   /* lose the .5 part */
   const double ipart = static_cast<int>(J2000_MJD);
-  mjd1 = (epj - 2000e0) * DAYS_IN_JULIAN_YEAR + .5e0;
+  fday = (epj - 2000e0) * DAYS_IN_JULIAN_YEAR + .5e0;
   double iextra;
-  mjd1 = std::modf(mjd1, &iextra);
+  fday = std::modf(fday, &iextra);
   return ipart+iextra;
 }
 } /* namespace core */
