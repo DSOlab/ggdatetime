@@ -320,7 +320,7 @@ public:
   /** Constructor from year, day of year, hours, minutes and second type S.
    *  If an invalid date is passed-in, the constructor will throw.
    */
-  constexpr datetime(year y, day_of_year d, hours hr = hours(0),
+  datetime(year y, day_of_year d, hours hr = hours(0),
                      minutes mn = minutes(0), S sec = S(0))
       : m_mjd(y, d), m_sec(hr, mn, sec) {
     this->normalize();
@@ -329,7 +329,7 @@ public:
   /** Constructor from year, day of year, and second type S.
    *  If an invalid date is passed-in, the constructor will throw.
    */
-  constexpr datetime(year y, day_of_year d, S sec = S(0))
+  datetime(year y, day_of_year d, S sec)
       : m_mjd(y, d), m_sec(sec) {
     this->normalize();
   }
