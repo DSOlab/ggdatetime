@@ -536,19 +536,30 @@ public:
     return w;
   }
 
+#if __cplusplus >= 202002L
+  template <gconcepts::is_sec_dt T>
+#else
+  template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
+#endif
+  constexpr void add_seconds(T nsec) noexcept {
+    constexpr const auto TT = (S::template sec_factor<unsigned long>() >=
+                               T::template sec_factor<unsigned long>());
+    return __add_seconds_impl<T>(nsec, std::integral_constant<bool,TT>{});
+  }
+
 private:
-  /** TODO Do i need this ?? */
-  /// @brief Add any second type T where S is of higher resolution than T
-  ///
-  /// This is the implementation for adding any type of seconds (T), where T is
-  /// of lower resolution than S, to the instanece. The input seconds sec will
-  /// be cast to S-type and then added to the instanece.
-  /// This is the implementation function meant to work via tag dispatch, so it
-  /// needs a dummy parameter of type std::true_type
-  ///
-  /// @tparam T Any seconds type where S::max_id_day > T::max_in_day
-  /// @param[in] sec Seconds of T-type where S::max_id_day > T::max_in_day
-  /// @return nothing
+   /** @brief Add any second type T where S is of higher resolution than T
+    * 
+    * This is the implementation for adding any type of seconds (T), where T is
+    * of lower resolution than S, to the instanece. The input seconds sec will
+    * be cast to S-type and then added to the instance.
+    * This is the implementation function meant to work via tag dispatch, so it
+    * needs a dummy parameter of type std::true_type
+    * 
+    * @tparam T Any seconds type where S::max_id_day > T::max_in_day
+    * @param[in] sec Seconds of T-type where S::max_id_day > T::max_in_day
+    * @return nothing
+    */
   template <class T>
   constexpr void __add_seconds_impl(T sec, std::true_type) noexcept {
     S ssec = dso::cast_to<T, S>(sec);
@@ -557,69 +568,33 @@ private:
     return;
   }
 
-  /// @brief Add any second type T where T is of higher resolution than S
-  ///
-  /// This is the implementation for adding any type of seconds (T), where T is
-  /// of higher resolution than S, to the instance. The instance will first be
-  /// cast into T-type, the input seconds are added to the instance and then
-  /// the instance will be re-casted to S-type.
-  /// This is the implementation function meant to work via tag dispatch, so it
-  /// needs a dummy parameter of type std::false_type
-  ///
-  /// @tparam T Any seconds type where T::max_id_day > S::max_in_day
-  /// @param[in] sec Seconds of T-type where T::max_id_day > S::max_in_day
-  /// @return nothing
-  ///
-  /// @warning The input seconds (parameter) is of higher resolution than the
-  ///          instance, thus loss of accuracy may happen.
+  /** @brief Add any second type T where T is of higher resolution than S
+   * 
+   * This is the implementation for adding any type of seconds (T), where T is
+   * of higher resolution than S, to the instance. The instance will first be
+   * cast into T-type, the input seconds are added to the instance and then
+   * the instance will be re-casted to S-type.
+   * This is the implementation function meant to work via tag dispatch, so it
+   * needs a dummy parameter of type std::false_type
+   * 
+   * @tparam T Any seconds type where T::max_id_day > S::max_in_day
+   * @param[in] sec Seconds of T-type where T::max_id_day > S::max_in_day
+   * @return nothing
+   *
+   * @warning The input seconds (parameter) is of higher resolution than the
+   *          instance, thus loss of accuracy may happen.
+   */
+  //template <class T>
+  //constexpr void __add_seconds_impl(T sec, std::false_type) noexcept {
+  //  T sect = dso::cast_to<S, T>(m_sec);
+  //  sect += sec;
+  //  m_sec = dso::cast_to<T, S>(sect);
+  //  this->normalize();
+  //  return;
+  //}
   template <class T>
   constexpr void __add_seconds_impl(T sec, std::false_type) noexcept {
-    T sect = dso::cast_to<S, T>(m_sec);
-    sect += sec;
-    m_sec = dso::cast_to<T, S>(sect);
-    this->normalize();
-    return;
-  }
-
-  /// @brief Subtract any second type T where S is of higher resolution than T
-  ///
-  /// This is the implementation for removing any type of seconds (T), where T
-  /// is of lower resolution than S, to the instanece. The input seconds sec
-  /// will be cast to S-type and then subtracted from the instanece. This is the
-  /// implementation function meant to work via tag dispatch, so it needs a
-  /// dummy parameter of type std::true_type
-  ///
-  /// @tparam T Any seconds type where S::max_id_day > T::max_in_day
-  /// @param[in] sec Seconds of T-type where S::max_id_day > T::max_in_day
-  /// @return nothing
-  template <typename T>
-  constexpr void __remove_seconds_impl(T sec, std::true_type) noexcept {
-    S ssec = dso::cast_to<T, S>(sec);
-    m_sec -= ssec;
-    this->normalize();
-    return;
-  }
-
-  /// @brief Subtract any second type T where T is of higher resolution than S
-  ///
-  /// This is the implementation for removing any type of seconds (T), where T
-  /// is of higher resolution than S, to the instance. The instance will first
-  /// be cast into T-type, the input seconds are subtracted from the instance
-  /// and then the instance will be re-casted to S-type. This is the
-  /// implementation function meant to work via tag dispatch, so it needs a
-  /// dummy parameter of type std::false_type
-  ///
-  /// @tparam T Any seconds type where T::max_id_day > S::max_in_day
-  /// @param[in] sec Seconds of T-type where T::max_id_day > S::max_in_day
-  /// @return nothing
-  ///
-  /// @warning The input seconds (parameter) is of higher resolution than the
-  ///          instance, thus loss of accuracy may happen.
-  template <class T>
-  constexpr void __remove_seconds_impl(T sec, std::false_type) noexcept {
-    T sect = dso::cast_to<S, T>(m_sec);
-    sect -= sec;
-    m_sec = dso::cast_to<T, S>(sect);
+    m_sec += dso::cast_to<T, S>(sec);
     this->normalize();
     return;
   }
