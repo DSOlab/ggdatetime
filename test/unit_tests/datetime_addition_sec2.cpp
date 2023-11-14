@@ -40,7 +40,7 @@ int main() {
       auto dt = d1;
       for (int i = 0; i < 86400; i++) {
         dt.add_seconds(nanoseconds(1'000'123'456));
-    }
+      }
       assert(dt == d2);
       dt = d2;
       for (int i = 0; i < 86400; i++) {

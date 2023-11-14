@@ -473,7 +473,7 @@ public:
 
   /** @brief Convert to Julian Epoch, assuming the TT time-scale. */
   FDOUBLE epj() const noexcept {
-    return core::mjd2epj((double)imjd(), seconds()/SEC_PER_DAY);
+    return core::mjd2epj((double)imjd(), seconds() / SEC_PER_DAY);
   }
 
   bool operator>(const TwoPartDate &d) const noexcept {
@@ -552,7 +552,7 @@ public:
 inline TwoPartDate epj2tpd(double epj) noexcept {
   double fday;
   const double mjd = core::epj2mjd(epj, fday);
-  return TwoPartDate(mjd, fday*SEC_PER_DAY);
+  return TwoPartDate(mjd, fday * SEC_PER_DAY);
 }
 } /* namespace dso */
 

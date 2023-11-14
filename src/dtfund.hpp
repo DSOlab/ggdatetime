@@ -167,19 +167,19 @@ inline constexpr double epj2mjd(double epj) noexcept {
 
 /** @brief Julian Epoch to two-part Modified Julian Date
  *
- * This function returns the correponding MJD the input Julian Epoch as a 
- * two-part MJD, where the first, "big" part is the MJDay and the 
- * rest ("small" part) is returned in the parameter \p fday, representing the 
- * fractional part of the MJday.  
+ * This function returns the correponding MJD the input Julian Epoch as a
+ * two-part MJD, where the first, "big" part is the MJDay and the
+ * rest ("small" part) is returned in the parameter \p fday, representing the
+ * fractional part of the MJday.
  * So, the actual MJD = BigPart (i.e. Day) + SmallPart (i.e. fraction of day).
- * This is meant to better preserve accuracy and convieniently place the 
+ * This is meant to better preserve accuracy and convieniently place the
  * result in a TwoPartDate.
  * The function assumes the TT time-scale (for input and output dates).
  *
  * @param[in] epj The Julian Epoch to convert
  * @param[out] fday Fractional part of MJDay
- * @return Integral part of MJD, i.e. the MJDay, such the the MJD 
- *         corresponding to the input Julian Epoch is 
+ * @return Integral part of MJD, i.e. the MJDay, such the the MJD
+ *         corresponding to the input Julian Epoch is
  *         MJD = BigPart + SmallPart
  */
 inline double epj2mjd(double epj, double &fday) noexcept {
@@ -188,7 +188,7 @@ inline double epj2mjd(double epj, double &fday) noexcept {
   fday = (epj - 2000e0) * DAYS_IN_JULIAN_YEAR + .5e0;
   double iextra;
   fday = std::modf(fday, &iextra);
-  return ipart+iextra;
+  return ipart + iextra;
 }
 } /* namespace core */
 

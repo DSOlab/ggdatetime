@@ -320,17 +320,16 @@ public:
   /** Constructor from year, day of year, hours, minutes and second type S.
    *  If an invalid date is passed-in, the constructor will throw.
    */
-  datetime(year y, day_of_year d, hours hr = hours(0),
-                     minutes mn = minutes(0), S sec = S(0))
+  datetime(year y, day_of_year d, hours hr = hours(0), minutes mn = minutes(0),
+           S sec = S(0))
       : m_mjd(y, d), m_sec(hr, mn, sec) {
     this->normalize();
   }
-  
+
   /** Constructor from year, day of year, and second type S.
    *  If an invalid date is passed-in, the constructor will throw.
    */
-  datetime(year y, day_of_year d, S sec)
-      : m_mjd(y, d), m_sec(sec) {
+  datetime(year y, day_of_year d, S sec) : m_mjd(y, d), m_sec(sec) {
     this->normalize();
   }
 
@@ -544,22 +543,22 @@ public:
   constexpr void add_seconds(T nsec) noexcept {
     constexpr const auto TT = (S::template sec_factor<unsigned long>() >=
                                T::template sec_factor<unsigned long>());
-    return __add_seconds_impl<T>(nsec, std::integral_constant<bool,TT>{});
+    return __add_seconds_impl<T>(nsec, std::integral_constant<bool, TT>{});
   }
 
 private:
-   /** @brief Add any second type T where S is of higher resolution than T
-    * 
-    * This is the implementation for adding any type of seconds (T), where T is
-    * of lower resolution than S, to the instanece. The input seconds sec will
-    * be cast to S-type and then added to the instance.
-    * This is the implementation function meant to work via tag dispatch, so it
-    * needs a dummy parameter of type std::true_type
-    * 
-    * @tparam T Any seconds type where S::max_id_day > T::max_in_day
-    * @param[in] sec Seconds of T-type where S::max_id_day > T::max_in_day
-    * @return nothing
-    */
+  /** @brief Add any second type T where S is of higher resolution than T
+   *
+   * This is the implementation for adding any type of seconds (T), where T is
+   * of lower resolution than S, to the instanece. The input seconds sec will
+   * be cast to S-type and then added to the instance.
+   * This is the implementation function meant to work via tag dispatch, so it
+   * needs a dummy parameter of type std::true_type
+   *
+   * @tparam T Any seconds type where S::max_id_day > T::max_in_day
+   * @param[in] sec Seconds of T-type where S::max_id_day > T::max_in_day
+   * @return nothing
+   */
   template <class T>
   constexpr void __add_seconds_impl(T sec, std::true_type) noexcept {
     S ssec = dso::cast_to<T, S>(sec);
@@ -569,14 +568,14 @@ private:
   }
 
   /** @brief Add any second type T where T is of higher resolution than S
-   * 
+   *
    * This is the implementation for adding any type of seconds (T), where T is
    * of higher resolution than S, to the instance. The instance will first be
    * cast into T-type, the input seconds are added to the instance and then
    * the instance will be re-casted to S-type.
    * This is the implementation function meant to work via tag dispatch, so it
    * needs a dummy parameter of type std::false_type
-   * 
+   *
    * @tparam T Any seconds type where T::max_id_day > S::max_in_day
    * @param[in] sec Seconds of T-type where T::max_id_day > S::max_in_day
    * @return nothing
@@ -584,14 +583,14 @@ private:
    * @warning The input seconds (parameter) is of higher resolution than the
    *          instance, thus loss of accuracy may happen.
    */
-  //template <class T>
-  //constexpr void __add_seconds_impl(T sec, std::false_type) noexcept {
-  //  T sect = dso::cast_to<S, T>(m_sec);
-  //  sect += sec;
-  //  m_sec = dso::cast_to<T, S>(sect);
-  //  this->normalize();
-  //  return;
-  //}
+  // template <class T>
+  // constexpr void __add_seconds_impl(T sec, std::false_type) noexcept {
+  //   T sect = dso::cast_to<S, T>(m_sec);
+  //   sect += sec;
+  //   m_sec = dso::cast_to<T, S>(sect);
+  //   this->normalize();
+  //   return;
+  // }
   template <class T>
   constexpr void __add_seconds_impl(T sec, std::false_type) noexcept {
     m_sec += dso::cast_to<T, S>(sec);
@@ -629,7 +628,7 @@ enum class DateTimeDifferenceType { FractionalDays, FractionalSeconds };
 
 /** @brief Return the difference d1 - d2 in the Date/Time units specified by
  *         the template parameter D
- * @warning Cannot handle tthe case where leap seconds are not the same at
+ * @warning Cannot handle the case where leap seconds are not the same at
  *         d1 and d2.
  */
 template <DateTimeDifferenceType D, typename S,

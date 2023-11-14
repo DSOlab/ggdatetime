@@ -28,11 +28,11 @@ int main() {
 
 #ifdef DEBUG
   double maxdiffs[10], avediffs[10];
-  for (int i=0; i<10; i++) {
+  for (int i = 0; i < 10; i++) {
     maxdiffs[i] = 0e0;
     avediffs[i] = 0e0;
   }
-  int n=0;
+  int n = 0;
 #endif
   for (long i = 0; i < num_tests; i++) {
     const int iy = ydstr(gen);
@@ -50,15 +50,16 @@ int main() {
         TwoPartDate di = epj2tpd(je);
         assert(d.imjd() - di.imjd() == 0);
 #ifdef DEBUG
-        if (std::abs(d.seconds()-di.seconds())>maxdiffs[0]) maxdiffs[0] = std::abs(d.seconds()-di.seconds());
-        avediffs[0] += std::abs(d.seconds()-di.seconds());
+        if (std::abs(d.seconds() - di.seconds()) > maxdiffs[0])
+          maxdiffs[0] = std::abs(d.seconds() - di.seconds());
+        avediffs[0] += std::abs(d.seconds() - di.seconds());
 #endif
         epj_lib = je;
 
         /* compare initial to resulting dates */
-        assert(fequal(d.seconds(),di.seconds(),1e-5));
+        assert(fequal(d.seconds(), di.seconds(), 1e-5));
       }
-      
+
       /* do the same with SOFA */
       double epj_sofa;
       {
@@ -68,8 +69,9 @@ int main() {
         double jd11, jd21;
         iauEpj2jd(sje, &jd11, &jd21);
 #ifdef DEBUG
-        const double dsec = ((jd2-jd11) + (jd1-jd21)) * SEC_PER_DAY;
-        if (std::abs(dsec) > maxdiffs[1]) maxdiffs[1] = std::abs(dsec);
+        const double dsec = ((jd2 - jd11) + (jd1 - jd21)) * SEC_PER_DAY;
+        if (std::abs(dsec) > maxdiffs[1])
+          maxdiffs[1] = std::abs(dsec);
         avediffs[1] += std::abs(dsec);
 #endif
         epj_sofa = sje;
@@ -88,8 +90,9 @@ int main() {
   }
 
 #ifdef DEBUG
-  for (int i=0; i<2; i++) {
-    printf("[%d]: MaxDiff=%+.6f[sec] AveDiff=%.6f[sec]\n", i, maxdiffs[i], avediffs[i]/n);
+  for (int i = 0; i < 2; i++) {
+    printf("[%d]: MaxDiff=%+.6f[sec] AveDiff=%.6f[sec]\n", i, maxdiffs[i],
+           avediffs[i] / n);
   }
 #endif
 
