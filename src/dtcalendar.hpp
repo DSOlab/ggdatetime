@@ -7,6 +7,7 @@
 #ifndef __DTCALENDAR_NGPT__HPP__
 #define __DTCALENDAR_NGPT__HPP__
 
+#include "datetime_tops.hpp"
 #include "dtconcepts.hpp"
 #include "dtfund.hpp"
 #include "hms_time.hpp"
@@ -49,42 +50,44 @@ int sgn(DType val) noexcept {
  * has the purpose of acting as an intermediate state, so that it can
  * 'normalize' the behaviour between a difference and an interval.
  */
-#if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt S>
-#else
-template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
-#endif
-struct RawDatetimeDifference {
-  typedef typename S::underlying_type SecIntType;
-  typedef modified_julian_day::underlying_type DaysIntType;
-
-  /** seconds of day (in interval), always positive */
-  SecIntType msecs;
-  /** days (in interval),can be negative */
-  DaysIntType mdays;
-
-  explicit RawDatetimeDifference(DaysIntType days, SecIntType sec) noexcept
-      : mdays(days), msecs(sec) {
-    normalize();
-  }
-
-  void normalize() noexcept {
-    /* number of whole days in seconds (always positive) */
-    DaysIntType more = std::copysign(1, msecs) / S::max_in_day();
-    /* add to current days, with the right sign */
-    mdays += std::copysign(msecs, more);
-    /* leftover seconds (positive) */
-    SecIntType s = std::copysign(1, msecs) - more * S::max_in_day();
-    /* if initial seconds were negative, adjust */
-    mdays -= 1 * (msecs < 0);
-    msecs = (S::max_in_day() - s) * (msecs < 0) + s * (msecs >= 0);
-#ifdef DEBUG
-    assert(mdays >= 0 && msecs >= 0);
-#endif
-  }
-}; /* RawDatetimeInterval */
+// #if __cplusplus >= 202002L
+// template <gconcepts::is_sec_dt S>
+// #else
+// template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
+// #endif
+// struct RawDatetimeDifference {
+//   typedef typename S::underlying_type SecIntType;
+//   typedef modified_julian_day::underlying_type DaysIntType;
+//
+//   /** seconds of day (in interval), always positive */
+//   SecIntType msecs;
+//   /** days (in interval),can be negative */
+//   DaysIntType mdays;
+//
+//   explicit RawDatetimeDifference(DaysIntType days, SecIntType sec) noexcept
+//       : mdays(days), msecs(sec) {
+//     normalize();
+//   }
+//
+//   void normalize() noexcept {
+//     /* number of whole days in seconds (always positive) */
+//     DaysIntType more = std::copysign(1, msecs) / S::max_in_day();
+//     /* add to current days, with the right sign */
+//     mdays += std::copysign(msecs, more);
+//     /* leftover seconds (positive) */
+//     SecIntType s = std::copysign(1, msecs) - more * S::max_in_day();
+//     /* if initial seconds were negative, adjust */
+//     mdays -= 1 * (msecs < 0);
+//     msecs = (S::max_in_day() - s) * (msecs < 0) + s * (msecs >= 0);
+// #ifdef DEBUG
+//     assert(mdays >= 0 && msecs >= 0);
+// #endif
+//   }
+// }; /* RawDatetimeInterval */
 
 } /* namespace core*/
+
+enum class DateTimeDifferenceType { FractionalDays, FractionalSeconds };
 
 /** @brief A generic, templatized class to hold a datetime period/interval.
  *
@@ -201,6 +204,18 @@ public:
    */
   S signed_total_sec() const noexcept {
     return S(std::copysign(unsigned_total_sec().as_underlying_type(), m_sign));
+  }
+
+  template <DateTimeDifferenceType DT> double to_fraction() const noexcept {
+    if constexpr (DT == DateTimeDifferenceType::FractionalSeconds) {
+      /* difference in fractional seconds */
+      const double big = static_cast<double>(seconds::max_in_day * m_days);
+      return m_sign * (big + to_fractional_seconds(S(m_secs)));
+    } else {
+      /* difference in fractional days */
+      const double big = static_cast<double>(m_days);
+      return m_sign * (big + to_fractional_days(S(m_secs)));
+    }
   }
 
 private:
@@ -405,11 +420,6 @@ public:
     /* seconds, could be negative */
     SecIntType secs =
         d1.sec().as_underlying_type() - d2.sec().as_underlying_type();
-    /* so handle negative seconds */
-    // if (secs < 0) {
-    //   d1.m_mjd -= 1;
-    //   secs = S::max_in_day + secs;
-    // }
     /* branchless TODO which is faster ? */
     d1.m_mjd = d1.m_mjd - modified_julian_day(1 * (secs < 0));
     secs = secs + S::max_in_day * (secs < 0);
@@ -489,10 +499,18 @@ public:
 #endif
   }
 
-  /** Difference (interval) between two datetimes. d1.delta_date(d2) is d1-d2 */
-  constexpr datetime_interval<S> delta_date(const datetime &d) const noexcept {
-    return datetime_interval<S>((m_mjd - d.m_mjd).as_underlying_type(),
-                                (m_sec - d.m_sec).as_underlying_type());
+  /** Get the difference between two datetime instances an an arithmetic value.
+   *
+   * The difference can be obtained as a fractional days or fractional seconds,
+   * depending on the template parameter \p DT.
+   * If called as diff(d1,d2), the computation is d1-d2; the difference can be
+   * negative if d2>d1.
+   *
+   * @warning Does not take into account leap seconds.
+   */
+  template <DateTimeDifferenceType DT>
+  double diff(const datetime<S> &d) const noexcept {
+    return (this->operator-(d)).template to_fraction<DT>();
   }
 
   /** @brief Cast to double (i.e. fractional) Modified Julian Date. */
@@ -624,39 +642,26 @@ inline RetSecType delta_sec(const datetime<S1> &d1,
   }
 }
 
-enum class DateTimeDifferenceType { FractionalDays, FractionalSeconds };
-
 /** @brief Return the difference d1 - d2 in the Date/Time units specified by
  *         the template parameter D
  * @warning Cannot handle the case where leap seconds are not the same at
  *         d1 and d2.
  */
-template <DateTimeDifferenceType D, typename S,
-          typename = std::enable_if_t<S::is_of_sec_type>>
-inline double date_diff(const datetime<S> &d1, const datetime<S> &d2) noexcept {
-  if constexpr (D == DateTimeDifferenceType::FractionalSeconds) {
-    /* difference in fractional seconds */
-    const auto sdiff = delta_sec(d1, d2);
-    return static_cast<double>(sdiff.signed_total_sec());
-  } else {
-    /* difference in fractional days */
-    const datetime_interval<S> diff = d1.delta_date(d2);
-    return static_cast<double>(diff.days()) +
-           static_cast<double>(diff.sec() / S::max_in_day);
-  }
-}
-
-/* Sec-Millisec-MicroSec of Week to Day of week
-#if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt T>
-#else
-template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
-#endif
-constexpr int day_of_week(T sow) noexcept {
-  int day_of_week = sow.as_underlying_type() / T::max_in_day;
-  return day_of_week;
-}
-*/
+// template <DateTimeDifferenceType D, typename S,
+//           typename = std::enable_if_t<S::is_of_sec_type>>
+// inline double date_diff(const datetime<S> &d1, const datetime<S> &d2)
+// noexcept {
+//   if constexpr (D == DateTimeDifferenceType::FractionalSeconds) {
+//     /* difference in fractional seconds */
+//     const auto sdiff = delta_sec(d1, d2);
+//     return static_cast<double>(sdiff.signed_total_sec());
+//   } else {
+//     /* difference in fractional days */
+//     const datetime_interval<S> diff = d1.delta_date(d2);
+//     return static_cast<double>(diff.days()) +
+//            static_cast<double>(diff.sec() / S::max_in_day);
+//   }
+// }
 
 /** @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
  *
