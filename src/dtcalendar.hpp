@@ -87,7 +87,7 @@ int sgn(DType val) noexcept {
 
 } /* namespace core*/
 
-enum class DateTimeDifferenceType { FractionalDays, FractionalSeconds };
+enum class DateTimeDifferenceType { FractionalYears, FractionalDays, FractionalSeconds };
 
 /** @brief A generic, templatized class to hold a datetime period/interval.
  *
@@ -211,10 +211,15 @@ public:
       /* difference in fractional seconds */
       const double big = static_cast<double>(seconds::max_in_day * m_days);
       return m_sign * (big + to_fractional_seconds(S(m_secs)));
-    } else {
+    } else if constexpr (DT == DateTimeDifferenceType::FractionalDays) {
       /* difference in fractional days */
       const double big = static_cast<double>(m_days);
       return m_sign * (big + to_fractional_days(S(m_secs)));
+    } else {
+      /* difference in fractional years */
+      const double big = static_cast<double>(m_days);
+      return m_sign * (big + to_fractional_days(S(m_secs))) /
+             DAYS_IN_JULIAN_YEAR;
     }
   }
 
