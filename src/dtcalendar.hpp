@@ -42,52 +42,13 @@ int sgn(DType val) noexcept {
   return (DType(0) <= val) - (val < DType(0));
 }
 
-/** A utility struct to hold possibly negative datetime intervals
- *
- * This struct is meant to act as an intermediate/buffer state between
- * a datetime difference and a datetime interval. A difference could be
- * negative, but an interval can only be positive. Hence, this class only
- * has the purpose of acting as an intermediate state, so that it can
- * 'normalize' the behaviour between a difference and an interval.
- */
-// #if __cplusplus >= 202002L
-// template <gconcepts::is_sec_dt S>
-// #else
-// template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
-// #endif
-// struct RawDatetimeDifference {
-//   typedef typename S::underlying_type SecIntType;
-//   typedef modified_julian_day::underlying_type DaysIntType;
-//
-//   /** seconds of day (in interval), always positive */
-//   SecIntType msecs;
-//   /** days (in interval),can be negative */
-//   DaysIntType mdays;
-//
-//   explicit RawDatetimeDifference(DaysIntType days, SecIntType sec) noexcept
-//       : mdays(days), msecs(sec) {
-//     normalize();
-//   }
-//
-//   void normalize() noexcept {
-//     /* number of whole days in seconds (always positive) */
-//     DaysIntType more = std::copysign(1, msecs) / S::max_in_day();
-//     /* add to current days, with the right sign */
-//     mdays += std::copysign(msecs, more);
-//     /* leftover seconds (positive) */
-//     SecIntType s = std::copysign(1, msecs) - more * S::max_in_day();
-//     /* if initial seconds were negative, adjust */
-//     mdays -= 1 * (msecs < 0);
-//     msecs = (S::max_in_day() - s) * (msecs < 0) + s * (msecs >= 0);
-// #ifdef DEBUG
-//     assert(mdays >= 0 && msecs >= 0);
-// #endif
-//   }
-// }; /* RawDatetimeInterval */
-
 } /* namespace core*/
 
-enum class DateTimeDifferenceType { FractionalYears, FractionalDays, FractionalSeconds };
+enum class DateTimeDifferenceType {
+  FractionalYears,
+  FractionalDays,
+  FractionalSeconds
+};
 
 /** @brief A generic, templatized class to hold a datetime period/interval.
  *
@@ -221,6 +182,36 @@ public:
       return m_sign * (big + to_fractional_days(S(m_secs))) /
              DAYS_IN_JULIAN_YEAR;
     }
+  }
+
+  /** Overload equality operator. */
+  constexpr bool operator==(const datetime_interval &d) const noexcept {
+    return m_days == d.m_days && m_secs == d.m_secs;
+  }
+
+  /** Overload in-equality operator. */
+  constexpr bool operator!=(const datetime_interval &d) const noexcept {
+    return !(this->operator==(d));
+  }
+
+  /** Overload ">" operator. */
+  constexpr bool operator>(const datetime_interval &d) const noexcept {
+    return m_days > d.m_days || (m_days == d.m_days && m_secs > d.m_secs);
+  }
+
+  /** Overload ">=" operator. */
+  constexpr bool operator>=(const datetime_interval &d) const noexcept {
+    return m_days > d.m_days || (m_days == d.m_days && m_secs >= d.m_secs);
+  }
+
+  /** Overload "<" operator. */
+  constexpr bool operator<(const datetime_interval &d) const noexcept {
+    return m_days < d.m_days || (m_days == d.m_days && m_secs < d.m_secs);
+  }
+
+  /** Overload "<=" operator. */
+  constexpr bool operator<=(const datetime_interval &d) const noexcept {
+    return m_days < d.m_days || (m_days == d.m_days && m_secs <= d.m_secs);
   }
 
 private:
