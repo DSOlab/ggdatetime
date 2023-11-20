@@ -512,7 +512,7 @@ public:
   /** @brief Cast to double (i.e. fractional) Modified Julian Date. */
   constexpr double fmjd() const noexcept {
     return static_cast<double>(m_mjd.as_underlying_type()) +
-           m_sec.fractional_days();
+           fractional_days(m_sec);
   }
 
   /** @brief Cast to double (i.e. fractional) Julian Date. */
