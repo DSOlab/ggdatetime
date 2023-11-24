@@ -249,17 +249,41 @@ private:
   int _mjd;      /** Mjd */
   FDOUBLE _fsec; /** fractional seconds of day */
 
+  /* a constexpr constructor that will not check arguments, and will NOT
+   * normalize the date. Be very carefull with this one!
+   */
+  constexpr explicit TwoPartDate(int mjd, FDOUBLE secday,
+                                 [[maybe_unused]] char c) noexcept
+      : _mjd(mjd), _fsec(secday) {}
+
 public:
-  /** Constructor from datetime<T> */
+  /** Constructor from datetime<T>
+   * Note that we are not (explicitly) normalizing the instance here, because
+   * the parameter \p d is already considered to hold a 'normalized' datetime.
+   * */
 #if __cplusplus >= 202002L
   template <gconcepts::is_sec_dt T>
 #else
   template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
-  TwoPartDate(const datetime<T> &d) noexcept
+  constexpr TwoPartDate(const datetime<T> &d) noexcept
       : _mjd(d.imjd().as_underlying_type()),
         _fsec(to_fractional_seconds<T, FDOUBLE>(d.sec())) {
-    this->normalize();
+  }
+
+  /** Reference epoch (J2000.0), as a Modified Julian Date. */
+  static constexpr TwoPartDate j2000_mjd() noexcept {
+    return TwoPartDate(51544, 86400e0 / 2e0, 'y');
+  }
+
+  /** Min date */
+  static constexpr TwoPartDate min() noexcept {
+    return TwoPartDate(datetime<nanoseconds>::min());
+  }
+
+  /** Max date */
+  static constexpr TwoPartDate max() noexcept {
+    return TwoPartDate(datetime<nanoseconds>::max());
   }
 
   /** Constructor from a pair of doubles, such that MJD = a + b */
