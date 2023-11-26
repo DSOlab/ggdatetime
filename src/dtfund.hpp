@@ -899,14 +899,24 @@ public:
    */
   constexpr underlying_type &__member_ref__() noexcept { return m_mjd; }
 
-  /** Max possible modified_julian_day */
+  /** @brief Max possible modified_julian_day 
+   * 
+   * Note that we are return the maximum allowed integer here (not 
+   * long/unsigned, etc..). This is for easy comparisson (i.e. guarding 
+   * against overflow when comparing with ints).
+   */
   constexpr static modified_julian_day max() noexcept {
-    return modified_julian_day{std::numeric_limits<underlying_type>::max()};
+    return modified_julian_day{std::numeric_limits<int>::max()};
   }
 
-  /** Min possible modified_julian_day */
+  /** @brief Min possible modified_julian_day
+   * 
+   * Note that we are return the minimum allowed integer here (not 
+   * long/unsigned, etc..). This is for easy comparisson (i.e. guarding 
+   * against overflow when comparing with ints).
+   */
   constexpr static modified_julian_day min() noexcept {
-    return modified_julian_day{std::numeric_limits<underlying_type>::min()};
+    return modified_julian_day{std::numeric_limits<int>::min()};
   }
 
   /** Constructor; default Modified Julian Day is 1.
