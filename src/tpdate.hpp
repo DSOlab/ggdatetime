@@ -307,6 +307,12 @@ public:
     this->normalize();
   }
 
+  /** Subtract seconds to instance   */
+  void sub_seconds(FDOUBLE sec) noexcept {
+    _fsec -= sec;
+    this->normalize();
+  }
+
   /** Add seconds to instance and return the "Kahan summation" error.
    *
    * This function implements a "Kahan summation" scheme to iteratively add
