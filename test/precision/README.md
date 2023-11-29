@@ -43,7 +43,23 @@ Conclusions:
  - As expected, while the addition time increases, the accuracy decreases.
  - The precisions decreases much slower
 
-### Script 3 : tpd-sub-nanosec.cpp -- Executing the same tests as the first script using a subtractiong instead of addition
+### Script 3 : tpd-sub-nanosec.cpp -- Executing the same tests as the first script using a subtracting instead of addition
 
 Results: 
+
+Using Normal TwoPartDate::sub_seconds()
+ - Starting Date: 60224 0.000000000000000
+ - Date: 60223 86398.995917849242687               Dsec=4.08215e-03            -- Subtracting 1 second in nanoseconds at TwoPartDate(60224, 0e0)
+ - Date: 60224 10799.999555828049779               Dsec=4.44172e-04            -- Subtracting 1 second in nanoseconds at TwoPartDate(60224, 10801e0)
+ - Date: 60224 21599.999555828049779               Dsec=4.44172e-04            -- Subtracting 1 second in nanoseconds at TwoPartDate(60224, 21601e0)
+ - Date: 60224 32399.999555828049779               Dsec=4.44172e-04            -- Subtracting 1 second in nanoseconds at TwoPartDate(60224, 32401e0)
+ - Date: 60224 43200.003193806856871               Dsec=3.19381e-03            -- Subtracting 1 second in nanoseconds at TwoPartDate(60224, 43201e0)
+ - Date: 60224 54000.003193806856871               Dsec=3.19381e-03            -- Subtracting 1 second in nanoseconds at TwoPartDate(60224, 54001e0)
+ - Date: 60224 64800.003193806856871               Dsec=3.19381e-03            -- Subtracting 1 second in nanoseconds at TwoPartDate(60224, 64801e0)
+ - Date: 60224 75599.995917849242687               Dsec=4.08215e-03            -- Subtracting 1 second in nanoseconds at TwoPartDate(60224, 75601e0)
+ - Date: 60224 0.000000007460067                   Dsec=8.27404e-08            -- Subtracting 1 second in nanoseconds at TwoPartDate(60224, 1e0)
+ - Date: 60224 88.999996364545950                  Dsec=3.63545e-06            -- Subtracting 1 second in nanoseconds at TwoPartDate(60224, 91e0)
+
+Conclusions:
+ - Same results as the addition
 
