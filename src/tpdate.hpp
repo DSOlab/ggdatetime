@@ -8,8 +8,9 @@
 #ifndef __DSO_DATETIME_TWOPARTDATES2_HPP__
 #define __DSO_DATETIME_TWOPARTDATES2_HPP__
 
-#include "dtcalendar.hpp"
+#include "dtdatetime.hpp"
 #include "dtfund.hpp"
+#include <random>
 
 namespace dso {
 
@@ -276,6 +277,21 @@ public:
     return TwoPartDate(51544, 86400e0 / 2e0, 'y');
   }
 
+  /** Random Date within some MJD limits
+   * @todo transfer this into a .cpp file
+   */
+  static TwoPartDate
+  random(modified_julian_day from = modified_julian_day::min(),
+         modified_julian_day to = modified_julian_day::max()) noexcept {
+    int istart = (int)from.as_underlying_type();
+    int istop = (int)to.as_underlying_type();
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> distr(istart, istop);
+    std::uniform_real_distribution<double> unif(0, 86400e0);
+    return TwoPartDate(distr(gen), unif(gen), 'y');
+  }
+
   /** Min date */
   static constexpr TwoPartDate min() noexcept {
     return TwoPartDate(datetime<nanoseconds>::min());
@@ -294,8 +310,11 @@ public:
   /** Get the MJD as an intgral number, i.e. no fractional part */
   int imjd() const noexcept { return _mjd; }
 
-  /** Get the fractional seconds of the MJD */
+  /** Get the (fractional) seconds of the MJD */
   FDOUBLE seconds() const noexcept { return _fsec; }
+
+  /** Get the seconds of the MJD as fractional day. Always in range [0,1) */
+  FDOUBLE fractional_days() const noexcept { return _fsec / 86400e0; }
 
   /** @brief Get the fractional seconds of day as some multiple of seconds.
    *
@@ -495,8 +514,8 @@ public:
   FDOUBLE as_mjd() const noexcept { return _fsec / SEC_PER_DAY + _mjd; }
 
   FDOUBLE jcenturies_sinceJ2000() const noexcept {
-    return (_mjd - J2000_MJD) / DAYS_IN_JULIAN_CENT +
-           _fsec / SEC_PER_DAY / DAYS_IN_JULIAN_CENT;
+    return ((static_cast<FDOUBLE>(_mjd) - J2000_MJD) + _fsec / SEC_PER_DAY) /
+           DAYS_IN_JULIAN_CENT;
   }
 
   /** @brief Convert to Julian Epoch, assuming the TT time-scale. */

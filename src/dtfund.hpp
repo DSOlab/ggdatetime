@@ -899,10 +899,10 @@ public:
    */
   constexpr underlying_type &__member_ref__() noexcept { return m_mjd; }
 
-  /** @brief Max possible modified_julian_day 
-   * 
-   * Note that we are return the maximum allowed integer here (not 
-   * long/unsigned, etc..). This is for easy comparisson (i.e. guarding 
+  /** @brief Max possible modified_julian_day
+   *
+   * Note that we are return the maximum allowed integer here (not
+   * long/unsigned, etc..). This is for easy comparisson (i.e. guarding
    * against overflow when comparing with ints).
    */
   constexpr static modified_julian_day max() noexcept {
@@ -910,9 +910,9 @@ public:
   }
 
   /** @brief Min possible modified_julian_day
-   * 
-   * Note that we are return the minimum allowed integer here (not 
-   * long/unsigned, etc..). This is for easy comparisson (i.e. guarding 
+   *
+   * Note that we are return the minimum allowed integer here (not
+   * long/unsigned, etc..). This is for easy comparisson (i.e. guarding
    * against overflow when comparing with ints).
    */
   constexpr static modified_julian_day min() noexcept {

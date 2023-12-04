@@ -282,8 +282,19 @@ public:
     return datetime(modified_julian_day::min(), S(0));
   }
 
+  /** Reference epoch (J2000.0), as a Modified Julian Date. */
+  constexpr static datetime j2000_mjd() noexcept {
+    return datetime(modified_julian_day(51544), S(S::max_in_day / 2L));
+  }
+
   /** Default constructor. */
   explicit constexpr datetime() noexcept : m_mjd(dso::J2000_MJD), m_sec(0){};
+
+  double jcenturies_sinceJ2000() const noexcept {
+    const double d_mjd = (double)(m_mjd.as_underlying_type());
+    const double fdays = fractional_days(m_sec);
+    return ((d_mjd - J2000_MJD) + fdays) / DAYS_IN_JULIAN_CENT;
+  }
 
   /** Constructor from year, month, day of month and sec type.
    * If an invalid date is passed-in, the constructor will throw.
@@ -519,14 +530,6 @@ public:
   constexpr double as_jd() const noexcept {
     const double jd = m_mjd.to_julian_day();
     return m_sec.fractional_days() + jd;
-  }
-
-  /** @brief compute Julian centuries since J2000 */
-  constexpr double jcenturies_sinceJ2000() const noexcept {
-    const double jd = m_mjd.to_julian_day();
-    const double jc =
-        (jd - J2000_JD) / 36525e0 + m_sec.fractional_days() / 36525e0;
-    return jc;
   }
 
   /** @brief Cast to year, month, day of month */
