@@ -261,6 +261,16 @@ int dat(modified_julian_day mjd) noexcept;
  */
 int dat(modified_julian_day mjd, int &extra_sec_in_day) noexcept;
 
+/** A simple struct to signal fractional seconds; just to secure type safety */
+struct FractionalSeconds {
+  double fsec;
+}; /* FractionalSeconds */
+
+/** A simple struct to signal fractional days; just to secure type safety */
+struct FractionalDays {
+  double fdays;
+}; /* FractionalDays */
+
 /** @brief A wrapper class for years.
  *
  * A year is represented by just an integer number. There are no limits

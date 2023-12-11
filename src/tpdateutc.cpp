@@ -12,5 +12,5 @@ dso::TwoPartDateUTC::operator-(const dso::TwoPartDateUTC &d) const noexcept {
     int dat2 = dso::dat(modified_julian_day(d.imjd()));
     sec += (dat1 - dat2);
   }
-  return TwoPartDate(days, sec);
+  return TwoPartDate(days, FractionalSeconds{sec});
 }

@@ -57,6 +57,11 @@ private:
     return _mjd;
   }
 
+  explicit TwoPartDateUTC(int mjd, FDOUBLE secday) noexcept
+      : _mjd(mjd), _fsec(secday) {
+    normalize();
+  }
+
 public:
   /** Constructor from datetime<T> */
 #if __cplusplus >= 202002L
@@ -71,9 +76,10 @@ public:
   }
 
   /** Constructor from a pair of doubles, such that MJD = a + b */
-  explicit TwoPartDateUTC(int b = 0, FDOUBLE s = 0) noexcept
-      : _mjd(b), _fsec(s) {
-    if (b != 0 && s != 0e0) /* do not normalize for default constructor! */
+  explicit TwoPartDateUTC(int b = 0,
+                          FractionalSeconds s = FractionalSeconds{0}) noexcept
+      : _mjd(b), _fsec(s.fsec) {
+    if (b != 0 && s.fsec != 0e0) /* do not normalize for default constructor! */
       this->normalize();
   }
 
@@ -250,12 +256,26 @@ private:
   int _mjd;      /** Mjd */
   FDOUBLE _fsec; /** fractional seconds of day */
 
-  /* a constexpr constructor that will not check arguments, and will NOT
+  /** Construct from MJD and fractional seconds **of day**.
+   *
+   * A constexpr constructor that will not check arguments, and will NOT
    * normalize the date. Be very carefull with this one!
    */
   constexpr explicit TwoPartDate(int mjd, FDOUBLE secday,
                                  [[maybe_unused]] char c) noexcept
       : _mjd(mjd), _fsec(secday) {}
+
+  /** Construct from MJD and fractional seconds.
+   *
+   * This is only private and should be used in rare cases. Normal users,
+   * should explicitely cast the second argument to FractionalSeconds to
+   * avoid misconceptions (i.e. is the parameters fractional seconds or
+   * fractional days?).
+   */
+  explicit TwoPartDate(int mjd, FDOUBLE secday) noexcept
+      : _mjd(mjd), _fsec(secday) {
+    normalize();
+  }
 
 public:
   /** Constructor from datetime<T>
@@ -302,8 +322,10 @@ public:
     return TwoPartDate(datetime<nanoseconds>::max());
   }
 
-  /** Constructor from a pair of doubles, such that MJD = a + b */
-  explicit TwoPartDate(int b = 0, FDOUBLE s = 0) noexcept : _mjd(b), _fsec(s) {
+  /** Constructor from a pair of doubles, such that TODO */
+  explicit TwoPartDate(int b = 0,
+                       FractionalSeconds s = FractionalSeconds{0}) noexcept
+      : _mjd(b), _fsec(s.fsec) {
     this->normalize();
   }
 
@@ -471,7 +493,7 @@ public:
       FDOUBLE secinday = SEC_PER_DAY + dat(utcmjd, extrasec);
       utcsec = secinday + utcsec;
     }
-    return TwoPartDateUTC(utcmjd, utcsec);
+    return TwoPartDateUTC(utcmjd, FractionalSeconds{utcsec});
   }
 
   /**  Transform an instance to UTC assuming it is in TT */
@@ -599,7 +621,7 @@ public:
 inline TwoPartDate epj2tpd(double epj) noexcept {
   double fday;
   const double mjd = core::epj2mjd(epj, fday);
-  return TwoPartDate(mjd, fday * SEC_PER_DAY);
+  return TwoPartDate(mjd, FractionalSeconds{fday * SEC_PER_DAY});
 }
 } /* namespace dso */
 

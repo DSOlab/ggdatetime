@@ -44,8 +44,10 @@ public:
     this->normalize();
   }
 
-  /** Constructor from a pair of doubles, such that MJD = a + b */
-  explicit TwoPartDate2(int b = 0, FDOUBLE s = 0) noexcept : _mjd(b), _fday(s) {
+  /** Constructor from a pair of doubles, such that TODO */
+  explicit TwoPartDate2(int b = 0,
+                        FractionalSeconds s = FractionalSeconds{0}) noexcept
+      : _mjd(b), _fday(s.fsec / SEC_PER_DAY) {
     this->normalize();
   }
 
