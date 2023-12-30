@@ -30,12 +30,12 @@ private:
   using FDOUBLE = /*long*/ double;
   int _mjd;      /** Mjd */
   FDOUBLE _fday; /** fractional part of day */
-  
+
   /** Construct from MJD and fractional days.
    *
    * This is only private and should be used in rare cases. Normal users,
-   * should explicitely cast the second argument to FractionalSeconds or 
-   * FractionalDays to avoid misconceptions (i.e. is the parameters fractional 
+   * should explicitely cast the second argument to FractionalSeconds or
+   * FractionalDays to avoid misconceptions (i.e. is the parameters fractional
    * seconds or fractional days?).
    */
   explicit TwoPartDate2(int mjd, FDOUBLE fday) noexcept
