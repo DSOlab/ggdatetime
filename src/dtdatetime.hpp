@@ -562,6 +562,28 @@ public:
                                T::template sec_factor<unsigned long>());
     return __add_seconds_impl<T>(nsec, std::integral_constant<bool, TT>{});
   }
+  
+  /** @brief Transform instance to TT, assuming it is in TAI
+   *
+   * The two time scales are connected by the formula:
+   * \f$ TT = TAI + ΔT \$ where \f$ ΔT = TT - TAI = 32.184 [sec] \f$
+   */
+  constexpr datetime<S> tai2tt() const noexcept {
+    constexpr const SecIntType dtat = static_cast<SecIntType>(
+        TT_MINUS_TAI * S::template sec_factor<double>());
+    return datetime(m_mjd, m_sec + dtat);
+  }
+  
+  /** @brief Transform an instance to TAI assuming it is in TT
+   *
+   * The two time scales are connected by the formula:
+   * \f$ TT = TAI + ΔT \$ where \f$ ΔT = TT - TAI = 32.184 [sec] \f$
+   */
+  constexpr datetime<S> tt2tai() const noexcept {
+    constexpr const SecIntType dtat = static_cast<SecIntType>(
+        TT_MINUS_TAI * S::template sec_factor<double>());
+    return datetime(m_mjd, m_sec - dtat);
+  }
 
 private:
   /** @brief Add any second type T where S is of higher resolution than T
@@ -619,6 +641,242 @@ private:
   S m_sec;                   /** Time of day in S precision. */
 };                           /* datetime<S> */
 
+#if __cplusplus >= 202002L
+template <gconcepts::is_sec_dt S>
+#else
+template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
+#endif
+class datetimeUtc {
+public:
+  /** Expose the underlying sec type S */
+  using SecIntType = typename S::underlying_type;
+  /** Expose the underlying modified_julian_day int */
+  typedef modified_julian_day::underlying_type DaysIntType;
+
+  /** Maximum possible date (seconds are 0, modified_julian_day is max
+   * possible.
+   */
+  constexpr static datetimeUtc max() noexcept {
+    return datetimeUtc(modified_julian_day::max(), S(0));
+  }
+
+  /** Minimum possible date (seconds are 0, modified_julian_day is min
+   * possible.
+   */
+  constexpr static datetimeUtc min() noexcept {
+    return datetimeUtc(modified_julian_day::min(), S(0));
+  }
+
+  /** Default constructor. */
+  explicit constexpr datetimeUtc() noexcept : m_mjd(dso::J2000_MJD), m_sec(0){};
+
+  /** Constructor from year, month, day of month and sec type.
+   * If an invalid date is passed-in, the constructor will throw.
+   */
+  constexpr datetimeUtc(year y, month m, day_of_month d, S s)
+      : m_mjd(y, m, d), m_sec(s) {
+    this->normalize();
+  };
+
+  /** Constructor from year, month, day of month and fractional seconds.
+   *  If an invalid date is passed-in, the constructor will throw.
+   */
+  constexpr datetimeUtc(year y, month m, day_of_month d, hours hr, minutes mn,
+                     double fsecs)
+      : m_mjd(y, m, d), m_sec(hr, mn, fsecs) {
+    this->normalize();
+  }
+
+  /** Constructor from year, day of year and fractional seconds.
+   *  If an invalid date is passed-in, the constructor will throw.
+   */
+  constexpr datetimeUtc(year y, day_of_year d, hours hr, minutes mn, double fsecs)
+      : m_mjd(y, d), m_sec(hr, mn, fsecs) {
+    this->normalize();
+  }
+
+  /** Constructor from year, month, day of month, hours, minutes and second
+   * type S.
+   *
+   *  If an invalid date is passed-in, the constructor will throw.
+   */
+  constexpr datetimeUtc(year y, month m, day_of_month d, hours hr = hours(0),
+                     minutes mn = minutes(0), S sec = S(0))
+      : m_mjd(y, m, d), m_sec(hr, mn, sec) {
+    this->normalize();
+  }
+
+  /** Constructor from ymd_date and hms_time<S>. No validation performed. */
+  datetimeUtc(const ymd_date &ymd, const hms_time<S> &hms) noexcept
+      : m_mjd(ymd.yr(), ymd.mn(), ymd.dm()),
+        m_sec(hms.hr(), hms.mn(), hms.nsec()) {
+    this->normalize();
+  }
+
+  /** Constructor from year, day of year, hours, minutes and second type S.
+   *  If an invalid date is passed-in, the constructor will throw.
+   */
+  datetimeUtc(year y, day_of_year d, hours hr = hours(0), minutes mn = minutes(0),
+           S sec = S(0))
+      : m_mjd(y, d), m_sec(hr, mn, sec) {
+    this->normalize();
+  }
+
+  /** Constructor from year, day of year, and second type S.
+   *  If an invalid date is passed-in, the constructor will throw.
+   */
+  datetimeUtc(year y, day_of_year d, S sec) : m_mjd(y, d), m_sec(sec) {
+    this->normalize();
+  }
+
+  /** Constructor from modified julian day, hours, minutes and second type S.
+   *  If an invalid date is passed-in, the constructor will throw.
+   */
+  constexpr datetimeUtc(modified_julian_day mjd, hours hr = hours(0),
+                     minutes mn = minutes(0), S sec = S(0)) noexcept
+      : m_mjd(mjd), m_sec(hr, mn, sec) {
+    this->normalize();
+  }
+
+  /** Constructor from modified julian day, and second type S. */
+  constexpr datetimeUtc(modified_julian_day mjd, S sec = S(0)) noexcept
+      : m_mjd(mjd), m_sec(sec) {
+    this->normalize();
+  }
+
+  /** Get the Modified Julian Day (const). */
+  constexpr modified_julian_day imjd() const noexcept { return m_mjd; }
+
+  /** Get the number of *seconds (as type S) of the instance.
+   * @return The number of *seconds (as type S) of the instance.
+   */
+  constexpr S sec() const noexcept { return m_sec; }
+  
+  /** Cast to any datetime<T> instance, regardless of what T is
+   *
+   * @tparam T    A 'second type'
+   * @return The calling object as an instance of type datetime<T>
+   */
+#if __cplusplus >= 202002L
+  template <gconcepts::is_sec_dt T>
+#else
+  template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
+#endif
+  constexpr datetimeUtc<T> cast_to() const noexcept {
+    return datetimeUtc<T>(m_mjd, dso::cast_to<S, T>(m_sec));
+  }
+
+  /** Overload equality operator. */
+  constexpr bool operator==(const datetimeUtc &d) const noexcept {
+    return m_mjd == d.m_mjd && m_sec == d.m_sec;
+  }
+
+  /** Overload in-equality operator. */
+  constexpr bool operator!=(const datetimeUtc &d) const noexcept {
+    return !(this->operator==(d));
+  }
+
+  /** Overload ">" operator. */
+  constexpr bool operator>(const datetimeUtc &d) const noexcept {
+    return m_mjd > d.m_mjd || (m_mjd == d.m_mjd && m_sec > d.m_sec);
+  }
+
+  /** Overload ">=" operator. */
+  constexpr bool operator>=(const datetimeUtc &d) const noexcept {
+    return m_mjd > d.m_mjd || (m_mjd == d.m_mjd && m_sec >= d.m_sec);
+  }
+
+  /** Overload "<" operator. */
+  constexpr bool operator<(const datetimeUtc &d) const noexcept {
+    return m_mjd < d.m_mjd || (m_mjd == d.m_mjd && m_sec < d.m_sec);
+  }
+
+  /** Overload "<=" operator. */
+  constexpr bool operator<=(const datetimeUtc &d) const noexcept {
+    return m_mjd < d.m_mjd || (m_mjd == d.m_mjd && m_sec <= d.m_sec);
+  }
+
+  /** @brief Normalize a datetime instance.
+   *
+   * Split the date and time parts such that the time part is always less
+   * than one day (i.e. make it time-of-day) and positive (i.e.>=0).
+   * Remove whole days of from the time part and add them to the date part.
+   */
+  constexpr void normalize() noexcept {
+    int extra_sec_in_day;
+    dat(m_mjd, extra_sec_in_day);
+    /* for each MJD, remove integral days. Each MJD may have a different
+     * number of seconds, since we are in UTC time scale. Hence, iteratively
+     * remove whole days using the number of seconds for each day
+     */
+    S daysec;
+    while (m_sec >= (daysec = S::max_in_day + S(extra_sec_in_day *
+                                                S:: template sec_factor<SecIntType>()))) {
+      m_sec -= daysec;
+      ++m_mjd;
+      dat(m_mjd, extra_sec_in_day);
+    }
+  }
+
+#if __cplusplus >= 202002L
+  template <gconcepts::is_sec_dt T>
+#else
+  template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
+#endif
+  constexpr void add_seconds(T nsec) noexcept {
+    constexpr const auto TT = (S::template sec_factor<unsigned long>() >=
+                               T::template sec_factor<unsigned long>());
+    return __add_seconds_impl<T>(nsec, std::integral_constant<bool, TT>{});
+  }
+  
+private:
+  /** @brief Add any second type T where S is of higher resolution than T
+   *
+   * This is the implementation for adding any type of seconds (T), where T is
+   * of lower resolution than S, to the instanece. The input seconds sec will
+   * be cast to S-type and then added to the instance.
+   * This is the implementation function meant to work via tag dispatch, so it
+   * needs a dummy parameter of type std::true_type
+   *
+   * @tparam T Any seconds type where S::max_id_day > T::max_in_day
+   * @param[in] sec Seconds of T-type where S::max_id_day > T::max_in_day
+   * @return nothing
+   */
+  template <class T>
+  constexpr void __add_seconds_impl(T sec, std::true_type) noexcept {
+    S ssec = dso::cast_to<T, S>(sec);
+    m_sec += ssec;
+    this->normalize();
+    return;
+  }
+
+  /** @brief Add any second type T where T is of higher resolution than S
+   *
+   * This is the implementation for adding any type of seconds (T), where T is
+   * of higher resolution than S, to the instance. The instance will first be
+   * cast into T-type, the input seconds are added to the instance and then
+   * the instance will be re-casted to S-type.
+   * This is the implementation function meant to work via tag dispatch, so it
+   * needs a dummy parameter of type std::false_type
+   *
+   * @tparam T Any seconds type where T::max_id_day > S::max_in_day
+   * @param[in] sec Seconds of T-type where T::max_id_day > S::max_in_day
+   * @return nothing
+   *
+   * @warning The input seconds (parameter) is of higher resolution than the
+   *          instance, thus loss of accuracy may happen.
+   */
+  template <class T>
+  constexpr void __add_seconds_impl(T sec, std::false_type) noexcept {
+    m_sec += dso::cast_to<T, S>(sec);
+    this->normalize();
+    return;
+  }
+
+  modified_julian_day m_mjd; /** Modified Julian Day */
+  S m_sec;                   /** Time of day in S precision. */
+};                           /* datetimeUtc<S> */
+
 template <typename S1, typename S2,
           typename = std::enable_if_t<S1::is_of_sec_type>,
           typename = std::enable_if_t<S2::is_of_sec_type>,
@@ -640,27 +898,6 @@ inline RetSecType delta_sec(const datetime<S1> &d1,
     return (d1 - d2).signed_total_sec();
   }
 }
-
-/** @brief Return the difference d1 - d2 in the Date/Time units specified by
- *         the template parameter D
- * @warning Cannot handle the case where leap seconds are not the same at
- *         d1 and d2.
- */
-// template <DateTimeDifferenceType D, typename S,
-//           typename = std::enable_if_t<S::is_of_sec_type>>
-// inline double date_diff(const datetime<S> &d1, const datetime<S> &d2)
-// noexcept {
-//   if constexpr (D == DateTimeDifferenceType::FractionalSeconds) {
-//     /* difference in fractional seconds */
-//     const auto sdiff = delta_sec(d1, d2);
-//     return static_cast<double>(sdiff.signed_total_sec());
-//   } else {
-//     /* difference in fractional days */
-//     const datetime_interval<S> diff = d1.delta_date(d2);
-//     return static_cast<double>(diff.days()) +
-//            static_cast<double>(diff.sec() / S::max_in_day);
-//   }
-// }
 
 /** @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
  *
@@ -705,6 +942,6 @@ inline bool intervals_overlap(const datetime<T> &r1_start,
   }
 }
 
-} // namespace dso
+} /* namespace dso */
 
 #endif

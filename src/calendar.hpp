@@ -10,6 +10,9 @@ namespace dso {
 /** alias for datetime<T> */
 template <typename T> using Datetime = datetime<T>;
 
+/** alias for datetimeUtc<T> */
+template <typename T> using DatetimeUtc = datetimeUtc<T>;
+
 /** alias for TwoPartDate */
 using MjdEpoch = TwoPartDate;
 
