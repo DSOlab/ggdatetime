@@ -264,6 +264,7 @@ int dat(modified_julian_day mjd, int &extra_sec_in_day) noexcept;
 /** A simple struct to signal fractional seconds; just to secure type safety */
 struct FractionalSeconds {
   double fsec;
+  FractionalSeconds(double _fsec = 0e0) noexcept : fsec(_fsec){};
 }; /* FractionalSeconds */
 
 /** A simple struct to signal fractional days; just to secure type safety */

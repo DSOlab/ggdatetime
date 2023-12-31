@@ -262,6 +262,14 @@ template <gconcepts::is_sec_dt S>
 template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
 class datetime {
+private:
+  /** A constructor that will NOT call normalize! use with extra care. The
+   * char parameter is actually usseless, but is there to make sure that
+   * the user intents to use this function.
+   */
+  datetime(modified_julian_day mjd, S sec, [[maybe_unused]] char c) noexcept
+      : m_mjd(mjd), m_sec(sec){};
+
 public:
   /** Expose the underlying sec type S */
   using SecIntType = typename S::underlying_type;
@@ -358,8 +366,8 @@ public:
   /** Constructor from modified julian day, hours, minutes and second type S.
    *  If an invalid date is passed-in, the constructor will throw.
    */
-  constexpr datetime(modified_julian_day mjd, hours hr = hours(0),
-                     minutes mn = minutes(0), S sec = S(0)) noexcept
+  constexpr datetime(modified_julian_day mjd, hours hr, minutes mn,
+                     S sec) noexcept
       : m_mjd(mjd), m_sec(hr, mn, sec) {
     this->normalize();
   }
@@ -368,6 +376,14 @@ public:
   constexpr datetime(modified_julian_day mjd, S sec = S(0)) noexcept
       : m_mjd(mjd), m_sec(sec) {
     this->normalize();
+  }
+
+  /** Constructor from modified julian day, and second type S. This version
+   * will **NOT** call normalize, hence be very very carefull when using it
+   */
+  static constexpr datetime non_normalize_construct(modified_julian_day mjd,
+                                                    S sec) noexcept {
+    return datetime(mjd, sec, 'y');
   }
 
   /** Constructor from GPS Week and Seconds of Week */
@@ -562,7 +578,7 @@ public:
                                T::template sec_factor<unsigned long>());
     return __add_seconds_impl<T>(nsec, std::integral_constant<bool, TT>{});
   }
-  
+
   /** @brief Transform instance to TT, assuming it is in TAI
    *
    * The two time scales are connected by the formula:
@@ -573,7 +589,7 @@ public:
         TT_MINUS_TAI * S::template sec_factor<double>());
     return datetime(m_mjd, m_sec + dtat);
   }
-  
+
   /** @brief Transform an instance to TAI assuming it is in TT
    *
    * The two time scales are connected by the formula:
@@ -584,6 +600,25 @@ public:
         TT_MINUS_TAI * S::template sec_factor<double>());
     return datetime(m_mjd, m_sec - dtat);
   }
+
+  /** @brief Transform an instance to GPS Time assuming it is in TAI
+   *
+   * The two time scales are connected by the formula:
+   * \f$ TAI = GPSTime + 19 [sec] \f$
+   */
+  constexpr datetime<S> tai2gps() const noexcept {
+    constexpr const SecIntType dt =
+        static_cast<SecIntType>(19 * S::template sec_factor<SecIntType>());
+    return datetime(m_mjd, m_sec - dt);
+  }
+
+  constexpr datetime<S> gps2tai() const noexcept {
+    constexpr const SecIntType dt =
+        static_cast<SecIntType>(19 * S::template sec_factor<SecIntType>());
+    return datetime(m_mjd, m_sec + dt);
+  }
+
+  constexpr datetime<S> gps2tt() const noexcept { return gps2tai().tai2tt(); }
 
 private:
   /** @brief Add any second type T where S is of higher resolution than T
@@ -622,14 +657,6 @@ private:
    * @warning The input seconds (parameter) is of higher resolution than the
    *          instance, thus loss of accuracy may happen.
    */
-  // template <class T>
-  // constexpr void __add_seconds_impl(T sec, std::false_type) noexcept {
-  //   T sect = dso::cast_to<S, T>(m_sec);
-  //   sect += sec;
-  //   m_sec = dso::cast_to<T, S>(sect);
-  //   this->normalize();
-  //   return;
-  // }
   template <class T>
   constexpr void __add_seconds_impl(T sec, std::false_type) noexcept {
     m_sec += dso::cast_to<T, S>(sec);
@@ -682,7 +709,7 @@ public:
    *  If an invalid date is passed-in, the constructor will throw.
    */
   constexpr datetimeUtc(year y, month m, day_of_month d, hours hr, minutes mn,
-                     double fsecs)
+                        double fsecs)
       : m_mjd(y, m, d), m_sec(hr, mn, fsecs) {
     this->normalize();
   }
@@ -690,7 +717,8 @@ public:
   /** Constructor from year, day of year and fractional seconds.
    *  If an invalid date is passed-in, the constructor will throw.
    */
-  constexpr datetimeUtc(year y, day_of_year d, hours hr, minutes mn, double fsecs)
+  constexpr datetimeUtc(year y, day_of_year d, hours hr, minutes mn,
+                        double fsecs)
       : m_mjd(y, d), m_sec(hr, mn, fsecs) {
     this->normalize();
   }
@@ -701,7 +729,7 @@ public:
    *  If an invalid date is passed-in, the constructor will throw.
    */
   constexpr datetimeUtc(year y, month m, day_of_month d, hours hr = hours(0),
-                     minutes mn = minutes(0), S sec = S(0))
+                        minutes mn = minutes(0), S sec = S(0))
       : m_mjd(y, m, d), m_sec(hr, mn, sec) {
     this->normalize();
   }
@@ -716,8 +744,8 @@ public:
   /** Constructor from year, day of year, hours, minutes and second type S.
    *  If an invalid date is passed-in, the constructor will throw.
    */
-  datetimeUtc(year y, day_of_year d, hours hr = hours(0), minutes mn = minutes(0),
-           S sec = S(0))
+  datetimeUtc(year y, day_of_year d, hours hr = hours(0),
+              minutes mn = minutes(0), S sec = S(0))
       : m_mjd(y, d), m_sec(hr, mn, sec) {
     this->normalize();
   }
@@ -732,8 +760,8 @@ public:
   /** Constructor from modified julian day, hours, minutes and second type S.
    *  If an invalid date is passed-in, the constructor will throw.
    */
-  constexpr datetimeUtc(modified_julian_day mjd, hours hr = hours(0),
-                     minutes mn = minutes(0), S sec = S(0)) noexcept
+  constexpr datetimeUtc(modified_julian_day mjd, hours hr, minutes mn,
+                        S sec) noexcept
       : m_mjd(mjd), m_sec(hr, mn, sec) {
     this->normalize();
   }
@@ -751,7 +779,7 @@ public:
    * @return The number of *seconds (as type S) of the instance.
    */
   constexpr S sec() const noexcept { return m_sec; }
-  
+
   /** Cast to any datetime<T> instance, regardless of what T is
    *
    * @tparam T    A 'second type'
@@ -796,6 +824,42 @@ public:
     return m_mjd < d.m_mjd || (m_mjd == d.m_mjd && m_sec <= d.m_sec);
   }
 
+  /** @brief Cast to year, month, day of month */
+  constexpr ymd_date as_ymd() const noexcept { return m_mjd.to_ymd(); }
+
+  /** @brief Cast to year, day_of_year */
+  constexpr ydoy_date as_ydoy() const noexcept { return m_mjd.to_ydoy(); }
+
+  /** Operator '-' between two instances, produces a (signed) interval */
+  constexpr datetime_interval<S>
+  operator-(const datetimeUtc<S> &dt) const noexcept {
+    /* big date at d1, small at d2 */
+    auto d1 = *this;
+    auto d2 = dt;
+    int sgn = 1;
+    if (*this < dt) {
+      d1 = dt;
+      d2 = *this;
+      sgn = -1;
+    }
+    /* let's see what happens with leap seconds */
+    int dat1 = dso::dat(d1.imjd());
+    int dat2 = dso::dat(d2.imjd());
+    /* seconds, could be negative */
+    SecIntType secs =
+        d1.sec().as_underlying_type() - d2.sec().as_underlying_type();
+    /* branchless TODO which is faster ? */
+    d1.m_mjd = d1.m_mjd - modified_julian_day(1 * (secs < 0));
+    secs = secs + S::max_in_day * (secs < 0);
+    DaysIntType days =
+        d1.imjd().as_underlying_type() - d2.imjd().as_underlying_type();
+    SecIntType ddat((dat1 - dat2) * S::template sec_factor<SecIntType>());
+    /* note that id days are 0 and the sign is negative, it must be applied to
+     * the seconds part */
+    return datetime_interval<S>(
+        days * sgn, S(std::copysign(secs + ddat, (days == 0) * sgn)));
+  }
+
   /** @brief Normalize a datetime instance.
    *
    * Split the date and time parts such that the time part is always less
@@ -810,8 +874,9 @@ public:
      * remove whole days using the number of seconds for each day
      */
     S daysec;
-    while (m_sec >= (daysec = S::max_in_day + S(extra_sec_in_day *
-                                                S:: template sec_factor<SecIntType>()))) {
+    while (m_sec >= (daysec = S(S::max_in_day +
+                                extra_sec_in_day *
+                                    S::template sec_factor<SecIntType>()))) {
       m_sec -= daysec;
       ++m_mjd;
       dat(m_mjd, extra_sec_in_day);
@@ -828,7 +893,7 @@ public:
                                T::template sec_factor<unsigned long>());
     return __add_seconds_impl<T>(nsec, std::integral_constant<bool, TT>{});
   }
-  
+
 private:
   /** @brief Add any second type T where S is of higher resolution than T
    *

@@ -10,7 +10,7 @@ int main() {
   printf("Using Normal TwoPartDate::add_seconds()\n");
   printf("=================================================================\n");
   auto start = std::chrono::high_resolution_clock::now();
-  TwoPartDate d(60224, 0e0);
+  TwoPartDate d(60224, FractionalSeconds(0e0));
   printf("Date: %d %.15f\n", d.imjd(), d.seconds());
 
   for (long i = 0; i < 1'000'000'000; i++) {
@@ -19,21 +19,21 @@ int main() {
   printf("Date: %d %.15f Dsec=%.5e\n", d.imjd(), d.seconds(),
          std::abs(1e0 - d.seconds()));
 
-  d = TwoPartDate(60224, 0e0);
+  d = TwoPartDate(60224, FractionalSeconds(0e0));
   for (long i = 0; i < 1'000'000; i++) {
     d.add_seconds(1e-6);
   }
   printf("Date: %d %.15f Dsec=%.5e\n", d.imjd(), d.seconds(),
          std::abs(1e0 - d.seconds()));
 
-  d = TwoPartDate(60224, 0e0);
+  d = TwoPartDate(60224, FractionalSeconds(0e0));
   for (long i = 0; i < 1'000; i++) {
     d.add_seconds(1e-3);
   }
   printf("Date: %d %.15f Dsec=%.5e\n", d.imjd(), d.seconds(),
          std::abs(1e0 - d.seconds()));
 
-  d = TwoPartDate(60224, 0e0);
+  d = TwoPartDate(60224, FractionalSeconds(0e0));
   for (long i = 0; i < 1; i++) {
     d.add_seconds(1);
   }
@@ -47,7 +47,7 @@ int main() {
   printf("Using Kahan Summation\n");
   printf("=================================================================\n");
   start = std::chrono::high_resolution_clock::now();
-  d = TwoPartDate(60224, 0e0);
+  d = TwoPartDate(60224, FractionalSeconds(0e0));
   printf("Date: %d %.15f\n", d.imjd(), d.seconds());
 
   double err = 0;
@@ -57,7 +57,7 @@ int main() {
   printf("Date: %d %.15f Dsec=%.5e\n", d.imjd(), d.seconds(),
          std::abs(1e0 - d.seconds()));
 
-  d = TwoPartDate(60224, 0e0);
+  d = TwoPartDate(60224, FractionalSeconds(0e0));
   err = 0;
   for (long i = 0; i < 1'000'000; i++) {
     d.add_seconds(1e-6, err);
@@ -65,7 +65,7 @@ int main() {
   printf("Date: %d %.15f Dsec=%.5e\n", d.imjd(), d.seconds(),
          std::abs(1e0 - d.seconds()));
 
-  d = TwoPartDate(60224, 0e0);
+  d = TwoPartDate(60224, FractionalSeconds(0e0));
   err = 0;
   for (long i = 0; i < 1'000; i++) {
     d.add_seconds(1e-3, err);
@@ -73,7 +73,7 @@ int main() {
   printf("Date: %d %.15f Dsec=%.5e\n", d.imjd(), d.seconds(),
          std::abs(1e0 - d.seconds()));
 
-  d = TwoPartDate(60224, 0e0);
+  d = TwoPartDate(60224, FractionalSeconds(0e0));
   err = 0;
   for (long i = 0; i < 1; i++) {
     d.add_seconds(1, err);

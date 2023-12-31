@@ -479,6 +479,19 @@ public:
     return TwoPartDate(_mjd, _fsec - dtat);
   }
 
+  /** @brief Transform an instance to GPS Time assuming it is in TAI
+   *
+   * The two time scales are connected by the formula:
+   * \f$ TAI = GPSTime + 19 [sec] \f$
+   */
+  TwoPartDate tai2gps() const noexcept {
+    return TwoPartDate(_mjd, _fsec - 19e0);
+  }
+
+  TwoPartDate gps2tai() const noexcept {
+    return TwoPartDate(_mjd, _fsec + 19e0);
+  }
+
   /**  Transform an instance to UTC assuming it is in TAI */
   /* taisec = _fsec + dat(modified_julian_day(_mjd)); */
   TwoPartDateUTC tai2utc() const noexcept {

@@ -313,6 +313,39 @@ dso::datetime<S> from_char(const char *str, const char **end = nullptr) {
   return datetime<S>(ymd, hms);
 }
 
+template <YMDFormat FD, HMSFormat FT, typename S>
+dso::datetimeUtc<S> from_utc_char(const char *str, const char **end = nullptr) {
+  const char *stop;
+  /* resolve date part */
+  const ymd_date ymd(ReadInDate<FD>::read(str, &stop));
+  if (!ymd.is_valid()) {
+    fprintf(stderr, "[ERROR] Failed to resolved read-in date (traceback: %s)\n",
+            __func__);
+    throw std::runtime_error("[ERROR] Failed to resolved read-in date\n");
+  }
+  /* resolve time */
+  str = stop;
+  const hms_time<S> hms(ReadInTime<S, FT>::read(str, &stop));
+  if (!hms.is_valid()) {
+    /* not always an error, if seconds are 60, it could be ok on a leap
+     * insertion day
+     */
+    int leap;
+    dat(modified_julian_day(ymd), leap);
+    if (!hms.is_valid(leap)) {
+      fprintf(stderr,
+              "[ERROR] Failed to resolved read-in time (traceback: %s)\n",
+              __func__);
+      throw std::runtime_error("[ERROR] Failed to resolved read-in time\n");
+    }
+  }
+  /* set output pointer */
+  if (end)
+    *end = stop;
+  /* compile datetime instance */
+  return datetimeUtc<S>(ymd, hms);
+}
+
 /** Read in a Date and Time of Day string and resolve it to a TwoPartDate
  *  instance.
  *

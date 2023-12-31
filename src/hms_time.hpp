@@ -79,13 +79,13 @@ public:
   /** Convert time-of-day to seconds-of-day for any second type (as double)
    */
   template <typename Sto, typename = std::enable_if_t<Sto::is_of_sec_type>>
-  double fractional_seconds() const noexcept {
+  FractionalSeconds fractional_seconds() const noexcept {
     const double scale =
         Sto::template sec_factor<double>() / S::template sec_factor<double>();
     const SecIntType b =
         mn().as_underlying_type() * 60L + hr().as_underlying_type() * 60L * 60L;
-    return (nsec().as_underlying_type() * scale) +
-           (b * Sto::template sec_factor<double>());
+    return FractionalSeconds((nsec().as_underlying_type() * scale) +
+                             (b * Sto::template sec_factor<double>()));
   }
 
   /** Constructor from any second type */

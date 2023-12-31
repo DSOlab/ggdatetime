@@ -166,6 +166,33 @@ const char *to_char(const datetime<S> &d, char *buffer) {
   return buffer;
 }
 
+template <YMDFormat FD, HMSFormat FT, typename S>
+const char *to_char(const datetimeUtc<S> &d, char *buffer) {
+  /* write date to buffer */
+  ymd_date ymd(d.as_ymd());
+  if (SpitDate<FD>::spit(ymd, buffer) != SpitDate<FD>::numChars) {
+    throw std::runtime_error("[ERROR] Failed to format date to string\n");
+  }
+  /* move pointer to write time */
+  char *ptr = buffer + SpitDate<FD>::numChars;
+  *ptr = ' ';
+  ++ptr;
+  /* write time of day to buffer */
+  hms_time<S> hms(d.sec());
+  const nanoseconds ns(cast_to<S, nanoseconds>(d.sec()));
+  /* in case of UTC, this will be 24h:00m:00s. Re-arange to 23:59:60 */
+  if (ns == nanoseconds(nanoseconds::max_in_day)) {
+    hms = hms_time<nanoseconds>(
+        hours(23), minutes(59),
+        nanoseconds(60 * nanoseconds::sec_factor<long>()));
+  }
+  if (SpitTime<nanoseconds, FT>::spit(hms, ptr) !=
+      SpitTime<nanoseconds, FT>::numChars) {
+    throw std::runtime_error("[ERROR] Failed to format time to string\n");
+  }
+  return buffer;
+}
+
 template <YMDFormat FD, HMSFormat FT>
 const char *to_char(const TwoPartDate &d, char *buffer) {
   /* write date to buffer */

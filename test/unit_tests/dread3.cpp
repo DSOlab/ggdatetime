@@ -118,7 +118,8 @@ int main() {
   for (auto const &d : leap_insertion_dates) {
 
     /* one seconds before midnight */
-    TwoPartDate tai(modified_julian_day(d).as_underlying_type(), 0e0);
+    TwoPartDate tai(modified_julian_day(d).as_underlying_type(),
+                    FractionalSeconds(0e0));
     tai.add_seconds(86400 - 1);
     {
       TwoPartDate d1;
@@ -145,7 +146,8 @@ int main() {
       /* one more nanosec will take to the next day */
       tai.add_seconds(1e-9, err);
       assert(tai.imjd() == d1.imjd() + 1);
-      d1 = TwoPartDate(modified_julian_day(d).as_underlying_type() + 1, 0e0);
+      d1 = TwoPartDate(modified_julian_day(d).as_underlying_type() + 1,
+                       FractionalSeconds(0e0));
       assert(fequal(d1, tai));
       assert(equal_within_ulps(d1.seconds(), tai.seconds(), 1));
 
@@ -153,7 +155,8 @@ int main() {
       // printf("%d %.15f\n", d1.imjd(), d1.seconds());
     }
 
-    TwoPartDateUTC utc(modified_julian_day(d).as_underlying_type(), 0e0);
+    TwoPartDateUTC utc(modified_julian_day(d).as_underlying_type(),
+                       FractionalSeconds(0e0));
     utc.add_seconds(86400 - 1);
     {
       TwoPartDateUTC d1;
