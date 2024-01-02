@@ -402,6 +402,11 @@ public:
    */
   constexpr S sec() const noexcept { return m_sec; }
 
+  /** Seconds in day as fractional days */
+  double fractional_days() const noexcept {
+    return dso::to_fractional_days<S>(m_sec);
+  }
+
   /** Operator '+' where the right-hand-side is an interval.
    * Note that the addition here is algebraic, i.e. the interval is added to
    * or subtracted from the instance, depending on its sign.
@@ -585,8 +590,8 @@ public:
    * \f$ TT = TAI + ΔT \$ where \f$ ΔT = TT - TAI = 32.184 [sec] \f$
    */
   constexpr datetime<S> tai2tt() const noexcept {
-    constexpr const SecIntType dtat = static_cast<SecIntType>(
-        TT_MINUS_TAI * S::template sec_factor<double>());
+    constexpr const S dtat =
+        dso::cast_to<nanoseconds, S>(nanoseconds(TT_MINUS_TAI_IN_NANOSEC));
     return datetime(m_mjd, m_sec + dtat);
   }
 
@@ -606,19 +611,17 @@ public:
    * The two time scales are connected by the formula:
    * \f$ TAI = GPSTime + 19 [sec] \f$
    */
-  constexpr datetime<S> tai2gps() const noexcept {
-    constexpr const SecIntType dt =
-        static_cast<SecIntType>(19 * S::template sec_factor<SecIntType>());
-    return datetime(m_mjd, m_sec - dt);
+  [[nodiscard]] constexpr datetime<S> tai2gps() const noexcept {
+    return datetime(m_mjd, m_sec - dso::cast_to<seconds, S>(seconds(19)));
   }
 
-  constexpr datetime<S> gps2tai() const noexcept {
-    constexpr const SecIntType dt =
-        static_cast<SecIntType>(19 * S::template sec_factor<SecIntType>());
-    return datetime(m_mjd, m_sec + dt);
+  [[nodiscard]] constexpr datetime<S> gps2tai() const noexcept {
+    return datetime(m_mjd, m_sec + dso::cast_to<seconds, S>(seconds(19)));
   }
 
-  constexpr datetime<S> gps2tt() const noexcept { return gps2tai().tai2tt(); }
+  [[nodiscard]] constexpr datetime<S> gps2tt() const noexcept {
+    return gps2tai().tai2tt();
+  }
 
 private:
   /** @brief Add any second type T where S is of higher resolution than T

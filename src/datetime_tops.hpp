@@ -415,6 +415,18 @@ template <typename Ssrc, typename Strg,
           typename = std::enable_if_t<Strg::is_of_sec_type>>
 #endif
 constexpr Strg cast_to(Ssrc s) noexcept {
+  /* underlying int type of the S with the highest resolution */
+  using SecIntType = std::conditional_t<
+      (Ssrc::template sec_factor<long>() > Strg::template sec_factor<long>()),
+      typename Ssrc::underlying_type, typename Strg::underlying_type>;
+
+  if constexpr (Strg::template sec_factor<long>() >=
+                Ssrc::template sec_factor<long>()) {
+    constexpr const SecIntType factor =
+        Strg::template sec_factor<SecIntType>() /
+        Ssrc::template sec_factor<SecIntType>();
+    return Strg(s.__member_ref__() * factor);
+  } else {
   // this is tricky! We must first compute the numerator and then the fraction.
   // why? check this out
   // seconds _s1 = cast_to<milliseconds, seconds>(milliseconds{2000L});
@@ -422,6 +434,7 @@ constexpr Strg cast_to(Ssrc s) noexcept {
   // (2000*1)/1000 = 2 which is correct
   const auto numerator = s.__member_ref__() * Strg::template sec_factor<long>();
   return Strg(numerator / Ssrc::template sec_factor<long>());
+  }
 }
 
 } /* namespace dso */
