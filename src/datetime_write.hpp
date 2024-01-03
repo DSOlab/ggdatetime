@@ -149,7 +149,6 @@ const char *to_char(const hms_time<S> &hms, char *buffer) {
  */
 template <YMDFormat FD, HMSFormat FT, typename S>
 const char *to_char(const datetime<S> &d, char *buffer) {
-  printf("\tNote that the date is: %ld %ld\n", d.imjd().as_underlying_type(), d.sec().as_underlying_type());
   /* write date to buffer */
   ymd_date ymd(d.as_ymd());
   if (SpitDate<FD>::spit(ymd, buffer) != SpitDate<FD>::numChars) {

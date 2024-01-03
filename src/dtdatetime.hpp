@@ -614,6 +614,11 @@ public:
   [[nodiscard]] constexpr datetime<S> tai2gps() const noexcept {
     return datetime(m_mjd, m_sec - dso::cast_to<seconds, S>(seconds(19)));
   }
+  
+  [[nodiscard]] constexpr datetime<S> tt2gps() const noexcept {
+    return datetime(m_mjd, m_sec - dso::cast_to<milliseconds, S>(
+                                       milliseconds(19000 + 32184)));
+  }
 
   [[nodiscard]] constexpr datetime<S> gps2tai() const noexcept {
     return datetime(m_mjd, m_sec + dso::cast_to<seconds, S>(seconds(19)));
