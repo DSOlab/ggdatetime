@@ -636,6 +636,21 @@ inline TwoPartDate epj2tpd(double epj) noexcept {
   const double mjd = core::epj2mjd(epj, fday);
   return TwoPartDate(mjd, FractionalSeconds{fday * SEC_PER_DAY});
 }
+
+/** Cast a TwoPartDate instance to an instance of type datetime<T>
+ * TODO needs testing!
+ */
+#if __cplusplus >= 202002L
+template <gconcepts::is_sec_dt T>
+#else
+template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
+#endif
+inline datetime<T> from_mjdepoch(const TwoPartDate &t) noexcept {
+  dso::nanoseconds nsec(static_cast<nanoseconds::underlying_type>(
+      t.seconds() * nanoseconds::sec_factor<double>()));
+  return datetime<T>(t.imjd(), cast_to<nanoseconds,T>(nsec));
+}
+
 } /* namespace dso */
 
 #endif
