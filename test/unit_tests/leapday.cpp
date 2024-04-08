@@ -44,11 +44,11 @@ int main() {
   for (auto const &d : leap_insertion_dates) {
     TwoPartDate tai(modified_julian_day(d).as_underlying_type());
     for (int i = 0; i < 86400 - 1; i++) {
-      tai.add_seconds(1e0);
+      tai.add_seconds(FractionalSeconds(1e0));
     }
     TwoPartDateUTC utc(modified_julian_day(d).as_underlying_type());
     for (int i = 0; i < 86400 - 1; i++) {
-      utc.add_seconds(1e0);
+      utc.add_seconds(FractionalSeconds(1e0));
     }
 
     /* we are now at 23:59:59 */
@@ -60,8 +60,8 @@ int main() {
     const auto utc2359(utc);
 
     /* add one more seconds */
-    tai.add_seconds(1e0);
-    utc.add_seconds(1e0);
+    tai.add_seconds(FractionalSeconds(1e0));
+    utc.add_seconds(FractionalSeconds(1e0));
     assert(tai.imjd() == utc.imjd() + 1);
     /* TAI seconds should be 0 */
     assert(tai.sec_of_day<nanoseconds>() == 0e0 &&
@@ -76,8 +76,8 @@ int main() {
     // tai.sec_of_day<nanoseconds>(), buf2, utc.sec_of_day<nanoseconds>());
 
     /* add one more seconds */
-    tai.add_seconds(1e0);
-    utc.add_seconds(1e0);
+    tai.add_seconds(FractionalSeconds(1e0));
+    utc.add_seconds(FractionalSeconds(1e0));
     assert(tai.imjd() == utc.imjd());
     /* UTC + 1[sec] = TAI */
     assert(utc.sec_of_day<nanoseconds>() + S == tai.sec_of_day<nanoseconds>());

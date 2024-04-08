@@ -14,28 +14,28 @@ int main() {
   printf("Date: %d %.15f\n", d.imjd(), d.seconds());
 
   for (long i = 0; i < 1'000'000'000; i++) {
-    d.add_seconds(1e-9);
+    d.add_seconds(FractionalSeconds(1e-9));
   }
   printf("Date: %d %.15f Dsec=%.5e\n", d.imjd(), d.seconds(),
          std::abs(1e0 - d.seconds()));
 
   d = TwoPartDate(60224, FractionalSeconds(0e0));
   for (long i = 0; i < 1'000'000; i++) {
-    d.add_seconds(1e-6);
+    d.add_seconds(FractionalSeconds(1e-6));
   }
   printf("Date: %d %.15f Dsec=%.5e\n", d.imjd(), d.seconds(),
          std::abs(1e0 - d.seconds()));
 
   d = TwoPartDate(60224, FractionalSeconds(0e0));
   for (long i = 0; i < 1'000; i++) {
-    d.add_seconds(1e-3);
+    d.add_seconds(FractionalSeconds(1e-3));
   }
   printf("Date: %d %.15f Dsec=%.5e\n", d.imjd(), d.seconds(),
          std::abs(1e0 - d.seconds()));
 
   d = TwoPartDate(60224, FractionalSeconds(0e0));
   for (long i = 0; i < 1; i++) {
-    d.add_seconds(1);
+    d.add_seconds(FractionalSeconds(1));
   }
   printf("Date: %d %.15f Dsec=%.5e\n", d.imjd(), d.seconds(),
          std::abs(1e0 - d.seconds()));

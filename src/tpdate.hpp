@@ -61,6 +61,13 @@ private:
       : _mjd(mjd), _fsec(secday) {
     normalize();
   }
+  
+  /** Add seconds to instance, taking into account leap seconds.
+   */
+  void add_seconds(FDOUBLE sec) noexcept {
+    _fsec += sec;
+    this->normalize();
+  }
 
 public:
   /** Constructor from datetime<T> */
@@ -114,12 +121,11 @@ public:
 
   /** @brief Transform the (integral part of the) date to Year Month Day */
   ymd_date to_ymd() const noexcept { return core::mjd2ymd((long)_mjd); }
-
+  
   /** Add seconds to instance, taking into account leap seconds.
    */
-  void add_seconds(FDOUBLE sec) noexcept {
-    _fsec += sec;
-    this->normalize();
+  void add_seconds(FractionalSeconds fsec) noexcept {
+    this->add_seconds(fsec.fsec);
   }
 
   /** Add seconds to instance and return the "Kahan summation" error.
@@ -276,6 +282,14 @@ private:
       : _mjd(mjd), _fsec(secday) {
     normalize();
   }
+  
+  /** Add seconds to instance.
+   * @warning Does not take into account leap seconds.
+   */
+  void add_seconds(FDOUBLE sec) noexcept {
+    _fsec += sec;
+    this->normalize();
+  }
 
 public:
   /** Constructor from datetime<T>
@@ -367,9 +381,8 @@ public:
   /** Add seconds to instance.
    * @warning Does not take into account leap seconds.
    */
-  void add_seconds(FDOUBLE sec) noexcept {
-    _fsec += sec;
-    this->normalize();
+  void add_seconds(FractionalSeconds fsec) noexcept {
+    this->add_seconds(fsec.fsec);
   }
 
   /** Add seconds to instance and return the "Kahan summation" error.

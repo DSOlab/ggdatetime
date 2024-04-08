@@ -120,7 +120,7 @@ int main() {
     /* one seconds before midnight */
     TwoPartDate tai(modified_julian_day(d).as_underlying_type(),
                     FractionalSeconds(0e0));
-    tai.add_seconds(86400 - 1);
+    tai.add_seconds(FractionalSeconds(86400 - 1));
     {
       TwoPartDate d1;
       std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);
@@ -157,7 +157,7 @@ int main() {
 
     TwoPartDateUTC utc(modified_julian_day(d).as_underlying_type(),
                        FractionalSeconds(0e0));
-    utc.add_seconds(86400 - 1);
+    utc.add_seconds(FractionalSeconds(86400 - 1));
     {
       TwoPartDateUTC d1;
       std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);

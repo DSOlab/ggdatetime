@@ -50,7 +50,7 @@ int main() {
           for (int j = 0; j < 10; j++) {
             dv.push_back(s + j);
           }
-          tpd1.add_seconds(s / SEC_PER_DAY);
+          tpd1.add_seconds(dso::FractionalSeconds(s / SEC_PER_DAY));
           for (int j = 0; j < 10; j++) {
             if (dv[j] < 0e0)
               ++ok;
