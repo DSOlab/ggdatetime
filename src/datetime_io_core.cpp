@@ -5,7 +5,7 @@
 
 inline const char *skipws(const char *line) noexcept {
   const char *c = line;
-  while (*c && (*c == ' ' || *c == '/' || *c == '-' || *c == 'T' || *c == ':'))
+  while (*c && (*c == ' ' || *c == '/' || *c == '-' || *c == 'T' || *c == ':' || *c == '_'))
     ++c;
   return c;
 }

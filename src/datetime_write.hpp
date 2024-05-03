@@ -22,9 +22,11 @@ template <YMDFormat F> class SpitDate {};
 template <> class SpitDate<YMDFormat::YYYYMMDD> {
 public:
   static const int numChars = 10;
-  static int spit(const ymd_date &ymd, char *buffer) noexcept {
-    return std::sprintf(buffer, "%4d/%02d/%02d", ymd.yr().as_underlying_type(),
+  static int spit(const ymd_date &ymd, char *buffer, char delimeter='/') noexcept {
+    return std::sprintf(buffer, "%4d%c%02d%c%02d", ymd.yr().as_underlying_type(),
+                        delimeter,
                         ymd.mn().as_underlying_type(),
+                        delimeter,
                         ymd.dm().as_underlying_type());
   }
 };
@@ -33,9 +35,11 @@ public:
 template <> class SpitDate<YMDFormat::DDMMYYYY> {
 public:
   static const int numChars = 10;
-  static int spit(const ymd_date &ymd, char *buffer) noexcept {
-    return std::sprintf(buffer, "%02d/%02d/%4d", ymd.dm().as_underlying_type(),
+  static int spit(const ymd_date &ymd, char *buffer, char delimeter='/') noexcept {
+    return std::sprintf(buffer, "%02d%c%02d%c%4d", ymd.dm().as_underlying_type(),
+                        delimeter,
                         ymd.mn().as_underlying_type(),
+                        delimeter,
                         ymd.yr().as_underlying_type());
   }
 };
@@ -56,8 +60,8 @@ public:
  *             to represent the date
  * @return On success, a pointer to \p buffer
  */
-template <YMDFormat F> const char *to_char(const ymd_date &ymd, char *buffer) {
-  if (SpitDate<F>::spit(ymd, buffer) != SpitDate<F>::numChars) {
+template <YMDFormat F> const char *to_char(const ymd_date &ymd, char *buffer, char delimeter='/') {
+  if (SpitDate<F>::spit(ymd, buffer, delimeter) != SpitDate<F>::numChars) {
     throw std::runtime_error("[ERROR] Failed to format date to string\n");
   }
   return buffer;

@@ -20,7 +20,7 @@ template <YMDFormat F> class ReadInDate {};
 /** A Date parser expecting a Date-format of type YYYY:MM:DD
  *
  * The delimeter character (here denoted ':'), can actually be any character
- * of: ' ', '/', '-', 'T' and ':', so that a date can be given as e.g.
+ * of: ' ', '/', '-', 'T', '_' and ':', so that a date can be given as e.g.
  * "2023:10:07", or
  * "2023/10/07", or
  * "2023 10 07", or
@@ -64,7 +64,7 @@ public:
 /** A Date parser expecting a Date-format of type DD:MM:YYYY
  *
  * The delimeter character (here denoted ':'), can actually be any character
- * of: ' ', '/', '-', 'T' and ':', so that a date can be given as e.g.
+ * of: ' ', '/', '-', 'T', '_' and ':', so that a date can be given as e.g.
  * "07:10:2023" or
  * "07/10/2023" or
  * "07 10 2023" or
@@ -109,7 +109,7 @@ public:
  *  Year
  *
  * The delimeter character (here denoted ':'), can actually be any character
- * of: ' ', '/', '-', 'T' and ':', so that a date can be given as e.g.
+ * of: ' ', '/', '-', 'T', '_' and ':', so that a date can be given as e.g.
  * "2023:365" or
  * "2023-365" or
  * "2023/365" or
@@ -164,7 +164,7 @@ class ReadInTime {
 /** A Time-Of-Day parser expecting a Time-format of type HHMMSS
  *
  * The delimeter character (here denoted ':'), can actually be any character
- * of: ' ', '/', '-', 'T' and ':', so that a date can be given as e.g.
+ * of: ' ', '/', '-', 'T', '_' and ':', so that a date can be given as e.g.
  * "23:59:59", or
  * "23/59/59", or
  * "23T59T59", or
@@ -216,7 +216,7 @@ public:
 /** A Time-Of-Day parser expecting a Time-format of type HHMMSS.SSSSSSS...
  *
  * The delimeter character (here denoted ':'), can actually be any character
- * of: ' ', '/', '-', 'T' and ':', so that a date can be given as e.g.
+ * of: ' ', '/', '-', 'T', '_' and ':', so that a date can be given as e.g.
  * "23:59:59.012345678912", or
  * "23/59/59.012345678912", or
  * "23T59T59.012345678912", or
