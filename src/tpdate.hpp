@@ -343,6 +343,9 @@ public:
     this->normalize();
   }
 
+  constexpr explicit TwoPartDate(modified_julian_day mjd) noexcept
+      : _mjd(mjd.as_underlying_type()), _fsec(0){};
+
   /** Get the MJD as an intgral number, i.e. no fractional part */
   int imjd() const noexcept { return _mjd; }
 
@@ -377,6 +380,9 @@ public:
 
   /** @brief Transform the (integral part of the) date to Year Month Day */
   ymd_date to_ymd() const noexcept { return core::mjd2ymd((long)_mjd); }
+  
+  /** @brief Transform the (integral part of the) date to Year Day-Of-Year */
+  ydoy_date to_ydoy() const noexcept { return modified_julian_day(_mjd).to_ydoy(); }
 
   /** Add seconds to instance.
    * @warning Does not take into account leap seconds.
