@@ -443,6 +443,16 @@ public:
     return TwoPartDate(_mjd - d._mjd, _fsec - d._fsec);
   }
 
+  /** Remove integral days */
+  TwoPartDate operator-(const modified_julian_day days) const noexcept {
+    return TwoPartDate(_mjd - days.as_underlying_type(), _fsec);
+  }
+  
+  /** Add integral days */
+  TwoPartDate operator+(const modified_julian_day days) const noexcept {
+    return TwoPartDate(_mjd + days.as_underlying_type(), _fsec);
+  }
+
   /** Add two instances.
    *
    * In this case, the second instance can be though of a datetime interval
