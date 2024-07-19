@@ -346,14 +346,14 @@ public:
   constexpr explicit TwoPartDate(modified_julian_day mjd) noexcept
       : _mjd(mjd.as_underlying_type()), _fsec(0){};
 
-  constexpr explicit TwoPartDate(year y, month m, day_of_month d,
+  explicit TwoPartDate(year y, month m, day_of_month d,
                                  double sec_of_day=0e0)
       : _mjd(modified_julian_day(y, m, d).as_underlying_type()),
         _fsec(sec_of_day) {
     this->normalize();
   }
   
-  constexpr explicit TwoPartDate(year y, day_of_year d,
+  explicit TwoPartDate(year y, day_of_year d,
                                  double sec_of_day=0e0)
       : _mjd(modified_julian_day(y, d).as_underlying_type()),
         _fsec(sec_of_day) {
