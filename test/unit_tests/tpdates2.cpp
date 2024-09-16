@@ -61,8 +61,6 @@ int main() {
              PRECISION_NSEC);
 
       ++testnr;
-      if (testnr % 10)
-        printf("%d/%ld\r", testnr, num_tests);
     }
   }
 

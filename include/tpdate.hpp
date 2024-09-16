@@ -61,7 +61,7 @@ private:
       : _mjd(mjd), _fsec(secday) {
     normalize();
   }
-  
+
   /** Add seconds to instance, taking into account leap seconds.
    */
   void add_seconds(FDOUBLE sec) noexcept {
@@ -121,7 +121,7 @@ public:
 
   /** @brief Transform the (integral part of the) date to Year Month Day */
   ymd_date to_ymd() const noexcept { return core::mjd2ymd((long)_mjd); }
-  
+
   /** Add seconds to instance, taking into account leap seconds.
    */
   void add_seconds(FractionalSeconds fsec) noexcept {
@@ -282,7 +282,7 @@ private:
       : _mjd(mjd), _fsec(secday) {
     normalize();
   }
-  
+
   /** Add seconds to instance.
    * @warning Does not take into account leap seconds.
    */
@@ -344,17 +344,15 @@ public:
   }
 
   constexpr explicit TwoPartDate(modified_julian_day mjd) noexcept
-      : _mjd(mjd.as_underlying_type()), _fsec(0){};
+      : _mjd(mjd.as_underlying_type()), _fsec(0) {};
 
-  explicit TwoPartDate(year y, month m, day_of_month d,
-                                 double sec_of_day=0e0)
+  explicit TwoPartDate(year y, month m, day_of_month d, double sec_of_day = 0e0)
       : _mjd(modified_julian_day(y, m, d).as_underlying_type()),
         _fsec(sec_of_day) {
     this->normalize();
   }
-  
-  explicit TwoPartDate(year y, day_of_year d,
-                                 double sec_of_day=0e0)
+
+  explicit TwoPartDate(year y, day_of_year d, double sec_of_day = 0e0)
       : _mjd(modified_julian_day(y, d).as_underlying_type()),
         _fsec(sec_of_day) {
     this->normalize();
@@ -394,7 +392,7 @@ public:
 
   /** @brief Transform the (integral part of the) date to Year Month Day */
   ymd_date to_ymd() const noexcept { return core::mjd2ymd((long)_mjd); }
-  
+
   /** @brief Transform the (integral part of the) date to Year Day-Of-Year */
   ydoy_date to_ydoy() const noexcept {
     const modified_julian_day mjd(_mjd);
@@ -461,7 +459,7 @@ public:
   TwoPartDate operator-(const modified_julian_day days) const noexcept {
     return TwoPartDate(_mjd - days.as_underlying_type(), _fsec);
   }
-  
+
   /** Add integral days */
   TwoPartDate operator+(const modified_julian_day days) const noexcept {
     return TwoPartDate(_mjd + days.as_underlying_type(), _fsec);
@@ -695,7 +693,7 @@ template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 inline datetime<T> from_mjdepoch(const TwoPartDate &t) noexcept {
   dso::nanoseconds nsec(static_cast<nanoseconds::underlying_type>(
       t.seconds() * nanoseconds::sec_factor<double>()));
-  return datetime<T>(t.imjd(), cast_to<nanoseconds,T>(nsec));
+  return datetime<T>(t.imjd(), cast_to<nanoseconds, T>(nsec));
 }
 
 } /* namespace dso */

@@ -2,11 +2,13 @@
 #include <cassert>
 #include <random>
 
+/* test adding and subtracting seconds of different type */
+
 using namespace dso;
 
 constexpr const long num_tests = 5'000;
-using nsec = dso::milliseconds;
-typedef nsec::underlying_type SecIntType;
+using msec = dso::milliseconds;
+typedef msec::underlying_type SecIntType;
 
 int main() {
   /* Generators for random numbers ... */
@@ -16,32 +18,36 @@ int main() {
   std::uniform_int_distribution<> mdstr(1, 12);      /* range for months */
   std::uniform_int_distribution<> ddstr(1, 31); /* range for day of month */
   std::uniform_int_distribution<SecIntType> nsdstr(
-      0, nsec::max_in_day); /* range for day of month */
+      0, msec::max_in_day); /* range for day of month */
 
   int testnr = 0, ok;
-  datetime<nsec> d1, d2, d3;
+  datetime<msec> d1, d2, d3;
   while (testnr < num_tests) {
-    /* do we have a valid date ? */
     try {
-      d1 = datetime<nsec>{year(ydstr(gen)), month(mdstr(gen)),
-                          day_of_month(ddstr(gen)), nsec(nsdstr(gen))};
+      /* random date d1 */
+      d1 = datetime<msec>{year(ydstr(gen)), month(mdstr(gen)),
+                          day_of_month(ddstr(gen)), msec(nsdstr(gen))};
       /* one day next */
-      d2 = d1 + datetime_interval<nsec>(1, nsec(0));
+      d2 = d1 + datetime_interval<msec>(1, msec(0));
       /* one and a half day next */
-      d3 = d1 + datetime_interval<nsec>(
-                    1, nsec((86400L / 2) * nsec::sec_factor<long>()));
+      d3 = d1 + datetime_interval<msec>(
+                    1, msec((86400L / 2) * msec::sec_factor<long>()));
       ok = 1;
     } catch (std::exception &) {
+      /* failed to create some datetime; no worries, retry */
       ok = 0;
     }
+
     if (ok) {
 
       /* add nanoseconds to milliseconds */
       auto dt = d1;
       for (int i = 0; i < 86400; i++) {
+        /* 1'000'123'456 is 1'000 milliseconds */
         dt.add_seconds(nanoseconds(1'000'123'456));
       }
       assert(dt == d2);
+
       dt = d2;
       for (int i = 0; i < 86400; i++) {
         dt.add_seconds(nanoseconds(-1'000'123'456));
@@ -53,13 +59,12 @@ int main() {
       for (int i = 0; i < 86400 + 86400 / 2; i++)
         dt.add_seconds(nanoseconds(1'000'789'456));
       assert(dt == d3);
+
       for (int i = 0; i < 86400 + 86400 / 2; i++)
         dt.add_seconds(nanoseconds(-1'000'123'456));
       assert(dt == d1);
 
       ++testnr;
-      if (testnr % 10)
-        printf("%d/%ld\r", testnr, num_tests);
     }
   }
 

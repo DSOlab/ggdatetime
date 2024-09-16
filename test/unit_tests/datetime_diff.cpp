@@ -37,6 +37,7 @@ int main() {
     } catch (std::exception &) {
       ok = 0;
     }
+
     if (ok) {
       /* one day next */
       d24 = d1 + datetime_interval<nsec>(1, nsec(0));
@@ -97,30 +98,17 @@ int main() {
       const nsec isec =
           intrvl.unsigned_total_sec(); /* total nsec in interval */
       const auto rndd = d1 + intrvl;
-      // printf("Interval: %d + %ld = %ld\n", days, secday.as_underlying_type(),
-      //        (isec).as_underlying_type());
-      // printf("Computed : [1]%.15f [2]%.15f\n",
-      //        rndd.diff<DateTimeDifferenceType::FractionalDays>(d1),
-      //        rndd.diff<DateTimeDifferenceType::FractionalSeconds>(d1));
-      // printf("Expected : [1]%.15f [2]%.15f\n",
-      //        to_fractional_days(isec) * intrvl.sign(),
-      //        to_fractional_seconds(isec) * intrvl.sign());
-      // printf("Differences: [1]:%.5e [2]:%.5e\n",
-      //        rndd.diff<DateTimeDifferenceType::FractionalDays>(d1) -
-      //            to_fractional_days(isec) * intrvl.sign(),
-      //        rndd.diff<DateTimeDifferenceType::FractionalSeconds>(d1) -
-      //            to_fractional_seconds(isec) * intrvl.sign());
+
       assert(std::abs(rndd.diff<DateTimeDifferenceType::FractionalDays>(d1) -
                       to_fractional_days(isec) * intrvl.sign()) <=
              FDAY_PRECISION);
+
       /* better than nsec precision */
       assert(std::abs(rndd.diff<DateTimeDifferenceType::FractionalSeconds>(d1) -
                       to_fractional_seconds(isec) * intrvl.sign()) <
              SEC_PRECISION);
 
       ++testnr;
-      if (testnr % 10)
-        printf("%d/%ld\r", testnr, num_tests);
     }
   }
 

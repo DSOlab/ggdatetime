@@ -150,9 +150,6 @@ int main() {
                        FractionalSeconds(0e0));
       assert(fequal(d1, tai));
       assert(equal_within_ulps(d1.seconds(), tai.seconds(), 1));
-
-      // printf("%d %.15f\n", tai.imjd(), tai.seconds());
-      // printf("%d %.15f\n", d1.imjd(), d1.seconds());
     }
 
     TwoPartDateUTC utc(modified_julian_day(d).as_underlying_type(),

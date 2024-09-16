@@ -427,13 +427,13 @@ constexpr Strg cast_to(Ssrc s) noexcept {
         Ssrc::template sec_factor<SecIntType>();
     return Strg(s.__member_ref__() * factor);
   } else {
-  // this is tricky! We must first compute the numerator and then the fraction.
-  // why? check this out
-  // seconds _s1 = cast_to<milliseconds, seconds>(milliseconds{2000L});
-  // this is: (1/1000)*2000 which is 0 because 1/1000 is 0, but
-  // (2000*1)/1000 = 2 which is correct
-  const auto numerator = s.__member_ref__() * Strg::template sec_factor<long>();
-  return Strg(numerator / Ssrc::template sec_factor<long>());
+    // this is tricky! We must first compute the numerator and then the
+    // fraction. why? check this out seconds _s1 = cast_to<milliseconds,
+    // seconds>(milliseconds{2000L}); this is: (1/1000)*2000 which is 0 because
+    // 1/1000 is 0, but (2000*1)/1000 = 2 which is correct
+    const auto numerator =
+        s.__member_ref__() * Strg::template sec_factor<long>();
+    return Strg(numerator / Ssrc::template sec_factor<long>());
   }
 }
 

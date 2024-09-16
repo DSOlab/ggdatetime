@@ -264,7 +264,7 @@ int dat(modified_julian_day mjd, int &extra_sec_in_day) noexcept;
 /** A simple struct to signal fractional seconds; just to secure type safety */
 struct FractionalSeconds {
   double fsec;
-  FractionalSeconds(double _fsec = 0e0) noexcept : fsec(_fsec){};
+  FractionalSeconds(double _fsec = 0e0) noexcept : fsec(_fsec) {};
 }; /* FractionalSeconds */
 
 /** A simple struct to signal fractional days; just to secure type safety */
@@ -409,7 +409,7 @@ public:
    *   you can practically assign month=123. If you want a validity check, use
    *   the month::is_valid function (after construction).
    */
-  explicit constexpr month(underlying_type i = 1) noexcept : m_month(i){};
+  explicit constexpr month(underlying_type i = 1) noexcept : m_month(i) {};
 
   /** @brief Constructor from a c-string.
    * Given a c-string (i.e. null-terminating char array), resolve the month.
@@ -523,7 +523,7 @@ public:
    * This is an explicit constructor, we do not want users to be able to do
    * gps_week w = 1;
    */
-  explicit constexpr gps_week(underlying_type i = 1) noexcept : m_week(i){};
+  explicit constexpr gps_week(underlying_type i = 1) noexcept : m_week(i) {};
 
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
@@ -595,7 +595,7 @@ public:
    * information, one can use the is_valid method to test if the day of month
    * is valid.
    */
-  explicit constexpr day_of_month(underlying_type i = 1) noexcept : m_dom(i){};
+  explicit constexpr day_of_month(underlying_type i = 1) noexcept : m_dom(i) {};
 
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
@@ -683,7 +683,7 @@ public:
    * check for an invalid day of year, then use the is_valid method (after
    * instance construction).
    * */
-  explicit constexpr day_of_year(underlying_type i = 0) noexcept : m_doy(i){};
+  explicit constexpr day_of_year(underlying_type i = 0) noexcept : m_doy(i) {};
 
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
@@ -781,7 +781,7 @@ private:
   year __year;        /** the year */
   month __month;      /** the month */
   day_of_month __dom; /** day of month */
-};                    /* ymd_date */
+}; /* ymd_date */
 
 /** @brief This struct represent a date in Year-Day of Year format.
  *
@@ -837,7 +837,7 @@ public:
 private:
   year __year;       /** the year */
   day_of_year __doy; /** day of year */
-};                   /* ydoy_date */
+}; /* ydoy_date */
 
 namespace core {
 /** @brief Modified Julian Day to calendar date
@@ -934,7 +934,7 @@ public:
    * This is a non-explicit constructor, hence we can perform:
    * modified_julian_day mjd = 123456;
    */
-  constexpr modified_julian_day(underlying_type i = 1) noexcept : m_mjd(i){};
+  constexpr modified_julian_day(underlying_type i = 1) noexcept : m_mjd(i) {};
 
   /** @brief Constructor from Year and DayOfYear.
    * The passed in date (year and doy) are tested to see if they represent a
@@ -947,11 +947,11 @@ public:
    * http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
    */
   constexpr modified_julian_day(year iy, day_of_year id)
-      : m_mjd(
-            core::ydoy2mjd(iy.as_underlying_type(), id.as_underlying_type())){};
+      : m_mjd(core::ydoy2mjd(iy.as_underlying_type(),
+                             id.as_underlying_type())) {};
   modified_julian_day(const ydoy_date &ydoy)
       : m_mjd(core::ydoy2mjd(ydoy.yr().as_underlying_type(),
-                             ydoy.dy().as_underlying_type())){};
+                             ydoy.dy().as_underlying_type())) {};
 
   /** @brief Constructor from  calendar date
    * The passed in date is tested to see if they represent a valid date. If
@@ -966,11 +966,11 @@ public:
    */
   constexpr modified_julian_day(year y, month m, day_of_month d)
       : m_mjd(core::cal2mjd(y.as_underlying_type(), m.as_underlying_type(),
-                            d.as_underlying_type())){};
+                            d.as_underlying_type())) {};
   modified_julian_day(const ymd_date &ymd)
       : m_mjd(core::cal2mjd(ymd.yr().as_underlying_type(),
                             ymd.mn().as_underlying_type(),
-                            ymd.dm().as_underlying_type())){};
+                            ymd.dm().as_underlying_type())) {};
 
   /** Overload operator '=' where the the right-hand-side is any integral type.
    * @tparam I any integral type, aka any type for which std::is_integral_v<I>
@@ -1072,7 +1072,7 @@ public:
   constexpr underlying_type &__member_ref__() noexcept { return m_hours; }
 
   /** Constructor; default hours is 0, but any hour will do */
-  explicit constexpr hours(underlying_type i = 0) noexcept : m_hours(i){};
+  explicit constexpr hours(underlying_type i = 0) noexcept : m_hours(i) {};
 
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
@@ -1141,7 +1141,7 @@ public:
   constexpr underlying_type &__member_ref__() noexcept { return m_min; }
 
   /** Constructor; any integral number will do */
-  explicit constexpr minutes(underlying_type i = 0) noexcept : m_min(i){};
+  explicit constexpr minutes(underlying_type i = 0) noexcept : m_min(i) {};
 
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
@@ -1234,7 +1234,7 @@ public:
   static constexpr double sec_inv_factor() noexcept { return 1e0; }
 
   /** Constructor; default seconds is 0, but any integral will do */
-  explicit constexpr seconds(underlying_type i = 0) noexcept : m_sec(i){};
+  explicit constexpr seconds(underlying_type i = 0) noexcept : m_sec(i) {};
 
   /** Constructor from hours, minutes, seconds. */
   explicit constexpr seconds(hours h, minutes m, seconds c) noexcept
@@ -1348,14 +1348,15 @@ public:
   static_assert(max_in_day < std::numeric_limits<underlying_type>::max());
 
   /** Constructor; default milliseconds is 0. */
-  explicit constexpr milliseconds(underlying_type i = 0L) noexcept : m_sec(i){};
+  explicit constexpr milliseconds(underlying_type i = 0L) noexcept
+      : m_sec(i) {};
 
   /** Constructor from hours, minutes, milliseconds. */
   explicit constexpr milliseconds(hours h, minutes m, milliseconds c) noexcept
       : m_sec(c.as_underlying_type() +
               (static_cast<underlying_type>(m.as_underlying_type()) +
                static_cast<underlying_type>(h.as_underlying_type()) * 60L) *
-                  sec_factor<underlying_type>() * 60L){};
+                  sec_factor<underlying_type>() * 60L) {};
 
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
@@ -1474,14 +1475,15 @@ public:
   static constexpr double sec_inv_factor() noexcept { return 1e-6; }
 
   /** Constructor; default microseconds is 0; any integral number will do */
-  explicit constexpr microseconds(underlying_type i = 0L) noexcept : m_sec(i){};
+  explicit constexpr microseconds(underlying_type i = 0L) noexcept
+      : m_sec(i) {};
 
   /** Constructor from hours, minutes, microseconds. */
   explicit constexpr microseconds(hours h, minutes m, microseconds c) noexcept
       : m_sec(c.as_underlying_type() +
               (static_cast<underlying_type>(m.as_underlying_type()) +
                static_cast<underlying_type>(h.as_underlying_type()) * 60L) *
-                  sec_factor<underlying_type>() * 60L){};
+                  sec_factor<underlying_type>() * 60L) {};
 
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
@@ -1594,14 +1596,14 @@ public:
   static constexpr double sec_inv_factor() noexcept { return 1e-9; }
 
   /** Constructor; default nanoseconds is 0. **/
-  explicit constexpr nanoseconds(underlying_type i = 0L) noexcept : m_sec(i){};
+  explicit constexpr nanoseconds(underlying_type i = 0L) noexcept : m_sec(i) {};
 
   /** Constructor from hours, minutes, nanoseconds. */
   explicit constexpr nanoseconds(hours h, minutes m, nanoseconds c) noexcept
       : m_sec(c.as_underlying_type() +
               (static_cast<underlying_type>(m.as_underlying_type()) +
                static_cast<underlying_type>(h.as_underlying_type()) * 60L) *
-                  sec_factor<underlying_type>() * 60L){};
+                  sec_factor<underlying_type>() * 60L) {};
 
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
@@ -1698,7 +1700,7 @@ public:
   static constexpr double sec_inv_factor() noexcept { return 1e-12; }
 
   /** Constructor; default picoseconds is 0. **/
-  explicit constexpr picoseconds(underlying_type i = 0L) noexcept : m_sec(i){};
+  explicit constexpr picoseconds(underlying_type i = 0L) noexcept : m_sec(i) {};
 
   /** Cast to picoseconds::underlying_type. */
   constexpr underlying_type as_underlying_type() const noexcept {

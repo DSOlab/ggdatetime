@@ -30,10 +30,7 @@ int main() {
       /* assert results */
       assert(d1 == d2);
     }
-    if (i % 10)
-      printf("%ld/%ld\r", i, num_tests);
   }
 
-  printf("All tests ok!\n");
   return 0;
 }

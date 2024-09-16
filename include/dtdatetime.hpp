@@ -84,7 +84,7 @@ class datetime_interval {
 
 public:
   /** Default constructor (everything set to 0). */
-  explicit constexpr datetime_interval() noexcept : m_days(0), m_secs(0){};
+  explicit constexpr datetime_interval() noexcept : m_days(0), m_secs(0) {};
 
   /** Constructor from number of days and number of *seconds.
    *
@@ -268,7 +268,7 @@ private:
    * the user intents to use this function.
    */
   datetime(modified_julian_day mjd, S sec, [[maybe_unused]] char c) noexcept
-      : m_mjd(mjd), m_sec(sec){};
+      : m_mjd(mjd), m_sec(sec) {};
 
 public:
   /** Expose the underlying sec type S */
@@ -296,7 +296,7 @@ public:
   }
 
   /** Default constructor. */
-  explicit constexpr datetime() noexcept : m_mjd(dso::J2000_MJD), m_sec(0){};
+  explicit constexpr datetime() noexcept : m_mjd(dso::J2000_MJD), m_sec(0) {};
 
   double jcenturies_sinceJ2000() const noexcept {
     const double d_mjd = (double)(m_mjd.as_underlying_type());
@@ -543,8 +543,7 @@ public:
 
   /** @brief Cast to double (i.e. fractional) Modified Julian Date. */
   constexpr double fmjd() const noexcept {
-    return static_cast<double>(m_mjd.as_underlying_type()) +
-           fractional_days();
+    return static_cast<double>(m_mjd.as_underlying_type()) + fractional_days();
   }
 
   /** @brief Cast to double (i.e. fractional) Julian Date. */
@@ -614,7 +613,7 @@ public:
   [[nodiscard]] constexpr datetime<S> tai2gps() const noexcept {
     return datetime(m_mjd, m_sec - dso::cast_to<seconds, S>(seconds(19)));
   }
-  
+
   [[nodiscard]] constexpr datetime<S> tt2gps() const noexcept {
     return datetime(m_mjd, m_sec - dso::cast_to<milliseconds, S>(
                                        milliseconds(19000 + 32184)));
@@ -674,7 +673,7 @@ private:
 
   modified_julian_day m_mjd; /** Modified Julian Day */
   S m_sec;                   /** Time of day in S precision. */
-};                           /* datetime<S> */
+}; /* datetime<S> */
 
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S>
@@ -703,7 +702,8 @@ public:
   }
 
   /** Default constructor. */
-  explicit constexpr datetimeUtc() noexcept : m_mjd(dso::J2000_MJD), m_sec(0){};
+  explicit constexpr datetimeUtc() noexcept
+      : m_mjd(dso::J2000_MJD), m_sec(0) {};
 
   /** Constructor from year, month, day of month and sec type.
    * If an invalid date is passed-in, the constructor will throw.
@@ -875,7 +875,7 @@ public:
    * Remove whole days of from the time part and add them to the date part.
    */
   constexpr void normalize() noexcept {
-    int extra_sec_in_day;
+    int extra_sec_in_day = 0;
     dat(m_mjd, extra_sec_in_day);
     /* for each MJD, remove integral days. Each MJD may have a different
      * number of seconds, since we are in UTC time scale. Hence, iteratively
@@ -948,7 +948,7 @@ private:
 
   modified_julian_day m_mjd; /** Modified Julian Day */
   S m_sec;                   /** Time of day in S precision. */
-};                           /* datetimeUtc<S> */
+}; /* datetimeUtc<S> */
 
 template <typename S1, typename S2,
           typename = std::enable_if_t<S1::is_of_sec_type>,

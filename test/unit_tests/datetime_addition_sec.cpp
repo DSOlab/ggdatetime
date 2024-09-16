@@ -21,8 +21,8 @@ int main() {
   int testnr = 0, ok;
   datetime<nsec> d1, d2, d3;
   while (testnr < num_tests) {
-    /* do we have a valid date ? */
     try {
+      /* random date */
       d1 = datetime<nsec>{year(ydstr(gen)), month(mdstr(gen)),
                           day_of_month(ddstr(gen)), nsec(nsdstr(gen))};
       /* one day next */
@@ -32,6 +32,7 @@ int main() {
                     1, nsec((86400L / 2) * nsec::sec_factor<long>()));
       ok = 1;
     } catch (std::exception &) {
+      /* no worries, will retry */
       ok = 0;
     }
     if (ok) {
@@ -41,6 +42,7 @@ int main() {
       for (int i = 0; i < 86400; i++)
         dt.add_seconds(seconds(1));
       assert(dt == d2);
+
       for (int i = 0; i < 86400; i++)
         dt.add_seconds(seconds(-1));
       assert(dt == d1);
@@ -49,14 +51,13 @@ int main() {
       dt = d1;
       for (int i = 0; i < 86400 + 86400 / 2; i++)
         dt.add_seconds(seconds(1));
+
       assert(dt == d3);
       for (int i = 0; i < 86400 + 86400 / 2; i++)
         dt.add_seconds(seconds(-1));
       assert(dt == d1);
 
       ++testnr;
-      if (testnr % 10)
-        printf("%d/%ld\r", testnr, num_tests);
     }
   }
 

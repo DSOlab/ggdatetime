@@ -72,8 +72,6 @@ int main() {
 
     to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(tai, buf1);
     to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(utc, buf2);
-    // printf("[1]TAI: %s (%.15e)\n[1]UTC: %s(%.15e)\n", buf1,
-    // tai.sec_of_day<nanoseconds>(), buf2, utc.sec_of_day<nanoseconds>());
 
     /* add one more seconds */
     tai.add_seconds(FractionalSeconds(1e0));
@@ -85,7 +83,6 @@ int main() {
 
     to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(tai, buf1);
     to_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(utc, buf2);
-    // printf("[2]TAI: %s\n[2]UTC: %s\n", buf1, buf2);
 
     /* Datetime differences */
     auto tpd1 = tai - tai2359;
@@ -108,7 +105,6 @@ int main() {
     tpd1 = utc24 - utc00;
     assert(tpd1.imjd() == 1);
     assert(tpd1.seconds() == 1e0);
-    // printf("Diff: %d + %.15e\n", tpd1.imjd(), tpd1.seconds());
   }
 
   return 0;
