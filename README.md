@@ -5,7 +5,6 @@
 ggdatetime is a C++ library to assist date and time related computations in 
 Geodesy related fields.
 
-[![CI test](https://github.com/DSOlab/ggdatetime/actions/workflows/test-libdatetime.yml/badge.svg)](https://github.com/DSOlab/ggdatetime/actions/workflows/test-libdatetime.yml)
 [![clang-format Check](https://github.com/DSOlab/ggdatetime/actions/workflows/clang-format-check.yml/badge.svg)](https://github.com/DSOlab/ggdatetime/actions/workflows/clang-format-check.yml)
 [![Linux CI build](https://github.com/DSOlab/ggdatetime/actions/workflows/cpp-linux-build.yml/badge.svg)](https://github.com/DSOlab/ggdatetime/actions/workflows/cpp-linux-build.yml)
 
@@ -21,15 +20,20 @@ standard (option `-std=c++17` in gcc and clang).
 > Since December 2021, the build system has been changed from 
 > [GNU Autotools](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html)
 > to [scons](https://scons.org/). 
+> Since September 2024 the build system has been changed to [cmake](https://cmake.org/)
 
 ### Compile and install
 
-To compile and install, using [scons](https://scons.org/), just type:
+Supposing you are located in the top-level directory:
+
 ```
-# compile
-scons
-# install (system-wide)
-sudo scons install
+## to build in a folder named "build":
+$> cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+$> cmake --build build --target all --config Release -- -j4
+## Install, system-wide (needs root)
+$> make install
+## (Optional) run tests
+$> ctest --test-dir build
 ```
 
 ## Examples
@@ -46,20 +50,6 @@ and if possible stick to it.
 Use [clang-format](https://clang.llvm.org/docs/ClangFormat.html)
 to format you code before commiting; if you try to commit with non-acceptable 
 code format, the CI system will fail.
-
-### Testing
-
-Test source code is found in [test folder](test). 
-To automatically run all tests, use the Python script 
-[run_test_suite.py](run_test_suite.py). 
-Note that to be able to run the scipt, you will have to compile using the 
-`test=1` option, i.e.
-```
-## build project and tests
-scons test=1
-## run tests
-./run_test_suite.py --progs-dir=test
-```
 
 ## The Library
 
@@ -108,3 +98,12 @@ by running the test program [unit_tests/tpdates4.cpp](test/unit_tests/tpdates4.c
 Transforming from a `TwoPartDate` to a *Julian Epoch* and back, preserves an 
 accuracy of `~1e-5` seconds. This is verified by running the test program 
 [test/sofa/epj_date.cpp](test/sofa/epj_date.cpp).
+
+## Authors
+
+Dionysos Satellite Observatory,
+School of Rural Surveying and Geoinformatics Engineering,
+National Technical University of Athens
+
+Send bugs to:
+Xanthos Papanikolaou, xanthos@mail.ntua.gr
