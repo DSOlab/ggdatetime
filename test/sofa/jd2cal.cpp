@@ -7,7 +7,7 @@
 using namespace dso;
 
 /* number of tests to perform (pre template parameter) */
-long num_tests = 1'000'000;
+long num_tests = 5'000'000;
 
 int main() {
   /* Generators for random numbers ... */
@@ -31,10 +31,7 @@ int main() {
     assert(ymd.yr().as_underlying_type() == iy);
     assert(ymd.mn().as_underlying_type() == im);
     assert(ymd.dm().as_underlying_type() == id);
-    if (i % 10)
-      printf("%ld/%ld\r", i, num_tests);
   }
 
-  printf("All tests ok!\n");
   return 0;
 }

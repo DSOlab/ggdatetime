@@ -13,6 +13,10 @@ add_subdirectory(src)
 # The tests
 include(CTest)
 add_subdirectory(test//unit_tests)
+find_library(sofa sofa_c)
+if (sofa)
+  add_subdirectory(test//sofa)
+endif()
 enable_testing()
 
 add_compile_options(

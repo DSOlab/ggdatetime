@@ -1,10 +1,10 @@
-#include "dtfund.hpp"
+#include "calendar.hpp"
 #include "sofa.h"
 #include <cassert>
 #include <random>
 
 /* number of tests to perform (pre template parameter) */
-long num_tests = 1'000'000;
+long num_tests = 5'000'000;
 
 int main() {
   /* Generators for random numbers ... */
@@ -30,10 +30,7 @@ int main() {
       /* erronuous date, SOFA should verify that! */
       assert(iauCal2jd(iy, im, id, &jd0, &jd1) < 0);
     }
-    if (i % 10)
-      printf("%ld/%ld\r", i, num_tests);
   }
 
-  printf("All tests ok!\n");
   return 0;
 }

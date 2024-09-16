@@ -41,7 +41,7 @@ int main() {
     const int ms = msstr(gen);
     try {
       long imjd = core::cal2mjd(iy, im, id);
-      const TwoPartDate d(imjd, (ms / 1e3));
+      const TwoPartDate d(imjd, FractionalSeconds(ms / 1e3));
 
       /* TwoPartDate to Julian Epoch and back */
       double epj_lib;
@@ -85,8 +85,6 @@ int main() {
     } catch (std::exception &) {
       ;
     }
-    if (i % 10)
-      printf("%ld/%ld\r", i, num_tests);
   }
 
 #ifdef DEBUG

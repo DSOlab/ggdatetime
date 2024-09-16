@@ -48,7 +48,7 @@ bool is_leap_insertion_day(const ymd_date &ymd) noexcept {
 }
 
 /* number of tests to perform (pre template parameter) */
-const long num_tests = 1'000'000;
+const long num_tests = 5'000'000;
 
 int main() {
   /* Generators for random numbers ... */
@@ -75,8 +75,6 @@ int main() {
       int dat = dso::dat(ymd);
       assert(deltat == (double)dat);
     }
-    if (i % 10)
-      printf("%ld/%ld\r", i, num_tests);
   }
 
   int extra;
@@ -104,8 +102,6 @@ int main() {
     assert(deltat == (double)dso::dat(mjd));
     dso::dat(mjd, extra);
     if (extra) {
-      // printf("->leap at %d/%02d/%02d\n", ymd.yr().as_underlying_type(),
-      //        ymd.mn().as_underlying_type(), ymd.dm().as_underlying_type());
       ++leap_seconds_found;
       assert(is_leap_insertion_day(ymd));
     }
@@ -123,8 +119,6 @@ int main() {
     assert(deltat == (double)dso::dat(mjd));
     dso::dat(mjd, extra);
     if (extra) {
-      // printf("->leap at %d/%02d/%02d\n", ymd.yr().as_underlying_type(),
-      //        ymd.mn().as_underlying_type(), ymd.dm().as_underlying_type());
       ++leap_seconds_found;
       assert(is_leap_insertion_day(ymd));
     }
@@ -142,8 +136,6 @@ int main() {
     assert(deltat == (double)dso::dat(mjd));
     dso::dat(mjd, extra);
     if (extra) {
-      // printf("->leap at %d/%02d/%02d\n", ymd.yr().as_underlying_type(),
-      //        ymd.mn().as_underlying_type(), ymd.dm().as_underlying_type());
       ++leap_seconds_found;
       assert(is_leap_insertion_day(ymd));
     }
@@ -161,8 +153,6 @@ int main() {
     assert(deltat == (double)dso::dat(mjd));
     dso::dat(mjd, extra);
     if (extra) {
-      // printf("->leap at %d/%02d/%02d\n", ymd.yr().as_underlying_type(),
-      //        ymd.mn().as_underlying_type(), ymd.dm().as_underlying_type());
       ++leap_seconds_found;
       assert(is_leap_insertion_day(ymd));
     }
@@ -180,8 +170,6 @@ int main() {
     assert(deltat == (double)dso::dat(mjd));
     dso::dat(mjd, extra);
     if (extra) {
-      // printf("->leap at %d/%02d/%02d\n", ymd.yr().as_underlying_type(),
-      //        ymd.mn().as_underlying_type(), ymd.dm().as_underlying_type());
       ++leap_seconds_found;
       assert(is_leap_insertion_day(ymd));
     }
@@ -190,6 +178,5 @@ int main() {
   /* all leap seconds found */
   assert(leap_seconds_found == 27);
 
-  printf("All tests ok!\n");
   return 0;
 }
