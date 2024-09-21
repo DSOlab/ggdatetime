@@ -7,15 +7,6 @@ project(
   LANGUAGES CXX
 )
 
-# The tests
-include(CTest)
-add_subdirectory(test//unit_tests)
-find_library(sofa sofa_c)
-if (sofa)
-  add_subdirectory(test//sofa)
-endif()
-enable_testing()
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
 set(CMAKE_CXX_EXTENSIONS Off)
@@ -42,6 +33,15 @@ target_include_directories(datetime PUBLIC
 )
 
 add_subdirectory(src)
+
+# The tests
+include(CTest)
+add_subdirectory(test//unit_tests)
+find_library(sofa sofa_c)
+if (sofa)
+  add_subdirectory(test//sofa)
+endif()
+enable_testing()
 
 # Install headers at: $PREFIX/datetime/...
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/
