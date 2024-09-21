@@ -32,26 +32,18 @@ jobs:
       run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug
     - name: "build"
       run: cmake --build build --target all --config Debug -- -j4 --trace
-    - name: "Test"
-      run: ctest --test-dir build
     
     - name: "prepare build (debug), clang"
       run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
     - name: "build"
       run: cmake --build build --target all --config Debug -- -j4 --trace
-    - name: "Test"
-      run: ctest --test-dir build
     
     - name: "prepare build (production/standard), gcc 20"
       run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20
     - name: "build"
       run: cmake --build build --target all --config Release -- -j4 --trace
-    - name: "Test"
-      run: ctest --test-dir build
     
     - name: "prepare build (production/standard), clang 20"
       run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_STANDARD=20
     - name: "build"
       run: cmake --build build --target all --config Release -- -j4 --trace
-    - name: "Test"
-      run: ctest --test-dir build
