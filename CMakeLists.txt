@@ -36,9 +36,9 @@ add_compile_definitions(
 )
 
 add_library(datetime)
-target_include_directories(datetime
-  PUBLIC
-    ${CMAKE_SOURCE_DIR}/include
+target_include_directories(datetime PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
+  $<INSTALL_INTERFACE:include/datetime>
 )
 
 add_subdirectory(src)
@@ -50,7 +50,23 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/
 
 # install library
 install(TARGETS datetime
+        EXPORT datetimeTargets
          ARCHIVE DESTINATION lib
          LIBRARY DESTINATION lib
          RUNTIME DESTINATION bin
 )
+
+install(EXPORT datetimeTargets
+      FILE datetimeTargets.cmake
+      NAMESPACE dso::
+      DESTINATION lib/cmake/datetime
+)
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "datetimeConfigVersion.cmake"
+  VERSION ${datetime_version}
+  COMPATIBILITY AnyNewerVersion
+  )
+install(FILES "datetimeConfig.cmake" "${CMAKE_CURRENT_BINARY_DIR}/datetimeConfigVersion.cmake"
+  DESTINATION lib/cmake/dso
+  )
