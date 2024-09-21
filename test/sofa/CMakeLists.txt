@@ -1,3 +1,6 @@
+add_compile_options(-Wno-unused-but-set-variable)
+add_compile_options(-Wno-unused-variable)
+
 add_executable(cal2jd cal2jd.cpp)
 add_executable(jd2cal jd2cal.cpp)
 add_executable(dat dat.cpp)

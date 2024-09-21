@@ -1,3 +1,6 @@
+# add_compile_options(-Wno-unused-variable)
+add_compile_options(-Wno-unused-but-set-variable)
+add_compile_options(-Wno-unused-variable)
 
 add_executable(test_datetime datetime.cpp)
 target_link_libraries(test_datetime PRIVATE datetime)

@@ -58,7 +58,7 @@ int main() {
   std::uniform_int_distribution<> mdstr(1, 12);      /* range for months */
   std::uniform_int_distribution<> ddstr(1, 31); /* range for day of month */
 
-  double jd0, jd1;
+  double jd0=0, jd1=0;
   for (long i = 0; i < num_tests; i++) {
     const int iy = ydstr(gen);
     const int im = mdstr(gen);
