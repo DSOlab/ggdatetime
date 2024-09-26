@@ -36,7 +36,7 @@ add_subdirectory(src)
 
 # The tests
 include(CTest)
-add_subdirectory(test//unit_tests)
+add_subdirectory(test/unit_tests)
 find_library(sofa sofa_c)
 if (sofa)
   add_subdirectory(test//sofa)
@@ -51,22 +51,25 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/
 # install library
 install(TARGETS datetime
         EXPORT datetimeTargets
-         ARCHIVE DESTINATION lib
-         LIBRARY DESTINATION lib
-         RUNTIME DESTINATION bin
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin
 )
 
 install(EXPORT datetimeTargets
-      FILE datetimeTargets.cmake
-      NAMESPACE dso::
-      DESTINATION lib/cmake/datetime
+        FILE datetimeTargets.cmake
+        NAMESPACE dso::
+        DESTINATION lib/cmake
 )
+
 include(CMakePackageConfigHelpers)
+
 write_basic_package_version_file(
   "datetimeConfigVersion.cmake"
   VERSION ${datetime_version}
   COMPATIBILITY AnyNewerVersion
-  )
+)
+
 install(FILES "datetimeConfig.cmake" "${CMAKE_CURRENT_BINARY_DIR}/datetimeConfigVersion.cmake"
-  DESTINATION lib/cmake/dso
-  )
+  DESTINATION lib/cmake
+)
