@@ -44,12 +44,6 @@ int sgn(DType val) noexcept {
 
 } /* namespace core*/
 
-enum class DateTimeDifferenceType {
-  FractionalYears,
-  FractionalDays,
-  FractionalSeconds
-};
-
 /** @brief A generic, templatized class to hold a datetime period/interval.
  *
  * A datetime_interval represents a time (datetime) interval or period, i.e.
@@ -167,20 +161,25 @@ public:
     return S(std::copysign(unsigned_total_sec().as_underlying_type(), m_sign));
   }
 
-  template <DateTimeDifferenceType DT> double to_fraction() const noexcept {
+  template <DateTimeDifferenceType DT>
+  typename DateTimeDifferenceTypeTraits<DT>::dif_type
+  to_fraction() const noexcept {
+    /* the return type */
+    using RT = typename DateTimeDifferenceTypeTraits<DT>::dif_type;
+
     if constexpr (DT == DateTimeDifferenceType::FractionalSeconds) {
       /* difference in fractional seconds */
       const double big = static_cast<double>(seconds::max_in_day * m_days);
-      return m_sign * (big + to_fractional_seconds(S(m_secs)));
+      return RT(m_sign * (big + to_fractional_seconds(S(m_secs))));
     } else if constexpr (DT == DateTimeDifferenceType::FractionalDays) {
       /* difference in fractional days */
       const double big = static_cast<double>(m_days);
-      return m_sign * (big + to_fractional_days(S(m_secs)));
+      return RT(m_sign * (big + to_fractional_days(S(m_secs))));
     } else {
       /* difference in fractional years */
       const double big = static_cast<double>(m_days);
-      return m_sign * (big + to_fractional_days(S(m_secs))) /
-             DAYS_IN_JULIAN_YEAR;
+      return RT(m_sign * (big + to_fractional_days(S(m_secs))) /
+                DAYS_IN_JULIAN_YEAR);
     }
   }
 
@@ -527,7 +526,7 @@ public:
 #endif
   }
 
-  /** Get the difference between two datetime instances an an arithmetic value.
+  /** Get the difference between two datetime instances 
    *
    * The difference can be obtained as a fractional days or fractional seconds,
    * depending on the template parameter \p DT.
@@ -537,7 +536,8 @@ public:
    * @warning Does not take into account leap seconds.
    */
   template <DateTimeDifferenceType DT>
-  double diff(const datetime<S> &d) const noexcept {
+  typename DateTimeDifferenceTypeTraits<DT>::dif_type
+  diff(const datetime<S> &d) const noexcept {
     return (this->operator-(d)).template to_fraction<DT>();
   }
 

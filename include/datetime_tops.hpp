@@ -18,6 +18,12 @@
 
 namespace dso {
 
+enum class DateTimeDifferenceType {
+  FractionalYears,
+  FractionalDays,
+  FractionalSeconds
+};
+
 /** Overload bool operator '==' for datetime fundamental types.
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and

@@ -272,6 +272,25 @@ struct FractionalDays {
   double fdays;
 }; /* FractionalDays */
 
+/** A simple struct to signal fractional years; just to secure type safety */
+struct FractionalYears {
+  double fyears;
+}; /* FractionalYears */
+
+template <DateTimeDifferenceType DT> struct DateTimeDifferenceTypeTraits {};
+template <>
+struct DateTimeDifferenceTypeTraits<DateTimeDifferenceType::FractionalSeconds> {
+  typedef typename dso::FractionalSeconds dif_type;
+};
+template <>
+struct DateTimeDifferenceTypeTraits<DateTimeDifferenceType::FractionalDays> {
+  typedef typename dso::FractionalDays dif_type;
+};
+template <>
+struct DateTimeDifferenceTypeTraits<DateTimeDifferenceType::FractionalYears> {
+  typedef typename dso::FractionalYears dif_type;
+};
+
 /** @brief A wrapper class for years.
  *
  * A year is represented by just an integer number. There are no limits
