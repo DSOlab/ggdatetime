@@ -59,7 +59,7 @@ public:
   /** Constructor from a pair of doubles, such that TODO */
   explicit TwoPartDate2(int b = 0,
                         FractionalSeconds s = FractionalSeconds{0}) noexcept
-      : _mjd(b), _fday(s.fsec / SEC_PER_DAY) {
+      : _mjd(b), _fday(s.seconds() / SEC_PER_DAY) {
     this->normalize();
   }
 

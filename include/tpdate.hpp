@@ -85,8 +85,8 @@ public:
   /** Constructor from a pair of doubles, such that MJD = a + b */
   explicit TwoPartDateUTC(int b = 0,
                           FractionalSeconds s = FractionalSeconds{0}) noexcept
-      : _mjd(b), _fsec(s.fsec) {
-    if (b != 0 && s.fsec != 0e0) /* do not normalize for default constructor! */
+      : _mjd(b), _fsec(s.seconds()) {
+    if (b != 0 && s.seconds() != 0e0) /* do not normalize for default constructor! */
       this->normalize();
   }
 
@@ -125,7 +125,7 @@ public:
   /** Add seconds to instance, taking into account leap seconds.
    */
   void add_seconds(FractionalSeconds fsec) noexcept {
-    this->add_seconds(fsec.fsec);
+    this->add_seconds(fsec.seconds());
   }
 
   /** Add seconds to instance and return the "Kahan summation" error.
@@ -339,7 +339,7 @@ public:
   /** Constructor from a pair of doubles, such that TODO */
   explicit TwoPartDate(int b = 0,
                        FractionalSeconds s = FractionalSeconds{0}) noexcept
-      : _mjd(b), _fsec(s.fsec) {
+      : _mjd(b), _fsec(s.seconds()) {
     this->normalize();
   }
 
@@ -404,7 +404,7 @@ public:
    * @warning Does not take into account leap seconds.
    */
   void add_seconds(FractionalSeconds fsec) noexcept {
-    this->add_seconds(fsec.fsec);
+    this->add_seconds(fsec.seconds());
   }
 
   /** Add seconds to instance and return the "Kahan summation" error.
