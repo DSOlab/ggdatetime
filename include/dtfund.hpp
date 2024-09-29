@@ -270,7 +270,7 @@ public:
   constexpr underlying_type __member_const_ref__() const noexcept {return fsec;}
   constexpr underlying_type &__member_ref__() noexcept { return fsec; }
 
-  FractionalSeconds(double _fsec = 0e0) noexcept : fsec(_fsec) {};
+  explicit FractionalSeconds(double _fsec = 0e0) noexcept : fsec(_fsec) {};
   double seconds() const noexcept {return fsec;}
   double &seconds() noexcept {return fsec;}
 }; /* FractionalSeconds */
@@ -284,7 +284,7 @@ public:
   constexpr underlying_type __member_const_ref__() const noexcept {return fdays;}
   constexpr underlying_type &__member_ref__() noexcept { return fdays; }
 
-  FractionalDays(double _fdays = 0e0) noexcept : fdays(_fdays) {};
+  explicit FractionalDays(double _fdays = 0e0) noexcept : fdays(_fdays) {};
   double days() const noexcept {return fdays;}
   double &days() noexcept {return fdays;}
 }; /* FractionalDays */
@@ -297,7 +297,7 @@ public:
   static constexpr bool is_dt_fundamental_type{true};
   constexpr underlying_type __member_const_ref__() const noexcept {return fyears;}
   constexpr underlying_type &__member_ref__() noexcept { return fyears; }
-  FractionalYears(double _fyears = 0e0) noexcept : fyears(_fyears) {};
+  explicit FractionalYears(double _fyears = 0e0) noexcept : fyears(_fyears) {};
   double years() const noexcept {return fyears;}
   double &years() noexcept {return fyears;}
 }; /* FractionalYears */

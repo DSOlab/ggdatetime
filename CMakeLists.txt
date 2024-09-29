@@ -37,6 +37,7 @@ add_subdirectory(src)
 # The tests
 include(CTest)
 add_subdirectory(test/unit_tests)
+add_subdirectory(test/should_not_compile)
 find_library(sofa sofa_c)
 if (sofa)
   add_subdirectory(test//sofa)
