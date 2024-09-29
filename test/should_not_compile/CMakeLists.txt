@@ -15,9 +15,18 @@ add_test(
     COMMAND ${CMAKE_COMMAND} --build . --target fail-build-fractional-seconds-op-equal --config $<CONFIG>
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR} # the place where we would run ctest
 )
-set_tests_properties(fail-build-fractional-seconds-op-equal PROPERTIES
-  PASS_REGULAR_EXPRESSION "no match for ‘operator==’"
-)
+##
+## Note that the error message is compiler-specific ...
+##
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set_tests_properties(fail-build-fractional-seconds-op-equal PROPERTIES
+    PASS_REGULAR_EXPRESSION "'FractionalSeconds' vs. 'double'"
+  )
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set_tests_properties(fail-build-fractional-seconds-op-equal PROPERTIES
+    PASS_REGULAR_EXPRESSION "no match for ‘operator==’"
+  )
+endif()
 
 ##
 ## fractional_seconds_op_greter.cpp
@@ -33,9 +42,16 @@ add_test(
     COMMAND ${CMAKE_COMMAND} --build . --target fail-build-fractional-seconds-op-greater --config $<CONFIG>
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR} # the place where we would run ctest
 )
-set_tests_properties(fail-build-fractional-seconds-op-greater PROPERTIES
-  PASS_REGULAR_EXPRESSION "no match for ‘operator>’"
-)
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set_tests_properties(fail-build-fractional-seconds-op-greater PROPERTIES
+    PASS_REGULAR_EXPRESSION "'FractionalSeconds' vs\. 'double'"
+  )
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set_tests_properties(fail-build-fractional-seconds-op-greater PROPERTIES
+    PASS_REGULAR_EXPRESSION "no match for ‘operator>’"
+  )
+endif()
 
 ##
 ## datetime_diff_type.cpp
@@ -51,6 +67,12 @@ add_test(
     COMMAND ${CMAKE_COMMAND} --build . --target fail-build-datetime-diff-type --config $<CONFIG>
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR} # the place where we would run ctest
 )
-set_tests_properties(fail-build-datetime-diff-type PROPERTIES
-  PASS_REGULAR_EXPRESSION "no match for ‘operator>’"
-)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set_tests_properties(fail-build-datetime-diff-type PROPERTIES
+    PASS_REGULAR_EXPRESSION "deduced conflicting types for parameter"
+  )
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set_tests_properties(fail-build-datetime-diff-type PROPERTIES
+    PASS_REGULAR_EXPRESSION "no match for ‘operator>’"
+  )
+endif()
