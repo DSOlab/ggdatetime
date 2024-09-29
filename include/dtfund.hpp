@@ -264,42 +264,51 @@ int dat(modified_julian_day mjd, int &extra_sec_in_day) noexcept;
 /** A simple struct to signal fractional seconds; just to secure type safety */
 class FractionalSeconds {
   double fsec;
+
 public:
   typedef double underlying_type;
   static constexpr bool is_dt_fundamental_type{true};
-  constexpr underlying_type __member_const_ref__() const noexcept {return fsec;}
+  constexpr underlying_type __member_const_ref__() const noexcept {
+    return fsec;
+  }
   constexpr underlying_type &__member_ref__() noexcept { return fsec; }
 
   explicit FractionalSeconds(double _fsec = 0e0) noexcept : fsec(_fsec) {};
-  double seconds() const noexcept {return fsec;}
-  double &seconds() noexcept {return fsec;}
+  double seconds() const noexcept { return fsec; }
+  double &seconds() noexcept { return fsec; }
 }; /* FractionalSeconds */
 
 /** A simple struct to signal fractional days; just to secure type safety */
 class FractionalDays {
   double fdays;
+
 public:
   typedef double underlying_type;
   static constexpr bool is_dt_fundamental_type{true};
-  constexpr underlying_type __member_const_ref__() const noexcept {return fdays;}
+  constexpr underlying_type __member_const_ref__() const noexcept {
+    return fdays;
+  }
   constexpr underlying_type &__member_ref__() noexcept { return fdays; }
 
   explicit FractionalDays(double _fdays = 0e0) noexcept : fdays(_fdays) {};
-  double days() const noexcept {return fdays;}
-  double &days() noexcept {return fdays;}
+  double days() const noexcept { return fdays; }
+  double &days() noexcept { return fdays; }
 }; /* FractionalDays */
 
 /** A simple struct to signal fractional years; just to secure type safety */
 class FractionalYears {
   double fyears;
+
 public:
   typedef double underlying_type;
   static constexpr bool is_dt_fundamental_type{true};
-  constexpr underlying_type __member_const_ref__() const noexcept {return fyears;}
+  constexpr underlying_type __member_const_ref__() const noexcept {
+    return fyears;
+  }
   constexpr underlying_type &__member_ref__() noexcept { return fyears; }
   explicit FractionalYears(double _fyears = 0e0) noexcept : fyears(_fyears) {};
-  double years() const noexcept {return fyears;}
-  double &years() noexcept {return fyears;}
+  double years() const noexcept { return fyears; }
+  double &years() noexcept { return fyears; }
 }; /* FractionalYears */
 
 template <DateTimeDifferenceType DT> struct DateTimeDifferenceTypeTraits {};

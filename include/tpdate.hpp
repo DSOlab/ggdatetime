@@ -86,7 +86,8 @@ public:
   explicit TwoPartDateUTC(int b = 0,
                           FractionalSeconds s = FractionalSeconds{0}) noexcept
       : _mjd(b), _fsec(s.seconds()) {
-    if (b != 0 && s.seconds() != 0e0) /* do not normalize for default constructor! */
+    if (b != 0 &&
+        s.seconds() != 0e0) /* do not normalize for default constructor! */
       this->normalize();
   }
 

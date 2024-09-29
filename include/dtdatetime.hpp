@@ -526,7 +526,7 @@ public:
 #endif
   }
 
-  /** Get the difference between two datetime instances 
+  /** Get the difference between two datetime instances
    *
    * The difference can be obtained as a fractional days or fractional seconds,
    * depending on the template parameter \p DT.
