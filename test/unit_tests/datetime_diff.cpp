@@ -107,13 +107,16 @@ int main() {
           intrvl.unsigned_total_sec(); /* total nsec in interval */
       const auto rndd = d1 + intrvl;
 
-      assert(std::abs(rndd.diff<DateTimeDifferenceType::FractionalDays>(d1) -
-                      to_fractional_days(isec) * intrvl.sign()) <=
-             FDAY_PRECISION);
+      assert(
+          std::abs(
+              rndd.diff<DateTimeDifferenceType::FractionalDays>(d1).seconds() -
+              to_fractional_days(isec).seconds() * intrvl.sign()) <=
+          FDAY_PRECISION);
 
       /* better than nsec precision */
-      assert(std::abs(rndd.diff<DateTimeDifferenceType::FractionalSeconds>(d1) -
-                      to_fractional_seconds(isec) * intrvl.sign()) <
+      assert(std::abs(rndd.diff<DateTimeDifferenceType::FractionalSeconds>(d1)
+                          .seconds() -
+                      to_fractional_seconds(isec).seconds() * intrvl.sign()) <
              SEC_PRECISION);
 
       ++testnr;
