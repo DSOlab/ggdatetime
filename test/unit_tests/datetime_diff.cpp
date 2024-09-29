@@ -41,41 +41,49 @@ int main() {
     if (ok) {
       /* one day next */
       d24 = d1 + datetime_interval<nsec>(1, nsec(0));
-      assert(d24.diff<DateTimeDifferenceType::FractionalDays>(d1) == 1e0);
+      assert(d24.diff<DateTimeDifferenceType::FractionalDays>(d1) ==
+             FractionalDays(1e0));
       assert(d24.diff<DateTimeDifferenceType::FractionalSeconds>(d1) ==
-             86400e0);
-      assert(d1.diff<DateTimeDifferenceType::FractionalDays>(d24) == -1e0);
+             FractionalSeconds(86400e0));
+      assert(d1.diff<DateTimeDifferenceType::FractionalDays>(d24) ==
+             FractionalDays(-1e0));
       assert(d1.diff<DateTimeDifferenceType::FractionalSeconds>(d24) ==
-             -86400e0);
+             FractionalSeconds(-86400e0));
 
       /* one day previous */
       dm24 = d1 + datetime_interval<nsec>(-1, nsec(0));
-      assert(dm24.diff<DateTimeDifferenceType::FractionalDays>(d1) == -1e0);
+      assert(dm24.diff<DateTimeDifferenceType::FractionalDays>(d1) ==
+             FractionalDays(-1e0));
       assert(dm24.diff<DateTimeDifferenceType::FractionalSeconds>(d1) ==
-             -86400e0);
-      assert(d1.diff<DateTimeDifferenceType::FractionalDays>(dm24) == 1e0);
+             FractionalSeconds(-86400e0));
+      assert(d1.diff<DateTimeDifferenceType::FractionalDays>(dm24) ==
+             FractionalDays(1e0));
       assert(d1.diff<DateTimeDifferenceType::FractionalSeconds>(dm24) ==
-             86400e0);
+             FractionalSeconds(86400e0));
 
       /* one and a half day next */
       d36 = d1 + datetime_interval<nsec>(
                      1, nsec((86400L / 2) * nsec::sec_factor<long>()));
-      assert(d36.diff<DateTimeDifferenceType::FractionalDays>(d1) == 1.5e0);
+      assert(d36.diff<DateTimeDifferenceType::FractionalDays>(d1) ==
+             FractionalDays(1.5e0));
       assert(d36.diff<DateTimeDifferenceType::FractionalSeconds>(d1) ==
-             86400e0 + 86400e0 / 2e0);
-      assert(d1.diff<DateTimeDifferenceType::FractionalDays>(d36) == -1.5e0);
+             FractionalSeconds(86400e0 + 86400e0 / 2e0));
+      assert(d1.diff<DateTimeDifferenceType::FractionalDays>(d36) ==
+             FractionalDays(-1.5e0));
       assert(d1.diff<DateTimeDifferenceType::FractionalSeconds>(d36) ==
-             -86400e0 - 86400e0 / 2e0);
+             FractionalSeconds(-86400e0 - 86400e0 / 2e0));
 
       /* one and a half day before */
       dm36 = d1 + datetime_interval<nsec>(
                       -1, nsec((86400L / 2) * nsec::sec_factor<long>()));
-      assert(dm36.diff<DateTimeDifferenceType::FractionalDays>(d1) == -1.5e0);
+      assert(dm36.diff<DateTimeDifferenceType::FractionalDays>(d1) ==
+             FractionalDays(-1.5e0));
       assert(dm36.diff<DateTimeDifferenceType::FractionalSeconds>(d1) ==
-             -86400e0 - 86400e0 / 2e0);
-      assert(d1.diff<DateTimeDifferenceType::FractionalDays>(dm36) == 1.5e0);
+             FractionalSeconds(-86400e0 - 86400e0 / 2e0));
+      assert(d1.diff<DateTimeDifferenceType::FractionalDays>(dm36) ==
+             FractionalDays(1.5e0));
       assert(d1.diff<DateTimeDifferenceType::FractionalSeconds>(dm36) ==
-             86400e0 + 86400e0 / 2e0);
+             FractionalSeconds(86400e0 + 86400e0 / 2e0));
 
       /* just 5 nsec later */
       d5ns = d1 + datetime_interval<nsec>(0, nsec(5));

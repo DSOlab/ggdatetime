@@ -76,3 +76,27 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     PASS_REGULAR_EXPRESSION "no match for ‘operator>’"
   )
 endif()
+
+##
+## datetime_diff_type_comparisson.cpp
+##
+add_executable(fail-build-datetime-diff-type-comparisson datetime_diff_type_comparisson.cpp)
+target_link_libraries(fail-build-datetime-diff-type-comparisson datetime)
+set_target_properties(fail-build-datetime-diff-type-comparisson PROPERTIES
+    EXCLUDE_FROM_ALL TRUE
+    EXCLUDE_FROM_DEFAULT_BUILD TRUE
+)
+add_test(
+    NAME fail-build-datetime-diff-type-comparisson
+    COMMAND ${CMAKE_COMMAND} --build . --target fail-build-datetime-diff-type-comparisson --config $<CONFIG>
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR} # the place where we would run ctest
+)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set_tests_properties(fail-build-datetime-diff-type-comparisson PROPERTIES
+    PASS_REGULAR_EXPRESSION "deduced conflicting types for parameter"
+  )
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set_tests_properties(fail-build-datetime-diff-type-comparisson PROPERTIES
+    PASS_REGULAR_EXPRESSION "no match for ‘operator==’"
+  )
+endif()

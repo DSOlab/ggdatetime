@@ -109,7 +109,7 @@ public:
   static const int numChars = 18;
   static int spit(const hms_time<S> &hms, char *buffer) noexcept {
     /* seconds of minute (real) */
-    double sec = to_fractional_seconds(hms.nsec());
+    double sec = to_fractional_seconds(hms.nsec()).seconds();
     return std::sprintf(buffer, "%02d:%02d:%012.9f",
                         hms.hr().as_underlying_type(),
                         hms.mn().as_underlying_type(), sec);

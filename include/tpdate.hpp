@@ -78,7 +78,7 @@ public:
 #endif
   TwoPartDateUTC(const datetime<T> &d) noexcept
       : _mjd(d.imjd().as_underlying_type()),
-        _fsec(to_fractional_seconds<T, FDOUBLE>(d.sec())) {
+        _fsec(to_fractional_seconds<T>(d.sec()).seconds()) {
     this->normalize();
   }
 
@@ -304,7 +304,7 @@ public:
 #endif
   constexpr TwoPartDate(const datetime<T> &d) noexcept
       : _mjd(d.imjd().as_underlying_type()),
-        _fsec(to_fractional_seconds<T, FDOUBLE>(d.sec())) {
+        _fsec(to_fractional_seconds<T>(d.sec()).seconds()) {
   }
 
   /** Reference epoch (J2000.0), as a Modified Julian Date. */

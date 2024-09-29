@@ -2,6 +2,7 @@
 .clangd/
 .vscode/
 .sconsign.dblite
+*.swp
 
 # erronuous unit tests automaticaly generated in var
 var/test_*_error*.cpp
