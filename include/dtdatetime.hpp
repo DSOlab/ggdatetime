@@ -170,15 +170,15 @@ public:
     if constexpr (DT == DateTimeDifferenceType::FractionalSeconds) {
       /* difference in fractional seconds */
       const double big = static_cast<double>(seconds::max_in_day * m_days);
-      return RT(m_sign * (big + to_fractional_seconds(S(m_secs))));
+      return RT(m_sign * (big + to_fractional_seconds(S(m_secs)).seconds()));
     } else if constexpr (DT == DateTimeDifferenceType::FractionalDays) {
       /* difference in fractional days */
       const double big = static_cast<double>(m_days);
-      return RT(m_sign * (big + to_fractional_days(S(m_secs))));
+      return RT(m_sign * (big + to_fractional_days(S(m_secs)).days()));
     } else {
       /* difference in fractional years */
       const double big = static_cast<double>(m_days);
-      return RT(m_sign * (big + to_fractional_days(S(m_secs))) /
+      return RT(m_sign * (big + to_fractional_days(S(m_secs)).days()) /
                 DAYS_IN_JULIAN_YEAR);
     }
   }
