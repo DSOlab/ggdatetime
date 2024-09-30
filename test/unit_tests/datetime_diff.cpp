@@ -110,7 +110,7 @@ int main() {
       assert(
           std::abs(
               rndd.diff<DateTimeDifferenceType::FractionalDays>(d1).days() -
-              to_fractional_days(isec).seconds() * intrvl.sign()) <=
+              to_fractional_days(isec).days() * intrvl.sign()) <=
           FDAY_PRECISION);
 
       /* better than nsec precision */
