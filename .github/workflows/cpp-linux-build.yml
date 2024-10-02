@@ -22,7 +22,7 @@ jobs:
       run: ctest --test-dir build
     
     - name: "prepare build (production/standard), clang"
-      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++-17
     - name: "build"
       run: cmake --build build --target all --config Release -- -j4 --trace
     - name: "Test"
@@ -34,7 +34,7 @@ jobs:
       run: cmake --build build --target all --config Debug -- -j4 --trace
     
     - name: "prepare build (debug), clang"
-      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
+      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++-17
     - name: "build"
       run: cmake --build build --target all --config Debug -- -j4 --trace
     
