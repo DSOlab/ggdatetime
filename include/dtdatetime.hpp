@@ -402,7 +402,7 @@ public:
   constexpr S sec() const noexcept { return m_sec; }
 
   /** Seconds in day as fractional days */
-  double fractional_days() const noexcept {
+  FractionalDays fractional_days() const noexcept {
     return dso::to_fractional_days<S>(m_sec);
   }
 
@@ -543,7 +543,8 @@ public:
 
   /** @brief Cast to double (i.e. fractional) Modified Julian Date. */
   constexpr double fmjd() const noexcept {
-    return static_cast<double>(m_mjd.as_underlying_type()) + fractional_days();
+    return static_cast<double>(m_mjd.as_underlying_type()) +
+           fractional_days().days();
   }
 
   /** @brief Cast to double (i.e. fractional) Julian Date. */

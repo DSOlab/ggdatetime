@@ -213,6 +213,50 @@ public:
   }
 }; /* ReadInTime<S, HMSFormat::HHMMSS> */
 
+/** A Time-Of-Day parser expecting a Time-format of type SSSSS.
+ *
+ * That is, only integral seconds of day are given.
+ *
+ * The only usable member function is read, which will actually try to parse
+ * the string and resolve it to a hms_time<S> instance.
+ */
+#if __cplusplus >= 202002L
+template <gconcepts::is_sec_dt S>
+#else
+template <typename S>
+#endif
+class ReadInTime<S, HMSFormat::SECDAY> {
+  typedef typename S::underlying_type SecIntType;
+  static constexpr SecIntType scale = S::template sec_factor<SecIntType>();
+
+public:
+  static const int numChars = 5;
+  /** Read in and parse the time-of-day.
+   *
+   * No validation is performed at the resolved time (user can do that on
+   * return). The string can start with any number of whitespace characters.
+   * Once however the first digit is encountered, it is expected that the next
+   * (at max) SZ characters are the time representation.
+   * The string does not have to be null-terminated; only numeric values (i.e.
+   * digits) are considered.
+   *
+   * @param[in] str A string representing a time-of-day of type: "SSSSSS"
+   * @param[out] end If not nullptr, end will point at the first character not
+   *             resolved
+   */
+  static hms_time<S> read(const char *str, const char **end) {
+    int ints;
+    if (datetime_io_core::get_one_int(str, &ints, numChars + 1, end)) {
+      fprintf(stderr,
+              "[ERROR] Failed resolving SSSSS from string %.8s "
+              "(traceback: %s)\n",
+              str, __func__);
+      throw std::runtime_error("[ERROR] Failed resolving time\n");
+    }
+    return hms_time<S>(S(ints * scale));
+  }
+}; /* ReadInTime<S, HMSFormat::HHMMSS> */
+
 /** A Time-Of-Day parser expecting a Time-format of type HHMMSS.SSSSSSS...
  *
  * The delimeter character (here denoted ':'), can actually be any character

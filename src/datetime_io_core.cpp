@@ -38,6 +38,27 @@ inline int count_decimal_digits(const char *fltstr) noexcept {
   }
 }
 
+int dso::datetime_io_core::get_one_int(const char *str, int *ints,
+                                       int max_chars,
+                                       const char **end) noexcept {
+  if (end)
+    *end = str;
+  const char *start = skipws(str);
+  const char *c = str;
+
+  /* resolve one int */
+  auto tres = std::from_chars(skipws(c), start + max_chars, *ints);
+  if (tres.ec != std::errc{}) {
+    return 1;
+  }
+
+  /* assign pointer to first non-parsed character */
+  if (end)
+    *end = c;
+
+  return 0;
+}
+
 int dso::datetime_io_core::get_two_ints(const char *str, int *ints,
                                         int max_chars,
                                         const char **end) noexcept {

@@ -88,6 +88,16 @@ public:
                              (b * Sto::template sec_factor<double>()));
   }
 
+  template <typename Sto, typename = std::enable_if_t<Sto::is_of_sec_type>>
+  Sto integral_seconds() const noexcept {
+    /* hours and minuts as SecIntType */
+    const SecIntType b =
+        mn().as_underlying_type() * 60L + hr().as_underlying_type() * 60L * 60L;
+    const SecIntType c = b * Sto::template sec_factor<SecIntType>();
+    /* add the current seconds */
+    return Sto(c) + cast_to<S, Sto>(_sec);
+  }
+
   /** Constructor from any second type */
   explicit hms_time(S seconds) noexcept {
     /* given integral seconds */

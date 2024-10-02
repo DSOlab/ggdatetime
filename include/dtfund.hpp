@@ -431,6 +431,17 @@ public:
   /** Check if year is leap (aka has 366 --integer-- days instead of 365) */
   constexpr bool is_leap() const noexcept { return dso::core::is_leap(m_year); }
 
+  /** Return the corresponding two-digit year as integer */
+  constexpr int to_two_digit() const noexcept {
+    const int tdy = m_year - 1900;
+    return tdy - (tdy >= 100) * 100;
+  }
+
+  static constexpr year from_two_digit(int yr) noexcept {
+    yr += 1900;
+    return year(yr + (yr >= 50) * 100);
+  }
+
 private:
   /** The year as underlying type. */
   underlying_type m_year;

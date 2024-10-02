@@ -44,6 +44,30 @@ public:
   }
 };
 
+/** Specialization of SpitDate to format a date in YYYYDDD format */
+template <> class SpitDate<YMDFormat::YYYYDDD> {
+public:
+  static const int numChars = 8;
+  static int spit(const ymd_date &ymd, char *buffer,
+                  char delimeter = '/') noexcept {
+    const ydoy_date ydoy(ymd.to_ydoy());
+    return std::sprintf(buffer, "%4d%c%03d", ydoy.yr().as_underlying_type(),
+                        delimeter, ydoy.dy().as_underlying_type());
+  }
+};
+
+/** Specialization of SpitDate to format a date in YYYYDDD format */
+template <> class SpitDate<YMDFormat::YYDDD> {
+public:
+  static const int numChars = 6;
+  static int spit(const ymd_date &ymd, char *buffer,
+                  char delimeter = '/') noexcept {
+    const ydoy_date ydoy(ymd.to_ydoy());
+    return std::sprintf(buffer, "%2d%c%03d", ydoy.yr().to_two_digit(),
+                        delimeter, ydoy.dy().as_underlying_type());
+  }
+};
+
 /** Format a ymd_date instace to a string and write it to buffer.
  *
  * The way the date is formated, is dictated by the teplate parameter \p F.
@@ -89,12 +113,13 @@ class SpitTime<S, HMSFormat::HHMMSS> {
 
 public:
   static const int numChars = 8;
-  static int spit(const hms_time<S> &hms, char *buffer) noexcept {
+  static int spit(const hms_time<S> &hms, char *buffer,
+                  char delimeter = ':') noexcept {
     /* (integral) seconds of minute */
     SecIntType sec = cast_to<S, seconds>(hms.nsec()).as_underlying_type();
-    return std::sprintf(buffer, "%02d:%02d:%02ld",
-                        hms.hr().as_underlying_type(),
-                        hms.mn().as_underlying_type(), sec);
+    return std::sprintf(buffer, "%02d%c%02d%c%02ld",
+                        hms.hr().as_underlying_type(), delimeter,
+                        hms.mn().as_underlying_type(), delimeter, sec);
   }
 };
 
@@ -107,12 +132,29 @@ template <typename S>
 class SpitTime<S, HMSFormat::HHMMSSF> {
 public:
   static const int numChars = 18;
-  static int spit(const hms_time<S> &hms, char *buffer) noexcept {
+  static int spit(const hms_time<S> &hms, char *buffer,
+                  char delimeter = ':') noexcept {
     /* seconds of minute (real) */
     double sec = to_fractional_seconds(hms.nsec()).seconds();
-    return std::sprintf(buffer, "%02d:%02d:%012.9f",
-                        hms.hr().as_underlying_type(),
-                        hms.mn().as_underlying_type(), sec);
+    return std::sprintf(buffer, "%02d%c%02d%c%012.9f",
+                        hms.hr().as_underlying_type(), delimeter,
+                        hms.mn().as_underlying_type(), delimeter, sec);
+  }
+};
+
+/** Specialization of SpitTime to format a Time-Of-Day of type DAYSEC */
+#if __cplusplus >= 202002L
+template <gconcepts::is_sec_dt S>
+#else
+template <typename S>
+#endif
+class SpitTime<S, HMSFormat::SECDAY> {
+public:
+  static const int numChars = 5;
+  static int spit(const hms_time<S> &hms, char *buffer,
+                  [[maybe_unused]] char delimeter = ':') noexcept {
+    const seconds s(hms.template integral_seconds<seconds>());
+    return std::sprintf(buffer, "%5ld", s.as_underlying_type());
   }
 };
 
@@ -131,8 +173,10 @@ public:
  * @return On success, a pointer to \p buffer
  */
 template <HMSFormat F, typename S>
-const char *to_char(const hms_time<S> &hms, char *buffer) {
-  if (SpitTime<S, F>::spit(hms, buffer) != SpitTime<S, F>::numChars) {
+const char *to_char(const hms_time<S> &hms, char *buffer,
+                    char delimeter = ':') {
+  if (SpitTime<S, F>::spit(hms, buffer, delimeter) !=
+      SpitTime<S, F>::numChars) {
     throw std::runtime_error("[ERROR] Failed to format time to string\n");
   }
   return buffer;
@@ -153,34 +197,41 @@ const char *to_char(const hms_time<S> &hms, char *buffer) {
  * @return On success, a pointer to \p buffer
  */
 template <YMDFormat FD, HMSFormat FT, typename S>
-const char *to_char(const datetime<S> &d, char *buffer) {
+const char *
+to_char(const datetime<S> &d, char *buffer, const char date_delimeter = '/',
+        const char time_delimeter = ':', const char date_time_delimeter = ' ') {
   /* write date to buffer */
   ymd_date ymd(d.as_ymd());
-  if (SpitDate<FD>::spit(ymd, buffer) != SpitDate<FD>::numChars) {
+  if (SpitDate<FD>::spit(ymd, buffer, date_delimeter) !=
+      SpitDate<FD>::numChars) {
     throw std::runtime_error("[ERROR] Failed to format date to string\n");
   }
   /* move pointer to write time */
   char *ptr = buffer + SpitDate<FD>::numChars;
-  *ptr = ' ';
+  *ptr = date_time_delimeter;
   ++ptr;
   /* write time of day to buffer */
   hms_time<S> hms(d.sec());
-  if (SpitTime<S, FT>::spit(hms, ptr) != SpitTime<S, FT>::numChars) {
+  if (SpitTime<S, FT>::spit(hms, ptr, time_delimeter) !=
+      SpitTime<S, FT>::numChars) {
     throw std::runtime_error("[ERROR] Failed to format time to string\n");
   }
   return buffer;
 }
 
 template <YMDFormat FD, HMSFormat FT, typename S>
-const char *to_char(const datetimeUtc<S> &d, char *buffer) {
+const char *
+to_char(const datetimeUtc<S> &d, char *buffer, const char date_delimeter = '/',
+        const char time_delimeter = ':', const char date_time_delimeter = ' ') {
   /* write date to buffer */
   ymd_date ymd(d.as_ymd());
-  if (SpitDate<FD>::spit(ymd, buffer) != SpitDate<FD>::numChars) {
+  if (SpitDate<FD>::spit(ymd, buffer, date_delimeter) !=
+      SpitDate<FD>::numChars) {
     throw std::runtime_error("[ERROR] Failed to format date to string\n");
   }
   /* move pointer to write time */
   char *ptr = buffer + SpitDate<FD>::numChars;
-  *ptr = ' ';
+  *ptr = date_time_delimeter;
   ++ptr;
   /* write time of day to buffer */
   hms_time<S> hms(d.sec());
@@ -191,7 +242,7 @@ const char *to_char(const datetimeUtc<S> &d, char *buffer) {
         hours(23), minutes(59),
         nanoseconds(60 * nanoseconds::sec_factor<long>()));
   }
-  if (SpitTime<nanoseconds, FT>::spit(hms, ptr) !=
+  if (SpitTime<nanoseconds, FT>::spit(hms, ptr, time_delimeter) !=
       SpitTime<nanoseconds, FT>::numChars) {
     throw std::runtime_error("[ERROR] Failed to format time to string\n");
   }
@@ -199,21 +250,24 @@ const char *to_char(const datetimeUtc<S> &d, char *buffer) {
 }
 
 template <YMDFormat FD, HMSFormat FT>
-const char *to_char(const TwoPartDate &d, char *buffer) {
+const char *
+to_char(const TwoPartDate &d, char *buffer, const char date_delimeter = '/',
+        const char time_delimeter = ':', const char date_time_delimeter = ' ') {
   /* write date to buffer */
   ymd_date ymd(d.to_ymd());
-  if (SpitDate<FD>::spit(ymd, buffer) != SpitDate<FD>::numChars) {
+  if (SpitDate<FD>::spit(ymd, buffer, date_delimeter) !=
+      SpitDate<FD>::numChars) {
     throw std::runtime_error("[ERROR] Failed to format date to string\n");
   }
   /* move pointer to write time */
   char *ptr = buffer + SpitDate<FD>::numChars;
-  *ptr = ' ';
+  *ptr = date_time_delimeter;
   ++ptr;
   /* write time of day to buffer */
   const nanoseconds ns(static_cast<nanoseconds::underlying_type>(
       std::round(d.sec_of_day<nanoseconds>())));
   hms_time<nanoseconds> hms(ns);
-  if (SpitTime<nanoseconds, FT>::spit(hms, ptr) !=
+  if (SpitTime<nanoseconds, FT>::spit(hms, ptr, time_delimeter) !=
       SpitTime<nanoseconds, FT>::numChars) {
     throw std::runtime_error("[ERROR] Failed to format time to string\n");
   }
@@ -221,15 +275,18 @@ const char *to_char(const TwoPartDate &d, char *buffer) {
 }
 
 template <YMDFormat FD, HMSFormat FT>
-const char *to_char(const TwoPartDateUTC &d, char *buffer) {
+const char *
+to_char(const TwoPartDateUTC &d, char *buffer, const char date_delimeter = '/',
+        const char time_delimeter = ':', const char date_time_delimeter = ' ') {
   /* write date to buffer */
   ymd_date ymd(d.to_ymd());
-  if (SpitDate<FD>::spit(ymd, buffer) != SpitDate<FD>::numChars) {
+  if (SpitDate<FD>::spit(ymd, buffer, date_delimeter) !=
+      SpitDate<FD>::numChars) {
     throw std::runtime_error("[ERROR] Failed to format date to string\n");
   }
   /* move pointer to write time */
   char *ptr = buffer + SpitDate<FD>::numChars;
-  *ptr = ' ';
+  *ptr = date_time_delimeter;
   ++ptr;
   /* write time of day to buffer */
   const nanoseconds ns(static_cast<nanoseconds::underlying_type>(
@@ -241,7 +298,7 @@ const char *to_char(const TwoPartDateUTC &d, char *buffer) {
         hours(23), minutes(59),
         nanoseconds(60 * nanoseconds::sec_factor<long>()));
   }
-  if (SpitTime<nanoseconds, FT>::spit(hms, ptr) !=
+  if (SpitTime<nanoseconds, FT>::spit(hms, ptr, time_delimeter) !=
       SpitTime<nanoseconds, FT>::numChars) {
     throw std::runtime_error("[ERROR] Failed to format time to string\n");
   }
