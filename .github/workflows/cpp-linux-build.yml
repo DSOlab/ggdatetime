@@ -13,33 +13,38 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Set up Clang
+      uses: egor-tensin/setup-clang@v1
+      with:
+        version: latest
     
     - name: "prepare build (production/standard), gcc"
-      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
+      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
     - name: "build"
       run: cmake --build build --target all --config Release -- -j4 --trace
     - name: "Test"
       run: ctest --test-dir build
     
     - name: "prepare build (production/standard), clang"
-      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++-17
+      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
     - name: "build"
       run: cmake --build build --target all --config Release -- -j4 --trace
     - name: "Test"
       run: ctest --test-dir build
     
     - name: "prepare build (debug), gcc"
-      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug
+      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++
     - name: "build"
       run: cmake --build build --target all --config Debug -- -j4 --trace
     
     - name: "prepare build (debug), clang"
-      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++-17
+      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
     - name: "build"
       run: cmake --build build --target all --config Debug -- -j4 --trace
     
     - name: "prepare build (production/standard), gcc 20"
-      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20
+      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20 -DCMAKE_CXX_COMPILER=g++
     - name: "build"
       run: cmake --build build --target all --config Release -- -j4 --trace
     
