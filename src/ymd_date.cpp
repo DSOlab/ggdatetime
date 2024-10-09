@@ -23,6 +23,6 @@ dso::ydoy_date dso::ymd_date::to_ydoy() const {
   }
   int leap = yr().is_leap();
   int md = mn().as_underlying_type() - 1;
-  return dso::ydoy_date(yr(), dso::day_of_year(core::month_day[leap][md] +
-                                               dm().as_underlying_type()));
+  return {yr(), dso::day_of_year(core::month_day[leap][md] +
+                                               dm().as_underlying_type())};
 }

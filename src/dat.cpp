@@ -4,12 +4,19 @@
 #include <cassert>
 #include <cstdio>
 
+namespace {
+/** just so we do not have magic numbers */
+constexpr const int MONTHS_IN_YEAR = 12;
+} /* unnamed namespace */
+
 namespace calendar_dat {
 /** Dates and Delta(AT)s */
 struct change {
   int iyear, month, delat;
   /** Combine year and month to form a date-ordered integer */
-  int ordered_int() const noexcept { return 12 * iyear + month; }
+  [[nodiscard]] int ordered_int() const noexcept {
+    return MONTHS_IN_YEAR * iyear + month;
+  }
 };
 constexpr const std::array<change, 28> changes = {
     {{1972, 1, 10}, {1972, 7, 11}, {1973, 1, 12}, {1974, 1, 13}, {1975, 1, 14},
@@ -42,7 +49,7 @@ int dso::dat(dso::year iy, dso::month im) noexcept {
   assert(iy >= dso::year(1972));
 
   /* Combine year and month to form a date-ordered integer... */
-  int m = 12 * iy.as_underlying_type() + im.as_underlying_type();
+  int m = MONTHS_IN_YEAR * iy.as_underlying_type() + im.as_underlying_type();
 
   /* ...and use it to find the preceding table entry. */
   auto it = std::find_if(

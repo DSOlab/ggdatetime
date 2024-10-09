@@ -1,7 +1,7 @@
 #include "dtfund.hpp"
 
 dso::ymd_date dso::ydoy_date::to_ymd() const noexcept {
-  int guess = static_cast<int>(__doy.as_underlying_type() * 0.032);
+  int guess = __doy.as_underlying_type() * 0.032;
   int leap = yr().is_leap();
   int more =
       ((dy().as_underlying_type() - dso::core::month_day[leap][guess + 1]) > 0);

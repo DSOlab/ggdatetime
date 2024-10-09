@@ -16,6 +16,7 @@
 #include <cstdio>
 #include <limits>
 #include <stdexcept>
+#include <cstdint>
 
 namespace dso {
 
@@ -37,7 +38,7 @@ class nanoseconds;
 
 namespace core {
 /** Number of days past at the end of non-leap and leap years. */
-constexpr const long month_day[2][13] = {
+constexpr const int month_day[2][13] = {
     {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365},
     {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}};
 
@@ -560,11 +561,15 @@ private:
   constexpr static const char *short_names[] = {"Jan", "Feb", "Mar", "Apr",
                                                 "May", "Jun", "Jul", "Aug",
                                                 "Sep", "Oct", "Nov", "Dec"};
+  constexpr static const int SHORT_NAMES_LEN =
+      sizeof(short_names) / sizeof(short_names[0]);
 
   /** long month names. */
   constexpr static const char *long_names[] = {
       "January", "February", "March",     "April",   "May",      "June",
       "July",    "August",   "September", "October", "November", "December"};
+  constexpr static const int LONG_NAMES_LEN =
+      sizeof(short_names) / sizeof(short_names[0]);
 
   /** The month as underlying_type. */
   underlying_type m_month;
@@ -982,8 +987,14 @@ constexpr ymd_date mjd2ymd(long mjd) noexcept {
  */
 class modified_julian_day {
 public:
-  /** MJDs are represented as long ints. */
-  typedef long underlying_type;
+  /** Decide on the INT (underlying) type of modified_julian_day.
+   *
+   * underlying_type should be at least as long as int_32_t. Else 
+   * underlying_type will be a long.
+   * A 32bit int, has a range of -2147483648 to 2147483647. Should be enough!
+   */
+  typedef std::conditional<sizeof(int) >= sizeof(int32_t), int, int64_t>::type
+      underlying_type;
 
   /** Is fundamental datetime type */
   static constexpr bool is_dt_fundamental_type = true;

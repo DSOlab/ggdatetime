@@ -8,10 +8,10 @@
 namespace dso {
 
 /** Jan 1st 1980 for GPS Time */
-constexpr const long JAN61980 = 44'244L;
+constexpr const int JAN61980 = 44'244L;
 
 /** */
-constexpr const long JAN11901 = 15'385L;
+constexpr const int JAN11901 = 15'385L;
 
 /** @brief Seconds per day.
  * @warning This is not always true in case of UTC dates; the day a leap

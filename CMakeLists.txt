@@ -7,6 +7,9 @@ project(
   LANGUAGES CXX
 )
 
+# Enable clang-tidy option
+option(ENABLE_CLANG_TIDY "Enable clang-tidy checks" OFF)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
 set(CMAKE_CXX_EXTENSIONS Off)
@@ -26,6 +29,23 @@ add_compile_definitions(
   $<$<CONFIG:Debug>:DEBUG>
 )
 
+# clang-tidy (targets that follow will be checked)
+if(ENABLE_CLANG_TIDY)
+  set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=bugprone-*,\
+  clang-analyzer-*,\
+  cppcoreguidelines-*,\
+  llvm-*,\
+  modernize-*,\
+  performance-*,\
+  -modernize-use-trailing-return-type,\
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,\
+  -cppcoreguidelines-pro-bounds-constant-array-index,\
+  -cppcoreguidelines-pro-type-vararg")
+  message(STATUS "clang-tidy is enabled.")
+else()
+  message(STATUS "clang-tidy is disabled. To enable it, use -DENABLE_CLANG_TIDY=ON.")
+endif()
+
 add_library(datetime)
 target_include_directories(datetime PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
@@ -34,6 +54,9 @@ target_include_directories(datetime PUBLIC
 
 add_subdirectory(src)
 
+# disable clang-tidy (targets that follow will not be checked)
+set(CMAKE_CXX_CLANG_TIDY "")
+
 # The tests
 include(CTest)
 add_subdirectory(test/unit_tests)
@@ -41,6 +64,9 @@ add_subdirectory(test/should_not_compile)
 find_library(sofa sofa_c)
 if (sofa)
   add_subdirectory(test/sofa)
+  message(STATUS "found sofa lib, will compile relevant tests")
+else()
+  message(STATUS "sofa lib not found; tests in test/sofa will not be compiled.")
 endif()
 enable_testing()
 

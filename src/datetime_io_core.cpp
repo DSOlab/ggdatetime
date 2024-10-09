@@ -3,6 +3,11 @@
 #include <charconv>
 #include <cstdio>
 
+namespace {
+  /** just so it is not a magic number */
+  constexpr const int MONTHS_IN_YEAR = 12;
+}/* unnamed namespace */
+
 inline const char *skipws(const char *line) noexcept {
   const char *c = line;
   while (*c && (*c == ' ' || *c == '/' || *c == '-' || *c == 'T' || *c == ':' ||
@@ -31,11 +36,10 @@ inline int count_decimal_digits(const char *fltstr) noexcept {
     const char *dgtc = fltstr;
     while (std::isdigit(*dgtc))
       ++dgtc;
-    return (dgtc - fltstr);
-  } else {
-    /* no decimal digits */
-    return 0;
+    return (int)(dgtc - fltstr);
   }
+  /* no decimal digits */
+  return 0;
 }
 
 int dso::datetime_io_core::get_one_int(const char *str, int *ints,
@@ -151,7 +155,7 @@ int dso::datetime_io_core::get_two_ints_double(const char *str, int *ints,
   /* before parsing the next floating point number, count its decimal digits
    * If more than nanoseconds, issue a warning
    */
-  if (count_decimal_digits(skipws(c)) > 12) {
+  if (count_decimal_digits(skipws(c)) > MONTHS_IN_YEAR) {
     fprintf(stderr, "[WARNING] Reading in date with resolution larger than "
                     "nanoseconds will lead to loss of precision!\n");
     fprintf(stderr,
