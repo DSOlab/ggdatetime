@@ -52,7 +52,15 @@ target_include_directories(datetime PUBLIC
   $<INSTALL_INTERFACE:include/datetime>
 )
 
-add_subdirectory(src)
+add_subdirectory(src/lib)
+
+# add executables
+add_executable(ymd2mjd src/bin/ymd2mjd.cpp)
+target_link_libraries(ymd2mjd PRIVATE datetime)
+add_executable(mjd2ymd src/bin/mjd2ymd.cpp)
+target_link_libraries(mjd2ymd PRIVATE datetime)
+add_executable(mjd2ydoy src/bin/mjd2ydoy.cpp)
+target_link_libraries(mjd2ydoy PRIVATE datetime)
 
 # disable clang-tidy (targets that follow will not be checked)
 set(CMAKE_CXX_CLANG_TIDY "")

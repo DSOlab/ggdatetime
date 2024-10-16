@@ -1,0 +1,13 @@
+target_sources(datetime
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/lib/dat.cpp
+    ${CMAKE_SOURCE_DIR}/src/lib/datetime_io_core.cpp
+    ${CMAKE_SOURCE_DIR}/src/lib/modified_julian_day.cpp
+    ${CMAKE_SOURCE_DIR}/src/lib/month.cpp
+    ${CMAKE_SOURCE_DIR}/src/lib/strmonth.cpp
+    ${CMAKE_SOURCE_DIR}/src/lib/tpdateutc.cpp
+    ${CMAKE_SOURCE_DIR}/src/lib/twopartdates.cpp
+    ${CMAKE_SOURCE_DIR}/src/lib/utc2tai.cpp
+    ${CMAKE_SOURCE_DIR}/src/lib/ydoy_date.cpp
+    ${CMAKE_SOURCE_DIR}/src/lib/ymd_date.cpp
+)
