@@ -1,4 +1,4 @@
-#include "dtfund.hpp"
+#include "calendar.hpp"
 #include <algorithm>
 #include <cassert>
 #include <vector>
@@ -25,8 +25,9 @@ int main() {
   assert(y1 - day_of_month(1) == day_of_month(2023));
   assert((y1 += day_of_month(1)) == day_of_month(2025));
   assert((y1 -= day_of_month(1)) == day_of_month(2024));
-  assert((y1 += 1) == day_of_month(2025));
-  assert((y1 -= 1) == day_of_month(2024));
+  // only allowed with ALLOW_DT_INTEGRAL_MATH
+  // assert((y1 += 1) == day_of_month(2025));
+  // assert((y1 -= 1) == day_of_month(2024));
   assert((y1++) == day_of_month(2024));
   assert((++y1) == day_of_month(2026));
   assert((y1--) == day_of_month(2026));

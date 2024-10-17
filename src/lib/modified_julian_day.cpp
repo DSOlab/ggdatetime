@@ -1,8 +1,8 @@
-#include "dtfund.hpp"
+#include "date_integral_types.hpp"
 
 namespace {
-  /** avoid magic numbers */
-  constexpr const int DAYS_IN_YEAR = 365;
+/** avoid magic numbers */
+constexpr const int DAYS_IN_YEAR = 365;
 } /* unnamed namespace */
 
 dso::ydoy_date dso::modified_julian_day::to_ydoy() const noexcept {

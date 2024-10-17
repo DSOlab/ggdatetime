@@ -9,7 +9,6 @@
 #define __DSO_DATETIME_TWOPARTDATES2_HPP__
 
 #include "dtdatetime.hpp"
-#include "dtfund.hpp"
 #include <random>
 
 namespace dso {
@@ -57,7 +56,7 @@ private:
     return _mjd;
   }
 
-  explicit TwoPartDateUTC(int mjd, FDOUBLE secday) noexcept
+  constexpr explicit TwoPartDateUTC(int mjd, FDOUBLE secday) noexcept
       : _mjd(mjd), _fsec(secday) {
     normalize();
   }
@@ -92,10 +91,10 @@ public:
   }
 
   /** Get the MJD as an intgral number, i.e. no fractional part */
-  int imjd() const noexcept { return _mjd; }
+  constexpr int imjd() const noexcept { return _mjd; }
 
   /** Get the fractional seconds of the MJD */
-  FDOUBLE seconds() const noexcept { return _fsec; }
+  constexpr FDOUBLE seconds() const noexcept { return _fsec; }
 
   /** @brief Get the fractional seconds of day as some multiple of seconds.
    *
@@ -116,7 +115,7 @@ public:
 #else
   template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
-  FDOUBLE sec_of_day() const noexcept {
+  constexpr FDOUBLE sec_of_day() const noexcept {
     return seconds() * T::template sec_factor<FDOUBLE>();
   }
 

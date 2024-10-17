@@ -1,8 +1,8 @@
 #include "calendar.hpp"
 #include <cstdio>
-#include <exception>
 #include <cstring>
-#if defined (__unix__) || (defined (__APPLE__) && defined (__MACH__))
+#include <exception>
+#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 #include <unistd.h>
 #endif
 
@@ -43,29 +43,29 @@ int main(int argc, char *argv[]) {
   int error = 0, cer = 0;
   int max_errors_allowed = MAX_ERRORS_ALLOWED;
 
-#if defined (__unix__) || (defined (__APPLE__) && defined (__MACH__))
+#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
   /* parse command line arguments */
   while ((c = getopt(argc, argv, "he:")) != -1) {
     switch (c) {
-      case 'h':
-        prhelp();
-        return 0;
-      case 'e':
-        max_errors_allowed = atoi(optarg);
-        break;
-      default:
-        fprintf(stderr, "Usage: %s [-e MAX_ERRORS_ALLOWED]\n", argv[0]);
-        return 1;
+    case 'h':
+      prhelp();
+      return 0;
+    case 'e':
+      max_errors_allowed = atoi(optarg);
+      break;
+    default:
+      fprintf(stderr, "Usage: %s [-e MAX_ERRORS_ALLOWED]\n", argv[0]);
+      return 1;
     } /* switch c */
   }
 #endif
 
-  while (fgets(line, sizeof(line), stdin) && (error<max_errors_allowed)) {
+  while (fgets(line, sizeof(line), stdin) && (error < max_errors_allowed)) {
     if (5 == sscanf(line, "%d%c%d%c%d", &yr, &c, &mn, &c, &dm)) {
       try {
-      printf("%d\n", dso::modified_julian_day(dso::year(yr), dso::month(mn),
-                                              dso::day_of_month(dm))
-                         .as_underlying_type());
+        printf("%d\n", dso::modified_julian_day(dso::year(yr), dso::month(mn),
+                                                dso::day_of_month(dm))
+                           .as_underlying_type());
       } catch (std::exception &) {
         ++error;
       }
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (error>=max_errors_allowed) {
+  if (error >= max_errors_allowed) {
     fprintf(stderr, "Too many errors, giving up!\n");
     return 1;
   }

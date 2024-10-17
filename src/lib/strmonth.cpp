@@ -1,4 +1,4 @@
-#include "dtfund.hpp"
+#include "date_integral_types.hpp"
 #include <cstring>
 #ifdef _WIN32
 #include <string.h>

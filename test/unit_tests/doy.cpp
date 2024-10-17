@@ -1,4 +1,4 @@
-#include "dtfund.hpp"
+#include "calendar.hpp"
 #include <algorithm>
 #include <cassert>
 #include <vector>
@@ -25,8 +25,9 @@ int main() {
   assert(y1 - day_of_year(1) == day_of_year(2023));
   assert((y1 += day_of_year(1)) == day_of_year(2025));
   assert((y1 -= day_of_year(1)) == day_of_year(2024));
-  assert((y1 += 1) == day_of_year(2025));
-  assert((y1 -= 1) == day_of_year(2024));
+  // ALLOW_DT_INTEGRAL_MATH
+  // assert((y1 += 1) == day_of_year(2025));
+  // assert((y1 -= 1) == day_of_year(2024));
   assert((y1++) == day_of_year(2024));
   assert((++y1) == day_of_year(2026));
   assert((y1--) == day_of_year(2026));

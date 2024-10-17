@@ -1,4 +1,4 @@
-#include "dtfund.hpp"
+#include "calendar.hpp"
 #include <algorithm>
 #include <cassert>
 #include <vector>
@@ -25,8 +25,9 @@ int main() {
   assert(h1 - hours(1) == hours(2023));
   assert((h1 += hours(1)) == hours(2025));
   assert((h1 -= hours(1)) == hours(2024));
-  assert((h1 += 1) == hours(2025));
-  assert((h1 -= 1) == hours(2024));
+  // only allowed with ALLOW_DT_INTEGRAL_MATH
+  // assert((h1 += 1) == hours(2025));
+  // assert((h1 -= 1) == hours(2024));
   assert((h1++) == hours(2024));
   assert((++h1) == hours(2026));
   assert((h1--) == hours(2026));

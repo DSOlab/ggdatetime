@@ -1,7 +1,9 @@
 /** @file
- * Define/declare generic template functions to assist handling fundamental
+ *
+ * Define/declare generic template functions to assist handling of fundamental
  * date/time classes (normally defined in dtfund.hpp) and upgrade their user
  * interafaces.
+ *
  * This file uses C++ concepts if compilation is performed vs the C++20
  * standard.
  */
@@ -18,6 +20,7 @@
 
 namespace dso {
 
+/** Represent the format we want a datetime difference to be expressed at */
 enum class DateTimeDifferenceType {
   FractionalYears,
   FractionalDays,
@@ -25,6 +28,7 @@ enum class DateTimeDifferenceType {
 };
 
 /** Overload bool operator '==' for datetime fundamental types.
+ *
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_const_ref__()
@@ -44,6 +48,7 @@ constexpr bool operator==(DType a, DType b) noexcept {
 }
 
 /** Overload bool operator '!=' for datetime fundamental types.
+ *
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_const_ref__()
@@ -62,6 +67,7 @@ constexpr bool operator!=(DType a, DType b) noexcept {
 }
 
 /** Overload bool operator '>' for datetime fundamental types.
+ *
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_const_ref__()
@@ -79,6 +85,7 @@ constexpr bool operator>(DType a, DType b) noexcept {
 }
 
 /** Overload bool operator '>=' for datetime fundamental types.
+ *
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_const_ref__()
@@ -96,6 +103,7 @@ constexpr bool operator>=(DType a, DType b) noexcept {
 }
 
 /** Overload bool operator '<' for datetime fundamental types.
+ *
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_const_ref__()
@@ -113,6 +121,7 @@ constexpr bool operator<(DType a, DType b) noexcept {
 }
 
 /** Overload bool operator '<=' for datetime fundamental types.
+ *
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_const_ref__()
@@ -129,11 +138,13 @@ constexpr bool operator<=(DType a, DType b) noexcept {
   return a.__member_const_ref__() <= b.__member_const_ref__();
 }
 
-/** Overload bool operator '+' for datetime fundamental types
+/** Overload bool operator '+' for datetime fundamental types.
+ * 
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_const_ref__()
- * 3. right operand is any Integral type
+ * 3. both right and left operand should comply with (1) and (2).
+ *
  * This function will allow e.g.
  * modified_julian_day mjd_sum =
  *  modified_julian_day(123) + modified_julian_day(1);
@@ -151,12 +162,15 @@ constexpr DType operator+(DType _a, DType _b) noexcept {
   return DType(_a.__member_const_ref__() + _b.__member_const_ref__());
 }
 
+#ifdef ALLOW_DT_INTEGRAL_MATH
 /** Overload bool operator '+=' for datetime fundamental types when the right
  * operand is any integral type.
+ *
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_ref__()
  * 3. right operand is any Integral type
+ * 
  * This function will allow e.g.
  * modified_julian_day mjd (123);
  * mjd += 1;
@@ -171,13 +185,16 @@ constexpr DType &operator+=(DType &_a, I _intv) noexcept {
   _a.__member_ref__() += _intv;
   return _a;
 }
+#endif
 
 /** Overload bool operator '+=' for datetime fundamental types when the right
  * operand is the same type as the calling instance.
+ *
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_ref__()
  * 3. right and left operands are of the same type
+ * i
  * This function will allow e.g.
  * modified_julian_day mjd1 (123), mjd2 (132);
  * mjd1 += mjd2;
@@ -196,12 +213,15 @@ constexpr DType &operator+=(DType &_a, DType _b) noexcept {
   return _a;
 }
 
+#ifdef ALLOW_DT_INTEGRAL_MATH
 /** Overload bool operator '-=' for datetime fundamental types when the right
  * operand is any integral type.
+ *
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_ref__()
  * 3. right operand is any Integral type
+ *
  * This function will allow e.g.
  * modified_julian_day mjd (123);
  * mjd -= 1;
@@ -216,13 +236,16 @@ constexpr DType &operator-=(DType &_a, I _intv) noexcept {
   _a.__member_ref__() -= _intv;
   return _a;
 }
+#endif
 
 /** Overload bool operator '-=' for datetime fundamental types when the right
  * operand is of the same type as the calling instance.
+ *
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_ref__()
  * 3. right and left hand sides are of the same type
+ * 
  * This function will allow e.g.
  * modified_julian_day mjd1 (123), mjd2 (100);
  * mjd1 -= mjd2;
@@ -241,10 +264,12 @@ constexpr DType &operator-=(DType &_a, DType _b) noexcept {
   return _a;
 }
 
-/** Overload prefix increment operator '++' for datetime fundamental types
- * This function will be resolved for any type DType, which
+/** Overload prefix increment operator '++' for datetime fundamental types.
+ *
+ * This function will be resolved for any type DType, which:
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_ref__()
+ *
  * This function will allow e.g.
  * modified_julian_day mjd (123);
  * ++mjd;
@@ -263,10 +288,12 @@ constexpr DType &operator++(DType &_a) noexcept {
   return _a;
 }
 
-/** Overload postfix increment operator '++' for datetime fundamental types
+/** Overload postfix increment operator '++' for datetime fundamental types.
+ *
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_ref__()
+ *
  * This function will allow e.g.
  * modified_julian_day mjd (123);
  * mjd++;
@@ -286,10 +313,12 @@ constexpr DType operator++(DType &_a, int) noexcept {
   return tmp;
 }
 
-/** Overload prefix decrement operator '--' for datetime fundamental types
+/** Overload prefix decrement operator '--' for datetime fundamental types.
+ *
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_ref__()
+ * 
  * This function will allow e.g.
  * modified_julian_day mjd (123);
  * --mjd;
@@ -308,10 +337,12 @@ constexpr DType &operator--(DType &_a) noexcept {
   return _a;
 }
 
-/** Overload postfix decrement operator '--' for datetime fundamental types
+/** Overload postfix decrement operator '--' for datetime fundamental types.
+ *
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_ref__()
+ * 
  * This function will allow e.g.
  * modified_julian_day mjd (123);
  * mjd--;
@@ -331,6 +362,18 @@ constexpr DType operator--(DType &_a, int) noexcept {
   return tmp;
 }
 
+/** Overload bool operator '-' for datetime fundamental types.
+ * 
+ * This function will be resolved for any type DType, which
+ * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
+ * 2. has a member function named DType::__member_const_ref__()
+ * 3. both right and left operand should comply with (1) and (2).
+ *
+ * This function will allow e.g.
+ * modified_julian_day mjd_sum =
+ *  modified_julian_day(123) - modified_julian_day(1);
+ * Now sum's MJD will be 122
+ */
 #if __cplusplus >= 202002L
 template <gconcepts::is_fundamental_and_has_const_ref DType>
 #else
@@ -367,10 +410,11 @@ constexpr typename S::underlying_type max_days_allowed() {
  *
  * Cast an instance of any second type (aka any instance for which
  * is_of_sec_type is defined and is true) to any other second type. E.g.,
- * cast seconds to milliseconds or cast microseconds to seconds. Be warned,
- * that casting to less precission (e.g. microseconds to seconds) will cause
- * loss of precission (1 microsecond is not 1e-6 seconds, it is just 0
- * seconds, remember?).
+ * cast seconds to milliseconds or cast microseconds to seconds.
+ *
+ * @warning Be warned, that casting to less precission (e.g. microseconds to 
+ * seconds) will cause loss of precission (1 microsecond is not 1e-6 seconds, 
+ * it is just 0 seconds, remember?).
  *
  * @tparam Ssrc Any class of second type, i.e. any class S that has a (static)
  *         member variable S::is_of_sec_type set to true.
@@ -399,15 +443,19 @@ constexpr Strg cast_to(Ssrc s) noexcept {
 
   if constexpr (Strg::template sec_factor<long>() >=
                 Ssrc::template sec_factor<long>()) {
+    /* we are casting to a 'more precise' type; integral multiplication */
     constexpr const SecIntType factor =
         Strg::template sec_factor<SecIntType>() /
         Ssrc::template sec_factor<SecIntType>();
     return Strg(s.__member_ref__() * factor);
   } else {
-    // this is tricky! We must first compute the numerator and then the
-    // fraction. why? check this out seconds _s1 = cast_to<milliseconds,
-    // seconds>(milliseconds{2000L}); this is: (1/1000)*2000 which is 0 because
-    // 1/1000 is 0, but (2000*1)/1000 = 2 which is correct
+    /* casting to a 'less precise' type.
+     * this is tricky! We must first compute the numerator and then the
+     * fraction. why? check this out: 
+     * seconds _s1 = cast_to<milliseconds, seconds>(milliseconds{2000L}); 
+     * this is: (1/1000)*2000 which is 0 because 1/1000 is 0, but 
+     * (2000*1)/1000 = 2 which is correct.
+     */
     const auto numerator =
         s.__member_ref__() * Strg::template sec_factor<long>();
     return Strg(numerator / Ssrc::template sec_factor<long>());

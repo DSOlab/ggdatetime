@@ -1,5 +1,6 @@
 /** @file
- * Fundamental (core) datetime constants.
+ *
+ * Fundamental datetime constants.
  */
 
 #ifndef __DSO_DATETIME_CONSTANTS_HPP__

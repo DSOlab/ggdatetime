@@ -1,4 +1,5 @@
 /** @file
+ *
  * A fundamental, generic datetime class. This file contains the definition
  * (and implementation) of a datetime class to be used for Space Geodesy
  * applications.
@@ -7,10 +8,8 @@
 #ifndef __DTCALENDAR_NGPT__HPP__
 #define __DTCALENDAR_NGPT__HPP__
 
-#include "datetime_tops.hpp"
-#include "dtconcepts.hpp"
-#include "dtfund.hpp"
 #include "hms_time.hpp"
+#include "date_integral_types.hpp"
 #include <cassert>
 #include <cmath>
 #include <stdexcept>
@@ -50,6 +49,7 @@ int sgn(DType val) noexcept {
  * 5 days, 12 hours and 49 seconds. We assume a continuous time scale, no leap
  * seconds are taken into consideration --this is only an interval not an
  * actual datetime instance--.
+ *
  * A datetime_interval instance can only have positive (or zero) values (for
  * both of its members). However, seperate field is stored (i.e. \p m_sign) to
  * hold 'sign' information, so that a datetime_interval instance can be easily
@@ -57,9 +57,9 @@ int sgn(DType val) noexcept {
  * interval, will extend the datetime in the past.
  *
  * A datetime_interval instance has two fundamental parts (members):
- * - a day part (i.e. holding the days), and
- * - a time part (i.e. holding any type S i.e. any second type)
- * - a sign (i.e. an integer)
+ * - a day part (i.e. holding the integral days), and
+ * - a time part (i.e. holding any type S  of *second type)
+ * - a sign (i.e. an integer, we only consider its sign here, not the value)
  *
  * The purpose of this class is to work together with the datetime class.
  *
@@ -75,6 +75,14 @@ template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
 class datetime_interval {
   typedef typename S::underlying_type SecIntType;
   typedef modified_julian_day::underlying_type DaysIntType;
+
+private:
+  /** number of whole days in interval */
+  DaysIntType m_days;
+  /** number of *sec in interval */
+  SecIntType m_secs;
+  /** sign of interval (only care for the sign of m_sign) */
+  int m_sign;
 
 public:
   /** Default constructor (everything set to 0). */
@@ -138,26 +146,26 @@ public:
   }
 
   /** return number of days in interval, always positive */
-  DaysIntType days() const noexcept { return m_days; }
+  constexpr DaysIntType days() const noexcept { return m_days; }
 
   /** return number of *secs in interval, always positive */
-  S sec() const noexcept { return S(m_secs); }
+  constexpr S sec() const noexcept { return S(m_secs); }
 
   /** return number of *secs in interval, signed (not including whole days) */
   S signed_sec() const noexcept { return S(std::copysign(m_secs, m_sign)); }
 
   /** return the sign of the interval */
-  int sign() const noexcept { return m_sign; }
+  constexpr int sign() const noexcept { return m_sign; }
 
   /** Return the interval (days+*seconds) in seconds type S, ignoring sign */
-  S unsigned_total_sec() const noexcept {
+  constexpr S unsigned_total_sec() const noexcept {
     return S(m_secs + S::max_in_day * m_days);
   }
 
   /** Return the interval (days+*seconds) in seconds type S, using a negative
    * value if the instance is marked as 'negative'
    */
-  S signed_total_sec() const noexcept {
+  constexpr S signed_total_sec() const noexcept {
     return S(std::copysign(unsigned_total_sec().as_underlying_type(), m_sign));
   }
 
@@ -212,14 +220,6 @@ public:
   constexpr bool operator<=(const datetime_interval &d) const noexcept {
     return m_days < d.m_days || (m_days == d.m_days && m_secs <= d.m_secs);
   }
-
-private:
-  /** number of whole days in interval */
-  DaysIntType m_days;
-  /** number of *sec in interval */
-  SecIntType m_secs;
-  /** sign of interval (only care for the sign of m_sign) */
-  int m_sign;
 }; /* end class datetime_interval */
 
 /** @brief A generic, templatized Date/Time class.
@@ -402,7 +402,7 @@ public:
   constexpr S sec() const noexcept { return m_sec; }
 
   /** Seconds in day as fractional days */
-  FractionalDays fractional_days() const noexcept {
+  constexpr FractionalDays fractional_days() const noexcept {
     return dso::to_fractional_days<S>(m_sec);
   }
 

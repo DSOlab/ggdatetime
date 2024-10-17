@@ -1,4 +1,4 @@
-#include "dtfund.hpp"
+#include "date_integral_types.hpp"
 #include <algorithm>
 #include <array>
 #include <cassert>

@@ -9,7 +9,6 @@
 #define __DSO_DATETIME_TWOPARTDATES_ALTERNATIVE_HPP__
 
 #include "dtdatetime.hpp"
-#include "dtfund.hpp"
 
 namespace dso {
 

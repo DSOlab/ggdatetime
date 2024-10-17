@@ -1,4 +1,4 @@
-#include "dtfund.hpp"
+#include "date_integral_types.hpp"
 #include <stdexcept>
 
 dso::ymd_date::ymd_date(const dso::ydoy_date &ydoy) {
@@ -24,5 +24,5 @@ dso::ydoy_date dso::ymd_date::to_ydoy() const {
   int leap = yr().is_leap();
   int md = mn().as_underlying_type() - 1;
   return {yr(), dso::day_of_year(core::month_day[leap][md] +
-                                               dm().as_underlying_type())};
+                                 dm().as_underlying_type())};
 }

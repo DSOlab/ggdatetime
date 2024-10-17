@@ -1,4 +1,4 @@
-#include "dtfund.hpp"
+#include "date_integral_types.hpp"
 
 dso::ymd_date dso::ydoy_date::to_ymd() const noexcept {
   int guess = __doy.as_underlying_type() * 0.032;

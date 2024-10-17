@@ -1,4 +1,4 @@
-#include "dtfund.hpp"
+#include "date_integral_types.hpp"
 #include <cstring>
 #include <stdexcept>
 

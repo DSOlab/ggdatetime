@@ -4,9 +4,9 @@
 #include <cstdio>
 
 namespace {
-  /** just so it is not a magic number */
-  constexpr const int MONTHS_IN_YEAR = 12;
-}/* unnamed namespace */
+/** just so it is not a magic number */
+constexpr const int MONTHS_IN_YEAR = 12;
+} /* unnamed namespace */
 
 inline const char *skipws(const char *line) noexcept {
   const char *c = line;

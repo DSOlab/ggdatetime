@@ -36,6 +36,19 @@ $> ctest --test-dir build
 $> cd build && sudo make install
 ```
 
+## Compilation Options
+
+### `ALLOW_DT_INTEGRAL_MATH`
+
+This option will allow (some) selected operations between DateTime fundamental 
+types and integral numbers. For example, the following snippet would be valid:
+
+```
+Modified_julian_day mjd (123);
+mjd += 1;
+// Now mjd's internal member, will have a value of 124.
+```
+
 ## Examples
 
 Consult the test programs source code in the 

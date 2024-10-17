@@ -5,9 +5,10 @@
 #ifndef __DSO_DATETIME_HMSTIME_HPP__
 #define __DSO_DATETIME_HMSTIME_HPP__
 
-#include "dtfund.hpp"
+#include "time_int2flt.hpp"
 
 namespace dso {
+
 /** A struct to hold time as hours (of day), minutes (of hour) and *seconds of
  * minute.
  */
@@ -27,13 +28,13 @@ class hms_time {
   S _sec;
 
 public:
-  hours hr() const noexcept { return _hours; }
-  minutes mn() const noexcept { return _minutes; }
-  S nsec() const noexcept { return _sec; }
+  constexpr hours hr() const noexcept { return _hours; }
+  constexpr minutes mn() const noexcept { return _minutes; }
+  constexpr S nsec() const noexcept { return _sec; }
 
   /** Constructor from hours, minutes and *seconds. No validation performed!!
    */
-  hms_time(hours hr, minutes mn, S sec) noexcept
+  constexpr hms_time(hours hr, minutes mn, S sec) noexcept
       : _hours(hr), _minutes(mn), _sec(sec) {}
 
   /** @brief Check if instance is 'normally' split between hours, minutes and
@@ -46,7 +47,7 @@ public:
    *  2. minutes are in range [0,60), and
    *  3. nsec are in range [0,max_nsec_in_one_minute)
    */
-  bool is_valid() const noexcept {
+  constexpr bool is_valid() const noexcept {
     return (hr() >= hours(0) && hr() < hours(24)) &&
            (mn() >= minutes(0) && mn() < minutes(60)) &&
            (nsec() >= S(0) &&
@@ -80,7 +81,7 @@ public:
    */
   template <typename Sto, typename = std::enable_if_t<Sto::is_of_sec_type>>
   FractionalSeconds fractional_seconds() const noexcept {
-    const double scale =
+    constexpr const double scale =
         Sto::template sec_factor<double>() / S::template sec_factor<double>();
     const SecIntType b =
         mn().as_underlying_type() * 60L + hr().as_underlying_type() * 60L * 60L;
@@ -89,11 +90,11 @@ public:
   }
 
   template <typename Sto, typename = std::enable_if_t<Sto::is_of_sec_type>>
-  Sto integral_seconds() const noexcept {
+  constexpr Sto integral_seconds() const noexcept {
     /* hours and minuts as SecIntType */
-    const SecIntType b =
+    constexpr const SecIntType b =
         mn().as_underlying_type() * 60L + hr().as_underlying_type() * 60L * 60L;
-    const SecIntType c = b * Sto::template sec_factor<SecIntType>();
+    constexpr const SecIntType c = b * Sto::template sec_factor<SecIntType>();
     /* add the current seconds */
     return Sto(c) + cast_to<S, Sto>(_sec);
   }

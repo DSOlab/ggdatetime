@@ -422,8 +422,8 @@ dso::TwoPartDate from_char(const char *str, const char **end = nullptr) {
   }
   /* resolve time */
   str = stop;
-  const hms_time<dtextra::picoseconds> hms(
-      ReadInTime<dtextra::picoseconds, FT>::read(str, &stop));
+  const hms_time<picoseconds> hms(
+      ReadInTime<picoseconds, FT>::read(str, &stop));
   if (!hms.is_valid()) {
     fprintf(stderr, "[ERROR] Failed to resolved read-in time (traceback: %s)\n",
             __func__);
@@ -469,8 +469,8 @@ dso::TwoPartDateUTC from_utc_char(const char *str, const char **end = nullptr) {
   }
   /* resolve time */
   str = stop;
-  const hms_time<dtextra::picoseconds> hms(
-      ReadInTime<dtextra::picoseconds, FT>::read(str, &stop));
+  const hms_time<picoseconds> hms(
+      ReadInTime<picoseconds, FT>::read(str, &stop));
   if (!hms.is_valid()) {
     /* not always an error, if seconds are 60, it could be ok on a leap
      * insertion day
