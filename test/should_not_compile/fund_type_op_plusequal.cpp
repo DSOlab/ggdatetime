@@ -8,5 +8,4 @@ int main() {
   mjd += 1;
   assert(mjd.as_underlying_type() == 124);
   return 0;
-  
 }

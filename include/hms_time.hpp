@@ -108,7 +108,7 @@ public:
         3600L * S::template sec_factor<SecIntType>();
     /* compute/remove hours */
     const SecIntType hr = isecs / secInHour;
-    _hours = hr;
+    _hours = hours(hr);
     SecIntType remaining = isecs - _hours.as_underlying_type() * secInHour;
 #ifdef DEBUG
     assert(remaining < secInHour);
@@ -118,13 +118,13 @@ public:
         60L * S::template sec_factor<SecIntType>();
     /* compute/remove minutes */
     const SecIntType mn = remaining / secInMin;
-    _minutes = mn;
+    _minutes = minutes(mn);
     remaining = remaining - _minutes.as_underlying_type() * secInMin;
 #ifdef DEBUG
     assert(remaining < secInMin);
 #endif
     /* remaining S seconds */
-    _sec = remaining;
+    _sec = S(remaining);
 #ifdef DEBUG
     assert(_sec.as_underlying_type() +
                secInMin * _minutes.as_underlying_type() +

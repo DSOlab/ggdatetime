@@ -1,13 +1,31 @@
 /** @file
  *
+ * Define date types/classes that are based on integral types (i.e. a year).
+ *
+ * The following table lists the classes defined here, along with their main
+ * (internal) member functions/vars used by generic template function to
+ * define their behavior. See core/fundamental_types_generic_utilities.hpp
+ * --------------------+----------------+-------------+--------------+
+ * Class Name          |is_dt_\         |__member_\   |__member_\    |
+ *                     |fundamental_type|const_ref__()|_ref__()      |
+ * --------------------+----------------+-------------+--------------+
+ * year                | yes            | yes         | yes          |
+ * month               | yes            | yes         | yes          |
+ * gps_week            | yes            | yes         | yes          |
+ * day_of_month        | yes            | yes         | yes          |
+ * day_of_year         | yes            | yes         | yes          |
+ * ymd_date            | no             | no          | no           |
+ * ydoy_date           | no             | no          | no           |
+ * modified_julian_day | yes            | yes         | yes          |
+ * --------------------+----------------+-------------+--------------+
+ *
  */
 
 #ifndef __DSO_DATE_INTEGRAL_TYPES_HPP__
 #define __DSO_DATE_INTEGRAL_TYPES_HPP__
 
-#include "core/fundamental_types_generic_utilities.hpp"
 #include "core/fundamental_calendar_utils.hpp"
-#include <cmath>
+#include "core/fundamental_types_generic_utilities.hpp"
 
 namespace dso {
 
@@ -95,23 +113,17 @@ int dat(modified_julian_day mjd, int &extra_sec_in_day) noexcept;
  * A year is represented by just an integer number. There are no limits
  * (excpept from integer overflow) to the range of the year.
  *
- * A year is not an integer; hence, operations with integral values (aka
- * addition, subtraction, etc) are not allowed (they will actually triger a
- * compilation error). The only thing that is allowed, is assigning from
- * integral types.
- * @code
- *   year yr {2019};
- *   yr = year + 1; // error!
- *   yr = 2018;     // ok
- * @endcode
+ * A year is not an integer; hence, operations with integral values are not
+ * allowed (they will actually triger a compilation error).
  *
  * This is a fundamental class, which means it only has one arithmetic member
  * variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>',
  * '>=') are going to be implemented using kinda reflection, using template
  * function overloadnig outside the class.
  * The same goes for operators '++' (post- pre-increment) and '--' (post-
- * pre-decrement), '+=T' and '-=T' where T is either a year or any integral
- * type.
+ * pre-decrement), '+=T' and '-=T' where T is year.
+ *
+ * @see core/fundamental_types_generic_utilities.hpp
  */
 class year {
 public:
@@ -140,11 +152,13 @@ public:
   constexpr underlying_type &__member_ref__() noexcept { return m_year; }
 
   /** Constructor; default year is 1900.
+   *
    * Note that the constrcutor is NOT explicit to allow construction from
    * int (aka to allow lines of codes of type: year y = 1901;)
    */
   constexpr year(underlying_type i = 1900) noexcept : m_year(i) {}
 
+#ifdef ALLOW_DT_INTEGRAL_MATH
   /** Overload operator '=' where the the right-hand-side is any integral type.
    *
    * @tparam  I any integral type, aka any type with std::is_integral_v<I> is
@@ -161,6 +175,7 @@ public:
     __member_ref__() = static_cast<underlying_type>(_intv);
     return *this;
   }
+#endif
 
   /** Get the year as year::underlying_type. */
   constexpr underlying_type as_underlying_type() const noexcept {
@@ -203,8 +218,9 @@ private:
  * '>=') are going to be implemented using kinda reflection, using template
  * function overloadnig outside the class.
  * The same goes for operators '++' (post- pre-increment) and '--' (post-
- * pre-decrement), '+=T' and '-=T' where T is either a year or any integral
- * type.
+ * pre-decrement), '+=T' and '-=T' where T is month.
+ *
+ * @see core/fundamental_types_generic_utilities.hpp
  *
  * @warning Most functions (within dso) accept months in the range [1,12];
  *          do not use the range [0,11], except if you realy know what you're
@@ -234,6 +250,7 @@ public:
    *
    * This is an explicit constructor, we do not want users to be able to do
    * month m = 1;
+   *
    * @warning No check is performed by default for the input value \p i , so
    *   you can practically assign month=123. If you want a validity check, use
    *   the month::is_valid function (after construction).
@@ -241,6 +258,7 @@ public:
   explicit constexpr month(underlying_type i = 1) noexcept : m_month(i) {};
 
   /** @brief Constructor from a c-string.
+   *
    * Given a c-string (i.e. null-terminating char array), resolve the month.
    * The c-string can be either a short name (i.e. a 3-character name), e.g.
    * "Jan", or the whole, normal month name e.g. "January".
@@ -249,14 +267,15 @@ public:
    * than 3-chars, the month::long_names array is used.
    * The function is case-insensitive, i.e. "January", "JANUARY" and "JanUAry"
    * are all considered the same.
-   * If the input string cannot be matced to any of the strings in short_names
-   * and long_names, then an exception is thrown of type: std::invalid_argument
-   * Note that the month will be returned in the "normal" range [1,12],
-   * **not** [0-11].
+   * If the input string cannot be matched to any of the strings in
+   * short_names or long_names, then an exception is thrown of type:
+   * std::invalid_argument. Note that the month will be returned in the
+   * "normal" range [1,12], **not** [0-11].
    *
    * @param[in] str The month's name; The string should match a month in the
    *    month::short_names or month::long_names array. The string should be
    *    null-trerminated.
+   *
    * @throw An std::invalid_argument exception is thrown if a) no
    *    match is found, or b) the input string is too short.
    */
@@ -284,6 +303,7 @@ public:
    * The function will first perform a validity check on the instance (i.e.
    * make sure the month is within [1,12]; if the instance is invalid, it will
    * throw.
+   *
    * @return Returns a pointer to the class's (static member) month::long_names
    *         string array.
    */
@@ -319,18 +339,21 @@ private:
  * of 05 January 1980 / morning of 06 January 1980. Since that time, the
  * count has been incremented by 1 each week, and broadcast as part of the GPS
  * message.
+ *
  * A gps week is represented by just an integer number. There are no limits
- * (excpept from integer overflow) to the range of the month (integer), i.e.
- * the week is not checked (by default) to be in any range. So, a user
- * can construct a gps_week from whatever integer.
+ * (excpept from integer overflow) to the range of gps_week, i.e. the week is
+ * not checked (by default) to be in any range. So, a user can construct a
+ * gps_week from whatever integer. You can use the is_valid member function,
+ * but this will only check it the GPS Week is > 0.
  *
  * This is a fundamental class, which means it only has one arithmetic member
  * variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>',
  * '>=') are going to be implemented using kinda reflection, using template
  * function overloadnig outside the class.
  * The same goes for operators '++' (post- pre-increment) and '--' (post-
- * pre-decrement), '+=T' and '-=T' where T is either a year or any integral
- * type.
+ * pre-decrement), '+=T' and '-=T' where T is gps_weeek.
+ *
+ * @see core/fundamental_types_generic_utilities.hpp type.
  */
 class gps_week {
 public:
@@ -358,6 +381,7 @@ public:
    */
   explicit constexpr gps_week(underlying_type i = 1) noexcept : m_week(i) {};
 
+#ifdef ALLOW_DT_INTEGRAL_MATH
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
  *         is true
@@ -373,6 +397,7 @@ public:
     __member_ref__() = static_cast<underlying_type>(_intv);
     return *this;
   }
+#endif
 
   /** Get the month as month::underlying_type */
   constexpr underlying_type as_underlying_type() const noexcept {
@@ -380,7 +405,7 @@ public:
   }
 
   /** Check if the instance is valid, aka if the week is the range [0,+Inf) */
-  constexpr bool is_valid() const noexcept { return m_week >= 0; }
+  constexpr bool is_valid() const noexcept { return m_week > 0; }
 
 private:
   /** The month as underlying_type. */
@@ -393,6 +418,13 @@ private:
  * are set though, so the user can construct a day_of_month from whatever
  * integer. Inluding negative numbers!
  *
+ * A day_of_month is just a plain integer, and there is no limimtation/check
+ * on its values. E.g., client code can be:
+ * day_of_month day(-1312);
+ * which is perfectly valid! If you want to check whether a given isntance is
+ * indded valid, you case use the is_valid() function, which expects (also)
+ * the month and year, to fully perform the check.
+ *
  * This is a fundamental class, which means it only has one arithmetic member
  * variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>',
  * '>=') are going to be implemented using kinda reflection, using template
@@ -400,6 +432,8 @@ private:
  * The same goes for operators '++' (post- pre-increment) and '--' (post-
  * pre-decrement), '+=T' and '-=T' where T is either a year or any integral
  * type.
+ *
+ * @see core/fundamental_types_generic_utilities.hpp
  */
 class day_of_month {
 public:
@@ -430,6 +464,7 @@ public:
    */
   explicit constexpr day_of_month(underlying_type i = 1) noexcept : m_dom(i) {};
 
+#ifdef ALLOW_DT_INTEGRAL_MATH
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
  *         is true
@@ -445,6 +480,7 @@ public:
     __member_ref__() = static_cast<underlying_type>(_intv);
     return *this;
   }
+#endif
 
   /** Get the day_of_month as day_of_month::underlying_type */
   constexpr underlying_type as_underlying_type() const noexcept {
@@ -465,10 +501,8 @@ public:
   constexpr bool is_valid(dso::year y, dso::month m) const noexcept {
     if (m_dom < 1 || m_dom >= 32 || (!m.is_valid()))
       return false;
-
     /* If February in a leap year, 1, otherwise 0 */
     int ly = ((m.as_underlying_type() == 2) && y.is_leap());
-
     /* Validate day, taking into account leap years */
     return (m_dom <= dso::core::mtab[m.as_underlying_type() - 1] + ly);
   }
@@ -490,6 +524,8 @@ private:
  * variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>',
  * '>=') are going to be implemented using kinda reflection, using template
  * function overloadnig outside the class.
+ *
+ * @see core/fundamental_types_generic_utilities.hpp
  */
 class day_of_year {
 public:
@@ -518,6 +554,7 @@ public:
    * */
   explicit constexpr day_of_year(underlying_type i = 0) noexcept : m_doy(i) {};
 
+#ifdef ALLOW_DT_INTEGRAL_MATH
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
  *         is true
@@ -533,6 +570,7 @@ public:
     m_doy = i;
     return *this;
   }
+#endif
 
   /** Cast to underlying type **/
   constexpr underlying_type as_underlying_type() const noexcept {
@@ -562,7 +600,8 @@ private:
  */
 class ymd_date {
 public:
-  /** @brief ymd_date constructor
+  /** @brief ymd_date constructor.
+   *
    * No check for validity will be performed. If you want to check the
    * validity of the created instance, use ymd_date::is_valid
    */
@@ -570,9 +609,16 @@ public:
                      day_of_month d = day_of_month{}) noexcept
       : __year(y), __month(m), __dom(d) {}
 
+  /** @brief Constructor from a year, day of year.
+   *
+   * This constrcutor will first check to see if the input parameter is valid
+   * (via ydoy_data::isvalid()) and then constrcuct the corresponding date as
+   * ymd_date instance.
+   */
   ymd_date(const ydoy_date &ydoy);
 
-  /** @brief Check if the date is a valid calendar date
+  /** @brief Check if the date is a valid calendar date.
+   *
    * @return True if the date is valid, false otherwise.
    */
   constexpr bool is_valid() const noexcept {
@@ -589,7 +635,8 @@ public:
     return !(this->operator==(d));
   }
 
-  /** @brief Transform to year and day-of-year
+  /** @brief Transform to year and day-of-year.
+   *
    * The function will first check that the instance is a valid date, before
    * performing the transformation (to year and day of year). This is done
    * because an invalid ymd_date can result in a seamingly valid ydoy_date
@@ -622,30 +669,36 @@ private:
  * functions. Users can actually construct any date, even non-valid ones
  * (e.g. set year to 0). The constructor will not check the input parameters.
  * If users want to check the instance for validity, then they should use the
- * ymd_date::is_valid function.
+ * ydoy_date::is_valid function.
  */
 class ydoy_date {
 public:
-  /** @brief ymd_date constructor
+  /** @brief ydoy_date constructor.
+   *
    * No check for validity will be performed. If you want to check the
-   * validity of the created instance, use ymd_date::is_valid
+   * validity of the created instance, use ydoy_date::is_valid.
    */
   constexpr ydoy_date(year y = year{}, day_of_year d = day_of_year{}) noexcept
       : __year(y), __doy(d) {}
 
-  /** @brief Constructor from a Year/Month/DayOfMonth instance
-   * In case the input argument \p ymd is not a valid date, the constructor
+  /** @brief Constructor from a Year/Month/DayOfMonth instance.
+   *
+   * In case the input argument ymd is not a valid date, the constructor
    * will throw.
    */
   ydoy_date(const ymd_date &ymd)
       : __year(ymd.yr()), __doy(ymd.to_ydoy().dy()) {}
 
-  /** @brief Check if the date is a valid calendar date
+  /** @brief Check if the date is a valid calendar date.
+   *
    * @return True if the date is valid, false otherwise.
    */
   constexpr bool is_valid() const noexcept { return __doy.is_valid(__year); }
 
-  /** @brief Transform to year, month, day-of-month */
+  /** @brief Transform to year, month, day-of-month.
+   *
+   * No validation test performed on the calling instance.
+   */
   ymd_date to_ymd() const noexcept;
 
   /** operator '==' for ydoy_date instances */
@@ -702,13 +755,15 @@ constexpr ymd_date mjd2ymd(long mjd) noexcept {
 
 /** @brief A wrapper class for Modified Julian Day (i.e. integral days).
  *
- * A Modified Julian Day is represented by a long integer (there is no
+ * A Modified Julian Day is represented by an integral number (there is no
  * fractional part). Thus, a modified_julian_day only represents a date *not*
  * a datetime.
+ *
  * The Modified Julian Day, was introduced by space scientists in the late
  * 1950's. It is defined as \f$MJD = JD - 2400000.5\f$ The half day (used in
  * JD) is subtracted so that the day starts at midnight in conformance with
  * civil time reckoning.
+ *
  * The MJD is a convenient dating system with only 5 digits, sufficient for
  * most modern purposes. To convert between MJD and JD we need the Julian
  * Date of Modified Julian Date zero, aka MJD0_JD, which is 2400000.5
@@ -718,9 +773,9 @@ constexpr ymd_date mjd2ymd(long mjd) noexcept {
  * '>=') are going to be implemented using kinda reflection, using template
  * function overloadnig outside the class.
  * The same goes for operators '++' (post- pre-increment) and '--' (post-
- * pre-decrement), '+=T' and '-=T' where T is either a year or any integral
- * type.
+ * pre-decrement), '+=T' and '-=T' .
  *
+ * @see core/fundamental_types_generic_utilities.hpp
  * @see http://tycho.usno.navy.mil/mjd.html
  */
 class modified_julian_day {
@@ -749,9 +804,9 @@ public:
    */
   constexpr underlying_type &__member_ref__() noexcept { return m_mjd; }
 
-  /** @brief Max possible modified_julian_day
+  /** @brief Max possible modified_julian_day.
    *
-   * Note that we are return the maximum allowed integer here (not
+   * Note that we are returning the maximum allowed integer here (not
    * long/unsigned, etc..). This is for easy comparisson (i.e. guarding
    * against overflow when comparing with ints).
    */
@@ -759,7 +814,7 @@ public:
     return modified_julian_day{std::numeric_limits<int>::max()};
   }
 
-  /** @brief Min possible modified_julian_day
+  /** @brief Min possible modified_julian_day.
    *
    * Note that we are return the minimum allowed integer here (not
    * long/unsigned, etc..). This is for easy comparisson (i.e. guarding
@@ -769,13 +824,12 @@ public:
     return modified_julian_day{std::numeric_limits<int>::min()};
   }
 
-  /** Constructor; default Modified Julian Day is 1.
-   * This is a non-explicit constructor, hence we can perform:
-   * modified_julian_day mjd = 123456;
-   */
-  constexpr modified_julian_day(underlying_type i = 1) noexcept : m_mjd(i) {};
+  /** @brief Constructor; default Modified Julian Day is 1. */
+  constexpr explicit modified_julian_day(underlying_type i = 1) noexcept
+      : m_mjd(i) {};
 
   /** @brief Constructor from Year and DayOfYear.
+   *
    * The passed in date (year and doy) are tested to see if they represent a
    * valid date. If not, the constructor will throw!
    *
@@ -788,11 +842,24 @@ public:
   constexpr modified_julian_day(year iy, day_of_year id)
       : m_mjd(core::ydoy2mjd(iy.as_underlying_type(),
                              id.as_underlying_type())) {};
+
+  /** @brief Constructor from Year and DayOfYear.
+   *
+   * The passed in date (year and doy) are tested to see if they represent a
+   * valid date. If not, the constructor will throw!
+   *
+   * @param[in] iy The year.
+   * @param[in] id The day of year.
+   *
+   * @see "Remondi Date/Time Algorithms",
+   * http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
+   */
   modified_julian_day(const ydoy_date &ydoy)
       : m_mjd(core::ydoy2mjd(ydoy.yr().as_underlying_type(),
                              ydoy.dy().as_underlying_type())) {};
 
-  /** @brief Constructor from  calendar date
+  /** @brief Constructor from  calendar date.
+   *
    * The passed in date is tested to see if they represent a valid date. If
    * not, the constructor will throw!
    *
@@ -806,11 +873,25 @@ public:
   constexpr modified_julian_day(year y, month m, day_of_month d)
       : m_mjd(core::cal2mjd(y.as_underlying_type(), m.as_underlying_type(),
                             d.as_underlying_type())) {};
+
+  /** @brief Constructor from  calendar date.
+   *
+   * The passed in date is tested to see if they represent a valid date. If
+   * not, the constructor will throw!
+   *
+   * @param[in] y The year.
+   * @param[in] m The month.
+   * @param[in] d The day of month
+   *
+   * @see "Remondi Date/Time Algorithms",
+   * http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
+   */
   modified_julian_day(const ymd_date &ymd)
       : m_mjd(core::cal2mjd(ymd.yr().as_underlying_type(),
                             ymd.mn().as_underlying_type(),
                             ymd.dm().as_underlying_type())) {};
 
+#ifdef ALLOW_DT_INTEGRAL_MATH
   /** Overload operator '=' where the the right-hand-side is any integral type.
    * @tparam I any integral type, aka any type for which std::is_integral_v<I>
    *         is true
@@ -826,13 +907,15 @@ public:
     __member_ref__() = static_cast<underlying_type>(_intv);
     return *this;
   }
+#endif
 
   /** Get the modified_julian_day as modified_julian_day::underlying_type */
   constexpr underlying_type as_underlying_type() const noexcept {
     return m_mjd;
   }
 
-  /** Transform to Julian Day
+  /** @brief Transform to Julian Day.
+   *
    * The Julian Day is returned as a double; computed by the formula:
    * MJD = JD − 2400000.5
    * see https://en.wikipedia.org/wiki/Julian_day

@@ -1,6 +1,6 @@
 /** @file
  *
- * Fundamental (core) datetime types that are represented by floating point 
+ * Fundamental (core) datetime types that are represented by floating point
  * arithmetic.
  *
  * These are merely there to enforce type safety.
@@ -25,7 +25,8 @@ public:
   }
   constexpr underlying_type &__member_ref__() noexcept { return fsec; }
 
-  constexpr explicit FractionalSeconds(double _fsec = 0e0) noexcept : fsec(_fsec) {};
+  constexpr explicit FractionalSeconds(double _fsec = 0e0) noexcept
+      : fsec(_fsec) {};
   constexpr double seconds() const noexcept { return fsec; }
   constexpr double &seconds() noexcept { return fsec; }
 }; /* FractionalSeconds */
@@ -42,7 +43,8 @@ public:
   }
   constexpr underlying_type &__member_ref__() noexcept { return fdays; }
 
-  constexpr explicit FractionalDays(double _fdays = 0e0) noexcept : fdays(_fdays) {};
+  constexpr explicit FractionalDays(double _fdays = 0e0) noexcept
+      : fdays(_fdays) {};
   constexpr double days() const noexcept { return fdays; }
   constexpr double &days() noexcept { return fdays; }
 }; /* FractionalDays */

@@ -27,7 +27,7 @@ private:
    */
   int extra_seconds_in_day() const noexcept {
     int extra;
-    dat(_mjd, extra);
+    dat(modified_julian_day(_mjd), extra);
     return extra;
   }
 
@@ -56,7 +56,7 @@ private:
     return _mjd;
   }
 
-  constexpr explicit TwoPartDateUTC(int mjd, FDOUBLE secday) noexcept
+  explicit TwoPartDateUTC(int mjd, FDOUBLE secday) noexcept
       : _mjd(mjd), _fsec(secday) {
     normalize();
   }
@@ -216,7 +216,7 @@ public:
   void normalize() noexcept {
     assert(_fsec >= 0e0);
     int extra_sec_in_day;
-    dat(_mjd, extra_sec_in_day);
+    dat(modified_julian_day(_mjd), extra_sec_in_day);
     /* for each MJD, remove integral days. Each MJD may have a different
      * number of seconds, since we are in UTC time scale. Hence, iteratively
      * remove whole days using the number of seconds for each day
@@ -224,7 +224,7 @@ public:
     while (_fsec >= 86400e0 + extra_sec_in_day) {
       _fsec -= (86400e0 + extra_sec_in_day);
       ++_mjd;
-      dat(_mjd, extra_sec_in_day);
+      dat(modified_julian_day(_mjd), extra_sec_in_day);
     }
 #ifdef DEBUG
     if (_mjd)
@@ -548,7 +548,7 @@ public:
     if (utcsec < 0e0) {
       --utcmjd;
       int extrasec;
-      FDOUBLE secinday = SEC_PER_DAY + dat(utcmjd, extrasec);
+      FDOUBLE secinday = SEC_PER_DAY + dat(modified_julian_day(utcmjd), extrasec);
       utcsec = secinday + utcsec;
     }
     return TwoPartDateUTC(utcmjd, FractionalSeconds{utcsec});

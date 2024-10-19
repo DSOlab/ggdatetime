@@ -171,3 +171,13 @@ add_executable(sectype_casts sectype_casts.cpp)
 add_internal_includes(sectype_casts)
 target_link_libraries(sectype_casts PRIVATE datetime)
 add_test(NAME sectype_casts COMMAND sectype_casts)
+
+add_executable(datetime_static_ce_constructor datetime_static_ce_constructor.cpp)
+add_internal_includes(datetime_static_ce_constructor)
+target_link_libraries(datetime_static_ce_constructor PRIVATE datetime)
+add_test(NAME datetime_static_ce_constructor COMMAND datetime_static_ce_constructor)
+
+add_executable(datetime_interval_constructor datetime_interval_constructor.cpp)
+add_internal_includes(datetime_interval_constructor)
+target_link_libraries(datetime_interval_constructor PRIVATE datetime)
+add_test(NAME datetime_interval_constructor COMMAND datetime_interval_constructor)

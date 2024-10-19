@@ -8,219 +8,16 @@
 #ifndef __DTCALENDAR_NGPT__HPP__
 #define __DTCALENDAR_NGPT__HPP__
 
-#include "hms_time.hpp"
 #include "date_integral_types.hpp"
+#include "time_integral_types.hpp"
+#include "hms_time.hpp"
+#include "datetime_interval.hpp"
 #include <cassert>
 #include <cmath>
 #include <stdexcept>
 #include <type_traits>
 
 namespace dso {
-
-namespace core {
-/** Return +1 or -1 depending on the sign of the input (arithmetic) parameter
- *
- * @param[in] value Any arithmetic value
- * @return +1 if the passed in value is >=0; -1 otherwise
- */
-template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value>>
-int sgn(T val) noexcept {
-  return (T(0) <= val) - (val < T(0));
-}
-
-/** Specialization of core::sgn for fundamental datetime types */
-#if __cplusplus >= 202002L
-template <gconcepts::is_fundamental_and_has_ref DType>
-#else
-template <typename DType,
-          typename = std::enable_if_t<DType::is_dt_fundamental_type>,
-          typename = std::enable_if_t<std::is_member_function_pointer<
-              decltype(&DType::__member_ref__)>::value>>
-#endif
-int sgn(DType val) noexcept {
-  return (DType(0) <= val) - (val < DType(0));
-}
-
-} /* namespace core*/
-
-/** @brief A generic, templatized class to hold a datetime period/interval.
- *
- * A datetime_interval represents a time (datetime) interval or period, i.e.
- * 5 days, 12 hours and 49 seconds. We assume a continuous time scale, no leap
- * seconds are taken into consideration --this is only an interval not an
- * actual datetime instance--.
- *
- * A datetime_interval instance can only have positive (or zero) values (for
- * both of its members). However, seperate field is stored (i.e. \p m_sign) to
- * hold 'sign' information, so that a datetime_interval instance can be easily
- * used with a datetime instance. That means that e.g. 'adding' a negative
- * interval, will extend the datetime in the past.
- *
- * A datetime_interval instance has two fundamental parts (members):
- * - a day part (i.e. holding the integral days), and
- * - a time part (i.e. holding any type S  of *second type)
- * - a sign (i.e. an integer, we only consider its sign here, not the value)
- *
- * The purpose of this class is to work together with the datetime class.
- *
- * @tparam S Any class of 'second type', i.e. any class S that has a (static)
- *           member variable S::is_of_sec_type set to true. This can be
- *           dso::seconds, dso::milliseconds, dso::microseconds.
- */
-#if __cplusplus >= 202002L
-template <gconcepts::is_sec_dt S>
-#else
-template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
-#endif
-class datetime_interval {
-  typedef typename S::underlying_type SecIntType;
-  typedef modified_julian_day::underlying_type DaysIntType;
-
-private:
-  /** number of whole days in interval */
-  DaysIntType m_days;
-  /** number of *sec in interval */
-  SecIntType m_secs;
-  /** sign of interval (only care for the sign of m_sign) */
-  int m_sign;
-
-public:
-  /** Default constructor (everything set to 0). */
-  explicit constexpr datetime_interval() noexcept : m_days(0), m_secs(0) {};
-
-  /** Constructor from number of days and number of *seconds.
-   *
-   * The sign of the interval is extracted from \p days. The number of days
-   * and number of *seconds of the interval, are considered positive (i.e.
-   * absolute values of input parameters).
-   * For example to construct an interval of 2days + 2sec, use:
-   * datetime_interval<sec> interval(2, seconds(2));
-   * If you want to mark this interval as 'negative' (normally for algebraic
-   * operations with a datetime isntance), use:
-   * datetime_interval<sec> interval(-2, seconds(2));
-   * If you want to mark a 'negative' interval but the number of days is zero,
-   * then you should use:
-   * datetime_interval<sec> interval(0, seconds(-2));
-   * or
-   * datetime_interval<sec> interval(seconds(-2));
-   * and **NOT**
-   * datetime_interval<sec> interval(-0, seconds(2));
-   * since there is no 'signed 0' value.
-   *
-   * @warning It is not possible to differentiate between -0 and +0. Hence,
-   *          to construct an interval of 0 days and 1 secs (S), use:
-   *          datetime_interval(S(-1)) and **NOT**
-   *          datetime_interval(-0, S(1))
-   */
-  constexpr datetime_interval(DaysIntType days, S secs) noexcept
-      : m_days(days), m_secs(secs.as_underlying_type()),
-        m_sign(core::sgn(days)) {
-    normalize();
-  };
-
-  /** Constructor from number of *seconds. The sign of the interval is taken
-   * from \p secs. The number of *seconds of the interval is considered
-   * positive (i.e. absolute values of input parameter).
-   */
-  constexpr datetime_interval(S secs) noexcept
-      : m_days(0), m_secs(secs.as_underlying_type()), m_sign(1) {
-    normalize();
-  };
-
-  void normalize() noexcept {
-    /* number of whole days in seconds */
-    const DaysIntType more = std::copysign(m_secs, 1) / S::max_in_day;
-    /* leftover seconds (positive) */
-    const SecIntType s = std::copysign(m_secs, 1) - more * S::max_in_day;
-    /* add to current days, with the right sign */
-    const DaysIntType days =
-        std::copysign(m_days, m_sign) + std::copysign(more, m_secs);
-    /* member vars */
-    m_sign =
-        (days > 0) * 1 + (days < 0) * (-1) + (days == 0) * core::sgn(m_secs);
-    m_secs = s;
-    m_days = std::copysign(days, 1);
-#ifdef DEBUG
-    assert(m_days >= 0 && (m_secs >= 0 && m_secs < S::max_in_day));
-#endif
-  }
-
-  /** return number of days in interval, always positive */
-  constexpr DaysIntType days() const noexcept { return m_days; }
-
-  /** return number of *secs in interval, always positive */
-  constexpr S sec() const noexcept { return S(m_secs); }
-
-  /** return number of *secs in interval, signed (not including whole days) */
-  S signed_sec() const noexcept { return S(std::copysign(m_secs, m_sign)); }
-
-  /** return the sign of the interval */
-  constexpr int sign() const noexcept { return m_sign; }
-
-  /** Return the interval (days+*seconds) in seconds type S, ignoring sign */
-  constexpr S unsigned_total_sec() const noexcept {
-    return S(m_secs + S::max_in_day * m_days);
-  }
-
-  /** Return the interval (days+*seconds) in seconds type S, using a negative
-   * value if the instance is marked as 'negative'
-   */
-  constexpr S signed_total_sec() const noexcept {
-    return S(std::copysign(unsigned_total_sec().as_underlying_type(), m_sign));
-  }
-
-  template <DateTimeDifferenceType DT>
-  typename DateTimeDifferenceTypeTraits<DT>::dif_type
-  to_fraction() const noexcept {
-    /* the return type */
-    using RT = typename DateTimeDifferenceTypeTraits<DT>::dif_type;
-
-    if constexpr (DT == DateTimeDifferenceType::FractionalSeconds) {
-      /* difference in fractional seconds */
-      const double big = static_cast<double>(seconds::max_in_day * m_days);
-      return RT(m_sign * (big + to_fractional_seconds(S(m_secs)).seconds()));
-    } else if constexpr (DT == DateTimeDifferenceType::FractionalDays) {
-      /* difference in fractional days */
-      const double big = static_cast<double>(m_days);
-      return RT(m_sign * (big + to_fractional_days(S(m_secs)).days()));
-    } else {
-      /* difference in fractional years */
-      const double big = static_cast<double>(m_days);
-      return RT(m_sign * (big + to_fractional_days(S(m_secs)).days()) /
-                DAYS_IN_JULIAN_YEAR);
-    }
-  }
-
-  /** Overload equality operator. */
-  constexpr bool operator==(const datetime_interval &d) const noexcept {
-    return m_days == d.m_days && m_secs == d.m_secs;
-  }
-
-  /** Overload in-equality operator. */
-  constexpr bool operator!=(const datetime_interval &d) const noexcept {
-    return !(this->operator==(d));
-  }
-
-  /** Overload ">" operator. */
-  constexpr bool operator>(const datetime_interval &d) const noexcept {
-    return m_days > d.m_days || (m_days == d.m_days && m_secs > d.m_secs);
-  }
-
-  /** Overload ">=" operator. */
-  constexpr bool operator>=(const datetime_interval &d) const noexcept {
-    return m_days > d.m_days || (m_days == d.m_days && m_secs >= d.m_secs);
-  }
-
-  /** Overload "<" operator. */
-  constexpr bool operator<(const datetime_interval &d) const noexcept {
-    return m_days < d.m_days || (m_days == d.m_days && m_secs < d.m_secs);
-  }
-
-  /** Overload "<=" operator. */
-  constexpr bool operator<=(const datetime_interval &d) const noexcept {
-    return m_days < d.m_days || (m_days == d.m_days && m_secs <= d.m_secs);
-  }
-}; /* end class datetime_interval */
 
 /** @brief A generic, templatized Date/Time class.
  *
@@ -234,6 +31,7 @@ public:
  * dso::milliseconds, or dso::microseconds). Every method in the class will
  * (including constructors) will take provisions such that the *seconds are
  * in fact *seconds of day (i.e. do not surpass one day).
+ * 
  * Never use negative times; they actually have no physical meaning. Besides
  * that, they can cause UB.
  *
@@ -262,11 +60,13 @@ template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
 class datetime {
 private:
-  /** A constructor that will NOT call normalize! use with extra care. The
-   * char parameter is actually usseless, but is there to make sure that
-   * the user intents to use this function.
+  /** A constructor that will NOT call normalize! 
+   *
+   * Use with extra care. The char parameter is actually usseless, but is 
+   * there to make sure that the user intents to use this function.
    */
-  datetime(modified_julian_day mjd, S sec, [[maybe_unused]] char c) noexcept
+  constexpr datetime(modified_julian_day mjd, S sec,
+                     [[maybe_unused]] char c) noexcept
       : m_mjd(mjd), m_sec(sec) {};
 
 public:
@@ -279,31 +79,37 @@ public:
    * possible.
    */
   constexpr static datetime max() noexcept {
-    return datetime(modified_julian_day::max(), S(0));
+    return datetime(modified_julian_day::max(), S(0), 'c');
   }
 
   /** Minimum possible date (seconds are 0, modified_julian_day is min
    * possible.
    */
   constexpr static datetime min() noexcept {
-    return datetime(modified_julian_day::min(), S(0));
+    return datetime(modified_julian_day::min(), S(0), 'c');
   }
 
   /** Reference epoch (J2000.0), as a Modified Julian Date. */
   constexpr static datetime j2000_mjd() noexcept {
-    return datetime(modified_julian_day(51544), S(S::max_in_day / 2L));
+    return datetime(modified_julian_day(51544), S(S::max_in_day / 2L), 'c');
   }
 
   /** Default constructor. */
   explicit constexpr datetime() noexcept : m_mjd(dso::J2000_MJD), m_sec(0) {};
 
+  /** @brief Julian centuries since J2000.
+   *
+   * Note that a Julian Century has 365.25 days.
+   */
   double jcenturies_sinceJ2000() const noexcept {
     const double d_mjd = (double)(m_mjd.as_underlying_type());
     const double fdays = fractional_days(m_sec);
     return ((d_mjd - J2000_MJD) + fdays) / DAYS_IN_JULIAN_CENT;
   }
 
-  /** Constructor from year, month, day of month and sec type.
+  /** @brief Constructor from calendar date.
+   *
+   * Constructor from year, month, day of month and sec type.
    * If an invalid date is passed-in, the constructor will throw.
    */
   constexpr datetime(year y, month m, day_of_month d, S s)
@@ -311,8 +117,10 @@ public:
     this->normalize();
   };
 
-  /** Constructor from year, month, day of month and fractional seconds.
-   *  If an invalid date is passed-in, the constructor will throw.
+  /** @brief Constructor from calendar date and time.
+   *
+   * Constructor from year, month, day of month and fractional seconds.
+   * If an invalid date is passed-in, the constructor will throw.
    */
   constexpr datetime(year y, month m, day_of_month d, hours hr, minutes mn,
                      double fsecs)
@@ -320,18 +128,21 @@ public:
     this->normalize();
   }
 
-  /** Constructor from year, day of year and fractional seconds.
-   *  If an invalid date is passed-in, the constructor will throw.
+  /** @brief Constructor from year, day of year and time.
+   *
+   * Constructor from year, day of year and fractional seconds.
+   * If an invalid date is passed-in, the constructor will throw.
    */
   constexpr datetime(year y, day_of_year d, hours hr, minutes mn, double fsecs)
       : m_mjd(y, d), m_sec(hr, mn, fsecs) {
     this->normalize();
   }
 
-  /** Constructor from year, month, day of month, hours, minutes and second
-   * type S.
+  /** @brief Constructor from calendar date and time.
    *
-   *  If an invalid date is passed-in, the constructor will throw.
+   * Constructor from year, month, day of month, hours, minutes and second
+   * type S.
+   * If an invalid date is passed-in, the constructor will throw.
    */
   constexpr datetime(year y, month m, day_of_month d, hours hr = hours(0),
                      minutes mn = minutes(0), S sec = S(0))
@@ -339,15 +150,20 @@ public:
     this->normalize();
   }
 
-  /** Constructor from ymd_date and hms_time<S>. No validation performed. */
+  /** @brief Constructor from calendar date and time.
+   *
+   * Constructor from ymd_date and hms_time<S>. No validation performed. 
+   */
   datetime(const ymd_date &ymd, const hms_time<S> &hms) noexcept
       : m_mjd(ymd.yr(), ymd.mn(), ymd.dm()),
         m_sec(hms.hr(), hms.mn(), hms.nsec()) {
     this->normalize();
   }
 
-  /** Constructor from year, day of year, hours, minutes and second type S.
-   *  If an invalid date is passed-in, the constructor will throw.
+  /** @brief Constructor from year, day of year and time.
+   *
+   * Constructor from year, day of year, hours, minutes and second type S.
+   * If an invalid date is passed-in, the constructor will throw.
    */
   datetime(year y, day_of_year d, hours hr = hours(0), minutes mn = minutes(0),
            S sec = S(0))
@@ -355,37 +171,40 @@ public:
     this->normalize();
   }
 
-  /** Constructor from year, day of year, and second type S.
-   *  If an invalid date is passed-in, the constructor will throw.
+  /** @brief Constructor from year, day of year and time.
+   *
+   * Constructor from year, day of year, and second type S.
+   * If an invalid date is passed-in, the constructor will throw.
    */
   datetime(year y, day_of_year d, S sec) : m_mjd(y, d), m_sec(sec) {
     this->normalize();
   }
 
-  /** Constructor from modified julian day, hours, minutes and second type S.
-   *  If an invalid date is passed-in, the constructor will throw.
-   */
+  /** @brief Constructor from MJD and time. */
   constexpr datetime(modified_julian_day mjd, hours hr, minutes mn,
                      S sec) noexcept
       : m_mjd(mjd), m_sec(hr, mn, sec) {
     this->normalize();
   }
 
-  /** Constructor from modified julian day, and second type S. */
+  /** @brief Constructor from modified julian day, and second type S. */
   constexpr datetime(modified_julian_day mjd, S sec = S(0)) noexcept
       : m_mjd(mjd), m_sec(sec) {
     this->normalize();
   }
 
-  /** Constructor from modified julian day, and second type S. This version
-   * will **NOT** call normalize, hence be very very carefull when using it
+  /** @brief Non-normalizing constrcutor; be careful!
+   *
+   * Constructor from modified julian day, and second type S. This version
+   * will **NOT** call normalize, hence be very very carefull when using it.
+   * The sec part, should be positive and less than *sec of day (for type S).
    */
   static constexpr datetime non_normalize_construct(modified_julian_day mjd,
                                                     S sec) noexcept {
     return datetime(mjd, sec, 'y');
   }
 
-  /** Constructor from GPS Week and Seconds of Week */
+  /** @brief Constructor from GPS Week and Seconds of Week */
   constexpr datetime(gps_week w, S sow) noexcept
       : m_mjd(w.as_underlying_type() * 7 +
               sow.as_underlying_type() / S::max_in_day + JAN61980),
@@ -393,22 +212,22 @@ public:
     m_sec.remove_days();
   }
 
-  /** Get the Modified Julian Day (const). */
+  /** @brief Get the Modified Julian Day (const). */
   constexpr modified_julian_day imjd() const noexcept { return m_mjd; }
 
-  /** Get the number of *seconds (as type S) of the instance.
-   * @return The number of *seconds (as type S) of the instance.
-   */
+  /** @brief Get the number of *seconds (as type S) of the instance. */
   constexpr S sec() const noexcept { return m_sec; }
 
-  /** Seconds in day as fractional days */
+  /** @brief Seconds in day as fractional days */
   constexpr FractionalDays fractional_days() const noexcept {
     return dso::to_fractional_days<S>(m_sec);
   }
 
-  /** Operator '+' where the right-hand-side is an interval.
-   * Note that the addition here is algebraic, i.e. the interval is added to
-   * or subtracted from the instance, depending on its sign.
+  /** @brief Add an interval to a datetime.
+   *
+   * Operator '+' where the right-hand-side is an interval. Note that the 
+   * addition here is algebraic, i.e. the interval is added to or subtracted 
+   * from the instance, depending on its sign.
    * Hence, an interval of e.g. (- 2 days, 30 sec) will actually be subtracted
    * from the instance, not added to it.
    */
@@ -420,8 +239,9 @@ public:
     return datetime<S>(mjd, sec);
   }
 
-  /** Add a time interval to a datetime instance.
-   * Note that the addition here is algebraic, i.e. the interval is added to
+  /** @brief Add an interval to a datetime.
+   *
+   * Note that the aidition here is algebraic, i.e. the interval is added to
    * or subtracted from the instance, depending on its sign.
    * Hence, an interval of e.g. (- 2 days, 30 sec) will actually be subtracted
    * from the instance, not added to it.
@@ -432,14 +252,14 @@ public:
     this->normalize();
   }
 
-  /** Operator '-' between two instances, produces a (signed) interval */
+  /** @brief Operator '-' between two instances, produces a (signed) interval */
   constexpr datetime_interval<S>
-  operator-(const datetime<S> &dt) const noexcept {
+  operator-(const datetime<S> &other) const noexcept {
     /* big date at d1, small at d2 */
     auto d1 = *this;
-    auto d2 = dt;
+    auto d2 = other;
     int sgn = 1;
-    if (*this < dt) {
+    if (*this < other) {
       d1 = d2;
       d2 = *this;
       sgn = -1;
@@ -452,13 +272,13 @@ public:
     secs = secs + S::max_in_day * (secs < 0);
     DaysIntType days =
         d1.imjd().as_underlying_type() - d2.imjd().as_underlying_type();
-    /* note that id days are 0 and the sign is negative, it must be applied to
+    /* note that if days are 0 and the sign is negative, it must be applied to
      * the seconds part */
     return datetime_interval<S>(days * sgn,
                                 S(std::copysign(secs, (days == 0) * sgn)));
   }
 
-  /** Cast to any datetime<T> instance, regardless of what T is
+  /** @brief Cast to any datetime<T> instance, regardless of what T is.
    *
    * @tparam T    A 'second type'
    * @return The calling object as an instance of type datetime<T>
@@ -472,32 +292,32 @@ public:
     return datetime<T>(m_mjd, dso::cast_to<S, T>(m_sec));
   }
 
-  /** Overload equality operator. */
+  /** @brief Overload equality operator. */
   constexpr bool operator==(const datetime &d) const noexcept {
     return m_mjd == d.m_mjd && m_sec == d.m_sec;
   }
 
-  /** Overload in-equality operator. */
+  /** @brief Overload in-equality operator. */
   constexpr bool operator!=(const datetime &d) const noexcept {
     return !(this->operator==(d));
   }
 
-  /** Overload ">" operator. */
+  /** @brief Overload ">" operator. */
   constexpr bool operator>(const datetime &d) const noexcept {
     return m_mjd > d.m_mjd || (m_mjd == d.m_mjd && m_sec > d.m_sec);
   }
 
-  /** Overload ">=" operator. */
+  /** @brief Overload ">=" operator. */
   constexpr bool operator>=(const datetime &d) const noexcept {
     return m_mjd > d.m_mjd || (m_mjd == d.m_mjd && m_sec >= d.m_sec);
   }
 
-  /** Overload "<" operator. */
+  /** @brief Overload "<" operator. */
   constexpr bool operator<(const datetime &d) const noexcept {
     return m_mjd < d.m_mjd || (m_mjd == d.m_mjd && m_sec < d.m_sec);
   }
 
-  /** Overload "<=" operator. */
+  /** @brief Overload "<=" operator. */
   constexpr bool operator<=(const datetime &d) const noexcept {
     return m_mjd < d.m_mjd || (m_mjd == d.m_mjd && m_sec <= d.m_sec);
   }
@@ -526,7 +346,8 @@ public:
 #endif
   }
 
-  /** Get the difference between two datetime instances
+  /** @brief Get the difference between two datetime instances as some kind of
+   *  floating type time.
    *
    * The difference can be obtained as a fractional days or fractional seconds,
    * depending on the template parameter \p DT.
@@ -553,10 +374,16 @@ public:
     return m_sec.fractional_days() + jd;
   }
 
-  /** @brief Cast to year, month, day of month */
+  /** @brief Cast to year, month, day of month
+   *
+   * Only the date part is considered. Time (of day) is ignored.
+   */
   constexpr ymd_date as_ymd() const noexcept { return m_mjd.to_ymd(); }
 
-  /** @brief Cast to year, day_of_year */
+  /** @brief Cast to year, day_of_year.
+   *
+   * Only the date part is considered. Time (of day) is ignored.
+   */
   constexpr ydoy_date as_ydoy() const noexcept { return m_mjd.to_ydoy(); }
 
   /** @brief Convert to Julian Epoch */
@@ -573,6 +400,7 @@ public:
     return w;
   }
 
+  /** @brief Add seconds of any type (T). */
 #if __cplusplus >= 202002L
   template <gconcepts::is_sec_dt T>
 #else
@@ -589,7 +417,7 @@ public:
    * The two time scales are connected by the formula:
    * \f$ TT = TAI + ΔT \$ where \f$ ΔT = TT - TAI = 32.184 [sec] \f$
    */
-  constexpr datetime<S> tai2tt() const noexcept {
+  [[nodiscard]] constexpr datetime<S> tai2tt() const noexcept {
     constexpr const S dtat =
         dso::cast_to<nanoseconds, S>(nanoseconds(TT_MINUS_TAI_IN_NANOSEC));
     return datetime(m_mjd, m_sec + dtat);
@@ -600,7 +428,7 @@ public:
    * The two time scales are connected by the formula:
    * \f$ TT = TAI + ΔT \$ where \f$ ΔT = TT - TAI = 32.184 [sec] \f$
    */
-  constexpr datetime<S> tt2tai() const noexcept {
+  [[nodiscard]] constexpr datetime<S> tt2tai() const noexcept {
     constexpr const SecIntType dtat = static_cast<SecIntType>(
         TT_MINUS_TAI * S::template sec_factor<double>());
     return datetime(m_mjd, m_sec - dtat);
@@ -676,6 +504,33 @@ private:
   S m_sec;                   /** Time of day in S precision. */
 }; /* datetime<S> */
 
+/** @brief A generic, templatized Date/Time class to represent UTC dates.
+ *
+ * A datetimeUTC instance has two fundamental parts (members):
+ * - a date part (i.e. holding the year/month/day), and
+ * - a time part (i.e. holding hours/minutes/ *seconds)
+ *
+ * A datetime holds both a date and a time (i.e. of day). The date is stored
+ * as a Modified Julian Day (i.e. dso::modified_julian_day). The time of day
+ * can be stored via any class of 'second type', i.e. dso::seconds,
+ * dso::milliseconds, or dso::microseconds). Every method in the class will
+ * (including constructors) will take provisions such that the *seconds are
+ * in fact *seconds of day (i.e. do not surpass one day).
+ * 
+ * Never use negative times; they actually have no physical meaning. Besides
+ * that, they can cause UB.
+ *
+ * @tparam S Any class of 'second type', i.e. any class S that has a (static)
+ *           member variable S::is_of_sec_type set to true. This can be
+ *           dso::seconds, dso::milliseconds, dso::microseconds.
+ *
+ * @note Constructors can be called with the time part being more than one day;
+ *       (e.g.
+ *       \code{.cpp}
+ *         datetime<dso::seconds> d {year(2016), month(12), day_of_month(15),
+ *         seconds(86401};)
+ *       \endcode
+ */
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S>
 #else
@@ -688,25 +543,27 @@ public:
   /** Expose the underlying modified_julian_day int */
   typedef modified_julian_day::underlying_type DaysIntType;
 
-  /** Maximum possible date (seconds are 0, modified_julian_day is max
+  /** @brief Maximum possible date (seconds are 0, modified_julian_day is max
    * possible.
    */
   constexpr static datetimeUtc max() noexcept {
     return datetimeUtc(modified_julian_day::max(), S(0));
   }
 
-  /** Minimum possible date (seconds are 0, modified_julian_day is min
+  /** @brief Minimum possible date (seconds are 0, modified_julian_day is min
    * possible.
    */
   constexpr static datetimeUtc min() noexcept {
     return datetimeUtc(modified_julian_day::min(), S(0));
   }
 
-  /** Default constructor. */
+  /** @brief Default constructor. */
   explicit constexpr datetimeUtc() noexcept
       : m_mjd(dso::J2000_MJD), m_sec(0) {};
 
-  /** Constructor from year, month, day of month and sec type.
+  /** @brief Constructor from calendar date.
+   *
+   * Constructor from year, month, day of month and sec type.
    * If an invalid date is passed-in, the constructor will throw.
    */
   constexpr datetimeUtc(year y, month m, day_of_month d, S s)
@@ -714,7 +571,9 @@ public:
     this->normalize();
   };
 
-  /** Constructor from year, month, day of month and fractional seconds.
+  /** @brief Constructor from calendar date.
+   *
+   * Constructor from year, month, day of month and fractional seconds.
    *  If an invalid date is passed-in, the constructor will throw.
    */
   constexpr datetimeUtc(year y, month m, day_of_month d, hours hr, minutes mn,
@@ -723,8 +582,10 @@ public:
     this->normalize();
   }
 
-  /** Constructor from year, day of year and fractional seconds.
-   *  If an invalid date is passed-in, the constructor will throw.
+  /** @brief Constructor from year, day of year.
+   *
+   * Constructor from year, day of year and fractional seconds.
+   * If an invalid date is passed-in, the constructor will throw.
    */
   constexpr datetimeUtc(year y, day_of_year d, hours hr, minutes mn,
                         double fsecs)
@@ -732,10 +593,11 @@ public:
     this->normalize();
   }
 
-  /** Constructor from year, month, day of month, hours, minutes and second
-   * type S.
+  /** @brief Constructor from calndar date.
    *
-   *  If an invalid date is passed-in, the constructor will throw.
+   * Constructor from year, month, day of month, hours, minutes and second
+   * type S.
+   * If an invalid date is passed-in, the constructor will throw.
    */
   constexpr datetimeUtc(year y, month m, day_of_month d, hours hr = hours(0),
                         minutes mn = minutes(0), S sec = S(0))
@@ -743,15 +605,20 @@ public:
     this->normalize();
   }
 
-  /** Constructor from ymd_date and hms_time<S>. No validation performed. */
+  /** @brief Constructor from calendar date.
+   *
+   * Constructor from ymd_date and hms_time<S>. No validation performed. 
+   */
   datetimeUtc(const ymd_date &ymd, const hms_time<S> &hms) noexcept
       : m_mjd(ymd.yr(), ymd.mn(), ymd.dm()),
         m_sec(hms.hr(), hms.mn(), hms.nsec()) {
     this->normalize();
   }
 
-  /** Constructor from year, day of year, hours, minutes and second type S.
-   *  If an invalid date is passed-in, the constructor will throw.
+  /** @brief Constructor from year, day of year.
+   *
+   * Constructor from year, day of year, hours, minutes and second type S.
+   * If an invalid date is passed-in, the constructor will throw.
    */
   datetimeUtc(year y, day_of_year d, hours hr = hours(0),
               minutes mn = minutes(0), S sec = S(0))
@@ -759,15 +626,18 @@ public:
     this->normalize();
   }
 
-  /** Constructor from year, day of year, and second type S.
-   *  If an invalid date is passed-in, the constructor will throw.
+  /** @brief Constructor from year, day of year.
+   * 
+   * Constructor from year, day of year, and second type S.
+   * If an invalid date is passed-in, the constructor will throw.
    */
   datetimeUtc(year y, day_of_year d, S sec) : m_mjd(y, d), m_sec(sec) {
     this->normalize();
   }
 
-  /** Constructor from modified julian day, hours, minutes and second type S.
-   *  If an invalid date is passed-in, the constructor will throw.
+  /** @brief Constructor from MJD and time of day. 
+   *
+   * Constructor from modified julian day, hours, minutes and second type S.
    */
   constexpr datetimeUtc(modified_julian_day mjd, hours hr, minutes mn,
                         S sec) noexcept
@@ -775,18 +645,19 @@ public:
     this->normalize();
   }
 
-  /** Constructor from modified julian day, and second type S. */
+  /** @brief Constructor from MJD and time of day. 
+   * 
+   * Constructor from modified julian day, and second type S. 
+   */
   constexpr datetimeUtc(modified_julian_day mjd, S sec = S(0)) noexcept
       : m_mjd(mjd), m_sec(sec) {
     this->normalize();
   }
 
-  /** Get the Modified Julian Day (const). */
+  /** @brief Get the Modified Julian Day (const). */
   constexpr modified_julian_day imjd() const noexcept { return m_mjd; }
 
-  /** Get the number of *seconds (as type S) of the instance.
-   * @return The number of *seconds (as type S) of the instance.
-   */
+  /** @brief Get the number of *seconds (as type S) of the instance. */
   constexpr S sec() const noexcept { return m_sec; }
 
   /** Cast to any datetime<T> instance, regardless of what T is
@@ -803,32 +674,32 @@ public:
     return datetimeUtc<T>(m_mjd, dso::cast_to<S, T>(m_sec));
   }
 
-  /** Overload equality operator. */
+  /** @brief Overload equality operator. */
   constexpr bool operator==(const datetimeUtc &d) const noexcept {
     return m_mjd == d.m_mjd && m_sec == d.m_sec;
   }
 
-  /** Overload in-equality operator. */
+  /** @brief Overload in-equality operator. */
   constexpr bool operator!=(const datetimeUtc &d) const noexcept {
     return !(this->operator==(d));
   }
 
-  /** Overload ">" operator. */
+  /** @brief Overload ">" operator. */
   constexpr bool operator>(const datetimeUtc &d) const noexcept {
     return m_mjd > d.m_mjd || (m_mjd == d.m_mjd && m_sec > d.m_sec);
   }
 
-  /** Overload ">=" operator. */
+  /** @brief Overload ">=" operator. */
   constexpr bool operator>=(const datetimeUtc &d) const noexcept {
     return m_mjd > d.m_mjd || (m_mjd == d.m_mjd && m_sec >= d.m_sec);
   }
 
-  /** Overload "<" operator. */
+  /** @brief Overload "<" operator. */
   constexpr bool operator<(const datetimeUtc &d) const noexcept {
     return m_mjd < d.m_mjd || (m_mjd == d.m_mjd && m_sec < d.m_sec);
   }
 
-  /** Overload "<=" operator. */
+  /** @brief Overload "<=" operator. */
   constexpr bool operator<=(const datetimeUtc &d) const noexcept {
     return m_mjd < d.m_mjd || (m_mjd == d.m_mjd && m_sec <= d.m_sec);
   }
@@ -839,7 +710,12 @@ public:
   /** @brief Cast to year, day_of_year */
   constexpr ydoy_date as_ydoy() const noexcept { return m_mjd.to_ydoy(); }
 
-  /** Operator '-' between two instances, produces a (signed) interval */
+  /** @brief Overload '-' operator taking into account leap seconds. 
+   *
+   * Operator '-' between two instances, produces a (signed) interval, i.e. 
+   * the time lapsed between the two dates. Note that since the two epochs are 
+   * in UTC, leap seconds must be taken into account.
+   */
   constexpr datetime_interval<S>
   operator-(const datetimeUtc<S> &dt) const noexcept {
     /* big date at d1, small at d2 */
@@ -869,7 +745,7 @@ public:
         days * sgn, S(std::copysign(secs + ddat, (days == 0) * sgn)));
   }
 
-  /** @brief Normalize a datetime instance.
+  /** @brief Normalize a datetimeUTC instance.
    *
    * Split the date and time parts such that the time part is always less
    * than one day (i.e. make it time-of-day) and positive (i.e.>=0).
@@ -892,6 +768,7 @@ public:
     }
   }
 
+  /** @brief Add seconds of any type (T). */
 #if __cplusplus >= 202002L
   template <gconcepts::is_sec_dt T>
 #else

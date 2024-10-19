@@ -1,5 +1,7 @@
 /** @file
- * Datetime input/output (i.e. read/write) core utilities and definitions.
+ * 
+ * Utility function to assist datetime IO. They should not be used otside 
+ * this scope; they are taylor-made for specific purposes.
  */
 
 #ifndef __DSO_DATETIME_IO_CORE_HPP__

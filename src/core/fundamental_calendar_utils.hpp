@@ -1,13 +1,16 @@
 /** @file
  *
- * Fundamental (core) datetime algorithms.
- * Functions in here are core and do not include datetime types, hence 
- * provide no type-safety. They should be used with care and possibly as a 
- * hidden interface to more type-safe implementations.
+ * Fundamental (core) datetime algorithms. The functions in here are agnostic 
+ * w.r.t the classes defined by the project (i.e. year, mnoth, etc). They act 
+ * mostly on integral types, hence they should be used with care.
+ *
+ * Once the relevant datetime classes are available (in another hpp file), 
+ * they should be wrapped around the "correct" implementation enabling type
+ * safety.
  */
 
-#ifndef __DSO_DT_FUNDAMENTAL_CALENDAR_UTILS_HPP__
-#define __DSO_DT_FUNDAMENTAL_CALENDAR_UTILS_HPP__
+#ifndef __DSO_NONTYPE_CALENDAR_UTILS_HPP__
+#define __DSO_NONTYPE_CALENDAR_UTILS_HPP__
 
 #include <stdexcept>
 #include "cdatetime.hpp"

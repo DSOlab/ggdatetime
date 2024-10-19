@@ -33,8 +33,7 @@ template <gconcepts::is_sec_dt S>
 template <typename S, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
 FractionalSeconds to_fractional_seconds(S nsec) noexcept {
-  const double sec =
-      nsec.S::template cast_to<double>() * S::sec_inv_factor();
+  const double sec = nsec.S::template cast_to<double>() * S::sec_inv_factor();
   return FractionalSeconds(sec);
 }
 

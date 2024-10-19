@@ -1,12 +1,19 @@
 /** @file
  *
+ * The following table lists the classes defined here, along with their main
+ * (internal) member functions/vars used by generic template function to
+ * define their behavior. See core/fundamental_types_generic_utilities.hpp
+ * --------------------+----------------+-------------+--------------+
+ * Class Name          |is_dt_\         |__member_\   |__member_\    |
+ *                     |fundamental_type|const_ref__()|_ref__()      |
+ * --------------------+----------------+-------------+--------------+
+ * --------------------+----------------+-------------+--------------+
  */
 
 #ifndef __DSO_TIME_INTEGRAL_TYPES_HPP__
 #define __DSO_TIME_INTEGRAL_TYPES_HPP__
 
 #include "core/fundamental_types_generic_utilities.hpp"
-#include <cmath>
 #include <cstdint>
 #include <limits>
 
@@ -32,13 +39,13 @@ class picoseconds;
  * hours -- normally hour of day, although no such restriction exists --.
  * In case a subdivision is needed (e.g. minutes, seconds, etc), then use
  * the corresponsing classes (ndso::minutes, dso::seconds, etc...).
- * If the code is compiled with the switch USE_DATETIME_CHECKS, then the
- * hours (constructor) can only have zero or positive values.
  *
  * This is a fundamental class, which means it only has one arithmetic member
  * variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>',
  * '>=') are going to be implemented using kinda reflection, using template
  * function overloadnig outside the class.
+ *
+ * @see core/fundamental_types_generic_utilities.hpp
  */
 class hours {
 public:
@@ -63,6 +70,7 @@ public:
   /** Constructor; default hours is 0, but any hour will do */
   explicit constexpr hours(underlying_type i = 0) noexcept : m_hours(i) {};
 
+#ifdef ALLOW_DT_INTEGRAL_MATH
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
  *         is true
@@ -78,6 +86,7 @@ public:
     m_hours = i;
     return *this;
   }
+#endif
 
   /** Get the hours as hours::underlying_type */
   constexpr underlying_type as_underlying_type() const noexcept {
@@ -101,13 +110,13 @@ private:
  * minutes -- normally min of hours, although no such restriction exists --.
  * In case a subdivision is needed (e.g. seconds, milliseconds etc), then use
  * the corresponsing classes (dso::seconds, dso::milliseconds, etc...).
- * If the code is compiled with the switch USE_DATETIME_CHECKS, then the
- * minutes (constructor) can only have zero or positive values.
  *
  * This is a fundamental class, which means it only has one arithmetic member
  * variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>',
  * '>=') are going to be implemented using kinda reflection, using template
- * function overloadnig outside the class.
+ * function overloading outside the class.
+ *
+ * @see core/fundamental_types_generic_utilities.hpp
  */
 class minutes {
 public:
@@ -132,6 +141,7 @@ public:
   /** Constructor; any integral number will do */
   explicit constexpr minutes(underlying_type i = 0) noexcept : m_min(i) {};
 
+#ifdef ALLOW_DT_INTEGRAL_MATH
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
  *         is true
@@ -147,6 +157,7 @@ public:
     m_min = i;
     return *this;
   }
+#endif
 
   /** Get the minutes as minutes::underlying_type */
   constexpr underlying_type as_underlying_type() const noexcept {
@@ -160,11 +171,12 @@ private:
 
 /** @brief A wrapper class for seconds.
  *
- * seconds is just a wrapper class around long integer numbers, i.e. a second
- * is just a long int and can be either positive or negative. Users are however
+ * seconds is just a wrapper class around integer numbers, i.e. a second is 
+ * just a long int and can be either positive or negative. Users are however
  * restricted by integer overflow. The maximum number of days that can be
  * expressed in seconds without fear of overflow is given by the template
  * function dso::max_days_allowed.
+ *
  * Negative seconds are allowed (so that a user can perform basic operations
  * like e.g. addition), but some functions expect only positive seconds
  * (seconds::remove_days, seconds::to_days).
@@ -177,6 +189,8 @@ private:
  * variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>',
  * '>=') are going to be implemented using kinda reflection, using template
  * function overloadnig outside the class.
+ *
+ * @see core/fundamental_types_generic_utilities.hpp
  *
  * @warning The maximum number of days that can be expressed in seconds without
  *          fear of overflow is given by the template function
@@ -231,6 +245,7 @@ public:
               static_cast<underlying_type>(m.as_underlying_type()) * 60L +
               static_cast<underlying_type>(h.as_underlying_type()) * 3600L} {};
 
+#ifdef ALLOW_DT_INTEGRAL_MATH
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
  *         is true
@@ -246,6 +261,7 @@ public:
     m_sec = i;
     return *this;
   }
+#endif
 
   /** Get the seconds as seconds::underlying_type */
   constexpr underlying_type as_underlying_type() const noexcept {
@@ -283,14 +299,13 @@ private:
  * dso::seconds, dso::microseconds, etc); quite a few methods should be
  * common to all of these classes, all of which have a member variable
  * milliseconds::is_of_sec_type which is set to true.
- * If the code is compiled with the switch USE_DATETIME_CHECKS, then the
- * milliseconds (constructor) can only have zero or positive values.
  *
  * This is a fundamental class, which means it only has one arithmetic member
  * variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>',
  * '>=') are going to be implemented using kinda reflection, using template
  * function overloadnig outside the class.
  *
+ * @see core/fundamental_types_generic_utilities.hpp
  * @see dso::seconds
  * @see dso::microseconds
  */
@@ -347,6 +362,7 @@ public:
                static_cast<underlying_type>(h.as_underlying_type()) * 60L) *
                   sec_factor<underlying_type>() * 60L) {};
 
+#ifdef ALLOW_DT_INTEGRAL_MATH
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
  *         is true
@@ -362,6 +378,7 @@ public:
     m_sec = i;
     return *this;
   }
+#endif
 
   /** Get the milliseconds as milliseconds::underlying_type. */
   constexpr underlying_type as_underlying_type() const noexcept {
@@ -406,18 +423,13 @@ private:
  * dso::seconds, dso::milliseconds, etc); quite a few methods should be
  * common to all of these classes, all of which have a member variable
  * microseconds::is_of_sec_type which is set to true.
- * If the code is compiled with the switch USE_DATETIME_CHECKS, then the
- * microseconds (constructor) can only have zero or positive values.
  *
  * This is a fundamental class, which means it only has one arithmetic member
  * variable. The classe's bollean operators (aka '==', '!=', '<', '<=', '>',
  * '>=') are going to be implemented using kinda reflection, using template
  * function overloadnig outside the class.
  *
- * @note microseconds can be cast to dso::seconds and dso::milliseconds (via
- * a static_cast or a C-type cast) but the opposite is not true; i.e.
- * dso::seconds cannot be cast to microseconds.This is still an open question!
- *
+ * @see core/fundamental_types_generic_utilities.hpp
  * @see dso::seconds
  * @see dso::milliseconds
  */
@@ -474,6 +486,7 @@ public:
                static_cast<underlying_type>(h.as_underlying_type()) * 60L) *
                   sec_factor<underlying_type>() * 60L) {};
 
+#ifdef ALLOW_DT_INTEGRAL_MATH
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
  *         is true
@@ -489,6 +502,7 @@ public:
     m_sec = i;
     return *this;
   }
+#endif
 
   /** Cast to microseconds::underlying_type. */
   constexpr underlying_type as_underlying_type() const noexcept {
@@ -534,11 +548,7 @@ private:
  * '>=') are going to be implemented using kinda reflection, using template
  * function overloadnig outside the class.
  *
- * @note nanoseconds can be cast to dso::seconds, dso::milliseconds and
- * dso::microseconds (via a static_cast or a C-type cast) but the opposite is
- * not true; i.e. dso::seconds cannot be cast to nanoseconds.This is still
- * an open question!
- *
+ * @see core/fundamental_types_generic_utilities.hpp
  * @see dso::seconds
  * @see dso::milliseconds
  */
@@ -594,6 +604,7 @@ public:
                static_cast<underlying_type>(h.as_underlying_type()) * 60L) *
                   sec_factor<underlying_type>() * 60L) {};
 
+#ifdef ALLOW_DT_INTEGRAL_MATH
 /** Overload operator '=' where the the right-hand-side is any integral type.
  * @tparam I any integral type, aka any type for which std::is_integral_v<I>
  *         is true
@@ -609,6 +620,7 @@ public:
     m_sec = i;
     return *this;
   }
+#endif
 
   /** Cast to nanoseconds::underlying_type. */
   constexpr underlying_type as_underlying_type() const noexcept {
@@ -640,9 +652,6 @@ private:
 }; /* class nanoseconds */
 
 /** @brief A wrapper class for picoseconds (i.e 10**-12 sec.).
- *
- * Please revert from using this class if possible! It cannot hold negative
- * numbers hence, arithmetic operations are dangerous!
  */
 class picoseconds {
 public:
@@ -692,6 +701,18 @@ public:
   /** Cast to picoseconds::underlying_type. */
   constexpr underlying_type as_underlying_type() const noexcept {
     return m_sec;
+  }
+
+/** Cast to any arithmetic type. */
+#if __cplusplus >= 202002L
+  template <typename T>
+    requires gconcepts::arithmetic<T>
+#else
+  template <typename T,
+            typename = std::enable_if_t<std::is_arithmetic<T>::value>>
+#endif
+  constexpr T cast_to() const noexcept {
+    return static_cast<T>(m_sec);
   }
 
 private:

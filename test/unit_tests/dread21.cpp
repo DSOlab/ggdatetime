@@ -46,9 +46,9 @@ int main() {
   char buf1[64], buf2[64];
 
   for (auto const &d : leap_insertion_dates) {
-    datetime<nanoseconds> tai(modified_julian_day(d).as_underlying_type());
+    datetime<nanoseconds> tai{modified_julian_day(d)};
     tai.add_seconds(seconds(86400 - 1));
-    datetimeUtc<nanoseconds> utc(modified_julian_day(d).as_underlying_type());
+    datetimeUtc<nanoseconds> utc{modified_julian_day(d)};
     utc.add_seconds(seconds(86400 - 1));
 
     /* we are now at 23:59:59 */
