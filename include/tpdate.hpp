@@ -548,7 +548,8 @@ public:
     if (utcsec < 0e0) {
       --utcmjd;
       int extrasec;
-      FDOUBLE secinday = SEC_PER_DAY + dat(modified_julian_day(utcmjd), extrasec);
+      FDOUBLE secinday =
+          SEC_PER_DAY + dat(modified_julian_day(utcmjd), extrasec);
       utcsec = secinday + utcsec;
     }
     return TwoPartDateUTC(utcmjd, FractionalSeconds{utcsec});

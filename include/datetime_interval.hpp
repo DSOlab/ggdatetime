@@ -1,8 +1,8 @@
 /** @file
  *
- * Define a datetime_interval type. This corresponds, physically, to a time 
+ * Define a datetime_interval type. This corresponds, physically, to a time
  * duration, measured in a given precision (e.g. seconds, milliseconds, etc).
- * This class will assist the datetime class; for example, the difference of 
+ * This class will assist the datetime class; for example, the difference of
  * two datetime's will be a datetime_interval.
  */
 

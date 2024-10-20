@@ -2,18 +2,18 @@
  *
  * Define a datetime<S> class to represent a time point, i.e. an epoch in a
  * UTC time-scale. UTC is a special time-scale (that is why we can't use just
- * a datetime<S> instance for this scale), where every now and then leap 
+ * a datetime<S> instance for this scale), where every now and then leap
  * seconds are introduced, making the time-scale non-continuous.
  *
- * This is a template class, based on 
- * template parameter S, which can be any type for which S::is_of_sec_type 
- * exists and is true. Practically, this means S can be any *second type, and 
- * this actually represents the 'precision' by which we are measuring and 
+ * This is a template class, based on
+ * template parameter S, which can be any type for which S::is_of_sec_type
+ * exists and is true. Practically, this means S can be any *second type, and
+ * this actually represents the 'precision' by which we are measuring and
  * representing time.
  */
 
-#ifndef __DSO_INTEGRAL_DATETIME_UTC___HPP__
-#define __DSO_INTEGRAL_DATETIME_UTC___HPP__
+#ifndef __DSO_INTEGRAL_DATETIME_UTC__HPP__
+#define __DSO_INTEGRAL_DATETIME_UTC__HPP__
 
 #include "dtdatetime.hpp"
 
@@ -31,7 +31,7 @@ namespace dso {
  * dso::milliseconds, or dso::microseconds). Every method in the class will
  * (including constructors) will take provisions such that the *seconds are
  * in fact *seconds of day (i.e. do not surpass one day).
- * 
+ *
  * Never use negative times; they actually have no physical meaning. Besides
  * that, they can cause UB.
  *
@@ -92,7 +92,7 @@ public:
    *  If an invalid date is passed-in, the constructor will throw.
    */
   constexpr datetime_utc(year y, month m, day_of_month d, hours hr, minutes mn,
-                        double fsecs)
+                         double fsecs)
       : m_mjd(y, m, d), m_sec(hr, mn, fsecs) {
     this->normalize();
   }
@@ -103,7 +103,7 @@ public:
    * If an invalid date is passed-in, the constructor will throw.
    */
   constexpr datetime_utc(year y, day_of_year d, hours hr, minutes mn,
-                        double fsecs)
+                         double fsecs)
       : m_mjd(y, d), m_sec(hr, mn, fsecs) {
     this->normalize();
   }
@@ -115,14 +115,14 @@ public:
    * If an invalid date is passed-in, the constructor will throw.
    */
   constexpr datetime_utc(year y, month m, day_of_month d, hours hr = hours(0),
-                        minutes mn = minutes(0), S sec = S(0))
+                         minutes mn = minutes(0), S sec = S(0))
       : m_mjd(y, m, d), m_sec(hr, mn, sec) {
     this->normalize();
   }
 
   /** @brief Constructor from calendar date.
    *
-   * Constructor from ymd_date and hms_time<S>. No validation performed. 
+   * Constructor from ymd_date and hms_time<S>. No validation performed.
    */
   datetime_utc(const ymd_date &ymd, const hms_time<S> &hms) noexcept
       : m_mjd(ymd.yr(), ymd.mn(), ymd.dm()),
@@ -136,13 +136,13 @@ public:
    * If an invalid date is passed-in, the constructor will throw.
    */
   datetime_utc(year y, day_of_year d, hours hr = hours(0),
-              minutes mn = minutes(0), S sec = S(0))
+               minutes mn = minutes(0), S sec = S(0))
       : m_mjd(y, d), m_sec(hr, mn, sec) {
     this->normalize();
   }
 
   /** @brief Constructor from year, day of year.
-   * 
+   *
    * Constructor from year, day of year, and second type S.
    * If an invalid date is passed-in, the constructor will throw.
    */
@@ -150,19 +150,19 @@ public:
     this->normalize();
   }
 
-  /** @brief Constructor from MJD and time of day. 
+  /** @brief Constructor from MJD and time of day.
    *
    * Constructor from modified julian day, hours, minutes and second type S.
    */
   constexpr datetime_utc(modified_julian_day mjd, hours hr, minutes mn,
-                        S sec) noexcept
+                         S sec) noexcept
       : m_mjd(mjd), m_sec(hr, mn, sec) {
     this->normalize();
   }
 
-  /** @brief Constructor from MJD and time of day. 
-   * 
-   * Constructor from modified julian day, and second type S. 
+  /** @brief Constructor from MJD and time of day.
+   *
+   * Constructor from modified julian day, and second type S.
    */
   constexpr datetime_utc(modified_julian_day mjd, S sec = S(0)) noexcept
       : m_mjd(mjd), m_sec(sec) {
@@ -225,10 +225,10 @@ public:
   /** @brief Cast to year, day_of_year */
   constexpr ydoy_date as_ydoy() const noexcept { return m_mjd.to_ydoy(); }
 
-  /** @brief Overload '-' operator taking into account leap seconds. 
+  /** @brief Overload '-' operator taking into account leap seconds.
    *
-   * Operator '-' between two instances, produces a (signed) interval, i.e. 
-   * the time lapsed between the two dates. Note that since the two epochs are 
+   * Operator '-' between two instances, produces a (signed) interval, i.e.
+   * the time lapsed between the two dates. Note that since the two epochs are
    * in UTC, leap seconds must be taken into account.
    */
   constexpr datetime_interval<S>
@@ -267,7 +267,8 @@ public:
    * Remove whole days of from the time part and add them to the date part.
    */
   constexpr void normalize() noexcept {
-    if (m_sec >= S(0) && m_sec < S(S::max_in_day)) return;
+    if (m_sec >= S(0) && m_sec < S(S::max_in_day))
+      return;
     /* TODO handle case when m_sec < 0 */
     assert(m_sec >= S(0));
     int extra_sec_in_day = 0;
@@ -389,18 +390,31 @@ inline int dat(const datetime<T> &t) noexcept {
 
 /* TODO move this outta here */
 namespace datetime_ranges {
-enum class OverlapComparissonType { 
-  /* aka non-inclusive; if the ranges overlap only on a boundary, then they 
-   * are considered as non-overlating. 
+enum class OverlapComparissonType {
+  /* aka non-inclusive; if the ranges overlap only on a boundary, then they
+   * are considered as non-overlating.
    */
   Strict,
-  /* aka inclusive; two ranges overlap even if they only coincide on one of 
+  /* aka inclusive; two ranges overlap even if they only coincide on one of
    * the boundaries.
    */
-  AllowEdgesOverlap 
+  AllowEdgesOverlap
 }; /* OverlapComparissonType */
 } /* namespace datetime_ranges */
 
+/** @brief Check if two datetime ranges/periods overlap.
+ *
+ * The template parameter \p O, dictates how the function compares the
+ * intervals when and if they only overlap on border(s).
+ * If 'Strict' is used, then the ranges are considered non-inclusive, hence
+ * if they only overlap at the border (e.g. EndPeriodA = StartPeriodB) then
+ * they are considered as 'non-overlapping'. In the AllowEdgesOverLap, they
+ * are considered 'overlapping'.
+ * PeriodA = (2024/01/01 00:00:01 to 2024/01/01 00:00:02)
+ * PeriodB = (2024/01/01 00:00:02 to 2024/01/01 00:00:03)
+ * if \p O is 'Strict', then PeriodA and PeriodB are non-overlapping. If \p O
+ * is set to 'AllowEdgesOverLap' then they are considered overlapping.
+ */
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt T, datetime_ranges::OverlapComparissonType O>
 #else
@@ -408,17 +422,19 @@ template <typename T, datetime_ranges::OverlapComparissonType O,
           typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
 inline constexpr bool intervals_overlap(const datetime<T> &r1_start,
-                              const datetime<T> &r1_end,
-                              const datetime<T> &r2_start,
-                              const datetime<T> &r2_end) noexcept {
+                                        const datetime<T> &r1_end,
+                                        const datetime<T> &r2_start,
+                                        const datetime<T> &r2_end) noexcept {
   if constexpr (O == datetime_ranges::OverlapComparissonType::Strict) {
-    /* see https://stackoverflow.com/questions/325933/determine-whether-two-date-ranges-overlap/325964#325964 */
+    /* see
+     * https://stackoverflow.com/questions/325933/determine-whether-two-date-ranges-overlap/325964#325964
+     */
     return (r1_start < r2_end) && (r1_end > r2_start);
   } else {
     return (r1_start <= r2_end) && (r1_end >= r2_start);
   }
 }
 
-} /* namespce dso */
+} // namespace dso
 
 #endif

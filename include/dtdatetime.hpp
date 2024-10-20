@@ -1,10 +1,10 @@
 /** @file
  *
  * Define a datetime<S> class to represent a time point, i.e. an epoch in a
- * continuous time-scale (e.g. TAI). This is a template class, based on 
- * template parameter S, which can be any type for which S::is_of_sec_type 
- * exists and is true. Practically, this means S can be any *second type, and 
- * this actually represents the 'precision' by which we are measuring and 
+ * continuous time-scale (e.g. TAI). This is a template class, based on
+ * template parameter S, which can be any type for which S::is_of_sec_type
+ * exists and is true. Practically, this means S can be any *second type, and
+ * this actually represents the 'precision' by which we are measuring and
  * representing time.
  */
 
@@ -31,7 +31,7 @@ namespace dso {
  * dso::milliseconds, or dso::microseconds). Every method in the class will
  * (including constructors) will take provisions such that the *seconds are
  * in fact *seconds of day (i.e. do not surpass one day).
- * 
+ *
  * Never use negative times; they actually have no physical meaning. Besides
  * that, they can cause UB.
  *
@@ -60,9 +60,9 @@ template <class S, typename = std::enable_if_t<S::is_of_sec_type>>
 #endif
 class datetime {
 private:
-  /** @brief A constructor that will NOT call normalize! 
+  /** @brief A constructor that will NOT call normalize!
    *
-   * Use with extra care. The char parameter is actually usseless, but is 
+   * Use with extra care. The char parameter is actually usseless, but is
    * there to make sure that the user intents to use this function.
    */
   constexpr datetime(modified_julian_day mjd, S sec,
@@ -152,7 +152,7 @@ public:
 
   /** @brief Constructor from calendar date and time.
    *
-   * Constructor from ymd_date and hms_time<S>. No validation performed. 
+   * Constructor from ymd_date and hms_time<S>. No validation performed.
    */
   datetime(const ymd_date &ymd, const hms_time<S> &hms) noexcept
       : m_mjd(ymd.yr(), ymd.mn(), ymd.dm()),
@@ -225,8 +225,8 @@ public:
 
   /** @brief Algebraically add an interval to a datetime.
    *
-   * Operator '+' where the right-hand-side is an interval. Note that the 
-   * addition here is algebraic, i.e. the interval is added to or subtracted 
+   * Operator '+' where the right-hand-side is an interval. Note that the
+   * addition here is algebraic, i.e. the interval is added to or subtracted
    * from the instance, depending on its sign.
    * Hence, an interval of e.g. (- 2 days, 30 sec) will actually be subtracted
    * from the instance, not added to it.
@@ -329,7 +329,8 @@ public:
    * Remove whole days of from the time part and add them to the date part.
    */
   constexpr void normalize() noexcept {
-    if (m_sec >= S(0) && m_sec < S(S::max_in_day)) return;
+    if (m_sec >= S(0) && m_sec < S(S::max_in_day))
+      return;
     /* number of whole days in seconds (always positive) */
     const DaysIntType more =
         std::copysign(m_sec.as_underlying_type(), 1) / S::max_in_day;
@@ -363,9 +364,9 @@ public:
     return (this->operator-(d)).template to_fraction<DT>();
   }
 
-  /** @brief Cast to double (i.e. fractional) Modified Julian Date. 
+  /** @brief Cast to double (i.e. fractional) Modified Julian Date.
    *
-   * The resulting MJD will include the day and time of day as a floating 
+   * The resulting MJD will include the day and time of day as a floating
    * point number.
    */
   constexpr double fmjd() const noexcept {
@@ -375,7 +376,7 @@ public:
 
   /** @brief Cast to double (i.e. fractional) Julian Date.
    *
-   * The resulting JD will include the day and time of day as a floating 
+   * The resulting JD will include the day and time of day as a floating
    * point number.
    */
   constexpr double as_jd() const noexcept {

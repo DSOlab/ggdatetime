@@ -139,7 +139,7 @@ constexpr bool operator<=(DType a, DType b) noexcept {
 }
 
 /** Overload bool operator '+' for datetime fundamental types.
- * 
+ *
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_const_ref__()
@@ -170,7 +170,7 @@ constexpr DType operator+(DType _a, DType _b) noexcept {
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_ref__()
  * 3. right operand is any Integral type
- * 
+ *
  * This function will allow e.g.
  * modified_julian_day mjd (123);
  * mjd += 1;
@@ -245,7 +245,7 @@ constexpr DType &operator-=(DType &_a, I _intv) noexcept {
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_ref__()
  * 3. right and left hand sides are of the same type
- * 
+ *
  * This function will allow e.g.
  * modified_julian_day mjd1 (123), mjd2 (100);
  * mjd1 -= mjd2;
@@ -318,7 +318,7 @@ constexpr DType operator++(DType &_a, int) noexcept {
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_ref__()
- * 
+ *
  * This function will allow e.g.
  * modified_julian_day mjd (123);
  * --mjd;
@@ -342,7 +342,7 @@ constexpr DType &operator--(DType &_a) noexcept {
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_ref__()
- * 
+ *
  * This function will allow e.g.
  * modified_julian_day mjd (123);
  * mjd--;
@@ -363,7 +363,7 @@ constexpr DType operator--(DType &_a, int) noexcept {
 }
 
 /** Overload bool operator '-' for datetime fundamental types.
- * 
+ *
  * This function will be resolved for any type DType, which
  * 1. has a member (variable) DType::is_dt_fundamental_type set to true, and
  * 2. has a member function named DType::__member_const_ref__()
@@ -412,8 +412,8 @@ constexpr typename S::underlying_type max_days_allowed() {
  * is_of_sec_type is defined and is true) to any other second type. E.g.,
  * cast seconds to milliseconds or cast microseconds to seconds.
  *
- * @warning Be warned, that casting to less precission (e.g. microseconds to 
- * seconds) will cause loss of precission (1 microsecond is not 1e-6 seconds, 
+ * @warning Be warned, that casting to less precission (e.g. microseconds to
+ * seconds) will cause loss of precission (1 microsecond is not 1e-6 seconds,
  * it is just 0 seconds, remember?).
  *
  * @tparam Ssrc Any class of second type, i.e. any class S that has a (static)
@@ -451,9 +451,9 @@ constexpr Strg cast_to(Ssrc s) noexcept {
   } else {
     /* casting to a 'less precise' type.
      * this is tricky! We must first compute the numerator and then the
-     * fraction. why? check this out: 
-     * seconds _s1 = cast_to<milliseconds, seconds>(milliseconds{2000L}); 
-     * this is: (1/1000)*2000 which is 0 because 1/1000 is 0, but 
+     * fraction. why? check this out:
+     * seconds _s1 = cast_to<milliseconds, seconds>(milliseconds{2000L});
+     * this is: (1/1000)*2000 which is 0 because 1/1000 is 0, but
      * (2000*1)/1000 = 2 which is correct.
      */
     const auto numerator =

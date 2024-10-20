@@ -1,10 +1,10 @@
 /** @file
  *
- * Fundamental (core) datetime algorithms. The functions in here are agnostic 
- * w.r.t the classes defined by the project (i.e. year, mnoth, etc). They act 
+ * Fundamental (core) datetime algorithms. The functions in here are agnostic
+ * w.r.t the classes defined by the project (i.e. year, mnoth, etc). They act
  * mostly on integral types, hence they should be used with care.
  *
- * Once the relevant datetime classes are available (in another hpp file), 
+ * Once the relevant datetime classes are available (in another hpp file),
  * they should be wrapped around the "correct" implementation enabling type
  * safety.
  */
@@ -12,9 +12,9 @@
 #ifndef __DSO_NONTYPE_CALENDAR_UTILS_HPP__
 #define __DSO_NONTYPE_CALENDAR_UTILS_HPP__
 
-#include <stdexcept>
 #include "cdatetime.hpp"
 #include <cmath>
+#include <stdexcept>
 
 namespace dso::core {
 /** Number of days past at the end of non-leap and leap years. */

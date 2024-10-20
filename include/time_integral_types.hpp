@@ -171,7 +171,7 @@ private:
 
 /** @brief A wrapper class for seconds.
  *
- * seconds is just a wrapper class around integer numbers, i.e. a second is 
+ * seconds is just a wrapper class around integer numbers, i.e. a second is
  * just a long int and can be either positive or negative. Users are however
  * restricted by integer overflow. The maximum number of days that can be
  * expressed in seconds without fear of overflow is given by the template

@@ -357,7 +357,8 @@ dso::datetime<S> from_char(const char *str, const char **end = nullptr) {
 }
 
 template <YMDFormat FD, HMSFormat FT, typename S>
-dso::datetime_utc<S> from_utc_char(const char *str, const char **end = nullptr) {
+dso::datetime_utc<S> from_utc_char(const char *str,
+                                   const char **end = nullptr) {
   const char *stop;
   /* resolve date part */
   const ymd_date ymd(ReadInDate<FD>::read(str, &stop));

@@ -1,6 +1,6 @@
 /** @file
- * 
- * Utility function to assist datetime IO. They should not be used otside 
+ *
+ * Utility function to assist datetime IO. They should not be used otside
  * this scope; they are taylor-made for specific purposes.
  */
 

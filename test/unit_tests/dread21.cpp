@@ -128,7 +128,7 @@ int main() {
 
     datetime_utc<nanoseconds> utc00{modified_julian_day(d)};
     datetime_utc<nanoseconds> utc24{modified_julian_day(d) +
-                                   modified_julian_day(1)};
+                                    modified_julian_day(1)};
     tpd1 = utc24 - utc00;
     assert(tpd1.days() == 1);
     assert(tpd1.signed_sec() == nanoseconds(1 * F));
