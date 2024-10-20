@@ -181,3 +181,9 @@ add_executable(datetime_interval_constructor datetime_interval_constructor.cpp)
 add_internal_includes(datetime_interval_constructor)
 target_link_libraries(datetime_interval_constructor PRIVATE datetime)
 add_test(NAME datetime_interval_constructor COMMAND datetime_interval_constructor)
+
+add_executable(test_interval_overlap test_interval_overlap.cpp)
+add_internal_includes(test_interval_overlap)
+target_link_libraries(test_interval_overlap PRIVATE datetime)
+add_test(NAME test_interval_overlap COMMAND test_interval_overlap)
+

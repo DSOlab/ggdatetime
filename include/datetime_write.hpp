@@ -7,7 +7,7 @@
 #define __DSO_DATETIME_IO_WRITE_HPP__
 
 #include "core/datetime_io_core.hpp"
-#include "dtdatetime.hpp"
+#include "datetime_utc.hpp"
 #include "tpdate.hpp"
 #include <cstdio>
 #include <stdexcept>
@@ -220,7 +220,7 @@ to_char(const datetime<S> &d, char *buffer, const char date_delimeter = '/',
 
 template <YMDFormat FD, HMSFormat FT, typename S>
 const char *
-to_char(const datetimeUtc<S> &d, char *buffer, const char date_delimeter = '/',
+to_char(const datetime_utc<S> &d, char *buffer, const char date_delimeter = '/',
         const char time_delimeter = ':', const char date_time_delimeter = ' ') {
   /* write date to buffer */
   ymd_date ymd(d.as_ymd());

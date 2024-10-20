@@ -48,7 +48,7 @@ int main() {
   for (auto const &d : leap_insertion_dates) {
     datetime<nanoseconds> tai{modified_julian_day(d)};
     tai.add_seconds(seconds(86400 - 1));
-    datetimeUtc<nanoseconds> utc{modified_julian_day(d)};
+    datetime_utc<nanoseconds> utc{modified_julian_day(d)};
     utc.add_seconds(seconds(86400 - 1));
 
     /* we are now at 23:59:59 */
@@ -60,7 +60,7 @@ int main() {
       datetime<nanoseconds> d1 =
           from_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF, nanoseconds>(buf1);
       assert(d1 == tai);
-      datetimeUtc<nanoseconds> d2 =
+      datetime_utc<nanoseconds> d2 =
           from_utc_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF, nanoseconds>(
               buf2);
       assert(d2 == utc);
@@ -85,7 +85,7 @@ int main() {
       datetime<nanoseconds> d1 =
           from_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF, nanoseconds>(buf1);
       assert(d1 == tai);
-      datetimeUtc<nanoseconds> d2 =
+      datetime_utc<nanoseconds> d2 =
           from_utc_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF, nanoseconds>(
               buf2);
       assert(d2 == utc);
@@ -103,7 +103,7 @@ int main() {
       datetime<nanoseconds> d1 =
           from_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF, nanoseconds>(buf1);
       assert(d1 == tai);
-      datetimeUtc<nanoseconds> d2 =
+      datetime_utc<nanoseconds> d2 =
           from_utc_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF, nanoseconds>(
               buf2);
       assert(d2 == utc);
@@ -126,8 +126,8 @@ int main() {
     assert(tpd1.days() == 1);
     assert(tpd1.signed_sec() == nanoseconds(0));
 
-    datetimeUtc<nanoseconds> utc00{modified_julian_day(d)};
-    datetimeUtc<nanoseconds> utc24{modified_julian_day(d) +
+    datetime_utc<nanoseconds> utc00{modified_julian_day(d)};
+    datetime_utc<nanoseconds> utc24{modified_julian_day(d) +
                                    modified_julian_day(1)};
     tpd1 = utc24 - utc00;
     assert(tpd1.days() == 1);

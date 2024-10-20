@@ -7,8 +7,7 @@
 #define __DSO_DATETIME_IO_READ_HPP__
 
 #include "core/datetime_io_core.hpp"
-#include "dtdatetime.hpp"
-#include "hms_time.hpp"
+#include "datetime_utc.hpp"
 #include "tpdate.hpp"
 #include <stdexcept>
 
@@ -358,7 +357,7 @@ dso::datetime<S> from_char(const char *str, const char **end = nullptr) {
 }
 
 template <YMDFormat FD, HMSFormat FT, typename S>
-dso::datetimeUtc<S> from_utc_char(const char *str, const char **end = nullptr) {
+dso::datetime_utc<S> from_utc_char(const char *str, const char **end = nullptr) {
   const char *stop;
   /* resolve date part */
   const ymd_date ymd(ReadInDate<FD>::read(str, &stop));
@@ -387,7 +386,7 @@ dso::datetimeUtc<S> from_utc_char(const char *str, const char **end = nullptr) {
   if (end)
     *end = stop;
   /* compile datetime instance */
-  return datetimeUtc<S>(ymd, hms);
+  return datetime_utc<S>(ymd, hms);
 }
 
 /** Read in a Date and Time of Day string and resolve it to a TwoPartDate
