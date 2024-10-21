@@ -136,7 +136,7 @@ int main() {
       /* reach 23:59:59.999 999 999 */
       err = 0e0;
       for (int i = 0; i < (int)(1e9) - 1; i++)
-        tai.add_seconds(1e-9, err);
+        tai.add_seconds(FractionalSeconds(1e-9), err);
       std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);
       std::strcat(buf1, s_2359599);
       d1 = from_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
@@ -144,7 +144,7 @@ int main() {
       assert(equal_within_ulps(d1.seconds(), tai.seconds(), 1));
 
       /* one more nanosec will take to the next day */
-      tai.add_seconds(1e-9, err);
+      tai.add_seconds(FractionalSeconds(1e-9), err);
       assert(tai.imjd() == d1.imjd() + 1);
       d1 = TwoPartDate(modified_julian_day(d).as_underlying_type() + 1,
                        FractionalSeconds(0e0));
@@ -170,7 +170,7 @@ int main() {
       /* reach 23:59:59.999 999 999 */
       err = 0e0;
       for (int i = 0; i < (int)(1e9) - 1; i++)
-        utc.add_seconds(1e-9, err);
+        utc.add_seconds(FractionalSeconds(1e-9), err);
       std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);
       std::strcat(buf1, s_2359599);
       d1 = from_utc_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
@@ -178,7 +178,7 @@ int main() {
       assert(equal_within_ulps(d1.seconds(), utc.seconds(), 1));
 
       /* one more nanosec will take to next second, NOT the next day */
-      utc.add_seconds(1e-9, err);
+      utc.add_seconds(FractionalSeconds(1e-9), err);
       assert(utc.imjd() == d1.imjd());
       /* equal to YYYY-MM-DD 23:59:60 */
       std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);

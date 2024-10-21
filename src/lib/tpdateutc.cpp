@@ -1,9 +1,10 @@
 #include "tpdate.hpp"
+#include <cstdlib>
 
 dso::TwoPartDate
 dso::TwoPartDateUTC::operator-(const dso::TwoPartDateUTC &d) const noexcept {
   int days = imjd() - d.imjd();
-  double sec = seconds() - d.seconds();
+  FDOUBLE sec = seconds().seconds() - d.seconds().seconds();
   if (!days) {
     /*return dso::TwoPartDate(days, sec);*/
     ;

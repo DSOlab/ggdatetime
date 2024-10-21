@@ -63,7 +63,7 @@ int main() {
       /* do the same with SOFA */
       double epj_sofa;
       {
-        const double jd1 = d.seconds() / SEC_PER_DAY;
+        const double jd1 = d.seconds().seconds() / SEC_PER_DAY;
         const double jd2 = d.imjd() + MJD0_JD;
         const double sje = iauEpj(jd2, jd1);
         double jd11, jd21;

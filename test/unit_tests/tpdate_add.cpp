@@ -25,32 +25,32 @@ int main() {
     assert(td1.imjd() - 1 == d1.imjd().as_underlying_type());
     assert(td1.seconds() == 0e0);
 
-    td1 = datetime<nanoseconds>(year(2023), month(10), day_of_month(24),
-                                nanoseconds(0));
+    td1 = TwoPartDate(datetime<nanoseconds>(year(2023), month(10),
+                                            day_of_month(24), nanoseconds(0)));
     for (int i = 0; i < 2 * 86400; i++) {
       td1.add_seconds(FractionalSeconds(1e0));
     }
     assert(td1.imjd() - 2 == d1.imjd().as_underlying_type());
     assert(td1.seconds() == 0e0);
 
-    td1 = datetime<nanoseconds>(year(2023), month(10), day_of_month(24),
-                                nanoseconds(0));
+    td1 = TwoPartDate(datetime<nanoseconds>(year(2023), month(10),
+                                            day_of_month(24), nanoseconds(0)));
     for (int i = 0; i < 86400; i++) {
       td1.add_seconds(FractionalSeconds(-1e0));
     }
     assert(td1.imjd() + 1 == d1.imjd().as_underlying_type());
     assert(td1.seconds() == 0e0);
 
-    td1 = datetime<nanoseconds>(year(2023), month(10), day_of_month(24),
-                                nanoseconds(0));
+    td1 = TwoPartDate(datetime<nanoseconds>(year(2023), month(10),
+                                            day_of_month(24), nanoseconds(0)));
     for (int i = 0; i < 2 * 86400; i++) {
       td1.add_seconds(FractionalSeconds(-1e0));
     }
     assert(td1.imjd() + 2 == d1.imjd().as_underlying_type());
     assert(td1.seconds() == 0e0);
 
-    td1 = datetime<nanoseconds>(year(2023), month(10), day_of_month(24),
-                                nanoseconds(0));
+    td1 = TwoPartDate(datetime<nanoseconds>(year(2023), month(10),
+                                            day_of_month(24), nanoseconds(0)));
     for (int i = 0; i < 86400; i++) {
       td1.add_seconds(FractionalSeconds(2e0));
       td1.add_seconds(FractionalSeconds(-1e0));
