@@ -223,12 +223,12 @@ public:
 
     if constexpr (DT == DateTimeDifferenceType::FractionalSeconds) {
       /* difference in fractional seconds */
-      const double big = static_cast<double>(seconds::max_in_day * m_days);
-      return RT(m_sign * (big + to_fractional_seconds(m_secs)));
+      const auto big = static_cast<double>(seconds::max_in_day * m_days);
+      return RT(m_sign * (big + to_fractional_seconds(m_secs).seconds()));
     } else if constexpr (DT == DateTimeDifferenceType::FractionalDays) {
       /* difference in fractional days */
-      const double big = static_cast<double>(m_days);
-      return RT(m_sign * (big + to_fractional_days(m_secs)));
+      const auto big = static_cast<double>(m_days);
+      return RT(m_sign * (big + to_fractional_days(m_secs).days()));
     } else {
       /* difference in fractional years */
       const double big = static_cast<double>(m_days);

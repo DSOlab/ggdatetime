@@ -87,24 +87,24 @@ int main() {
     /* Datetime differences */
     auto tpd1 = tai - tai2359;
     assert(tpd1.imjd() == 0);
-    assert(tpd1.seconds() == 2e0);
+    assert(tpd1.seconds() == FractionalSeconds(2e0));
 
     tpd1 = utc - utc2359;
     assert(tpd1.imjd() == 0);
-    assert(tpd1.seconds() == 2e0);
+    assert(tpd1.seconds() == FractionalSeconds(2e0));
 
     /* One day after leap insertion */
     TwoPartDate tai00(modified_julian_day(d).as_underlying_type());
     TwoPartDate tai24(modified_julian_day(d).as_underlying_type() + 1);
     tpd1 = tai24 - tai00;
     assert(tpd1.imjd() == 1);
-    assert(tpd1.seconds() == 0e0);
+    assert(tpd1.seconds() == FractionalSeconds(0e0));
 
     TwoPartDateUTC utc00(modified_julian_day(d).as_underlying_type());
     TwoPartDateUTC utc24(modified_julian_day(d).as_underlying_type() + 1);
     tpd1 = utc24 - utc00;
     assert(tpd1.imjd() == 1);
-    assert(tpd1.seconds() == 1e0);
+    assert(tpd1.seconds() == FractionalSeconds(1e0));
   }
 
   return 0;

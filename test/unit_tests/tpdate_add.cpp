@@ -23,7 +23,7 @@ int main() {
       td1.add_seconds(FractionalSeconds(1e0));
     }
     assert(td1.imjd() - 1 == d1.imjd().as_underlying_type());
-    assert(td1.seconds() == 0e0);
+    assert(td1.seconds() == FractionalSeconds(0e0));
 
     td1 = TwoPartDate(datetime<nanoseconds>(year(2023), month(10),
                                             day_of_month(24), nanoseconds(0)));
@@ -31,7 +31,7 @@ int main() {
       td1.add_seconds(FractionalSeconds(1e0));
     }
     assert(td1.imjd() - 2 == d1.imjd().as_underlying_type());
-    assert(td1.seconds() == 0e0);
+    assert(td1.seconds() == FractionalSeconds(0e0));
 
     td1 = TwoPartDate(datetime<nanoseconds>(year(2023), month(10),
                                             day_of_month(24), nanoseconds(0)));
@@ -39,7 +39,7 @@ int main() {
       td1.add_seconds(FractionalSeconds(-1e0));
     }
     assert(td1.imjd() + 1 == d1.imjd().as_underlying_type());
-    assert(td1.seconds() == 0e0);
+    assert(td1.seconds() == FractionalSeconds(0e0));
 
     td1 = TwoPartDate(datetime<nanoseconds>(year(2023), month(10),
                                             day_of_month(24), nanoseconds(0)));
@@ -47,7 +47,7 @@ int main() {
       td1.add_seconds(FractionalSeconds(-1e0));
     }
     assert(td1.imjd() + 2 == d1.imjd().as_underlying_type());
-    assert(td1.seconds() == 0e0);
+    assert(td1.seconds() == FractionalSeconds(0e0));
 
     td1 = TwoPartDate(datetime<nanoseconds>(year(2023), month(10),
                                             day_of_month(24), nanoseconds(0)));
@@ -56,7 +56,7 @@ int main() {
       td1.add_seconds(FractionalSeconds(-1e0));
     }
     assert(td1.imjd() - 1 == d1.imjd().as_underlying_type());
-    assert(td1.seconds() == 0e0);
+    assert(td1.seconds() == FractionalSeconds(0e0));
   }
 
   { /* second part using random dates */
