@@ -232,7 +232,7 @@ public:
     } else {
       /* difference in fractional years */
       const double big = static_cast<double>(m_days);
-      return RT(m_sign * (big + to_fractional_days(m_secs)) /
+      return RT(m_sign * (big + to_fractional_days(m_secs).days()) /
                 DAYS_IN_JULIAN_YEAR);
     }
   }
