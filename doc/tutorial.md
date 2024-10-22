@@ -1,6 +1,9 @@
 # DSO's Datetime Library for Satellite Geodesy
 -----------------------------------------------
 
+[![clang-format Check](https://github.com/DSOlab/ggdatetime/actions/workflows/clang-format-check.yml/badge.svg)](https://github.com/DSOlab/ggdatetime/actions/workflows/clang-format-check.yml)
+[![Linux CI build](https://github.com/DSOlab/ggdatetime/actions/workflows/cpp-linux-build.yml/badge.svg)](https://github.com/DSOlab/ggdatetime/actions/workflows/cpp-linux-build.yml)
+
 ## Installation
 
 Source code is ISO C++17. Compilation should be trivial using any C++ compiler 
@@ -126,6 +129,18 @@ handled-specially-(see-[Epochs-in-Continuous-Time-Scales-aka-UTC](#epochs-in-con
 
 > [!CAUTION]
 > **Latest leap second considered in datetime library occured at: 2017/01/01**
+
+
+## For Developers
+
+Take a look at the [LLVM Coding Standards](https://llvm.org/docs/CodingStandards.html) 
+and if possible stick to it. 
+
+
+
+![alt text](images/dso_logo_m1.jpg "Title")
+
+
 
 ## Bibliography
 
