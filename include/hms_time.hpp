@@ -6,6 +6,9 @@
 #define __DSO_DATETIME_HMSTIME_HPP__
 
 #include "time_int2flt.hpp"
+#ifdef DEBUG
+#include <cassert>
+#endif
 
 namespace dso {
 

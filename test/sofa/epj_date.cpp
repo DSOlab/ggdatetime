@@ -50,14 +50,14 @@ int main() {
         TwoPartDate di = epj2tpd(je);
         assert(d.imjd() - di.imjd() == 0);
 #ifdef DEBUG
-        if (std::abs(d.seconds() - di.seconds()) > maxdiffs[0])
-          maxdiffs[0] = std::abs(d.seconds() - di.seconds());
-        avediffs[0] += std::abs(d.seconds() - di.seconds());
+        if (std::abs(d.seconds().seconds() - di.seconds().seconds()) > maxdiffs[0])
+          maxdiffs[0] = std::abs(d.seconds().seconds() - di.seconds().seconds());
+        avediffs[0] += std::abs(d.seconds().seconds() - di.seconds().seconds());
 #endif
         epj_lib = je;
 
         /* compare initial to resulting dates */
-        assert(fequal(d.seconds(), di.seconds(), 1e-5));
+        assert(fequal(d.seconds().seconds(), di.seconds().seconds(), 1e-5));
       }
 
       /* do the same with SOFA */

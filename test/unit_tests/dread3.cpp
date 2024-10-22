@@ -86,10 +86,11 @@ template <typename T> /* T is either TwoPartDate or TwoPartDateUTC */
 inline bool fequal(const T &a, const T &b, double seceps = EPSILON) noexcept {
   if (a.imjd() != b.imjd())
     return false;
-  if (std::abs(a.seconds() - b.seconds()) <= seceps)
+  if (std::abs(a.seconds().seconds() - b.seconds().seconds()) <= seceps)
     return true;
-  return std::abs(a.seconds() - b.seconds()) <=
-         (seceps * std::max(std::abs(a.seconds()), std::abs(b.seconds())));
+  return std::abs(a.seconds().seconds() - b.seconds().seconds()) <=
+         (seceps * std::max(std::abs(a.seconds().seconds()),
+                            std::abs(b.seconds().seconds())));
 }
 /* see https://en.cppreference.com/w/cpp/types/numeric_limits/epsilon */
 template <class T>
@@ -141,7 +142,8 @@ int main() {
       std::strcat(buf1, s_2359599);
       d1 = from_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
       assert(fequal(d1, tai));
-      assert(equal_within_ulps(d1.seconds(), tai.seconds(), 1));
+      assert(equal_within_ulps(d1.seconds().seconds(), tai.seconds().seconds(),
+                               1));
 
       /* one more nanosec will take to the next day */
       tai.add_seconds(FractionalSeconds(1e-9), err);
@@ -149,7 +151,8 @@ int main() {
       d1 = TwoPartDate(modified_julian_day(d).as_underlying_type() + 1,
                        FractionalSeconds(0e0));
       assert(fequal(d1, tai));
-      assert(equal_within_ulps(d1.seconds(), tai.seconds(), 1));
+      assert(equal_within_ulps(d1.seconds().seconds(), tai.seconds().seconds(),
+                               1));
     }
 
     TwoPartDateUTC utc(modified_julian_day(d).as_underlying_type(),
@@ -175,7 +178,8 @@ int main() {
       std::strcat(buf1, s_2359599);
       d1 = from_utc_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
       assert(fequal(d1, utc));
-      assert(equal_within_ulps(d1.seconds(), utc.seconds(), 1));
+      assert(equal_within_ulps(d1.seconds().seconds(), utc.seconds().seconds(),
+                               1));
 
       /* one more nanosec will take to next second, NOT the next day */
       utc.add_seconds(FractionalSeconds(1e-9), err);
@@ -185,13 +189,15 @@ int main() {
       std::strcat(buf1, s_235960);
       d1 = from_utc_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
       assert(fequal(d1, utc));
-      assert(equal_within_ulps(d1.seconds(), utc.seconds(), 1));
+      assert(equal_within_ulps(d1.seconds().seconds(), utc.seconds().seconds(),
+                               1));
       /* equal to YYYY-MM-DD 23:59:60.000000000 */
       std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);
       std::strcat(buf1, s_2359600);
       d1 = from_utc_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
       assert(fequal(d1, utc));
-      assert(equal_within_ulps(d1.seconds(), utc.seconds(), 1));
+      assert(equal_within_ulps(d1.seconds().seconds(), utc.seconds().seconds(),
+                               1));
     }
 
     /* augment string index */

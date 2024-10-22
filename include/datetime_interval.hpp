@@ -180,7 +180,7 @@ public:
     m_secs = S(s);
     m_days = core::copysign(days, 1);
 #ifdef DEBUG
-    assert(m_days >= 0 && (m_secs >= 0 && m_secs < S::max_in_day));
+    assert(m_days >= 0 && (m_secs >= S(0) && m_secs < S(S::max_in_day)));
 #endif
   }
 
