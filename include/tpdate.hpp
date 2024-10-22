@@ -275,7 +275,7 @@ public:
 
   /** @brief Transform a UTC date to a TT date */
   TwoPartDate utc2tt() const noexcept;
-  
+
   /** @brief Overload the '>' operator. */
   bool operator>(const TwoPartDateUTC &d) const noexcept {
     return (_mjd > d._mjd) || ((_mjd == d._mjd) && (_fsec > d._fsec));
@@ -295,7 +295,7 @@ public:
   bool operator<=(const TwoPartDateUTC &d) const noexcept {
     return (_mjd < d._mjd) || ((_mjd == d._mjd) && (_fsec <= d._fsec));
   }
-  
+
   /** @brief Overload equality operator. */
   bool operator==(const TwoPartDateUTC &d) const noexcept {
     return (_mjd == d._mjd) && (_fsec == d._fsec);

@@ -50,8 +50,10 @@ int main() {
         TwoPartDate di = epj2tpd(je);
         assert(d.imjd() - di.imjd() == 0);
 #ifdef DEBUG
-        if (std::abs(d.seconds().seconds() - di.seconds().seconds()) > maxdiffs[0])
-          maxdiffs[0] = std::abs(d.seconds().seconds() - di.seconds().seconds());
+        if (std::abs(d.seconds().seconds() - di.seconds().seconds()) >
+            maxdiffs[0])
+          maxdiffs[0] =
+              std::abs(d.seconds().seconds() - di.seconds().seconds());
         avediffs[0] += std::abs(d.seconds().seconds() - di.seconds().seconds());
 #endif
         epj_lib = je;
