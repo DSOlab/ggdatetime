@@ -49,9 +49,8 @@ private:
    * insertation day, return 1, otherwise return 0
    */
   constexpr int extra_seconds_in_day() const noexcept {
-    int extra{0};
-    dat(modified_julian_day(_mjd), extra);
-    return extra;
+    // dat(modified_julian_day(_mjd), extra);
+    return modified_julian_day(_mjd).is_leap_insertion_day();
   }
 
   /** @brief Transform a UTC date to a TAI date.
@@ -61,7 +60,7 @@ private:
    * 2. The seconds of day part (fractional)
    * Note that the fractional seconds part may be over 86400.
    */
-  constexpr int utc2tai(FDOUBLE &taisec) const noexcept {
+  int utc2tai(FDOUBLE &taisec) const noexcept {
     taisec = _fsec + dat(modified_julian_day(_mjd));
     return _mjd;
   }
@@ -73,7 +72,7 @@ private:
    * 2. The seconds of day part (fractional)
    * Note that the fractional seconds part may be over 86400.
    */
-  constexpr int utc2tt(FDOUBLE &taisec) const noexcept {
+  int utc2tt(FDOUBLE &taisec) const noexcept {
     constexpr const FDOUBLE dtat = TT_MINUS_TAI;
     taisec = _fsec + (dat(modified_julian_day(_mjd)) + dtat);
     return _mjd;

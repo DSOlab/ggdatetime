@@ -187,3 +187,8 @@ add_internal_includes(test_interval_overlap)
 target_link_libraries(test_interval_overlap PRIVATE datetime)
 add_test(NAME test_interval_overlap COMMAND test_interval_overlap)
 
+add_executable(leap_insertion_dates_mjd leap_insertion_dates_mjd.cpp)
+add_internal_includes(leap_insertion_dates_mjd)
+target_link_libraries(leap_insertion_dates_mjd PRIVATE datetime)
+add_test(NAME leap_insertion_dates_mjd COMMAND leap_insertion_dates_mjd)
+

@@ -26,6 +26,7 @@
 
 #include "core/fundamental_calendar_utils.hpp"
 #include "core/fundamental_types_generic_utilities.hpp"
+#include <array>
 
 namespace dso {
 
@@ -38,6 +39,9 @@ class day_of_year;
 class modified_julian_day;
 class ymd_date;
 class ydoy_date;
+
+/** @brief Number of leap seconds up to now; latest: 2017/01/01 */
+constexpr const int TOTAL_LEAP_SEC_INSERTION_DATES = 28;
 
 /** @brief For a given UTC date, calculate delta(AT) = TAI-UTC.
  *
@@ -854,7 +858,7 @@ public:
    * @see "Remondi Date/Time Algorithms",
    * http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
    */
-  modified_julian_day(const ydoy_date &ydoy)
+  constexpr modified_julian_day(const ydoy_date &ydoy)
       : m_mjd(core::ydoy2mjd(ydoy.yr().as_underlying_type(),
                              ydoy.dy().as_underlying_type())) {};
 
@@ -886,7 +890,7 @@ public:
    * @see "Remondi Date/Time Algorithms",
    * http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
    */
-  modified_julian_day(const ymd_date &ymd)
+  constexpr modified_julian_day(const ymd_date &ymd)
       : m_mjd(core::cal2mjd(ymd.yr().as_underlying_type(),
                             ymd.mn().as_underlying_type(),
                             ymd.dm().as_underlying_type())) {};
@@ -948,6 +952,26 @@ public:
    *      http://www.ngs.noaa.gov/gps-toolbox/bwr-02.htm
    */
   constexpr ymd_date to_ymd() const noexcept { return core::mjd2ymd(m_mjd); }
+
+  /** @brief Check if given MJDay is on a leap insertion day. */
+  constexpr int is_leap_insertion_day() const noexcept {
+    constexpr const std::array<int, 28> changes = {
+        /* MJDs when leap seconds change */
+        41317 - 1, 41499 - 1, 41683 - 1, 42048 - 1, 42413 - 1, 42778 - 1,
+        43144 - 1, 43509 - 1, 43874 - 1, 44239 - 1, 44786 - 1, 45151 - 1,
+        45516 - 1, 46247 - 1, 47161 - 1, 47892 - 1, 48257 - 1, 48804 - 1,
+        49169 - 1, 49534 - 1, 50083 - 1, 50630 - 1, 51179 - 1, 53736 - 1,
+        54832 - 1, 56109 - 1, 57204 - 1, 57754 - 1};
+    static_assert(changes.size() == TOTAL_LEAP_SEC_INSERTION_DATES,
+                  "Invalid number of leap second insertion days!");
+    for (int i = changes.size() - 1; i >= 0; i--) {
+      if (m_mjd == changes[i])
+        return 1;
+      if (m_mjd > changes[i])
+        return 0;
+    }
+    return 0;
+  }
 
 private:
   /** The modified julian day as underlying type. */

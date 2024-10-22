@@ -25,6 +25,8 @@ constexpr const std::array<change, 28> changes = {
      {1990, 1, 25}, {1991, 1, 26}, {1992, 7, 27}, {1993, 7, 28}, {1994, 7, 29},
      {1996, 1, 30}, {1997, 7, 31}, {1999, 1, 32}, {2006, 1, 33}, {2009, 1, 34},
      {2012, 7, 35}, {2015, 7, 36}, {2017, 1, 37}}};
+static_assert(changes.size() == dso::TOTAL_LEAP_SEC_INSERTION_DATES,
+              "Invalid number of leap second insertion days!");
 } /* namespace calendar_dat */
 
 namespace mjd_dat {
@@ -32,6 +34,7 @@ namespace mjd_dat {
 struct change {
   int mjd, delat;
 };
+/** @brief MJDs where the leap seconds have changed. */
 constexpr const std::array<change, 28> changes = {
     {{41317L, 10}, {41499L, 11}, {41683L, 12}, {42048L, 13}, {42413L, 14},
      {42778L, 15}, {43144L, 16}, {43509L, 17}, {43874L, 18}, {44239L, 19},
@@ -39,6 +42,8 @@ constexpr const std::array<change, 28> changes = {
      {47892L, 25}, {48257L, 26}, {48804L, 27}, {49169L, 28}, {49534L, 29},
      {50083L, 30}, {50630L, 31}, {51179L, 32}, {53736L, 33}, {54832L, 34},
      {56109L, 35}, {57204L, 36}, {57754L, 37}}};
+static_assert(changes.size() == dso::TOTAL_LEAP_SEC_INSERTION_DATES,
+              "Invalid number of leap second insertion days!");
 } /* namespace mjd_dat */
 
 int dso::dat(const dso::ymd_date &ymd) noexcept {

@@ -1,0 +1,132 @@
+# DSO's Datetime Library for Satellite Geodesy
+-----------------------------------------------
+
+## Installation
+
+Source code is ISO C++17. Compilation should be trivial using any C++ compiler 
+supporting the c++17 standard (option `-std=c++17` in [gcc](https://gcc.gnu.org/) 
+and [clang](https://clang.org/)).
+
+The source code also makes use of several C++20 features, and is compliant with the 
+C++20 standard, however using this is optional.
+
+Prerequisites:
+
+* A modern C++ compiler,
+* [cmake](https://cmake.org/) for building
+
+Installation steps:
+
+* clone the project: `git clone https://github.com/DSOlab/ggdatetime.git`,
+
+* go to the root directory, ``cd ggdatetime`
+
+* use [cmake](https://cmake.org/) to build the library and executables, e.g. 
+```
+$> cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+$> cmake --build build --target all --config Release -- -j4
+# optionally run tests
+$> ctest --test-dir build
+## Install, system-wide (needs root)
+$> cd build && sudo make install
+```
+
+### Compilation Options
+
+#### `ALLOW_DT_INTEGRAL_MATH`
+
+This option will allow (some) selected operations between DateTime fundamental 
+types and integral numbers. For example, the following snippet would be valid:
+```
+Modified_julian_day mjd (123);
+mjd += 1;
+// Now mjd's internal member, will have a value of 124.
+```
+
+#### Build in DEBUG mode
+
+You can easily change to building the DEBUG version, e.g.
+```
+$> cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug
+$> cmake --build build --target all --config Debug -- -j4
+```
+
+## Fundamental Date and Time Classes
+
+To preserve type-safety, the library goes on to define a series of classes to 
+represent dates and time, i.e.
+
+### Time Integral Types
+
+* dso::hours
+* dso::minutes
+* dso::seconds
+* dso::milliseconds, i.e. $$10^{-3} sec$$
+* dso::microseconds, i.e. $$10^{-6} sec$$
+* dso::nanoseconds, i.e. $$10^{-9} sec$$
+* dso::picoseconds, i.e. $$10^{-12} sec$$
+
+### Time Fractional Types
+
+* dso::FractionalSeconds
+* dso::FractionalDays
+* dso::FractionalYears
+
+### Date Integral Types
+
+* dso::year
+* dso::month
+* dso::gps_week
+* dso::day_of_month
+* dso::day_of_year
+* dso::modified_julian_day 
+* dso::ymd_date, i.e. a calendar date
+* dso::ydoy_date, i.e. a date represented as Year and Day-of-Year
+
+## Representing Datetime Instances
+
+In order to represent datetime instances, i.e. **epochs**, we have to make a 
+distinction between **contunuous** and **non-continuous** time scales. For example, 
+UTC is a non-continuous time scale, since every now and then leap seconds are 
+introdiced.
+
+### Epochs in Continuous Time-Scales
+
+In continuous time scales (e.g. TT, TAI, etc, ...) an epoch can be represented 
+in two ways:
+
+* using a dso::TwoPartDate (or its alias name dso::MjdEpoch); this way of representing 
+  an epoch, includes storage of two numerics: an integral part, which is actually the 
+  day as Modified Julian Day and a floating point part which represents the seconds of day.
+
+* using the template class dso::datetime (or its alias name dso::Datetime) which 
+  depends on a template parameter \p T. This parameter denotes the precision in which 
+  the datetime is 'measured' and it can be any of the [Time Integral Types](#time-integral-types) 
+  that are multiples of seconds. E.g., you can have a `dso::datetime<dso::milliseconds> t(...)`.
+  In this way, it is guaranteed that the specified accuracy will be preserved, since 
+  no floating point math are involved when e.g. adding or subtracting second multiples. 
+  Note however that precision is lost if you add a 'more accurate' subdivision of 
+  seconds to a leeser one, e.g.
+  ```
+    dso::datetime<dso::milliseconds> t(...);
+    t.add_seconds(picoseconds(1));
+  ```
+
+### Epochs in Continuous Time-Scales aka UTC
+
+## Leap Seconds
+
+Leap seconds are introduced as necessary to keep UT1-UTC in the $$\pm 0^{s}.9$$. 
+Because on the average the solar day is now 1-2 ms longer than the nominal 
+86,400 SI seconds, accumulating to 1s over a period of 18 months to a few years, 
+leap seconds are in practice always positive ([see SOFA](#sofa_ts)). Each time 
+a leap second is introduced, the offset $\Delta$AT = TAI - UTC changes by exactly 1s. 
+Insertion of leap seconds, make UTC a non-continuous time scale, which should be 
+handled-specially-(see-[Epochs-in-Continuous-Time-Scales-aka-UTC](#epochs-in-continuous-time-scales-aka-utc)).
+
+> [!CAUTION]
+> **Latest leap second considered in datetime library occured at: 2017/01/01**
+
+## Bibliography
+
+1. <a id="sofa_ts"></a> International Astronomical Union, Standards of Fundamental Astronomy, SOFA Time Scale and Calendar Tools, Document revision 1.63, 2023
