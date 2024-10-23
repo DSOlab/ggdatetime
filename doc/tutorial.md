@@ -151,6 +151,7 @@ perform fundamental date transformations. These are:
 * ymd2mjd
 * mjd2ymd
 * mjd2ydoy
+* ydoy2mjd
 
 They came with help, which can be triggered by the `-h` switch (e.g. `$> ymd2mjd -h`), listing 
 options and usage instructions. They all except input from STDIN and write results to 
@@ -209,6 +210,8 @@ ERROR. Failed parsing/transforming line: 2014TT01:1
 2014/001
 2014/001
 2014/001
+$> echo "2008:32" | build/ydoy2mjd  | build/mjd2ymd
+2008/02/01
 ```
 
 ## For Developers

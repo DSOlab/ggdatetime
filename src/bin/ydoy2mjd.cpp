@@ -1,5 +1,4 @@
 #include "calendar.hpp"
-#include "datetime_write.hpp"
 #include <cstdio>
 #include <cstring>
 #include <exception>
@@ -12,11 +11,15 @@ constexpr const int MAX_ERRORS_ALLOWED = 10;
 /* help message */
 void prhelp() {
   printf(
-      "mjd2ydoy: Transform a date from Modified Julian Day to calendar date, "
-      "i.e.\n\"YYYYdDDD\". The program expects the read a Modified Julian "
-      "Day string\n(actually an integral value) from STDIN (or multiple MJDs, "
-      "seperated by\nnewlines) and will print results on STDOUT. The MJD string"
-      " can be followed by\nany number of remaining characters that will be "
+      "ydoy2mjd: Transform a date from Year, Day-Of-Year to Modified Julian "
+      "Day.\n"
+      "The program expects the read a date compliant to the format "
+      "\n\"YYYYdDDD\" "
+      "where \"d\" is any non-numeric character from STDIN (or multiple "
+      "\ndates, "
+      "seperated by newlines) and will print results on STDOUT. \nThe date "
+      "string"
+      " can be followed by any number of remaining characters that \nwill be "
       "ignored.\n\nOptions:\n[-h] "
       "help message\n\tprint (this) message and exit.\n[-e] "
       "MAX_ERRORS_ALLOWED\n\tMaximum number of errors allowed (i.e. date "
@@ -31,8 +34,7 @@ void prhelp() {
 
 int main(int argc, char *argv[]) {
   char line[124];
-  char buf[64];
-  int mjd;
+  int yr, dy;
   char c;
   int error = 0, cer = 0;
   int max_errors_allowed = MAX_ERRORS_ALLOWED;
@@ -55,16 +57,10 @@ int main(int argc, char *argv[]) {
 #endif
 
   while (fgets(line, sizeof(line), stdin) && (error < max_errors_allowed)) {
-    if (1 == sscanf(line, "%d", &mjd)) {
-      dso::modified_julian_day m(mjd);
-      const auto ymd = m.to_ymd();
+    if (3 == sscanf(line, "%d%c%d", &yr, &c, &dy)) {
       try {
-        if (dso::SpitDate<dso::YMDFormat::YYYYDDD>::spit(ymd, buf) !=
-            dso::SpitDate<dso::YMDFormat::YYYYDDD>::numChars) {
-          ++error;
-        } else {
-          printf("%s\n", buf);
-        }
+        const dso::modified_julian_day m{dso::year(yr), dso::day_of_year(dy)};
+        printf("%d\n", m.as_underlying_type());
       } catch (std::exception &) {
         ++error;
       }
