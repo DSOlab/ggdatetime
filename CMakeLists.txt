@@ -110,6 +110,8 @@ install(TARGETS mjd2ymd
         RUNTIME DESTINATION bin)
 install(TARGETS mjd2ydoy
         RUNTIME DESTINATION bin)
+install(TARGETS ydoy2mjd
+        RUNTIME DESTINATION bin)
 
 # install library
 install(TARGETS datetime
