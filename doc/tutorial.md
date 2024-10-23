@@ -26,15 +26,26 @@ Installation steps:
 
 * use [cmake](https://cmake.org/) to build the library and executables, e.g. 
 ```
+# Step (1)
 $> cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+# Step (2)
 $> cmake --build build --target all --config Release -- -j4
-# optionally run tests
+# Step (3) optionally run tests
 $> ctest --test-dir build
-## Install, system-wide (needs root)
+## Step (4) Install, system-wide (needs root)
 $> cd build && sudo make install
 ```
 
 ### Compilation Options
+
+#### Skip Building Test (Recommended for non-developers)
+
+By default, when building the source code a series of test programs 
+will be build. To circumvent this, you can use the `-DBUILD_TESTING=OFF` 
+option in Step (1); i.e. change Step (1) to:
+```
+$> cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+```
 
 #### `ALLOW_DT_INTEGRAL_MATH`
 
@@ -46,9 +57,12 @@ mjd += 1;
 // Now mjd's internal member, will have a value of 124.
 ```
 
+By default, this option is not allowed to preserve type-safety.
+
 #### Build in DEBUG mode
 
-You can easily change to building the DEBUG version, e.g.
+You can easily change to building the DEBUG version, e.g. changing 
+Steps (1) and (2) to:
 ```
 $> cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug
 $> cmake --build build --target all --config Debug -- -j4
@@ -130,6 +144,72 @@ handled-specially-(see-[Epochs-in-Continuous-Time-Scales-aka-UTC](#epochs-in-con
 > [!CAUTION]
 > **Latest leap second considered in datetime library occured at: 2017/01/01**
 
+## Executables 
+
+Along with the library, the project builds by default a small set of executables/programs that 
+perform fundamental date transformations. These are:
+* ymd2mjd
+* mjd2ymd
+* mjd2ydoy
+
+They came with help, which can be triggered by the `-h` switch (e.g. `$> ymd2mjd -h`), listing 
+options and usage instructions. They all except input from STDIN and write results to 
+STDOUT, so you can [pipe](https://en.wikipedia.org/wiki/Pipeline_(Unix)) results and input. 
+
+By default, the programs will be installed at `/usr/local/bin` on Linux systems.
+
+The following examples should be self explanatory:
+
+```
+$> cat dates
+2014:01:09
+2014:01:9
+2014:1:09
+2014:01:08
+2014:01:07
+2014:01:0
+2014:01:1
+2014T01:1
+2014TT01:1
+2014:01:1with some string
+2014/01/1with some string
+$> cat dates | ymd2mjd
+56666
+56666
+56666
+56665
+56664
+ERROR. Failed parsing/transforming line: 2014:01:0
+56658
+56658
+ERROR. Failed parsing/transforming line: 2014TT01:1
+56658
+56658
+$> cat dates | ymd2mjd | mjd2ymd
+ERROR. Failed parsing/transforming line: 2014:01:0
+ERROR. Failed parsing/transforming line: 2014TT01:1
+2014/01/09
+2014/01/09
+2014/01/09
+2014/01/08
+2014/01/07
+2014/01/01
+2014/01/01
+2014/01/01
+2014/01/01
+$> cat dates | ymd2mjd | mjd2ydoy 
+ERROR. Failed parsing/transforming line: 2014:01:0
+ERROR. Failed parsing/transforming line: 2014TT01:1
+2014/009
+2014/009
+2014/009
+2014/008
+2014/007
+2014/001
+2014/001
+2014/001
+2014/001
+```
 
 ## For Developers
 

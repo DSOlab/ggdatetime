@@ -10,6 +10,9 @@ project(
 # Enable clang-tidy option
 option(ENABLE_CLANG_TIDY "Enable clang-tidy checks" OFF)
 
+# Define an option for building tests (defaults to ON)
+option(BUILD_TESTING "Enable building of tests" ON)
+
 # compiler flags
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
@@ -83,17 +86,27 @@ target_include_directories(integral_seconds_limits PRIVATE ${CMAKE_CURRENT_SOURC
 set(CMAKE_CXX_CLANG_TIDY "")
 
 # The tests
-include(CTest)
-add_subdirectory(test/unit_tests)
-add_subdirectory(test/should_not_compile)
-find_library(sofa sofa_c)
-if (sofa)
-  add_subdirectory(test/sofa)
-  message(STATUS "found sofa lib, will compile relevant tests")
-else()
-  message(STATUS "sofa lib not found; tests in test/sofa will not be compiled.")
+if(BUILD_TESTING)
+  include(CTest)
+  add_subdirectory(test/unit_tests)
+  add_subdirectory(test/should_not_compile)
+  find_library(sofa sofa_c)
+  if (sofa)
+    add_subdirectory(test/sofa)
+    message(STATUS "found sofa lib, will compile relevant tests")
+  else()
+    message(STATUS "sofa lib not found; tests in test/sofa will not be compiled.")
+  endif()
+  enable_testing()
 endif()
-enable_testing()
+
+# Install the executables
+install(TARGETS ymd2mjd
+        RUNTIME DESTINATION bin)
+install(TARGETS mjd2ymd
+        RUNTIME DESTINATION bin)
+install(TARGETS mjd2ydoy
+        RUNTIME DESTINATION bin)
 
 # install library
 install(TARGETS datetime
