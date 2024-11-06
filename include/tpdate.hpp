@@ -566,14 +566,14 @@ public:
   diff(const TwoPartDate &d) const noexcept {
     if constexpr (DT == DateTimeDifferenceType::FractionalDays) {
       /* difference as fractional days */
-      return (_mjd - d._mjd) + (_fsec - d._fsec) / SEC_PER_DAY;
+      return FractionalDays{(_mjd - d._mjd) + (_fsec - d._fsec) / SEC_PER_DAY};
     } else if constexpr (DT == DateTimeDifferenceType::FractionalSeconds) {
       /* difference as fractional seconds */
-      return (_fsec - d._fsec) + (_mjd - d._mjd) * SEC_PER_DAY;
+      return FractionalSeconds{(_fsec - d._fsec) + (_mjd - d._mjd) * SEC_PER_DAY};
     } else {
       /* difference as fractional (julian) years */
-      return this->diff<DateTimeDifferenceType::FractionalDays>(d).days() /
-             DAYS_IN_JULIAN_YEAR;
+      return FractionalYears{this->diff<DateTimeDifferenceType::FractionalDays>(d).days() /
+             DAYS_IN_JULIAN_YEAR};
     }
   }
 
