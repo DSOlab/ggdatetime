@@ -5,15 +5,15 @@
  * difference between the two, is that the first (TwoPartDate) is meant to
  * work on a 'continuous time basis' e.g. in time scales such as TAI, or TT.
  * The latter, i.e. TwoPartDateUTC is meant to be used solely to represent
- * intances in the UTC time-scale. This needs special treatment cause of the
+ * isntances in the UTC time-scale. This needs special treatment cause of the
  * leap seconds that are introduced, making the time-scale non-continuous.
  *
  * Both classes store the datetime instances as a mixture of (integral) MJDay
  * and (floating point) seconds of day.
  */
 
-#ifndef __DSO_DATETIME_TWOPARTDATES2_HPP__
-#define __DSO_DATETIME_TWOPARTDATES2_HPP__
+#ifndef __DSO_DATETIME_TWOPARTDATES_HPP__
+#define __DSO_DATETIME_TWOPARTDATES_HPP__
 
 #include "datetime_utc.hpp"
 #include <random>
@@ -33,7 +33,6 @@ class TwoPartDate;
  * The methods of the class, including constructors, take special care to
  * always keep the seconds as seconds of day, i.e. in the range [0,86400) and
  * correspondingly increase/decrease the day count.
- *
  */
 class TwoPartDateUTC {
 private:
@@ -318,13 +317,12 @@ public:
  * The methods of the class, including constructors, take special care to
  * always keep the seconds as seconds of day, i.e. in the range [0,86400) and
  * correspondingly increase/decrease the day count.
- *
  */
 class TwoPartDate {
 private:
   using FDOUBLE = /*long*/ double;
   int _mjd;      /** Mjd */
-  FDOUBLE _fsec; /** fractional seconds of day */
+  FDOUBLE _fsec; /** fractional seconds of day in [0, 86400) */
 
   /** @brief Construct from MJD and fractional seconds.
    *
