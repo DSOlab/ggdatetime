@@ -41,6 +41,9 @@ constexpr const double TT_MINUS_TAI = 32.184e0;
 /** TT minus TAI in [nsec] */
 constexpr const long TT_MINUS_TAI_IN_NANOSEC = 32184 * 1'000'000L;
 
+/** TAI minus GPS in [sec] */
+constexpr const double TAI_MINUS_GPS = 19e0;
+
 } /* namespace dso */
 
 #endif

@@ -240,14 +240,10 @@ public:
    * Normalize here is meant in the sense that the fractional seconds of day
    * (\p _fsec) are always in the range [0,86400+leap_insertion_secs), while
    * the integral part (\p _mjd) is always a valid integer.
-   * The only case where negative seconds are allowed, is when the MJD part is
-   * zero. In this case, the seconds of day are allowed to be negative, so
-   * that they can hold the sign.
    */
   void normalize() noexcept {
     if (_fsec >= 0e0 && _fsec < 86400e0)
       return;
-    assert(_fsec >= 0e0);
     int extra_sec_in_day;
     dat(modified_julian_day(_mjd), extra_sec_in_day);
     /* for each MJD, remove integral days. Each MJD may have a different
@@ -258,6 +254,12 @@ public:
       _fsec -= (86400e0 + extra_sec_in_day);
       ++_mjd;
       dat(modified_julian_day(_mjd), extra_sec_in_day);
+    }
+    while (_fsec < 0e0) {
+      --_mjd;
+      _fsec += 86400e0;
+      dat(modified_julian_day(_mjd), extra_sec_in_day);
+      _fsec += 1e0 * extra_sec_in_day;
     }
 #ifdef DEBUG
     if (_mjd)
@@ -567,11 +569,13 @@ public:
       return FractionalDays{(_mjd - d._mjd) + (_fsec - d._fsec) / SEC_PER_DAY};
     } else if constexpr (DT == DateTimeDifferenceType::FractionalSeconds) {
       /* difference as fractional seconds */
-      return FractionalSeconds{(_fsec - d._fsec) + (_mjd - d._mjd) * SEC_PER_DAY};
+      return FractionalSeconds{(_fsec - d._fsec) +
+                               (_mjd - d._mjd) * SEC_PER_DAY};
     } else {
       /* difference as fractional (julian) years */
-      return FractionalYears{this->diff<DateTimeDifferenceType::FractionalDays>(d).days() /
-             DAYS_IN_JULIAN_YEAR};
+      return FractionalYears{
+          this->diff<DateTimeDifferenceType::FractionalDays>(d).days() /
+          DAYS_IN_JULIAN_YEAR};
     }
   }
 
@@ -606,34 +610,28 @@ public:
    * \f$ TAI = GPSTime + 19 [sec] \f$
    */
   TwoPartDate tai2gps() const noexcept {
-    return TwoPartDate(_mjd, _fsec - 19e0);
+    return TwoPartDate(_mjd, _fsec - TAI_MINUS_GPS);
   }
 
   /** @brief Transform an instance to TAI Time assuming it is in GPS Time. */
   TwoPartDate gps2tai() const noexcept {
-    return TwoPartDate(_mjd, _fsec + 19e0);
+    return TwoPartDate(_mjd, _fsec + TAI_MINUS_GPS);
   }
 
   /** @brief Transform an instance to UTC assuming it is in TAI. */
   TwoPartDateUTC tai2utc() const noexcept {
-    FDOUBLE utcsec = _fsec - dat(modified_julian_day(_mjd));
+    FDOUBLE utcsec = _fsec - (double)dat(modified_julian_day(_mjd));
     int utcmjd = _mjd;
-    /* in case we are actually on the previous day, check for leap insertion
-     * day and 'normalize' integral and fractional parts
-     */
-    if (utcsec < 0e0) {
-      --utcmjd;
-      int extrasec;
-      FDOUBLE secinday =
-          SEC_PER_DAY + dat(modified_julian_day(utcmjd), extrasec);
-      utcsec = secinday + utcsec;
-    }
+    /* let the TwoPartDateUTC constructor normalize the instance */
     return TwoPartDateUTC(utcmjd, FractionalSeconds{utcsec});
   }
 
+  /** @brief Transform an instance to UTC assuming it is in GPS Time. */
+  TwoPartDateUTC gps2utc() const noexcept { return gps2tai().tai2utc(); }
+
   /** @brief Transform an instance to UTC assuming it is in TT */
   TwoPartDateUTC tt2utc() const noexcept {
-    const auto tai = this->tai2tt();
+    const auto tai = this->tt2tai();
     return tai.tai2utc();
   }
 

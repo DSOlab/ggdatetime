@@ -349,13 +349,26 @@ public:
   }
 
   /** @brief Get the difference between two datetime instances as some kind of
-   *  floating type time.
+   *  difference.
    *
    * The difference can be obtained as a fractional days or fractional seconds,
-   * depending on the template parameter \p DT.
+   * depending on the template parameter \p DT. This choice is passed in via
+   * the \p DT template parameter.
+   *
    * If called as diff(d1,d2), the computation is d1-d2; the difference can be
    * negative if d2>d1.
    *
+   * examples:
+   * const datetime<nanoseconds> d1 = (...);
+   * const datetime<nanoseconds> d2 = (...);
+   * // get the d1-d2 time period in seconds (fractional) as a
+   * // FractionalSeconds instnce:
+   * FractionalSeconds sec =
+   *                   d1.diff<DateTimeDifferenceType::FractionalSeconds>(d2);
+   * // get the above as a floating point number:
+   * double fsec = sec.seconds();
+   *
+   * @see fractional_types.hpp
    * @warning Does not take into account leap seconds.
    */
   template <DateTimeDifferenceType DT>

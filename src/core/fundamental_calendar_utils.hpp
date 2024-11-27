@@ -9,8 +9,8 @@
  * safety.
  */
 
-#ifndef __DSO_NONTYPE_CALENDAR_UTILS_HPP__
-#define __DSO_NONTYPE_CALENDAR_UTILS_HPP__
+#ifndef __DSO_NONTYPE_CALENDAR_UTILS_CORE_HPP__
+#define __DSO_NONTYPE_CALENDAR_UTILS_CORE_HPP__
 
 #include "cdatetime.hpp"
 #include <cmath>
