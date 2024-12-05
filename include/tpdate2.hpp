@@ -17,11 +17,7 @@ namespace dso {
  * A TwoPartDate instance conviniently splits a datetime into two numeric
  * values:
  * - the Modified Julian Day (i.e. an integral value), and
- * - the time of day, which is stored in fractional seconds of day
- *
- * The methods of the class, invluding constructors, take special care to
- * always keep the seconds as seconds of day, i.e. in the range [0,86400) and
- * correspondingly increase/decrease the day count.
+ * - the time of day, which is stored in fractional days (always in [0,1)).
  *
  */
 class TwoPartDate2 {
@@ -59,6 +55,12 @@ public:
   explicit TwoPartDate2(int b = 0,
                         FractionalSeconds s = FractionalSeconds{0}) noexcept
       : _mjd(b), _fday(s.seconds() / SEC_PER_DAY) {
+    this->normalize();
+  }
+  
+  explicit TwoPartDate2(int b = 0,
+                        FractionalDays d = FractionalDays{0}) noexcept
+      : _mjd(b), _fday(d.days()) {
     this->normalize();
   }
 
