@@ -217,6 +217,9 @@ $> echo "2008:32" | build/ydoy2mjd  | build/mjd2ymd
 ## ToDo:
 
 * [] Add documentation
+* [] Verify that tests (especially unit tests) run as supposed do in the Release 
+  build. It seems for example, that `from_mjdepoch` does not run as suppposed to 
+  (even erronuous asserts that should fail, don't!).
 
 ## For Developers
 

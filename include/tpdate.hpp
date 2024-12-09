@@ -773,10 +773,10 @@ template <gconcepts::is_sec_dt T>
 template <typename T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
 inline datetime<T> from_mjdepoch(const TwoPartDate &t) noexcept {
-  dso::picoseconds nsec(static_cast<picoseconds::underlying_type>(
+  dso::picoseconds psec(static_cast<picoseconds::underlying_type>(
       t.seconds().seconds() * picoseconds::sec_factor<double>()));
   return datetime<T>(modified_julian_day(t.imjd()),
-                     cast_to<picoseconds, T>(nsec));
+                     cast_to<picoseconds, T>(psec));
 }
 
 } /* namespace dso */

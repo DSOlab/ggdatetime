@@ -192,3 +192,7 @@ add_internal_includes(leap_insertion_dates_mjd)
 target_link_libraries(leap_insertion_dates_mjd PRIVATE datetime)
 add_test(NAME leap_insertion_dates_mjd COMMAND leap_insertion_dates_mjd)
 
+add_executable(from_mjdepoch from_mjdepoch.cpp)
+add_internal_includes(from_mjdepoch)
+target_link_libraries(from_mjdepoch PRIVATE datetime)
+add_test(NAME from_mjdepoch COMMAND from_mjdepoch)

@@ -57,7 +57,7 @@ public:
       : _mjd(b), _fday(s.seconds() / SEC_PER_DAY) {
     this->normalize();
   }
-  
+
   explicit TwoPartDate2(int b = 0,
                         FractionalDays d = FractionalDays{0}) noexcept
       : _mjd(b), _fday(d.days()) {

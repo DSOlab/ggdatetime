@@ -456,9 +456,23 @@ constexpr Strg cast_to(Ssrc s) noexcept {
      * this is: (1/1000)*2000 which is 0 because 1/1000 is 0, but
      * (2000*1)/1000 = 2 which is correct.
      */
-    const auto numerator =
-        s.__member_ref__() * Strg::template sec_factor<long>();
-    return Strg(numerator / Ssrc::template sec_factor<long>());
+
+    /* there is a high chance that this may cause overflow; if we are dealing
+     * with anything higher than microseconds, resort to floating point
+     * compuation.
+     */
+    // const auto numerator =
+    //     s.__member_ref__() * Strg::template sec_factor<long>();
+    if constexpr (Ssrc::template sec_factor<long>() > 1'000'000) {
+      const auto scale = Strg::template sec_factor<double>() /
+                         Ssrc::template sec_factor<double>();
+      const auto fsec = scale * s.__member_ref__();
+      return Strg(static_cast<typename Strg::underlying_type>(fsec));
+    } else {
+      const auto numerator =
+          s.__member_ref__() * Strg::template sec_factor<long>();
+      return Strg(numerator / Ssrc::template sec_factor<long>());
+    }
   }
 }
 
