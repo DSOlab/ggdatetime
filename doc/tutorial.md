@@ -214,8 +214,6 @@ $> echo "2008:32" | build/ydoy2mjd  | build/mjd2ymd
 2008/02/01
 ```
 
-### Documentation  
-
 ## Time Scales  
 
 To achieve high precision in calculations involving time variables and phenomena related to Earth's rotation and planetary motion, different time scales are introduced:  
