@@ -245,76 +245,74 @@ The transformation from a given time scale to another can be calculated using th
 
 ### Notes:
 - $\Delta AT = TAI - UTC$ (leap seconds)
-- \( \text{DUT1} = \text{UT1} - \text{UTC} \) (Earth Orientation Parameters)
-- \( \text{DTT} = \text{TT} - \text{UTC} \)
-- \( \text{DT} = \text{DAT} - \text{DUT1} + 32.184 \, \text{s} \)
+- $\Delta UT1 = UT1 - UTC$ (Earth Orientation Parameters)
+- $\Delta TT = TT - UTC$
+- $\Delta T = \Delta AT - \Delta T1 + 32.184s$
 
 ---
 
 ### GPS Time
 
-- **GPS to TAI**:  
-  \[ \text{TAI} = \text{GPS time} - 19.000 \, \text{s} \]
-- **GPS to TT**:  
-  \[ \text{TT} = \text{GPS time} - 19.000 \, \text{s} + 32.184 \, \text{s} \]  
-  \[ \text{TT} = \text{GPS time} + 13.184 \, \text{s} \]
-- **GPS to UTC**:  
-  \[ \text{UTC} = \text{GPS time} - \text{DAT} - 19.000 \, \text{s} \]
-- **GPS to UT1**:  
-  \[ \text{UT1} = \text{GPS time} - \text{DAT} + \text{DUT1} - 19.000 \, \text{s} \]
+- **GPST to TAI**:  
+  $TAI = GPSΤ - 19.000s$
+- **GPST to TT**:  
+  $TT = GPSΤ - 19.000s + 32.184s \implies TT = GPST + 13.184s$
+- **GPST to UTC**:  
+  $UTC = GPST - \Delta AT - 19.000s$
+- **GPST to UT1**:  
+  $UT1 = GPST - \Delta AT + \Delta UT1 - 19.000s$
 
 ---
 
 ### TAI (International Atomic Time)
 
 - **TAI to GPS**:  
-  \[ \text{GPS time} = \text{TAI} + 19.000 \, \text{s} \]
+  $GPST = TAI + 19.000s$
 - **TAI to TT**:  
-  \[ \text{TT} = \text{TAI} + 32.184 \, \text{s} \]
+  $TT = TAI + 32.184s$
 - **TAI to UTC**:  
-  \[ \text{UTC} = \text{TAI} - \text{DAT} \]
+  $UTC = TAI - \Delta AT$
 - **TAI to UT1**:  
-  \[ \text{UT1} = \text{TAI} - \text{DAT} + \text{DUT1} \]
+  $UT1 = TAI - \Delta AT + \Delta UT1$
 
 ---
 
 ### TT (Terrestrial Time)
 
 - **TT to GPS**:  
-  \[ \text{GPS time} = \text{TT} - 13.184 \, \text{s} \]
+  $GPST = TT - 13.184s$
 - **TT to TAI**:  
-  \[ \text{TAI} = \text{TT} - 32.184 \, \text{s} \]
+  $TAI = TT - 32.184s$
 - **TT to UTC**:  
-  \[ \text{UTC} = \text{TT} - \text{DTT} \]
+  $UTC = TT - \Delta TT$
 - **TT to UT1**:  
-  \[ \text{UT1} = \text{TT} + \text{DT} \]
+  $UT1 = TT + \Delta T$
 
 ---
 
 ### UTC (Coordinated Universal Time)
 
 - **UTC to GPS**:  
-  \[ \text{GPS time} = \text{UTC} + \text{DAT} + 19.000 \, \text{s} \]
+  $GPST = UTC + \Delta AT + 19.000s$
 - **UTC to TAI**:  
-  \[ \text{TAI} = \text{UTC} + \text{DAT} \]
+  $TAI = UTC + \Delta AT$
 - **UTC to TT**:  
-  \[ \text{TT} = \text{UT1} - \text{DT} \]
+  $TT = UT1 - \Delta T$
 - **UTC to UT1**:  
-  \[ \text{UT1} = \text{UTC} + \text{DUT1} \]
+  $UT1 = UTC + \Delta UT1$
 
 ---
 
 ### UT1 (Universal Time) 
 
-- **UT1 to GPS**: 
-  \[ \text{GPSTime} = \text{UT1} + \text{DAT} - \text{DUT1} + 19.000 \, \text{s} \]
-- **UT1 to TAI**: 
-  \[ \text{TAI} = \text{UT1} + \text{DAT} - \text{DUT1} \]
-- **UT1 to TT**: 
-  \[ \text{TT} = \text{UT1} - \text{DT} \]
-- **UT1 to UTC**: 
-  \[ \text{UTC} = \text{UT1} - \text{DUT1}\]
-
+- **UT1 to GPS**:
+  $GPST = UT1 + \Delta AT - \Delta UT1 + 19.000s$
+- **UT1 to TAI**:
+  $TAI = UT1 + \Delta AT - \Delta UT1$
+- **UT1 to TT**:
+  $TT = UT1 - \Delta T$
+- **UT1 to UTC**:
+  $UTC = UT1 - \Delta UT1$
 
 ## ToDo:
 
