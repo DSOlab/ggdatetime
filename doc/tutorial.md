@@ -214,12 +214,111 @@ $> echo "2008:32" | build/ydoy2mjd  | build/mjd2ymd
 2008/02/01
 ```
 
+### Documentation  
+
+## Time Scales  
+
+To achieve high precision in calculations involving time variables and phenomena related to Earth's rotation and planetary motion, different time scales are introduced:  
+
+- **GPST (GPS Time)**:  
+  Continuous atomic time scale implemented by the atomic clocks in GPS ground control stations and the GPS satellites themselves.  
+  - Reference epoch: \( t_0 = 0\,\text{h} \, 0\,\text{m}, 0\,\text{s}), 6 January 1980 (JD = 2444244.5) 
+  - Units: SI seconds - counting in weeks and seconds of the week  
+
+- **TT (Terrestrial Time)**:  
+  A theoretical time scale for clocks located at sea level.  
+
+- **TAI (International Atomic Time)**:  
+  Continuous atomic time scale independent of astronomical phenomena, apart from being initially synchronized with solar time.  
+  - Reference epoch: \( t_0 = 0\,\text{h} \, 0\,\text{m}, 0\,\text{s}), 1 January 1958  
+  - Units: Seconds  
+
+- **UTC (Coordinated Universal Time)**:  
+  Atomic time that incorporates leap seconds to maintain alignment with the Sun.  
+
+- **UT1 (Universal Time)**:  
+  Time scale without leap seconds, with a variable rate due to Earth's slightly irregular rotation period.  
+
+## Time Scales Relationships
+
+The transformation from a given time scale to another can be calculated using the following formulas:
+
+### Notes:
+- \( \text{DAT} = \text{TAI} - \text{UTC} \) (leap seconds)
+- \( \text{DUT1} = \text{UT1} - \text{UTC} \) (Earth Orientation Parameters)
+- \( \text{DTT} = \text{TT} - \text{UTC} \)
+- \( \text{DT} = \text{DAT} - \text{DUT1} + 32.184 \, \text{s} \)
+
+---
+
+### GPS Time
+
+- **GPS to TAI**:  
+  \[ \text{TAI} = \text{GPS time} - 19.000 \, \text{s} \]
+- **GPS to TT**:  
+  \[ \text{TT} = \text{GPS time} - 19.000 \, \text{s} + 32.184 \, \text{s} \]  
+  \[ \text{TT} = \text{GPS time} + 13.184 \, \text{s} \]
+- **GPS to UTC**:  
+  \[ \text{UTC} = \text{GPS time} - \text{DAT} - 19.000 \, \text{s} \]
+- **GPS to UT1**:  
+  \[ \text{UT1} = \text{GPS time} - \text{DAT} + \text{DUT1} - 19.000 \, \text{s} \]
+
+---
+
+### TAI (International Atomic Time)
+
+- **TAI to GPS**:  
+  \[ \text{GPS time} = \text{TAI} + 19.000 \, \text{s} \]
+- **TAI to TT**:  
+  \[ \text{TT} = \text{TAI} + 32.184 \, \text{s} \]
+- **TAI to UTC**:  
+  \[ \text{UTC} = \text{TAI} - \text{DAT} \]
+- **TAI to UT1**:  
+  \[ \text{UT1} = \text{TAI} - \text{DAT} + \text{DUT1} \]
+
+---
+
+### TT (Terrestrial Time)
+
+- **TT to GPS**:  
+  \[ \text{GPS time} = \text{TT} - 13.184 \, \text{s} \]
+- **TT to TAI**:  
+  \[ \text{TAI} = \text{TT} - 32.184 \, \text{s} \]
+- **TT to UTC**:  
+  \[ \text{UTC} = \text{TT} - \text{DTT} \]
+- **TT to UT1**:  
+  \[ \text{UT1} = \text{TT} + \text{DT} \]
+
+---
+
+### UTC (Coordinated Universal Time)
+
+- **UTC to GPS**:  
+  \[ \text{GPS time} = \text{UTC} + \text{DAT} + 19.000 \, \text{s} \]
+- **UTC to TAI**:  
+  \[ \text{TAI} = \text{UTC} + \text{DAT} \]
+- **UTC to TT**:  
+  \[ \text{TT} = \text{UT1} - \text{DT} \]
+- **UTC to UT1**:  
+  \[ \text{UT1} = \text{UTC} + \text{DUT1} \]
+
+---
+
+### UT1 (Universal Time) 
+
+- **UT1 to GPS**: 
+  \[ \text{GPSTime} = \text{UT1} + \text{DAT} - \text{DUT1} + 19.000 \, \text{s} \]
+- **UT1 to TAI**: 
+  \[ \text{TAI} = \text{UT1} + \text{DAT} - \text{DUT1} \]
+- **UT1 to TT**: 
+  \[ \text{TT} = \text{UT1} - \text{DT} \]
+- **UT1 to UTC**: 
+  \[ \text{UTC} = \text{UT1} - \text{DUT1}\]
+
+
 ## ToDo:
 
 * [] Add documentation
-* [] Verify that tests (especially unit tests) run as supposed do in the Release 
-  build. It seems for example, that `from_mjdepoch` does not run as suppposed to 
-  (even erronuous asserts that should fail, don't!).
 
 ## For Developers
 
