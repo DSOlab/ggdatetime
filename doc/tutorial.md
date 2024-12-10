@@ -228,7 +228,7 @@ To achieve high precision in calculations involving time variables and phenomena
 
 - **TAI (International Atomic Time)**:  
   Continuous atomic time scale independent of astronomical phenomena, apart from being initially synchronized with solar time.  
-  - Reference epoch: \( t_0 = 0\,\text{h} \, 0\,\text{m}, 0\,\text{s}), 1 January 1958  
+  - Reference epoch: $t_0 = 0^{h} 0^{m} 0^{s}$, 1 January 1958  
   - Units: Seconds  
 
 - **UTC (Coordinated Universal Time)**:  
