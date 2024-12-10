@@ -222,7 +222,7 @@ To achieve high precision in calculations involving time variables and phenomena
 
 - **GPST (GPS Time)**:  
   Continuous atomic time scale implemented by the atomic clocks in GPS ground control stations and the GPS satellites themselves.  
-  - Reference epoch: \( t_0 = 0\,\text{h} \, 0\,\text{m}, 0\,\text{s}), 6 January 1980 (JD = 2444244.5) 
+  - Reference epoch: $t_0 = 0^{h} 0^{m} 0^{s}$, 6 January 1980 (JD = 2444244.5) 
   - Units: SI seconds - counting in weeks and seconds of the week  
 
 - **TT (Terrestrial Time)**:  
@@ -244,7 +244,7 @@ To achieve high precision in calculations involving time variables and phenomena
 The transformation from a given time scale to another can be calculated using the following formulas:
 
 ### Notes:
-- \( \text{DAT} = \text{TAI} - \text{UTC} \) (leap seconds)
+- $\Delta AT = TAI - UTC$ (leap seconds)
 - \( \text{DUT1} = \text{UT1} - \text{UTC} \) (Earth Orientation Parameters)
 - \( \text{DTT} = \text{TT} - \text{UTC} \)
 - \( \text{DT} = \text{DAT} - \text{DUT1} + 32.184 \, \text{s} \)
