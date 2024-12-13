@@ -241,6 +241,18 @@ To achieve high precision in calculations involving time variables and phenomena
 
 The transformation from a given time scale to another can be calculated using the following formulas:
 
+- **GPST to TAI**: $TAI = GPST -19.000s$
+
+- **TAI to TT**: $TT = TAI + 32.184s$
+
+- **TAI to UTC**: $UTC = TAI - \Delta AT$
+
+- **UTC to UT1**: $UT1 = UTC +\Delta UT1$
+
+## Graphic Representation
+
+![alt text](images/dso_logo_m1.jpg "Title")
+
 ### Notes:
 - $\Delta AT = TAI - UTC$ (leap seconds)
 - $\Delta UT1 = UT1 - UTC$ (Earth Orientation Parameters)
@@ -249,68 +261,6 @@ The transformation from a given time scale to another can be calculated using th
 
 ---
 
-### GPS Time
-
-- **GPST to TAI**:  
-  $TAI = GPSΤ - 19.000s$
-- **GPST to TT**:  
-  $TT = GPSΤ - 19.000s + 32.184s \implies TT = GPST + 13.184s$
-- **GPST to UTC**:  
-  $UTC = GPST - \Delta AT - 19.000s$
-- **GPST to UT1**:  
-  $UT1 = GPST - \Delta AT + \Delta UT1 - 19.000s$
-
----
-
-### TAI (International Atomic Time)
-
-- **TAI to GPS**:  
-  $GPST = TAI + 19.000s$
-- **TAI to TT**:  
-  $TT = TAI + 32.184s$
-- **TAI to UTC**:  
-  $UTC = TAI - \Delta AT$
-- **TAI to UT1**:  
-  $UT1 = TAI - \Delta AT + \Delta UT1$
-
----
-
-### TT (Terrestrial Time)
-
-- **TT to GPS**:  
-  $GPST = TT - 13.184s$
-- **TT to TAI**:  
-  $TAI = TT - 32.184s$
-- **TT to UTC**:  
-  $UTC = TT - \Delta TT$
-- **TT to UT1**:  
-  $UT1 = TT + \Delta T$
-
----
-
-### UTC (Coordinated Universal Time)
-
-- **UTC to GPS**:  
-  $GPST = UTC + \Delta AT + 19.000s$
-- **UTC to TAI**:  
-  $TAI = UTC + \Delta AT$
-- **UTC to TT**:  
-  $TT = UT1 - \Delta T$
-- **UTC to UT1**:  
-  $UT1 = UTC + \Delta UT1$
-
----
-
-### UT1 (Universal Time) 
-
-- **UT1 to GPS**:
-  $GPST = UT1 + \Delta AT - \Delta UT1 + 19.000s$
-- **UT1 to TAI**:
-  $TAI = UT1 + \Delta AT - \Delta UT1$
-- **UT1 to TT**:
-  $TT = UT1 - \Delta T$
-- **UT1 to UTC**:
-  $UTC = UT1 - \Delta UT1$
 
 ## ToDo:
 
