@@ -251,7 +251,13 @@ The transformation from a given time scale to another can be calculated using th
 
 ## Graphic Representation
 
-![alt text](images/dso_logo_m1.jpg "Title")
+The following plots are representing the relationships between given atomic and dynamic time scales: 
+
+![alt text](images/time.png "Title")
+
+
+![alt text](images/time_graphic_1.png "Title")
+
 
 ### Notes:
 - $\Delta AT = TAI - UTC$ (leap seconds)
@@ -280,3 +286,4 @@ and if possible stick to it.
 ## Bibliography
 
 1. <a id="sofa_ts"></a> International Astronomical Union, Standards of Fundamental Astronomy, SOFA Time Scale and Calendar Tools, Document revision 1.63, 2023
+2. <a id="images/time_graphic_1.png"></a> Jeckeli, C. Geometric reference systems in geodesy. Division of Geodetic Science, School of Earth Sciences, Ohio State University, 2012.
