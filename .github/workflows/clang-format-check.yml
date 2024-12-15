@@ -16,6 +16,8 @@ jobs:
       # Step 2: Install clang-format version 19
       - name: Install clang-format
         run: |
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main"
           sudo apt-get update 
           sudo apt-get install -y clang-format-19
           sudo ln -sf /usr/bin/clang-format-19 /usr/bin/clang-format
