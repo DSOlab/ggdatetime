@@ -16,6 +16,8 @@ jobs:
       # Step 2: Install clang-format
       - name: Install clang-format
         run: sudo apt-get update && sudo apt-get install -y clang-format
+      - name: Check clang-format version
+        run: clang-format --version
 
       # Step 3: Check formatting
       - name: Run clang-format
