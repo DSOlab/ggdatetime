@@ -43,7 +43,7 @@ int main() {
     const modified_julian_day mjdm1 = mjd - modified_julian_day(1);
     assert(mjdm1.is_leap_insertion_day() == 1);
     const modified_julian_day mjdm2 = mjd - modified_julian_day(2);
-    assert(mjdm1.is_leap_insertion_day() == 0);
+    assert(mjdm2.is_leap_insertion_day() == 0);
     const modified_julian_day mjdp1 = mjd + modified_julian_day(1);
     assert(mjdp1.is_leap_insertion_day() == 0);
   }

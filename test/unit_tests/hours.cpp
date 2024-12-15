@@ -6,8 +6,8 @@
 using dso::hours;
 
 int main() {
-  hours h1(2023);
-  assert(h1.as_underlying_type() == 2023);
+  hours h1(2024);
+  assert(h1.as_underlying_type() == 2024);
 
   /* not allowed */
   // h1 = 2024;
