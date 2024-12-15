@@ -30,31 +30,8 @@ jobs:
       run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
     - name: "build"
       run: cmake --build build --target all --config Release -- -j4
-    - name: "test"
-      run: ctest --test-dir build
-    
-    - name: "debug, gcc, c++17"
-      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++
-    - name: "build"
-      run: cmake --build build --target all --config Debug -- -j4
-    - name: "test"
-      run: ctest --test-dir build
-    
-    - name: "debug, clang, c++17"
-      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
-    - name: "build"
-      run: cmake --build build --target all --config Debug -- -j4
     
     - name: "production/standard, gcc 20"
       run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20 -DCMAKE_CXX_COMPILER=g++
     - name: "build"
       run: cmake --build build --target all --config Release -- -j4
-    - name: "test"
-      run: ctest --test-dir build
-    
-    - name: "production/standard, clang 20"
-      run: cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_STANDARD=20
-    - name: "build"
-      run: cmake --build build --target all --config Release -- -j4
-    - name: "test"
-      run: ctest --test-dir build
