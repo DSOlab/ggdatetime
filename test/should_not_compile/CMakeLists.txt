@@ -28,12 +28,12 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # Extract the Clang version as a list of major, minor, patch
   if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "15.0.0")
     # For Clang versions less than 15.0.0
-    set_tests_properties(fail-build-datetime-diff-type PROPERTIES
+    set_tests_properties(fail-build-fractional-seconds-op-equal PROPERTIES
       PASS_REGULAR_EXPRESSION "invalid operands to binary expression"
     )
   else()
     # For Clang versions 15.0.0 or newer
-    set_tests_properties(fail-build-datetime-diff-type PROPERTIES
+    set_tests_properties(fail-build-fractional-seconds-op-equal PROPERTIES
       PASS_REGULAR_EXPRESSION "'?FractionalSeconds'?\\s+and\\s+'?double'?"
     )
   endif()
@@ -64,12 +64,12 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # Extract the Clang version as a list of major, minor, patch
   if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "15.0.0")
     # For Clang versions less than 15.0.0
-    set_tests_properties(fail-build-datetime-diff-type PROPERTIES
+    set_tests_properties(fail-build-fractional-seconds-op-greater PROPERTIES
       PASS_REGULAR_EXPRESSION "invalid operands to binary expression"
     )
   else()
     # For Clang versions 15.0.0 or newer
-    set_tests_properties(fail-build-datetime-diff-type PROPERTIES
+    set_tests_properties(fail-build-fractional-seconds-op-greater PROPERTIES
       PASS_REGULAR_EXPRESSION "'?FractionalSeconds'?\\s+and\\s+'?double'?"
     )
   endif()
