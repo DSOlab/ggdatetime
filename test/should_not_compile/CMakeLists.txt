@@ -26,7 +26,7 @@ add_test(
 ##
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set_tests_properties(fail-build-fractional-seconds-op-equal PROPERTIES
-    PASS_REGULAR_EXPRESSION "'FractionalSeconds' and 'double'"
+    PASS_REGULAR_EXPRESSION "'?FractionalSeconds'?\\s+and\\s+'?double'?"
   )
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   set_tests_properties(fail-build-fractional-seconds-op-equal PROPERTIES
@@ -52,7 +52,7 @@ add_test(
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set_tests_properties(fail-build-fractional-seconds-op-greater PROPERTIES
-    PASS_REGULAR_EXPRESSION "'FractionalSeconds' and 'double'"
+    PASS_REGULAR_EXPRESSION "'?FractionalSeconds'?\\s+and\\s+'?double'?"
   )
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   set_tests_properties(fail-build-fractional-seconds-op-greater PROPERTIES
