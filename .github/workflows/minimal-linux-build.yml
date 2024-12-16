@@ -1,4 +1,4 @@
-name: Linux CI build
+name: Minimal Linux CI build
 
 on:
   push:
