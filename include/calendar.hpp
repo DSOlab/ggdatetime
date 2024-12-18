@@ -16,8 +16,6 @@ template <typename T> using DatetimeUtc = datetime_utc<T>;
 /** alias for TwoPartDate */
 using MjdEpoch = TwoPartDate;
 
-lkdsjalkjdfljasdf
-
 } /* namespace dso */
 
 #endif
