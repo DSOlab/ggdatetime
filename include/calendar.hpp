@@ -16,13 +16,6 @@ template <typename T> using DatetimeUtc = datetime_utc<T>;
 /** alias for TwoPartDate */
 using MjdEpoch = TwoPartDate;
 
-void foobar() 
-
-{
-  if (1==2) { return 1;}
-  else {return 2;}
-}
-
 } /* namespace dso */
 
 #endif

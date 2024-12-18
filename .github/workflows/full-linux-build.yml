@@ -2,9 +2,11 @@ name: Full Linux CI Build and Test
 
 on:
   push:
-    branches: []
+    branches:
+      - master
   pull_request:
-    branches: []
+    branches:
+      - master
 
 jobs:
   build:

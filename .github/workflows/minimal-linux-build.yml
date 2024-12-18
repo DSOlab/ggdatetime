@@ -2,9 +2,11 @@ name: Minimal Linux CI build
 
 on:
   push:
-    branches: [ "master", "cleanup" ]
+    branches:
+      - cleanup
   pull_request:
-    branches: [ "master" ]
+    branches:
+      - cleanup
 
 jobs:
   build:
