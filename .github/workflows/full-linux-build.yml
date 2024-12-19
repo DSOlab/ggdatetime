@@ -10,18 +10,17 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
     - name: Set up Clang
       uses: egor-tensin/setup-clang@v1
       with:
         version: latest
 
-    # Check versions of g++ and clang++
     - name: Check Compiler Versions
       run: |
         echo "Checking g++ version:"
@@ -29,7 +28,6 @@ jobs:
         echo "Checking clang++ version:"
         clang++ --version
     
-    # Define a matrix for build configurations
     - name: Build and Test Matrix
       run: |
         for build_type in Release Debug; do
@@ -46,3 +44,4 @@ jobs:
             done
           done
         done
+

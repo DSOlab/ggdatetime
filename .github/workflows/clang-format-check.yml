@@ -5,26 +5,32 @@ on:
     branches:
       - master
   pull_request:
+    branches:
+      - master
 
 jobs:
   check-format:
     runs-on: ubuntu-latest
+
     steps:
       # Step 1: Checkout the code
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       # Step 2: Install clang-format version 19
       - name: Install clang-format
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main"
-          sudo apt-get update 
+          sudo apt-get update
           sudo apt-get install -y clang-format-19
           sudo ln -sf /usr/bin/clang-format-19 /usr/bin/clang-format
+
+      # Step 3: Check clang-format version
       - name: Check clang-format version
         run: clang-format --version
 
-      # Step 3: Check formatting
+      # Step 4: Run clang-format check
       - name: Run clang-format
         run: |
           # Find all .cpp and .hpp files
@@ -32,3 +38,4 @@ jobs:
 
           # Check if clang-format would make changes
           clang-format --dry-run -Werror $(cat files_to_check.txt)
+
