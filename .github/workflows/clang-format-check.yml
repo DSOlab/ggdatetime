@@ -3,7 +3,7 @@ name: Clang-Format Check
 on:
   push:
     branches:
-      - master
+      - cleanup
   pull_request:
     branches:
       - master
@@ -38,4 +38,3 @@ jobs:
 
           # Check if clang-format would make changes
           clang-format --dry-run -Werror $(cat files_to_check.txt)
-

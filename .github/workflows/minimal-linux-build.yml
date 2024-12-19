@@ -1,9 +1,6 @@
 name: Minimal Linux CI build
 
 on:
-  push:
-    branches:
-      - cleanup
   pull_request:
     branches:
       - cleanup
