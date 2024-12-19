@@ -3,7 +3,7 @@ name: Minimal Linux CI build
 on:
   pull_request:
     branches:
-      - cleanup
+      - foo
 
 jobs:
   build:
