@@ -196,3 +196,8 @@ add_executable(from_mjdepoch from_mjdepoch.cpp)
 add_internal_includes(from_mjdepoch)
 target_link_libraries(from_mjdepoch PRIVATE datetime)
 add_test(NAME from_mjdepoch COMMAND from_mjdepoch)
+
+add_executable(timescales time_scales.cpp)
+add_internal_includes(timescales)
+target_link_libraries(timescales PRIVATE datetime)
+add_test(NAME timescales COMMAND timescales)

@@ -612,10 +612,21 @@ public:
   TwoPartDate tai2gps() const noexcept {
     return TwoPartDate(_mjd, _fsec - TAI_MINUS_GPS);
   }
+  
+  /** @brief Transform an instance to GPS Time assuming it is in TT.
+   */
+  TwoPartDate tt2gps() const noexcept {
+    return tt2tai().tai2gps();
+  }
 
   /** @brief Transform an instance to TAI Time assuming it is in GPS Time. */
   TwoPartDate gps2tai() const noexcept {
     return TwoPartDate(_mjd, _fsec + TAI_MINUS_GPS);
+  }
+  
+  /** @brief Transform an instance to TT Time assuming it is in GPS Time. */
+  TwoPartDate gps2tt() const noexcept {
+    return gps2tai().tai2tt();
   }
 
   /** @brief Transform an instance to UTC assuming it is in TAI. */

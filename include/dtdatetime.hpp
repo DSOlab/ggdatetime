@@ -16,6 +16,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <type_traits>
+#include <random>
 
 namespace dso {
 
@@ -92,6 +93,21 @@ public:
   /** @brief Reference epoch (J2000.0), as a Modified Julian Date. */
   constexpr static datetime j2000_mjd() noexcept {
     return datetime(modified_julian_day(51544), S(S::max_in_day / 2L), 'c');
+  }
+
+  /** @brief Random Date within some MJD limits
+   * @todo transfer this into a .cpp file
+   */
+  static datetime
+  random(modified_julian_day from = modified_julian_day::min(),
+         modified_julian_day to = modified_julian_day::max()) noexcept {
+    int istart = (int)from.as_underlying_type();
+    int istop = (int)to.as_underlying_type();
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> distr(istart, istop);
+    std::uniform_int_distribution<SecIntType> unif(0, S::max_in_day-1);
+    return datetime(modified_julian_day(distr(gen)), S(unif(gen)), 'y');
   }
 
   /** @brief Default constructor. */
@@ -452,8 +468,8 @@ public:
    * \f$ TT = TAI + ΔT \$ where \f$ ΔT = TT - TAI = 32.184 [sec] \f$
    */
   [[nodiscard]] constexpr datetime<S> tt2tai() const noexcept {
-    constexpr const SecIntType dtat = static_cast<SecIntType>(
-        TT_MINUS_TAI * S::template sec_factor<double>());
+    constexpr const S dtat =
+        dso::cast_to<nanoseconds, S>(nanoseconds(TT_MINUS_TAI_IN_NANOSEC));
     return datetime(m_mjd, m_sec - dtat);
   }
 
