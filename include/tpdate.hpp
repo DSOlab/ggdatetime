@@ -440,8 +440,7 @@ namespace dso {
         from_cnes_jd(double cnes_jd) noexcept {
           double ipart;
           const double fpart = std::modf(cnes_jd, &ipart);
-          ipart -= MJD0_CNESJD;
-          return TwoPartDate(static_cast<int>(ipart), fpart*86400e0, 'y');
+          return TwoPartDate((int)ipart+(int)MJD_MINUS_CNESJD, FractionalSeconds(fpart*86400e0));
         }
 
       /** @brief Get the MJD as an intgral number, i.e. no fractional part. */

@@ -35,8 +35,8 @@ constexpr const double J2000_MJD = 51544.5e0;
 /** Julian Date of Modified Julian Date zero. */
 constexpr const double MJD0_JD = 2400000.5e0;
 
-/** CNES Julian Date of Modified Julian Date zero. */
-constexpr const double MJD0_CNESJD = 33282e0;
+/** MJD - CNES_JD ofsset. */
+constexpr const double MJD_MINUS_CNESJD = 33282e0;
 
 /** TT minus TAI in [sec] */
 constexpr const double TT_MINUS_TAI = 32.184e0;
