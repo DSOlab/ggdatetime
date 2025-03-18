@@ -1,4 +1,8 @@
 #include "datetime_interval.hpp"
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 using namespace dso;
 

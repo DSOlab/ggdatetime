@@ -1,6 +1,10 @@
 #include "tpdate.hpp"
 #include <cassert>
 #include <vector>
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 constexpr const double TOLERANCE_MICROSEC = 1;
 constexpr const double STOLERANCE = 1e-9;

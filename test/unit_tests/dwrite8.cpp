@@ -1,6 +1,10 @@
 #include "datetime_write.hpp"
 #include <cassert>
 #include <cstring>
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 using namespace dso;
 constexpr const long SEC = nanoseconds::sec_factor<long>();

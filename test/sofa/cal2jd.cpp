@@ -2,6 +2,10 @@
 #include "sofa.h"
 #include <cassert>
 #include <random>
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 /* number of tests to perform (pre template parameter) */
 long num_tests = 5'000'000;

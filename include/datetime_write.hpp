@@ -141,19 +141,35 @@ public:
   }
 };
 
-/** Specialization of SpitTime to format a Time-Of-Day of type DAYSEC */
+/** Specialization of SpitTime to format a Time-Of-Day of type IDAYSEC */
 #if __cplusplus >= 202002L
 template <gconcepts::is_sec_dt S>
 #else
 template <typename S>
 #endif
-class SpitTime<S, HMSFormat::SECDAY> {
+class SpitTime<S, HMSFormat::ISECDAY> {
 public:
   static const int numChars = 5;
   static int spit(const hms_time<S> &hms, char *buffer,
                   [[maybe_unused]] char delimeter = ':') noexcept {
     const seconds s(hms.template integral_seconds<seconds>());
     return std::sprintf(buffer, "%5ld", s.as_underlying_type());
+  }
+};
+
+/** Specialization of SpitTime to format a Time-Of-Day of type FDAYSEC */
+#if __cplusplus >= 202002L
+template <gconcepts::is_sec_dt S>
+#else
+template <typename S>
+#endif
+class SpitTime<S, HMSFormat::FSECDAY> {
+public:
+  static const int numChars = 15;
+  static int spit(const hms_time<S> &hms, char *buffer,
+                  [[maybe_unused]] char delimeter = ':') noexcept {
+    const auto t = hms.template fractional_seconds<seconds>();
+    return std::sprintf(buffer, "%15.9f", t.seconds());
   }
 };
 

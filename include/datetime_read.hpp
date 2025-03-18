@@ -224,7 +224,7 @@ template <gconcepts::is_sec_dt S>
 #else
 template <typename S>
 #endif
-class ReadInTime<S, HMSFormat::SECDAY> {
+class ReadInTime<S, HMSFormat::ISECDAY> {
   typedef typename S::underlying_type SecIntType;
   static constexpr SecIntType scale = S::template sec_factor<SecIntType>();
 

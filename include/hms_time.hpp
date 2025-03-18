@@ -84,7 +84,7 @@ public:
    */
   template <typename Sto, typename = std::enable_if_t<Sto::is_of_sec_type>>
   FractionalSeconds fractional_seconds() const noexcept {
-    constexpr const double scale =
+    const double scale =
         Sto::template sec_factor<double>() / S::template sec_factor<double>();
     const SecIntType b =
         mn().as_underlying_type() * 60L + hr().as_underlying_type() * 60L * 60L;
@@ -94,10 +94,10 @@ public:
 
   template <typename Sto, typename = std::enable_if_t<Sto::is_of_sec_type>>
   constexpr Sto integral_seconds() const noexcept {
-    /* hours and minuts as SecIntType */
-    constexpr const SecIntType b =
+    /* hours and minutes as SecIntType */
+    const SecIntType b =
         mn().as_underlying_type() * 60L + hr().as_underlying_type() * 60L * 60L;
-    constexpr const SecIntType c = b * Sto::template sec_factor<SecIntType>();
+    const SecIntType c = b * Sto::template sec_factor<SecIntType>();
     /* add the current seconds */
     return Sto(c) + cast_to<S, Sto>(_sec);
   }

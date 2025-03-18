@@ -2,6 +2,10 @@
 #include <algorithm>
 #include <cassert>
 #include <vector>
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 using dso::day_of_month;
 

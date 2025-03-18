@@ -2,6 +2,10 @@
 #include <cassert>
 #include <cstring>
 #include <random>
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 /* test the addition of positive/negative seconds in a TwoPartDate istance */
 

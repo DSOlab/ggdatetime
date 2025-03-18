@@ -4,6 +4,10 @@
 #include <array>
 #include <cassert>
 #include <random>
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 using dso::day_of_month;
 using dso::month;

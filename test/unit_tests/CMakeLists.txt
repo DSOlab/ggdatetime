@@ -87,6 +87,11 @@ add_internal_includes(dwrite9)
 target_link_libraries(dwrite9 PRIVATE datetime)
 add_test(NAME dwrite9 COMMAND dwrite9)
 
+add_executable(dwrite10 dwrite10.cpp)
+add_internal_includes(dwrite10)
+target_link_libraries(dwrite10 PRIVATE datetime)
+add_test(NAME dwrite10 COMMAND dwrite10)
+
 add_executable(hours hours.cpp)
 add_internal_includes(hours)
 target_link_libraries(hours PRIVATE datetime)

@@ -8,6 +8,10 @@
 #include <cstring>
 #include <limits>
 #include <type_traits>
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 using namespace dso;
 

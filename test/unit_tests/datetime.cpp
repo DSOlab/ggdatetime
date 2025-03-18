@@ -1,6 +1,10 @@
 #include "dtdatetime.hpp"
 #include <cassert>
 #include <random>
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 using namespace dso;
 

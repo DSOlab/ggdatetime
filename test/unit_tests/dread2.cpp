@@ -4,6 +4,10 @@
 #include <array>
 #include <cassert>
 #include <cstdio>
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 using namespace dso;
 constexpr const double S = nanoseconds::sec_factor<double>();

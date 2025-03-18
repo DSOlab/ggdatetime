@@ -1,6 +1,10 @@
 #include "dtdatetime.hpp"
 #include <cassert>
 #include <random>
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 /* test adding and subtracting seconds of different type */
 

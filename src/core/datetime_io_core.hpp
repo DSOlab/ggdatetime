@@ -13,7 +13,7 @@ namespace dso {
 enum class YMDFormat { YYYYMMDD, DDMMYYYY, YYYYDDD, YYMMDD, DDMMYY, YYDDD };
 
 /** Enum class for Time-Of-Day io format */
-enum class HMSFormat { HHMMSS, HHMMSSF, SECDAY };
+enum class HMSFormat { HHMMSS, HHMMSSF, ISECDAY, FSECDAY };
 
 namespace datetime_io_core {
 int get_one_int(const char *str, int *ints, int max_chars,

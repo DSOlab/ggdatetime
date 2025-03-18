@@ -2,6 +2,10 @@
 #include <cassert>
 #include <limits>
 #include <random>
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 using namespace dso;
 

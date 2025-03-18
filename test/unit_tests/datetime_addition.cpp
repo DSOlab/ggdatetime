@@ -1,6 +1,10 @@
 #include "dtdatetime.hpp"
 #include <cassert>
 #include <random>
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 /* test datetime_interval
  * create random dates (e.g. d1 and d2) and check if their interval behaves

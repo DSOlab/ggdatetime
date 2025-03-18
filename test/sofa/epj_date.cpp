@@ -2,6 +2,10 @@
 #include "sofa.h"
 #include "tpdate.hpp"
 #include <random>
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 using namespace dso;
 

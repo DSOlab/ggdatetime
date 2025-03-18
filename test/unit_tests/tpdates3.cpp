@@ -2,6 +2,10 @@
 #include "tpdate.hpp"
 #include <cassert>
 #include <random>
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 /*
  * Check the precision of a TwoPartDate when constructed from a

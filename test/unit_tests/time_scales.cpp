@@ -1,5 +1,9 @@
 #include "calendar.hpp"
 #include <cmath>
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 using namespace dso;
 constexpr const int num_tests = 10000;
