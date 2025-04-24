@@ -48,24 +48,24 @@ int main() {
       auto dt = d1;
       for (int i = 0; i < 86400; i++) {
         /* 1'000'123'456 is 1'000 milliseconds */
-        dt.add_seconds(nanoseconds(1'000'123'456));
+        dt.add_seconds_inplace(nanoseconds(1'000'123'456));
       }
       assert(dt == d2);
 
       dt = d2;
       for (int i = 0; i < 86400; i++) {
-        dt.add_seconds(nanoseconds(-1'000'123'456));
+        dt.add_seconds_inplace(nanoseconds(-1'000'123'456));
       }
       assert(dt == d1);
 
       /* add seconds to nanoseconds */
       dt = d1;
       for (int i = 0; i < 86400 + 86400 / 2; i++)
-        dt.add_seconds(nanoseconds(1'000'789'456));
+        dt.add_seconds_inplace(nanoseconds(1'000'789'456));
       assert(dt == d3);
 
       for (int i = 0; i < 86400 + 86400 / 2; i++)
-        dt.add_seconds(nanoseconds(-1'000'123'456));
+        dt.add_seconds_inplace(nanoseconds(-1'000'123'456));
       assert(dt == d1);
 
       ++testnr;

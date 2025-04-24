@@ -44,21 +44,21 @@ int main() {
       /* add seconds to nanoseconds */
       auto dt = d1;
       for (int i = 0; i < 86400; i++)
-        dt.add_seconds(seconds(1));
+        dt.add_seconds_inplace(seconds(1));
       assert(dt == d2);
 
       for (int i = 0; i < 86400; i++)
-        dt.add_seconds(seconds(-1));
+        dt.add_seconds_inplace(seconds(-1));
       assert(dt == d1);
 
       /* add seconds to nanoseconds */
       dt = d1;
       for (int i = 0; i < 86400 + 86400 / 2; i++)
-        dt.add_seconds(seconds(1));
+        dt.add_seconds_inplace(seconds(1));
 
       assert(dt == d3);
       for (int i = 0; i < 86400 + 86400 / 2; i++)
-        dt.add_seconds(seconds(-1));
+        dt.add_seconds_inplace(seconds(-1));
       assert(dt == d1);
 
       ++testnr;

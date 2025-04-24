@@ -94,7 +94,7 @@ namespace dso {
 
       /** @brief Add seconds to instance, taking into account leap seconds.
       */
-      void add_seconds(FDOUBLE sec) noexcept {
+      void add_seconds_inplace(FDOUBLE sec) noexcept {
         _fsec += sec;
         this->normalize();
       }
@@ -176,8 +176,14 @@ namespace dso {
       ymd_date to_ymd() const noexcept { return core::mjd2ymd((long)_mjd); }
 
       /** @brief Add seconds to instance, taking into account leap seconds. */
-      void add_seconds(FractionalSeconds fsec) noexcept {
-        this->add_seconds(fsec.seconds());
+      void add_seconds_inplace(FractionalSeconds fsec) noexcept {
+        this->add_seconds_inplace(fsec.seconds());
+      }
+      
+      [[nodiscard]] TwoPartDateUTC add_seconds(FractionalSeconds fsec) const noexcept {
+        TwoPartDateUTC cpy(*this);
+        cpy.add_seconds_inplace(fsec.seconds());
+        return cpy;
       }
 
       /** Add seconds to instance and return the "Kahan summation" error.
@@ -342,7 +348,7 @@ namespace dso {
        * This version is private; users should use the
        * add_seconds(FractionalSeconds ...) version, which enforces type safety.
        */
-      void add_seconds(FDOUBLE sec) noexcept {
+      void add_seconds_inplace(FDOUBLE sec) noexcept {
         _fsec += sec;
         this->normalize();
       }
@@ -489,9 +495,16 @@ namespace dso {
       }
 
       /** @brief Add seconds to instance. */
-      void add_seconds(FractionalSeconds fsec) noexcept {
-        this->add_seconds(fsec.seconds());
+      void add_seconds_inplace(FractionalSeconds fsec) noexcept {
+        this->add_seconds_inplace(fsec.seconds());
       }
+
+      [[nodiscard]] TwoPartDate add_seconds(FractionalSeconds fsec) const noexcept {
+        TwoPartDate cpy(*this);
+        cpy.add_seconds_inplace(fsec.seconds());
+        return cpy;
+      }
+
 
       /** @brief Add seconds to instance and return the "Kahan summation" error.
        *
@@ -518,7 +531,7 @@ namespace dso {
        *                 be used at next iteration. If this is the first call,
        *                 set err to 0e0.
        */
-      void add_seconds(FractionalSeconds sec, FDOUBLE &err) noexcept {
+      void add_seconds_kahan(FractionalSeconds sec, FDOUBLE &err) noexcept {
         FDOUBLE a = _fsec;
         FDOUBLE b = sec.seconds();
         FDOUBLE y = b - err;
@@ -671,10 +684,12 @@ namespace dso {
          * UT1 = TT - 32.184[sec] - ΔAT + ΔUT1
          *     = TAI - ΔAT + ΔUT1
          */
+        //const auto utc = this->tt2utc();
+        //TwoPartDate ut1(utc.imjd(), utc.seconds());
+        //ut1.add_seconds(dut1);
+        //return ut1;
         const auto utc = this->tt2utc();
-        TwoPartDate ut1(utc.imjd(), utc.seconds());
-        ut1.add_seconds(dut1);
-        return ut1;
+        return TwoPartDate(utc.imjd(), utc.seconds()).add_seconds(FractionalSeconds(dut1));
       }
 
       /** @brief TAI to UT1 MJD. */
@@ -682,10 +697,12 @@ namespace dso {
         /* UT1 = TAI + ΔUT1 - ΔAT
          *     = UTC + ΔUT1
          */
+        //const auto utc = this->tai2utc();
+        //TwoPartDate ut1(utc.imjd(), utc.seconds());
+        //ut1.add_seconds(dut1);
+        //return ut1;
         const auto utc = this->tai2utc();
-        TwoPartDate ut1(utc.imjd(), utc.seconds());
-        ut1.add_seconds(dut1);
-        return ut1;
+        return TwoPartDate(utc.imjd(), utc.seconds()).add_seconds(FractionalSeconds(dut1));
       }
 
       /** @brief Return instance as fractional MJD. */

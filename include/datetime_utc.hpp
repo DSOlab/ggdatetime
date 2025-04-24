@@ -293,10 +293,23 @@ public:
 #else
   template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
-  constexpr void add_seconds(T nsec) noexcept {
+  constexpr void add_seconds_inplace(T nsec) noexcept {
     constexpr const auto TT = (S::template sec_factor<unsigned long>() >=
                                T::template sec_factor<unsigned long>());
     return __add_seconds_impl<T>(nsec, std::integral_constant<bool, TT>{});
+  }
+  
+  /** @brief Add seconds of any type (T). */
+#if __cplusplus >= 202002L
+  template <gconcepts::is_sec_dt T>
+#else
+  template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
+#endif
+  [[nodiscard]]
+  constexpr datetime_utc<S> add_seconds(T nsec) noexcept {
+    datetime_utc<S> cpy(*this);
+    cpy.template add_seconds_inplace<T>(nsec);
+    return cpy;
   }
 
 private:

@@ -51,9 +51,9 @@ int main() {
 
   for (auto const &d : leap_insertion_dates) {
     datetime<nanoseconds> tai{modified_julian_day(d)};
-    tai.add_seconds(seconds(86400 - 1));
+    tai.add_seconds_inplace(seconds(86400 - 1));
     datetime_utc<nanoseconds> utc{modified_julian_day(d)};
-    utc.add_seconds(seconds(86400 - 1));
+    utc.add_seconds_inplace(seconds(86400 - 1));
 
     /* we are now at 23:59:59 */
     assert(tai.imjd() == utc.imjd());
@@ -76,8 +76,8 @@ int main() {
 
     /* add one more second; TAI advances to next day, but UTC has the leap
      * second! */
-    tai.add_seconds(seconds(1e0));
-    utc.add_seconds(seconds(1e0));
+    tai.add_seconds_inplace(seconds(1e0));
+    utc.add_seconds_inplace(seconds(1e0));
     assert(tai.imjd() == utc.imjd() + modified_julian_day(1));
     /* TAI seconds should be 0 */
     assert(tai.sec() == nanoseconds(0));
@@ -96,8 +96,8 @@ int main() {
     }
 
     /* add one more seconds */
-    tai.add_seconds(seconds(1)); // 2 seconds into day
-    utc.add_seconds(seconds(1)); // 1 second into day
+    tai.add_seconds_inplace(seconds(1)); // 2 seconds into day
+    utc.add_seconds_inplace(seconds(1)); // 1 second into day
     assert(tai.imjd() == utc.imjd());
     /* UTC + 1[sec] = TAI */
     assert(utc.sec() + N1S == tai.sec());

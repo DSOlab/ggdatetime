@@ -125,7 +125,7 @@ int main() {
     /* one seconds before midnight */
     TwoPartDate tai(modified_julian_day(d).as_underlying_type(),
                     FractionalSeconds(0e0));
-    tai.add_seconds(FractionalSeconds(86400 - 1));
+    tai.add_seconds_inplace(FractionalSeconds(86400 - 1));
     {
       TwoPartDate d1;
       std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);
@@ -141,7 +141,7 @@ int main() {
       /* reach 23:59:59.999 999 999 */
       err = 0e0;
       for (int i = 0; i < (int)(1e9) - 1; i++)
-        tai.add_seconds(FractionalSeconds(1e-9), err);
+        tai.add_seconds_kahan(FractionalSeconds(1e-9), err);
       std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);
       std::strcat(buf1, s_2359599);
       d1 = from_char<YMDFormat::YYYYMMDD, HMSFormat::HHMMSSF>(buf1);
@@ -150,7 +150,7 @@ int main() {
                                1));
 
       /* one more nanosec will take to the next day */
-      tai.add_seconds(FractionalSeconds(1e-9), err);
+      tai.add_seconds_kahan(FractionalSeconds(1e-9), err);
       assert(tai.imjd() == d1.imjd() + 1);
       d1 = TwoPartDate(modified_julian_day(d).as_underlying_type() + 1,
                        FractionalSeconds(0e0));
@@ -161,7 +161,7 @@ int main() {
 
     TwoPartDateUTC utc(modified_julian_day(d).as_underlying_type(),
                        FractionalSeconds(0e0));
-    utc.add_seconds(FractionalSeconds(86400 - 1));
+    utc.add_seconds_inplace(FractionalSeconds(86400 - 1));
     {
       TwoPartDateUTC d1;
       std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);
@@ -175,7 +175,7 @@ int main() {
       assert(d1 == utc);
 
       /* reach 23:59:59.999 999 999 */
-      err = 0e0;
+      // err = 0e0;
       for (int i = 0; i < (int)(1e9) - 1; i++)
         utc.add_seconds(FractionalSeconds(1e-9), err);
       std::strcat(reset_buffer(buf1), leap_insertion_dates_str[it]);
