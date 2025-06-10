@@ -175,6 +175,15 @@ public:
         m_sec(hms.hr(), hms.mn(), hms.nsec()) {
     this->normalize();
   }
+  
+  /** @brief Constructor from calendar date. Assuming start of day.
+   *
+   * Constructor from ymd_date. No validation performed. The time of day is 
+   * set to 0, i.e. start of day.
+   */
+  datetime(const ymd_date &ymd) noexcept
+      : m_mjd(ymd.yr(), ymd.mn(), ymd.dm()),
+        m_sec(S(0)) {}
 
   /** @brief Constructor from year, day of year and time.
    *

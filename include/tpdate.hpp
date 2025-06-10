@@ -119,6 +119,11 @@ namespace dso {
           if (b != 0 && s.seconds() != 0e0)
             this->normalize();
         }
+      
+      /** @brief Constructor from calendar date. */
+      explicit TwoPartDateUTC(const ymd_date &ymd) noexcept
+      : _mjd(modified_julian_day(ymd.yr(), ymd.mn(), ymd.dm()).as_underlying_type()), 
+      _fsec(0e0) {}
 
       /** @brief Reference epoch (J2000.0), as a Modified Julian Date. */
       static constexpr TwoPartDateUTC j2000_mjd() noexcept {
@@ -383,6 +388,11 @@ namespace dso {
         : _mjd(d.imjd().as_underlying_type()),
         _fsec(to_fractional_seconds<T>(d.sec()).seconds()) {
         }
+
+      /** @brief Constructor from calendar date. */
+      explicit TwoPartDate(const ymd_date &ymd) noexcept
+      : _mjd(modified_julian_day(ymd.yr(), ymd.mn(), ymd.dm()).as_underlying_type()), 
+      _fsec(0e0) {}
 
       /** @brief Reference epoch (J2000.0), as a Modified Julian Date. */
       static constexpr TwoPartDate j2000_mjd() noexcept {
