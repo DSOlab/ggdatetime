@@ -298,7 +298,7 @@ public:
                                T::template sec_factor<unsigned long>());
     return __add_seconds_impl<T>(nsec, std::integral_constant<bool, TT>{});
   }
-  
+
   /** @brief Add seconds of any type (T). */
 #if __cplusplus >= 202002L
   template <gconcepts::is_sec_dt T>

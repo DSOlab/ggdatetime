@@ -14,9 +14,9 @@
 #include "datetime_interval.hpp"
 #include <cassert>
 #include <cmath>
+#include <random>
 #include <stdexcept>
 #include <type_traits>
-#include <random>
 
 namespace dso {
 
@@ -106,7 +106,7 @@ public:
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> distr(istart, istop);
-    std::uniform_int_distribution<SecIntType> unif(0, S::max_in_day-1);
+    std::uniform_int_distribution<SecIntType> unif(0, S::max_in_day - 1);
     return datetime(modified_julian_day(distr(gen)), S(unif(gen)), 'y');
   }
 
@@ -175,15 +175,14 @@ public:
         m_sec(hms.hr(), hms.mn(), hms.nsec()) {
     this->normalize();
   }
-  
+
   /** @brief Constructor from calendar date. Assuming start of day.
    *
-   * Constructor from ymd_date. No validation performed. The time of day is 
+   * Constructor from ymd_date. No validation performed. The time of day is
    * set to 0, i.e. start of day.
    */
   datetime(const ymd_date &ymd) noexcept
-      : m_mjd(ymd.yr(), ymd.mn(), ymd.dm()),
-        m_sec(S(0)) {}
+      : m_mjd(ymd.yr(), ymd.mn(), ymd.dm()), m_sec(S(0)) {}
 
   /** @brief Constructor from year, day of year and time.
    *
@@ -459,7 +458,7 @@ public:
                                T::template sec_factor<unsigned long>());
     return __add_seconds_impl<T>(nsec, std::integral_constant<bool, TT>{});
   }
-  
+
   /** @brief Add seconds of any type (T). */
 #if __cplusplus >= 202002L
   template <gconcepts::is_sec_dt T>

@@ -9,14 +9,14 @@
 constexpr const double TOLERANCE_MICROSEC = 1;
 constexpr const double STOLERANCE = 1e-9;
 /* TwoPartDate(start) -> Datetime<nanoseconds> -> TwoPartDate(end)
- * end and start should be less than TOLERANCE_MICROSEC apart when 
+ * end and start should be less than TOLERANCE_MICROSEC apart when
  * compared as MJDs.
- * When comparing only the seconds part (i.e. t.seconds()), the (fractional 
+ * When comparing only the seconds part (i.e. t.seconds()), the (fractional
  * seconds part of) two dates should be less that STOLERANCE [sec].
  * shou
  */
 
-constexpr const double TOLERANCE  = TOLERANCE_MICROSEC / 86400e0 / 1e6;
+constexpr const double TOLERANCE = TOLERANCE_MICROSEC / 86400e0 / 1e6;
 using namespace dso;
 
 std::vector<TwoPartDate> tps = {
@@ -2905,7 +2905,8 @@ int main() {
   for (const auto &t : tps) {
     datetime<nanoseconds> tns = from_mjdepoch<nanoseconds>(t);
     TwoPartDate tpd(tns);
-    assert(std::abs(t.seconds().seconds() - tpd.seconds().seconds()) < STOLERANCE);
+    assert(std::abs(t.seconds().seconds() - tpd.seconds().seconds()) <
+           STOLERANCE);
     assert(std::abs(tpd.as_mjd() - t.as_mjd()) < TOLERANCE);
   }
   return 0;
