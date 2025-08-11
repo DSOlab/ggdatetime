@@ -466,7 +466,7 @@ public:
   template <class T, typename = std::enable_if_t<T::is_of_sec_type>>
 #endif
   [[nodiscard]]
-  constexpr datetime<S> add_seconds(T nsec) noexcept {
+  constexpr datetime<S> add_seconds(T nsec) const noexcept {
     datetime<S> cpy(*this);
     cpy.template add_seconds_inplace<T>(nsec);
     return cpy;
