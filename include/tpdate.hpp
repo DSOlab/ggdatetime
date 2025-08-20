@@ -439,16 +439,18 @@ public:
       : _mjd(mjd.as_underlying_type()), _fsec(0) {};
 
   /** @brief Constructor from calendar date. */
-  explicit TwoPartDate(year y, month m, day_of_month d, double sec_of_day = 0e0)
+  explicit TwoPartDate(year y, month m, day_of_month d,
+                       FractionalSeconds sec_of_day = FractionalSeconds(0e0))
       : _mjd(modified_julian_day(y, m, d).as_underlying_type()),
-        _fsec(sec_of_day) {
+        _fsec(sec_of_day.seconds()) {
     this->normalize();
   }
 
   /** @brief Constructor from year, day of year and time of day. */
-  explicit TwoPartDate(year y, day_of_year d, double sec_of_day = 0e0)
+  explicit TwoPartDate(year y, day_of_year d,
+                       FractionalSeconds sec_of_day = FractionalSeconds(0e0))
       : _mjd(modified_julian_day(y, d).as_underlying_type()),
-        _fsec(sec_of_day) {
+        _fsec(sec_of_day.seconds()) {
     this->normalize();
   }
 
